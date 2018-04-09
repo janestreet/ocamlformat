@@ -1700,7 +1700,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
       hvbox 0
         (hvbox_if parens 2
            ( wrap_fits_breaks_if parens "(" ")"
-               (list (sugar_sequence c width xexp) " ;@;<1000 0>"
+               (list (sugar_sequence c width xexp) ";@;<1000 0>"
                   (fun grp -> list grp " ;@ " (fmt_expression c) ))
            $ fmt_atrs ))
   | Pexp_setfield (e1, {txt}, e2) ->
@@ -2205,7 +2205,7 @@ and fmt_cases c ctx cs =
         | ( Exp {pexp_desc= Pexp_function _ | Pexp_match _ | Pexp_try _}
           , (Pexp_match _ | Pexp_try _) ) ->
             2
-        | _ -> 4
+        | _ -> 2
       in
       let paren_body = parenze_exp xrhs in
       let fmt_lhs =
@@ -2231,7 +2231,7 @@ and fmt_cases c ctx cs =
           $ fmt_if_k (indent <= 2) fmt_arrow )
         $ fmt_if_k (indent > 2) fmt_arrow
       in
-      fmt_if (not first) "@ "
+      fmt_if (not first) "@;<1000 0>"
       $ cbox_if (not c.conf.sparse) indent
           ( hvbox_if (not c.conf.sparse) indent fmt_lhs
           $ ( match (c.conf.sparse, indent > 2, paren_body) with
@@ -2311,7 +2311,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
         $ hvbox 0
             (wrap_fits_breaks "{" "}"
                (list_fl lbl_decls (fun ~first ~last x ->
-                    fmt_if (not first) "@,; "
+                    fmt_if (not first) "@;<1000 0>; "
                     $ fmt_label_declaration c ctx x
                     $ fmt_if (last && exposed_right_typ x.pld_type) " " )))
     | Ptype_open ->
@@ -2377,7 +2377,7 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
     cstr_decl
   in
   let doc, atrs = doc_atrs pcd_attributes in
-  fmt_if (not first) "@ "
+  fmt_if (not first) "@;<1000 0>"
   $ Cmts.fmt_before c.cmts pcd_loc
   $ Cmts.fmt_before c.cmts loc
   $ fmt_or_k first (if_newline "| ") (fmt "| ")
