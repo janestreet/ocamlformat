@@ -747,8 +747,8 @@ and fmt_pattern (c: Conf.t) ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
             (fun ~first:first_grp ~last:_ xpat_grp ->
               list_fl xpat_grp (fun ~first ~last xpat ->
                   let pro =
-                    if first_grp && first then pro0 $ open_hovbox (-2)
-                    else if first then proI $ open_hovbox (-2)
+                    if first_grp && first then pro0 $ open_hvbox (-2)
+                    else if first then proI $ open_hvbox (-2)
                     else proI
                   in
                   fmt_pattern c ~pro xpat $ fmt_if_k last close_box ) )
