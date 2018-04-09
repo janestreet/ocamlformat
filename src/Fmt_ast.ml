@@ -835,7 +835,7 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
         match ctx0 with
         | Exp {pexp_desc= Pexp_function _ | Pexp_match _ | Pexp_try _}
           when not c.conf.sparse ->
-            or_newline "| " " |"
+          or_newline "| " "| "
         | _ -> break_unless_newline 1 0 $ fmt "| "
       in
       let is_simple {ppat_desc} =
