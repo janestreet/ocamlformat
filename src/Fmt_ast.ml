@@ -539,8 +539,8 @@ and fmt_core_type c ?(box= true) ({ast= typ} as xtyp) =
         | Optional l -> fmt "?" $ str l $ fmt ":"
       in
       let xt1N = sugar_arrow_typ xtyp in
-      hovbox_if box 0
-        (list xt1N "@ -> " (fun (lI, xtI) ->
+      hvbox_if box 0
+        (list xt1N "@;<1 0>-> " (fun (lI, xtI) ->
              hvbox 0 (arg_label lI $ fmt_core_type c xtI) ))
   | Ptyp_constr ({txt; loc}, []) -> Cmts.fmt c loc @@ fmt_longident txt
   | Ptyp_constr ({txt; loc}, [t1]) ->
