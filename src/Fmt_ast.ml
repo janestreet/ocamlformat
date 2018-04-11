@@ -1089,7 +1089,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         $ k
         $ fits_breaks_if parens_or_nested ")" (if parens then "@ )" else "")
       in
-      hovbox 0
+      hvbox 0
         ( wrap parens is_nested_diff_prec_infix_ops
             (list_fl op_args fmt_op_args)
         $ fmt_atrs )
