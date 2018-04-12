@@ -765,6 +765,12 @@ end = struct
           { ppat_desc=
               Ppat_construct
                 ({txt= Lident "::"}, Some {ppat_desc= Ppat_tuple [_; _]}) }
+      , (Ppat_construct _| Ppat_variant _) ) ->
+        false
+    | ( Pat
+          { ppat_desc=
+              Ppat_construct
+                ({txt= Lident "::"}, Some {ppat_desc= Ppat_tuple [_; _]}) }
       , _ ) ->
         true
     | ( Pat {ppat_desc= Ppat_construct _}
