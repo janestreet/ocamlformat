@@ -937,6 +937,9 @@ end = struct
       | Pexp_record (flds, _)
         when List.exists flds ~f:(fun (_, e0) -> e0 == exp) ->
           exposed Non_apply exp (* Non_apply is perhaps pessimistic *)
+      | Pexp_record (_, Some ({pexp_desc= Pexp_apply ({pexp_desc= Pexp_ident {txt= Lident i}},_) } as e0))
+        when e0 == exp && is_prefix_id i ->
+          false
       | Pexp_record (_, Some ({pexp_desc= Pexp_apply _} as e0))
         when e0 == exp ->
           true
