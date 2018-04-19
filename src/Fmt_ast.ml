@@ -3203,7 +3203,8 @@ and fmt_structure_item c ~sep ~last:last_item ?ext {ctx; ast= si} =
                ?epi:
                  (Option.some_if c.conf.sparse
                     (fits_breaks ~force_fit_if:last_item "" "\n"))
-             $ fmt_if (not last) "\n@\n" ))
+             $ fmt_if (not last) "\n@\n"
+             $ fmt_if_k last (fits_breaks "" "@;<1000 0>;;") ))
   | Pstr_modtype mtd -> fmt_module_type_declaration c ctx mtd
   | Pstr_extension (ext, atrs) ->
       let doc, atrs = doc_atrs atrs in
