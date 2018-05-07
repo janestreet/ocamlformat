@@ -142,6 +142,11 @@ let wrap_fits_breaks_if cnd pre suf k fs =
   k fs ;
   fits_breaks_if cnd suf ("@ " ^ suf) fs
 
+let wrap_fits_breaks_if_no_space cnd pre suf k fs =
+  fits_breaks_if cnd pre pre fs ;
+  k fs ;
+  fits_breaks_if cnd suf suf fs
+
 let wrap_fits_breaks x = wrap_fits_breaks_if true x
 
 (** Boxes ---------------------------------------------------------------*)

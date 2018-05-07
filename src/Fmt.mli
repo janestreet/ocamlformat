@@ -142,6 +142,27 @@ val wrap_fits_breaks_if : bool -> string -> string -> t -> t
 (** As [wrap_fits_breaks], but prologue and epilogue are formatted subject
     to the additional condition. *)
 
+(* mbarbin: this is meant to replace [wrap_fits_breaks_if] but in a way that does not
+   introduce surprising spaces.  Example:
+
+   before:
+   {[
+     print_endline
+       ( if for_emacs
+         then Sexp.to_string [%sexp (how_to_style : For_emacs.How_to_style.t option)]
+         else Bool.to_string (Option.is_some how_to_style) ))
+
+   after:
+   {[
+     print_endline
+       (if for_emacs
+        then Sexp.to_string [%sexp (how_to_style : For_emacs.How_to_style.t option)]
+        else Bool.to_string (Option.is_some how_to_style)))
+   ]}
+*)
+val wrap_fits_breaks_if_no_space : bool -> string -> string -> t -> t
+(** As [wrap_fits_breaks_if] but with no space added after and before the wrap chars. *)
+
 (** Boxes ---------------------------------------------------------------*)
 
 val open_hvbox : int -> t
