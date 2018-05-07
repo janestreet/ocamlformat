@@ -1087,10 +1087,17 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
   in
   let ctx = Exp exp in
   let fmt_args_grouped e0 a1N =
-    list_fl
-      (List.group ((Nolabel, e0) :: a1N) ~break:(fun (_, a1) (_, a2) ->
+    let args_grouped =
+      let l = (Nolabel, e0) :: a1N in
+      if false
+      then
+        List.group l ~break:(fun (_, a1) (_, a2) ->
            not (is_simple c.conf width (sub_exp ~ctx a1))
-           || not (is_simple c.conf width (sub_exp ~ctx a2)) ))
+           || not (is_simple c.conf width (sub_exp ~ctx a2)) )
+      else List.map ~f:(fun x -> [x]) l
+    in
+    list_fl
+      args_grouped
       (fun ~first:first_grp ~last:last_grp args ->
         list_pn args (fun ?prev (lbl, arg) ?next ->
             let ({ast} as xarg) = sub_exp ~ctx arg in
