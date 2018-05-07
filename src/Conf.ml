@@ -99,7 +99,7 @@ let doc_comments =
      `doc-comments {before,after}` line."
   in
   let env = Arg.env_var "OCAMLFORMAT_DOC_COMMENTS" in
-  let default = `After in
+  let default = `Before in
   mk ~default
     Arg.(
       value
@@ -154,7 +154,7 @@ let break_infix =
      expressions and try to format them in a single line."
   in
   let env = Arg.env_var "OCAMLFORMAT_BREAK_INFIX" in
-  let default = `Wrap in
+  let default = `Fit_or_vertical in
   mk ~default
     Arg.(
       value
@@ -169,7 +169,7 @@ let if_then_else =
      `if-then-else {keyword-first,compact}` line."
   in
   let env = Arg.env_var "OCAMLFORMAT_IF_THEN_ELSE" in
-  let default = `Compact in
+  let default = `Keyword_first in
   mk ~default
     Arg.(
       value
@@ -265,7 +265,7 @@ let parens_tuple =
      skip parens for single-line tuples."
   in
   let env = Arg.env_var "OCAMLFORMAT_PARENS_TUPLE" in
-  let default = `Always in
+  let default = `Multi_line_only in
   mk ~default
     Arg.(
       value
@@ -460,7 +460,7 @@ let conf name =
     ; parens_tuple= !parens_tuple
     ; if_then_else= !if_then_else
     ; break_infix= !break_infix
-    ; ocp_indent_compat= !ocp_indent_compat }
+    ; ocp_indent_compat= !ocp_indent_compat || true  }  (* we force ocp_indent_compat *)
     (Filename.dirname (to_absolute name))
 
 type 'a input = {kind: 'a; name: string; file: string; conf: t}
