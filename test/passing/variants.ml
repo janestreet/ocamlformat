@@ -21,3 +21,9 @@ type 'a foo = A of (int -> 'a)
 type 'a foo += A of (int -> 'a)
 
 type 'a foo += A: (int -> 'a) -> int foo
+
+type t = [ | a]
+
+type t = [a | b]
+
+type t = [a | b | `C]
