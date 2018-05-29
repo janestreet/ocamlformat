@@ -1125,10 +1125,8 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
               | _ -> false
             in
             let spc =
-              consecutive_prefix_ops
-              || ( not (is_prefix ast)
-                 || (Option.is_none next && not last_grp) )
-                 && (not last_grp || Option.is_some next)
+              consecutive_prefix_ops ||
+              not (is_prefix ast) && (not last_grp || Option.is_some next)
             in
             openbox
             $ hovbox 2
