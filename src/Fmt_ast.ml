@@ -348,6 +348,7 @@ let rec fmt_longident (li: Longident.t) =
   | Lapply (li1, li2) ->
       cbox 0 (fmt_longident li1 $ wrap "(" ")" (fmt_longident li2))
 
+(** This function should closely follow the same structure as [fmt_longident] above. *)
 let rec len_longident (li: Longident.t) =
   match li with
   | Lident "~+" -> 1
