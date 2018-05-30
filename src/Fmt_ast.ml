@@ -2350,14 +2350,8 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
         $ fmt "@ "
         $ list_fl ctor_decls (fmt_constructor_declaration c ctx)
     | Ptype_record lbl_decls ->
-        let len_label {pld_name= {txt; loc= _}; pld_mutable; _} =
-          String.length txt +
-          (match pld_mutable with
-           | Mutable -> String.length "mutable "
-           | Immutable -> 0)
-        in
         let max_label_length =
-          List.map lbl_decls ~f:len_label
+          List.map lbl_decls ~f:len_lbl_decl_for_padding
           |> List.filter ~f:(fun length -> Int.(length <= 25))
           |> List.max_elt ~compare:Int.compare
           |> Option.value ~default:0
@@ -2369,7 +2363,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
             (wrap "{ " " }"
                (list_fl lbl_decls (fun ~first ~last x ->
                     fmt_if (not first) "@;<1000 0>; "
-                    $ fmt_label_declaration ~pad_name_to_length:(Some max_label_length)
+                    $ fmt_label_declaration ~pad_name_to_length:max_label_length
                         c ctx x
                     $ fmt_if (last && exposed_right_typ x.pld_type) " " )))
     | Ptype_open ->
@@ -2414,6 +2408,12 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
            $ fmt_attributes c ~pre:(fmt "@ ") ~key:"@@" atrs ) )
   $ fmt brk
 
+and len_lbl_decl_for_padding {pld_name= {txt; loc= _}; pld_mutable; _} =
+  String.length txt +
+  (match pld_mutable with
+   | Mutable -> String.length "mutable "
+   | Immutable -> 0)
+
 and fmt_label_declaration ~pad_name_to_length c ctx lbl_decl =
   let {pld_mutable; pld_name= {txt; loc}; pld_type; pld_loc; pld_attributes} =
     lbl_decl
@@ -2424,18 +2424,8 @@ and fmt_label_declaration ~pad_name_to_length c ctx lbl_decl =
     match pld_type with {ptyp_desc= Ptyp_arrow _} -> true | _ -> false
   in
   let colon_fmt =
-    match pad_name_to_length with
-    | None -> fmt ": "
-    | Some length ->
-      let padding =
-        Int.max 0
-          (length -
-           (String.length txt +
-            (match pld_mutable with
-             | Mutable -> String.length "mutable "
-             | Immutable -> 0)))
-      in
-      cbox 0 (break padding 2 $ fmt ": ")
+    let padding = Int.max 0 (pad_name_to_length - len_lbl_decl_for_padding lbl_decl) in
+    cbox 0 (break padding 2 $ fmt ": ")
   in
   fmt_cmts
   @@ hvbox 4
@@ -2472,9 +2462,16 @@ and fmt_constructor_arguments c ctx pre args =
   | Pcstr_tuple typs ->
     fmt pre $ hvbox 0 (list typs "@ * " (sub_typ ~ctx >> fmt_core_type c))
   | Pcstr_record lds ->
+      let max_label_length =
+        List.map lds ~f:len_lbl_decl_for_padding
+        |> List.filter ~f:(fun length -> Int.(length <= 25))
+        |> List.max_elt ~compare:Int.compare
+        |> Option.value ~default:0
+      in
       fmt pre
-      $ wrap "{ " "@ }"
-          (list lds "@,; " (fmt_label_declaration ~pad_name_to_length:None c ctx))
+      $ wrap "{ " " }"
+          (list lds "@,; "
+             (fmt_label_declaration ~pad_name_to_length:max_label_length c ctx))
 
 and fmt_constructor_arguments_result c ctx args res =
   let pre : _ format = if Option.is_none res then " of@ " else " :@ " in
