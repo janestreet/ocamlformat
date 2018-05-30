@@ -829,11 +829,22 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
                 $ break padding 2 $ fmt " =@ "
                 $ cbox 0 (fmt_pattern c (sub_pat ~ctx pat)) ) )
       in
+      let all_fields_are_ident =
+        List.for_all flds ~f:(fun ({txt; loc= _}, {ppat_desc; ppat_loc= _}) ->
+          match ppat_desc with
+          | Ppat_var {txt= txt'} when field_alias txt (Longident.parse txt') -> true
+          | _ -> false)
+      in
       let pad_ident_to_length =
         record_field_name_padding_length flds
           ~get_length:(fun ({txt; loc= _}, _) -> len_longident txt)
       in
-      hvbox 0
+      let box_f =
+        if all_fields_are_ident
+        then hvbox
+        else vbox
+      in
+      box_f 0
         (wrap "{ " "@ }"
            ( list flds "@,; " (fmt_field ~pad_ident_to_length)
            $ fmt_if Poly.(closed_flag = Open) "; _" ))
@@ -3372,7 +3383,7 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
             $ fmt_if_k (Option.is_some in_) (fmt_attributes c ~key:"@" atrs)
             $ fmt " " $ fmt_pattern c xpat $ fmt "@ " $ fmt_fun_args c xargs
             $ Option.call ~f:fmt_cstr )
-        $ fmt "=" )
+          $ fmt "=" )
       $ fmt_body c xbody
       $ fmt_if_k (Option.is_none in_) (fmt_attributes c ~key:"@@" atrs)
       $ Cmts.fmt_after c.cmts pvb_loc
