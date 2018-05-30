@@ -519,6 +519,12 @@ let field_alias (li1: Longident.t) (li2: Longident.t) =
   | Ldot (_, x), Lident y -> String.equal x y
   | _ -> Poly.equal li1 li2
 
+let record_field_name_padding_length ~get_length fields =
+  List.map fields ~f:get_length
+  |> List.filter ~f:(fun length -> Int.(length <= 25))
+  |> List.max_elt ~compare:Int.compare
+  |> Option.value ~default:0
+
 let rec fmt_attribute c pre = function
   | ( {txt= ("ocaml.doc" | "ocaml.text") as txt}
     , PStr
@@ -800,7 +806,7 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
         (wrap_if parens "(" ")"
            (fmt "`" $ str lbl $ fmt "@ " $ fmt_pattern c (sub_pat ~ctx pat)))
   | Ppat_record (flds, closed_flag) ->
-      let fmt_field ~max_field_length ({txt; loc}, pat) =
+      let fmt_field ~pad_ident_to_length ({txt; loc}, pat) =
         let {ppat_desc; ppat_loc} = pat in
         hvbox 0
           ( Cmts.fmt c.cmts loc @@ Cmts.fmt c.cmts ppat_loc
@@ -810,27 +816,25 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
               cbox 2 (fmt_longident txt)
           | Ppat_constraint ({ppat_desc= Ppat_var {txt= txt'; _}}, t)
             when field_alias txt (Longident.parse txt') ->
-              let padding = Int.max 0 (max_field_length - len_longident txt) in
+              let padding = Int.max 0 (pad_ident_to_length - len_longident txt) in
               cbox 2
                 ( fmt_longident txt
                 $ break padding 2 $ fmt " :@ "
                 $ fmt_core_type c (sub_typ ~ctx:(Pat pat) t) )
           | _ ->
-              let padding = Int.max 0 (max_field_length - len_longident txt) in
+              let padding = Int.max 0 (pad_ident_to_length - len_longident txt) in
               cbox 2
                 ( fmt_longident txt
                 $ break padding 2 $ fmt " =@ "
                 $ cbox 0 (fmt_pattern c (sub_pat ~ctx pat)) ) )
       in
-      let max_field_length =
-        List.map flds ~f:(fun ({txt; loc= _}, _) -> len_longident txt)
-        |> List.filter ~f:(fun length -> Int.(length <= 25))
-        |> List.max_elt ~compare:Int.compare
-        |> Option.value ~default:0
+      let pad_ident_to_length =
+        record_field_name_padding_length flds
+          ~get_length:(fun ({txt; loc= _}, _) -> len_longident txt)
       in
       hvbox 0
         (wrap "{ " "@ }"
-           ( list flds "@,; " (fmt_field ~max_field_length)
+           ( list flds "@,; " (fmt_field ~pad_ident_to_length)
            $ fmt_if Poly.(closed_flag = Open) "; _" ))
   | Ppat_array pats ->
       hvbox 0
@@ -1692,7 +1696,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
           $ Option.call ~f:epi )
       $ fmt_atrs
   | Pexp_record (flds, default) ->
-      let fmt_field ~max_field_length ({txt; loc}, f) =
+      let fmt_field ~pad_ident_to_length ({txt; loc}, f) =
         Cmts.fmt c.cmts loc
         @@
         match f.pexp_desc with
@@ -1701,22 +1705,20 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         | Pexp_constraint
             (({pexp_desc= Pexp_ident {txt= txt'; loc}}), t)
           when field_alias txt txt' ->
-            let padding = Int.max 0 (max_field_length - len_longident txt) in
+            let padding = Int.max 0 (pad_ident_to_length - len_longident txt) in
             Cmts.fmt c.cmts loc @@ fmt_longident txt
             $ cbox 0 (break padding 2 $ fmt " :@ ")
             $ fmt_core_type c (sub_typ ~ctx:(Exp f) t)
         | _ ->
-            let padding = Int.max 0 (max_field_length - len_longident txt) in
+            let padding = Int.max 0 (pad_ident_to_length - len_longident txt) in
             cbox 2
               ( fmt_longident txt
               $ break padding 2 $ fmt " =@ "
               $ cbox 0 (fmt_expression c (sub_exp ~ctx f)) )
       in
-      let max_field_length =
-        List.map flds ~f:(fun ({txt; loc= _}, _) -> len_longident txt)
-        |> List.filter ~f:(fun length -> Int.(length <= 25))
-        |> List.max_elt ~compare:Int.compare
-        |> Option.value ~default:0
+      let pad_ident_to_length =
+        record_field_name_padding_length flds
+          ~get_length:(fun ({txt; loc= _}, _) -> len_longident txt)
       in
       hvbox 0
         ( wrap "{ " "@ }"
@@ -1726,7 +1728,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                        (fmt_expression c (sub_exp ~ctx d) $ fmt "@;<1 -2>")
                  )
                $ ( fmt_if (Option.is_some default) "with@;<1 2>"
-                 $ vbox (-2) (list flds "@,; " (fmt_field ~max_field_length)) ) ))
+                 $ vbox (-2) (list flds "@,; " (fmt_field ~pad_ident_to_length)) ) ))
         $ fmt_atrs )
   | Pexp_sequence (e1, e2) when Option.is_some ext ->
       let parens1 =
@@ -2350,11 +2352,8 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
         $ fmt "@ "
         $ list_fl ctor_decls (fmt_constructor_declaration c ctx)
     | Ptype_record lbl_decls ->
-        let max_label_length =
-          List.map lbl_decls ~f:len_lbl_decl_for_padding
-          |> List.filter ~f:(fun length -> Int.(length <= 25))
-          |> List.max_elt ~compare:Int.compare
-          |> Option.value ~default:0
+        let pad_name_to_length =
+          record_field_name_padding_length lbl_decls ~get_length:len_lbl_decl_for_padding
         in
         hvbox 2
           (fmt_manifest ~priv:Public mfst $ fmt " =" $ fmt_private_flag priv)
@@ -2363,8 +2362,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
             (wrap "{ " "@ }"
                (list_fl lbl_decls (fun ~first ~last x ->
                     fmt_if (not first) "@;<1000 0>; "
-                    $ fmt_label_declaration ~pad_name_to_length:max_label_length
-                        c ctx x
+                    $ fmt_label_declaration ~pad_name_to_length c ctx x
                     $ fmt_if (last && exposed_right_typ x.pld_type) " " )))
     | Ptype_open ->
         fmt_manifest ~priv:Public mfst
@@ -2462,16 +2460,12 @@ and fmt_constructor_arguments c ctx pre args =
   | Pcstr_tuple typs ->
     fmt pre $ hvbox 0 (list typs "@ * " (sub_typ ~ctx >> fmt_core_type c))
   | Pcstr_record lds ->
-      let max_label_length =
-        List.map lds ~f:len_lbl_decl_for_padding
-        |> List.filter ~f:(fun length -> Int.(length <= 25))
-        |> List.max_elt ~compare:Int.compare
-        |> Option.value ~default:0
+      let pad_name_to_length =
+        record_field_name_padding_length lds ~get_length:len_lbl_decl_for_padding
       in
       fmt pre
       $ wrap "{ " "@ }"
-          (list lds "@,; "
-             (fmt_label_declaration ~pad_name_to_length:max_label_length c ctx))
+          (list lds "@,; " (fmt_label_declaration ~pad_name_to_length c ctx))
 
 and fmt_constructor_arguments_result c ctx args res =
   let pre : _ format = if Option.is_none res then " of@ " else " :@ " in
