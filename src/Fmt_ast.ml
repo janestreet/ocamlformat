@@ -348,6 +348,15 @@ let rec fmt_longident (li: Longident.t) =
   | Lapply (li1, li2) ->
       cbox 0 (fmt_longident li1 $ wrap "(" ")" (fmt_longident li2))
 
+let rec len_longident (li: Longident.t) =
+  match li with
+  | Lident "~+" -> 1
+  | Lident id -> String.length id
+  | Ldot (li, id) ->
+    len_longident li + 1 + if is_symbol_id id then 2 else 0 + String.length id
+  | Lapply (li1, li2) ->
+    len_longident li1 + 2 + len_longident li2
+
 let fmt_char_escaped c ~loc chr =
   match (c.conf.escape_chars, chr) with
   | `Hexadecimal, _ ->
@@ -810,7 +819,7 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
                 $ cbox 0 (fmt_pattern c (sub_pat ~ctx pat)) ) )
       in
       hvbox 0
-        (wrap "{ " "@ }"
+        (wrap "{ " " }"
            ( list flds "@,; " fmt_field
            $ fmt_if Poly.(closed_flag = Open) "; _" ))
   | Ppat_array pats ->
@@ -1673,32 +1682,40 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
           $ Option.call ~f:epi )
       $ fmt_atrs
   | Pexp_record (flds, default) ->
-      let fmt_field ({txt; loc}, f) =
+      let fmt_field ~max_field_length ({txt; loc}, f) =
         Cmts.fmt c.cmts loc
         @@
         match f.pexp_desc with
         | Pexp_ident {txt= txt'; loc} when field_alias txt txt' ->
             Cmts.fmt c.cmts loc @@ cbox 2 (fmt_longident txt)
         | Pexp_constraint
-            (({pexp_desc= Pexp_ident {txt= txt'; loc}} as e), t)
+            (({pexp_desc= Pexp_ident {txt= txt'; loc}}), t)
           when field_alias txt txt' ->
-            Cmts.fmt c.cmts loc @@ fmt_expression c (sub_exp ~ctx:(Exp f) e)
-            $ fmt " : "
+            let padding = Int.max 0 (max_field_length - len_longident txt) in
+            Cmts.fmt c.cmts loc @@ fmt_longident txt
+            $ cbox 0 (break padding 2 $ fmt " :@ ")
             $ fmt_core_type c (sub_typ ~ctx:(Exp f) t)
         | _ ->
+            let padding = Int.max 0 (max_field_length - len_longident txt) in
             cbox 2
-              ( fmt_longident txt $ fmt " =@ "
+              ( fmt_longident txt $ break padding 2 $ fmt " =@ "
               $ cbox 0 (fmt_expression c (sub_exp ~ctx f)) )
       in
+      let max_field_length =
+        List.map flds ~f:(fun ({txt; loc= _}, _) -> len_longident txt)
+        |> List.filter ~f:(fun length -> Int.(length <= 25))
+        |> List.max_elt ~compare:Int.compare
+        |> Option.value ~default:0
+      in
       hvbox 0
-        ( wrap "{ " "@ }"
+        ( wrap "{ " " }"
             (hovbox (-2)
                ( opt default (fun d ->
                      hvbox 2
                        (fmt_expression c (sub_exp ~ctx d) $ fmt "@;<1 -2>")
                  )
                $ ( fmt_if (Option.is_some default) "with@;<1 2>"
-                 $ hvbox (-2) (list flds "@,; " fmt_field) ) ))
+                 $ vbox (-2) (list flds "@,; " (fmt_field ~max_field_length)) ) ))
         $ fmt_atrs )
   | Pexp_sequence (e1, e2) when Option.is_some ext ->
       let parens1 =
@@ -2326,7 +2343,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
           (fmt_manifest ~priv:Public mfst $ fmt " =" $ fmt_private_flag priv)
         $ fmt "@ "
         $ hvbox 0
-            (wrap "{ " "@ }"
+            (wrap "{ " " }"
                (list_fl lbl_decls (fun ~first ~last x ->
                     fmt_if (not first) "@;<1000 0>; "
                     $ fmt_label_declaration c ctx x
