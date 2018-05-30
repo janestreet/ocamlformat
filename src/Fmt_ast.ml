@@ -2339,6 +2339,18 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
         $ fmt "@ "
         $ list_fl ctor_decls (fmt_constructor_declaration c ctx)
     | Ptype_record lbl_decls ->
+        let len_label {pld_name= {txt; loc= _}; pld_mutable; _} =
+          String.length txt +
+          (match pld_mutable with
+           | Mutable -> String.length "mutable "
+           | Immutable -> 0)
+        in
+        let max_label_length =
+          List.map lbl_decls ~f:len_label
+          |> List.filter ~f:(fun length -> Int.(length <= 25))
+          |> List.max_elt ~compare:Int.compare
+          |> Option.value ~default:0
+        in
         hvbox 2
           (fmt_manifest ~priv:Public mfst $ fmt " =" $ fmt_private_flag priv)
         $ fmt "@ "
@@ -2346,7 +2358,8 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
             (wrap "{ " " }"
                (list_fl lbl_decls (fun ~first ~last x ->
                     fmt_if (not first) "@;<1000 0>; "
-                    $ fmt_label_declaration c ctx x
+                    $ fmt_label_declaration ~pad_name_to_length:(Some max_label_length)
+                        c ctx x
                     $ fmt_if (last && exposed_right_typ x.pld_type) " " )))
     | Ptype_open ->
         fmt_manifest ~priv:Public mfst
@@ -2390,7 +2403,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
            $ fmt_attributes c ~pre:(fmt "@ ") ~key:"@@" atrs ) )
   $ fmt brk
 
-and fmt_label_declaration c ctx lbl_decl =
+and fmt_label_declaration ~pad_name_to_length c ctx lbl_decl =
   let {pld_mutable; pld_name= {txt; loc}; pld_type; pld_loc; pld_attributes} =
     lbl_decl
   in
@@ -2399,11 +2412,25 @@ and fmt_label_declaration c ctx lbl_decl =
   let is_fun =
     match pld_type with {ptyp_desc= Ptyp_arrow _} -> true | _ -> false
   in
+  let colon_fmt =
+    match pad_name_to_length with
+    | None -> fmt ": "
+    | Some length ->
+      let padding =
+        Int.max 0
+          (length -
+           (String.length txt +
+            (match pld_mutable with
+             | Mutable -> String.length "mutable "
+             | Immutable -> 0)))
+      in
+      cbox 0 (break padding 2 $ fmt ": ")
+  in
   fmt_cmts
   @@ hvbox 4
        ( hvbox 2
            ( fmt_if Poly.(pld_mutable = Mutable) "mutable "
-           $ Cmts.fmt c.cmts loc @@ str txt $ fmt_or is_fun "@;" " " $ fmt ": "
+           $ Cmts.fmt c.cmts loc @@ str txt $ fmt_or is_fun "@;" " " $ colon_fmt
            $ fits_breaks_if is_fun "" " "
            $ fmt_core_type c ~box:false (sub_typ ~ctx pld_type) )
        $ fmt_docstring c ~pro:(fmt "@;<2 0>") doc
@@ -2436,7 +2463,7 @@ and fmt_constructor_arguments c ctx pre args =
   | Pcstr_record lds ->
       fmt pre
       $ wrap "{ " "@ }"
-          (list lds "@,; " (fmt_label_declaration c ctx))
+          (list lds "@,; " (fmt_label_declaration ~pad_name_to_length:None c ctx))
 
 and fmt_constructor_arguments_result c ctx args res =
   let pre : _ format = if Option.is_none res then " of@ " else " :@ " in
