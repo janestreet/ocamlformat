@@ -829,7 +829,7 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
         |> Option.value ~default:0
       in
       hvbox 0
-        (wrap "{ " " }"
+        (wrap "{ " "@ }"
            ( list flds "@,; " (fmt_field ~max_field_length)
            $ fmt_if Poly.(closed_flag = Open) "; _" ))
   | Ppat_array pats ->
@@ -1719,7 +1719,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         |> Option.value ~default:0
       in
       hvbox 0
-        ( wrap "{ " " }"
+        ( wrap "{ " "@ }"
             (hovbox (-2)
                ( opt default (fun d ->
                      hvbox 2
@@ -2360,7 +2360,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
           (fmt_manifest ~priv:Public mfst $ fmt " =" $ fmt_private_flag priv)
         $ fmt "@ "
         $ hvbox 0
-            (wrap "{ " " }"
+            (wrap "{ " "@ }"
                (list_fl lbl_decls (fun ~first ~last x ->
                     fmt_if (not first) "@;<1000 0>; "
                     $ fmt_label_declaration ~pad_name_to_length:max_label_length
@@ -2469,7 +2469,7 @@ and fmt_constructor_arguments c ctx pre args =
         |> Option.value ~default:0
       in
       fmt pre
-      $ wrap "{ " " }"
+      $ wrap "{ " "@ }"
           (list lds "@,; "
              (fmt_label_declaration ~pad_name_to_length:max_label_length c ctx))
 
