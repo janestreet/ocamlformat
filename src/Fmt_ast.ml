@@ -800,7 +800,7 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
         (wrap_if parens "(" ")"
            (fmt "`" $ str lbl $ fmt "@ " $ fmt_pattern c (sub_pat ~ctx pat)))
   | Ppat_record (flds, closed_flag) ->
-      let fmt_field ({txt; loc}, pat) =
+      let fmt_field ~max_field_length ({txt; loc}, pat) =
         let {ppat_desc; ppat_loc} = pat in
         hvbox 0
           ( Cmts.fmt c.cmts loc @@ Cmts.fmt c.cmts ppat_loc
@@ -810,17 +810,27 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
               cbox 2 (fmt_longident txt)
           | Ppat_constraint ({ppat_desc= Ppat_var {txt= txt'; _}}, t)
             when field_alias txt (Longident.parse txt') ->
+              let padding = Int.max 0 (max_field_length - len_longident txt) in
               cbox 2
-                ( fmt_longident txt $ fmt " : "
+                ( fmt_longident txt
+                $ break padding 2 $ fmt " :@ "
                 $ fmt_core_type c (sub_typ ~ctx:(Pat pat) t) )
           | _ ->
+              let padding = Int.max 0 (max_field_length - len_longident txt) in
               cbox 2
-                ( fmt_longident txt $ fmt " =@ "
+                ( fmt_longident txt
+                $ break padding 2 $ fmt " =@ "
                 $ cbox 0 (fmt_pattern c (sub_pat ~ctx pat)) ) )
+      in
+      let max_field_length =
+        List.map flds ~f:(fun ({txt; loc= _}, _) -> len_longident txt)
+        |> List.filter ~f:(fun length -> Int.(length <= 25))
+        |> List.max_elt ~compare:Int.compare
+        |> Option.value ~default:0
       in
       hvbox 0
         (wrap "{ " " }"
-           ( list flds "@,; " fmt_field
+           ( list flds "@,; " (fmt_field ~max_field_length)
            $ fmt_if Poly.(closed_flag = Open) "; _" ))
   | Ppat_array pats ->
       hvbox 0
@@ -1698,7 +1708,8 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         | _ ->
             let padding = Int.max 0 (max_field_length - len_longident txt) in
             cbox 2
-              ( fmt_longident txt $ break padding 2 $ fmt " =@ "
+              ( fmt_longident txt
+              $ break padding 2 $ fmt " =@ "
               $ cbox 0 (fmt_expression c (sub_exp ~ctx f)) )
       in
       let max_field_length =
