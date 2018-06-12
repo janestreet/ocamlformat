@@ -1478,7 +1478,8 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                 $ fmt_fun_args c xargs )
             $ fmt "->" )
           $ fmt_body c xbody )
-        $ fits_breaks_if parens ")" ")" )
+        $ fits_breaks_if parens ")" ")"
+      $ fmt_atrs  )
   | Pexp_function cs ->
       wrap_if parens "(" ")"
         ( hvbox 2
