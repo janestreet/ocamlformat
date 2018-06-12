@@ -719,7 +719,7 @@ and fmt_core_type c ?(box = true) ?(in_type_declaration = false)
               str pro
               $ fits_breaks " "
                   (String.make (Int.max 1 (3 - String.length pro)) ' ')
-          | _ -> fits_breaks "" "   " )
+          | _ -> fits_breaks "" "" )
         $ list xt1N "@ -> " (fun (lI, xtI) ->
               hvbox 0 (arg_label lI $ fmt_core_type c xtI) ) )
   | Ptyp_constr (lid, []) -> fmt_longident_loc c lid
