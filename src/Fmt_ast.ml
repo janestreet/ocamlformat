@@ -607,7 +607,7 @@ and fmt_core_type c ?(box= true) ?pro ({ast= typ} as xtyp) =
               str pro
               $ fits_breaks " "
                   (String.make (Int.max 1 (3 - String.length pro)) ' ')
-          | _ -> fits_breaks "" "   " )
+          | _ -> fits_breaks "" "" )
         $ list xt1N "@;<1 0>-> " (fun (lI, xtI) ->
               hvbox 0 (arg_label lI $ fmt_core_type c xtI) ) )
   | Ptyp_constr ({txt; loc}, []) -> Cmts.fmt c.cmts loc @@ fmt_longident txt
