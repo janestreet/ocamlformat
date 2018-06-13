@@ -263,6 +263,7 @@ let sugar_sequence c width xexp =
     | _ -> [xexp]
   in
   List.group (sugar_sequence_ xexp) ~break:(fun xexp1 xexp2 ->
+    true ||
       not (is_simple c.conf width xexp1)
       || not (is_simple c.conf width xexp2) )
 
