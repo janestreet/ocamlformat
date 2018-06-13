@@ -2265,6 +2265,10 @@ and fmt_cases c ctx cs =
               ( hovbox 0 (fmt_expression c ~parens:false xrhs)
               $ fmt_if paren_body "@ )" ) ) )
 
+and is_arrow = function
+  | { ptyp_desc = Ptyp_arrow _ } -> true
+  | _ -> false
+
 and fmt_value_description c ctx vd =
   let {pval_name= {txt}; pval_type; pval_prim; pval_attributes} = vd in
   let pre = if List.is_empty pval_prim then "val" else "external" in
@@ -2277,7 +2281,7 @@ and fmt_value_description c ctx vd =
     $ hvbox 2
         ( str pre $ fmt " "
         $ wrap_if (is_symbol_id txt) "( " " )" (str txt)
-        $ fmt_core_type c ~pro:":" ~box:false ~need_space:true (sub_typ ~ctx pval_type)
+        $ fmt_core_type c ~pro:":" ~box:(not (is_arrow pval_type)) ~need_space:true (sub_typ ~ctx pval_type)
         $ list_fl pval_prim (fun ~first ~last:_ s ->
               fmt_if first "@ =" $ fmt " \"" $ str s $ fmt "\"" ) )
     $ fmt_attributes c ~pre:(fmt "@;<2 2>") ~box:false ~key:"@@" atrs
@@ -2387,7 +2391,7 @@ and fmt_label_declaration c ctx lbl_decl =
        ( hvbox 2
            ( fmt_if Poly.(pld_mutable = Mutable) "mutable "
            $ Cmts.fmt c.cmts loc @@ str txt
-           $ fmt_core_type c ~pro:":" ~box:false ~need_space:true (sub_typ ~ctx pld_type) )
+           $ fmt_core_type c ~pro:":" ~box:(not (is_arrow pld_type)) ~need_space:true (sub_typ ~ctx pld_type) )
          $ fmt_docstring c ~pro:(fmt "@;<2 0>") doc
        $ fmt_attributes c ~pre:(fmt "@;<1 1>") ~box:false ~key:"@" atrs )
 
