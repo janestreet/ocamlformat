@@ -569,13 +569,13 @@ and fmt_payload c ctx pld =
       $ opt exp (fun exp ->
             fmt " when " $ fmt_expression c (sub_exp ~ctx exp) )
 
-and fmt_core_type c ?(box= true) ?pro ({ast= typ} as xtyp) =
+and fmt_core_type c ?(box= true) ?pro ?(need_space=false) ({ast= typ} as xtyp) =
   protect (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc} = typ in
   ( match (ptyp_desc, pro) with
-  | Ptyp_arrow _, Some _ when c.conf.ocp_indent_compat -> fmt "@,"
-  | _, Some pro -> str pro $ fmt "@ "
+  | Ptyp_arrow _, Some _ when c.conf.ocp_indent_compat -> fmt_or need_space "@;" "@,"
+  | _, Some pro -> fmt_if need_space "@ " $ str pro $ fmt "@ "
   | _ -> fmt "" )
   $
   let doc, atrs = doc_atrs ptyp_attributes in
@@ -2277,8 +2277,7 @@ and fmt_value_description c ctx vd =
     $ hvbox 2
         ( str pre $ fmt " "
         $ wrap_if (is_symbol_id txt) "( " " )" (str txt)
-        $ fmt " "
-        $ fmt_core_type c ~pro:":" ~box:false (sub_typ ~ctx pval_type)
+        $ fmt_core_type c ~pro:":" ~box:false ~need_space:true (sub_typ ~ctx pval_type)
         $ list_fl pval_prim (fun ~first ~last:_ s ->
               fmt_if first "@ =" $ fmt " \"" $ str s $ fmt "\"" ) )
     $ fmt_attributes c ~pre:(fmt "@;<2 2>") ~box:false ~key:"@@" atrs
@@ -2388,8 +2387,7 @@ and fmt_label_declaration c ctx lbl_decl =
        ( hvbox 2
            ( fmt_if Poly.(pld_mutable = Mutable) "mutable "
            $ Cmts.fmt c.cmts loc @@ str txt
-           $ fmt " "
-           $ fmt_core_type c ~pro:":" (sub_typ ~ctx pld_type) )
+           $ fmt_core_type c ~pro:":" ~box:false ~need_space:true (sub_typ ~ctx pld_type) )
          $ fmt_docstring c ~pro:(fmt "@;<2 0>") doc
        $ fmt_attributes c ~pre:(fmt "@;<1 1>") ~box:false ~key:"@" atrs )
 
