@@ -2278,7 +2278,7 @@ and fmt_value_description c ctx vd =
         ( str pre $ fmt " "
         $ wrap_if (is_symbol_id txt) "( " " )" (str txt)
         $ fmt " "
-        $ fmt_core_type c ~pro:":" (sub_typ ~ctx pval_type)
+        $ fmt_core_type c ~pro:":" ~box:false (sub_typ ~ctx pval_type)
         $ list_fl pval_prim (fun ~first ~last:_ s ->
               fmt_if first "@ =" $ fmt " \"" $ str s $ fmt "\"" ) )
     $ fmt_attributes c ~pre:(fmt "@;<2 2>") ~box:false ~key:"@@" atrs
