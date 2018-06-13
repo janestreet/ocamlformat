@@ -939,7 +939,7 @@ and fmt_fun_args c args =
       when String.equal l txt ->
       let ((equal, parens) : _ * _) =
           match xexp.ast with
-          | { pexp_desc = Pexp_constant ( Pconst_string (str,_)
+          | { pexp_desc = Pexp_constant ( Pconst_integer (str,_)
                                         | Pconst_float (str,_)) }
             when String.length str > 0 && Char.equal '-' str.[0] ->
             fmt "=", Some true
