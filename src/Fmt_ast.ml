@@ -1329,9 +1329,9 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
           ( wrap_if parens "(" ")"
               (hovbox 0
                  ( hovbox 2
-                     ( hovbox 2
+                     ( hvbox 2
                          ( fmt_args_grouped e0 e1N $ fmt "@ "
-                         $ fmt_label lbl ":@,"
+                         $ fmt_label lbl ":"
                          $ fmt_cmts
                            @@ hvbox 0
                                 ( fmt "(fun " $ fmt_fun_args c xargs
