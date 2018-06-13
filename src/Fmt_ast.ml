@@ -575,7 +575,7 @@ and fmt_core_type c ?(box= true) ?pro ?(need_space=false) ({ast= typ} as xtyp) =
   let {ptyp_desc; ptyp_attributes; ptyp_loc} = typ in
   ( match (ptyp_desc, pro) with
   | Ptyp_arrow _, Some _ when c.conf.ocp_indent_compat -> fmt_or need_space "@;" "@,"
-  | _, Some pro -> fmt_if need_space "@ " $ str pro $ fmt "@ "
+  | _, Some pro -> fmt_if need_space " " $ str pro $ fmt "@ "
   | _ -> fmt "" )
   $
   let doc, atrs = doc_atrs ptyp_attributes in
