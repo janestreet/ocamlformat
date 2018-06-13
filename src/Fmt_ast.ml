@@ -3321,10 +3321,10 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
   $ hvbox indent
       ( open_hovbox 2
       $ ( hovbox 4
-            ( str keyword
-            $ fmt_extension_suffix c ext
-            $ fmt_if_k (Option.is_some in_) (fmt_attributes c ~key:"@" atrs)
-            $ fmt " " $ fmt_pattern c xpat $ fmt "@ " $ fmt_fun_args c xargs
+            ( hvbox 0 (str keyword
+                       $ fmt_extension_suffix c ext
+                       $ fmt_if_k (Option.is_some in_) (fmt_attributes c ~key:"@" atrs)
+                       $ fmt " " $ fmt_pattern c xpat $ fmt "@ " $ fmt_fun_args c xargs)
             $ Option.call ~f:fmt_cstr )
         $ fmt "=" )
       $ fmt_body c xbody
