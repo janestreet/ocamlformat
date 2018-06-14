@@ -1528,6 +1528,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                           ( fmt_or_k first
                               (fmt "if" $ fmt_extension_suffix c ext)
                               (fmt "else if")
+                          $ fmt_atrs
                           $ str " " $ fmt_expression c xcnd )
                         $ fmt "@ " )
                     $ hvbox 2
