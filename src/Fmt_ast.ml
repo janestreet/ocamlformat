@@ -636,9 +636,9 @@ and fmt_core_type c ?(box= true) ?pro ?(need_space=false) ({ast= typ} as xtyp) =
   | Ptyp_var s -> fmt "'" $ str s
   | Ptyp_variant (rfs, flag, lbls) ->
       let row_fields rfs =
-        match rfs with
-        | [(Rinherit _ as r)] -> fmt "@ | " $ fmt_row_field c ctx r
-        | rfs -> list rfs "@ | " (fmt_row_field c ctx)
+        match rfs, flag, lbls with
+        | [(Rinherit _ as r)], Closed, None -> fmt "@ | " $ fmt_row_field c ctx r
+        | rfs,_,_ -> list rfs "@ | " (fmt_row_field c ctx)
       in
       let protect_token =
         match List.last rfs with
