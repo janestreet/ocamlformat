@@ -282,12 +282,11 @@ let rec sugar_functor_type c ({ast= mty} as xmty) =
       ((arg, Option.map arg_mty ~f:(sub_mty ~ctx)) :: xargs, xbody)
   | _ -> ([], xmty)
 
-let rec sugar_functor c ({ast= me} as xme) =
+let rec sugar_functor c ~allow_attributes ({ast= me} as xme) =
   let ctx = Mod me in
   match me with
-  | { pmod_desc= Pmod_functor (arg, arg_mt, body)
-    ; pmod_loc
-    ; pmod_attributes= [] } ->
+  | {pmod_desc= Pmod_functor (arg, arg_mt, body); pmod_loc; pmod_attributes}
+    when match pmod_attributes with [] -> true | _ -> allow_attributes ->
       let arg =
         if String.equal "*" arg.txt then {arg with txt= ""} else arg
       in
@@ -295,7 +294,12 @@ let rec sugar_functor c ({ast= me} as xme) =
         ~after:body.pmod_loc ;
       let xarg_mt = Option.map arg_mt ~f:(sub_mty ~ctx) in
       let ctx = Mod body in
-      let xargs, xbody_me = sugar_functor c (sub_mod ~ctx body) in
+      let body = sub_mod ~ctx body in
+      let xargs, xbody_me =
+        match pmod_attributes with
+        | [] -> sugar_functor c ~allow_attributes body
+        | _ -> ([], body)
+      in
       ((arg, xarg_mt) :: xargs, xbody_me)
   | _ -> ([], xme)
 
@@ -1587,7 +1591,9 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
   | Pexp_letmodule (name, pmod, exp) ->
       let {pmod_desc= _; pmod_attributes} = pmod in
       let keyword = fmt "let module" $ fmt_extension_suffix c ext in
-      let xargs, xbody = sugar_functor c (sub_mod ~ctx pmod) in
+      let xargs, xbody =
+        sugar_functor c ~allow_attributes:false (sub_mod ~ctx pmod)
+      in
       let xbody, xmty =
         match xbody.ast with
         | { pmod_desc= Pmod_constraint (body_me, body_mt)
@@ -3046,7 +3052,9 @@ and fmt_module_expr c ({ast= m} as xmod) =
             ( Cmts.fmt_after c.cmts pmod_loc
             $ fmt_attributes c ~pre:(fmt " ") ~key:"@" atrs ) }
   | Pmod_functor _ ->
-      let xargs, me = sugar_functor c (sub_mod ~ctx m) in
+      let xargs, me =
+        sugar_functor c ~allow_attributes:true (sub_mod ~ctx m)
+      in
       let doc, atrs = doc_atrs pmod_attributes in
       let { opn= opn_e
           ; pro= pro_e
@@ -3419,7 +3427,9 @@ and fmt_module_binding c ?epi ~rec_flag ~first ctx pmb =
     if first then if rec_flag then str "module rec" else str "module"
     else str "and"
   in
-  let xargs, xbody = sugar_functor c (sub_mod ~ctx pmb_expr) in
+  let xargs, xbody =
+    sugar_functor c ~allow_attributes:false (sub_mod ~ctx pmb_expr)
+  in
   let xbody, xmty =
     match xbody.ast with
     | { pmod_desc= Pmod_constraint (body_me, body_mt)
