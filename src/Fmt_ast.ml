@@ -1399,7 +1399,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
   | Pexp_array e1N ->
       hvbox 0
         ( wrap_fits_breaks "[|" "|]"
-            (list e1N "@,; " (sub_exp ~ctx >> fmt_expression c))
+            (list e1N "@;<0 1>; " (sub_exp ~ctx >> fmt_expression c))
         $ fmt_atrs )
   | Pexp_assert e0 ->
       let paren_body = parenze_exp (sub_exp ~ctx e0) in
