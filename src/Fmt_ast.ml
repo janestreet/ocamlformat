@@ -1527,14 +1527,12 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                             | None -> fmt "else" )
                           $ fmt_if_k parens_bch
                               (fmt_or_k delimiter_is_begin_end
-                                 (fmt " begin")
-                                 (fmt " ("))
+                                 (fmt " begin") (fmt " ("))
                           $ fmt "@ "
                           $ fmt_expression c ~box:false ~parens:false xbch
                           )
                       $ fmt_if_k parens_bch
-                          (fmt_or_k delimiter_is_begin_end
-                             (fmt " end")
+                          (fmt_or_k delimiter_is_begin_end (fmt " end")
                              (fmt " )")) )
                     $ fmt_if (not last) "@ "
                 | `Keyword_first ->
@@ -1550,14 +1548,12 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                     $ hvbox 2
                         ( fmt_or (Option.is_some xcnd) "then" "else"
                         $ fmt_if_k parens_bch
-                            (fmt_or_k delimiter_is_begin_end
-                               (fmt " begin")
+                            (fmt_or_k delimiter_is_begin_end (fmt " begin")
                                (fmt " ("))
                         $ fmt "@ "
                         $ fmt_expression c ~box:false ~parens:false xbch
                         $ fmt_if_k parens_bch
-                            (fmt_or_k delimiter_is_begin_end
-                               (fmt " end")
+                            (fmt_or_k delimiter_is_begin_end (fmt " end")
                                (fmt ")")) )
                     $ fmt_if (not last) "@ " )))
   | Pexp_let (rec_flag, bindings, body) ->
@@ -2281,8 +2277,7 @@ and fmt_cases c ctx cs =
           fmt_or_k c.conf.sparse
             (fmt_or_k paren_body (fmt "@;<1 2>->") (fmt " ->@;<0 3>"))
             (fmt_or_k paren_body
-               (fmt_or_k delimiter_is_begin_end
-                  (fmt "@;<1 -2>-> begin")
+               (fmt_or_k delimiter_is_begin_end (fmt "@;<1 -2>-> begin")
                   (fmt "@;<1 -2>-> ("))
                (fmt " ->@;<0 -1>"))
         in
@@ -2316,8 +2311,7 @@ and fmt_cases c ctx cs =
           $ hovbox 0
               ( hovbox 0 (fmt_expression c ~parens:false xrhs)
               $ fmt_if_k paren_body
-                  (fmt_or_k delimiter_is_begin_end
-                     (fmt "@;<1000 0>end")
+                  (fmt_or_k delimiter_is_begin_end (fmt "@;<1000 0>end")
                      (fmt "@ )")) ) ) )
 
 and is_arrow_or_poly = function
