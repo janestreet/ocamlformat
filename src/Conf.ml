@@ -178,6 +178,22 @@ let if_then_else =
           default
       & info ["if-then-else"] ~doc ~env)
 
+let begin_end =
+  let doc =
+    "When to use begin end. Can be set in a config file with an `begin-end \
+     {try,match,if}*` line."
+  in
+  let env = Arg.env_var "OCAMLFORMAT_BEGIN_END" in
+  let default = [] (* [`Match; `Try; `If] *) in
+  mk ~default
+    Arg.(
+      value
+      & opt
+          (list ~sep:','
+             (enum [("match", `Match); ("try", `Try); ("if", `If)]))
+          default
+      & info ["begin-end"] ~doc ~env)
+
 let inplace =
   let doc = "Format in-place, overwriting input file(s)." in
   let default = false in
@@ -335,6 +351,7 @@ type t =
   ; doc_comments: [`Before | `After]
   ; parens_tuple: [`Always | `Multi_line_only]
   ; if_then_else: [`Compact | `Keyword_first]
+  ; begin_end: [`Match | `Try | `If] list
   ; break_infix: [`Wrap | `Fit_or_vertical]
   ; ocp_indent_compat: bool }
 
@@ -459,6 +476,7 @@ let conf name =
     ; doc_comments= !doc_comments
     ; parens_tuple= !parens_tuple
     ; if_then_else= !if_then_else
+    ; begin_end= !begin_end
     ; break_infix= !break_infix
     ; ocp_indent_compat= !ocp_indent_compat || true  }  (* we force ocp_indent_compat *)
     (Filename.dirname (to_absolute name))

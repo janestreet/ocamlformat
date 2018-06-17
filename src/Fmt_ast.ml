@@ -299,6 +299,19 @@ let rec sugar_functor c ({ast= me} as xme) =
       ((arg, xarg_mt) :: xargs, xbody_me)
   | _ -> ([], xme)
 
+let delimiter_is_begin_end c ctx =
+  let begin_end =
+    (c.conf.begin_end :> [`Match | `Try | `If | `Other] list)
+  in
+  let kind =
+    match ctx with
+    | Exp {pexp_desc= Pexp_match _; _} -> `Match
+    | Exp {pexp_desc= Pexp_try _; _} -> `Try
+    | Exp {pexp_desc= Pexp_ifthenelse _; _} -> `If
+    | _ -> `Other
+  in
+  List.exists begin_end ~f:(fun k -> Caml.compare k kind = 0)
+
 type block =
   { opn: Fmt.t
   ; pro: Fmt.t option
@@ -1486,6 +1499,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
       Cmts.fmt c.cmts loc @@ wrap (fmt_longident txt $ fmt_atrs)
   | Pexp_ifthenelse _ ->
       let cnd_exps = sugar_ite c xexp in
+      let delimiter_is_begin_end = delimiter_is_begin_end c ctx in
       hvbox 0
         (wrap_fits_breaks_if parens "(" ")"
            (list_fl cnd_exps
@@ -1511,10 +1525,17 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                                       $ fmt "@ " $ fmt_expression c xcnd )
                                   $ fmt "@ then" )
                             | None -> fmt "else" )
-                          $ fmt_if parens_bch " (" $ fmt "@ "
+                          $ fmt_if_k parens_bch
+                              (fmt_or_k delimiter_is_begin_end
+                                 (fmt " begin")
+                                 (fmt " ("))
+                          $ fmt "@ "
                           $ fmt_expression c ~box:false ~parens:false xbch
                           )
-                      $ fmt_if parens_bch " )" )
+                      $ fmt_if_k parens_bch
+                          (fmt_or_k delimiter_is_begin_end
+                             (fmt " end")
+                             (fmt " )")) )
                     $ fmt_if (not last) "@ "
                 | `Keyword_first ->
                     opt xcnd (fun xcnd ->
@@ -1528,9 +1549,16 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                         $ fmt "@ " )
                     $ hvbox 2
                         ( fmt_or (Option.is_some xcnd) "then" "else"
-                        $ fmt_if parens_bch " (" $ fmt "@ "
+                        $ fmt_if_k parens_bch
+                            (fmt_or_k delimiter_is_begin_end
+                               (fmt " begin")
+                               (fmt " ("))
+                        $ fmt "@ "
                         $ fmt_expression c ~box:false ~parens:false xbch
-                        $ fmt_if parens_bch ")" )
+                        $ fmt_if_k parens_bch
+                            (fmt_or_k delimiter_is_begin_end
+                               (fmt " end")
+                               (fmt ")")) )
                     $ fmt_if (not last) "@ " )))
   | Pexp_let (rec_flag, bindings, body) ->
       wrap_if
@@ -1629,6 +1657,13 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         | Pexp_try _ -> "try"
         | _ -> impossible "previous match"
       in
+      let wrap x =
+        if parens then
+          if delimiter_is_begin_end c ctx then
+            wrap "begin" "end" (fmt "@;" $ x $ fmt "@;")
+          else wrap_fits_breaks_if_no_space "(" ")" x
+        else x
+      in
       match cs with
       | []
        |_ :: _ :: _
@@ -1636,7 +1671,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
               {ppat_desc= Ppat_or _ | Ppat_alias ({ppat_desc= Ppat_or _}, _)}
           } ] ->
           hvbox 0
-            (wrap_fits_breaks_if_no_space parens "(" ")"
+            (wrap
                ( hvbox 0
                    ( str keyword
                    $ fmt_extension_suffix c ext
@@ -1646,7 +1681,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                    $ fmt "@ with" )
                $ fmt "@ " $ fmt_cases c ctx cs ))
       | [{pc_lhs; pc_guard; pc_rhs}] ->
-          wrap_fits_breaks_if_no_space parens "(" ")"
+          wrap
             (hovbox 2
                ( hvbox 0
                    ( str keyword
@@ -2224,6 +2259,7 @@ and fmt_class_type_field c ctx (cf: class_type_field) =
   $ fmt_atrs
 
 and fmt_cases c ctx cs =
+  let delimiter_is_begin_end = delimiter_is_begin_end c ctx in
   list_fl cs (fun ~first ~last:_ {pc_lhs; pc_guard; pc_rhs} ->
       let xrhs = sub_exp ~ctx pc_rhs in
       let indent =
@@ -2244,7 +2280,11 @@ and fmt_cases c ctx cs =
         let fmt_arrow =
           fmt_or_k c.conf.sparse
             (fmt_or_k paren_body (fmt "@;<1 2>->") (fmt " ->@;<0 3>"))
-            (fmt_or_k paren_body (fmt "@;<1 -2>-> (") (fmt " ->@;<0 -1>"))
+            (fmt_or_k paren_body
+               (fmt_or_k delimiter_is_begin_end
+                  (fmt "@;<1 -2>-> begin")
+                  (fmt "@;<1 -2>-> ("))
+               (fmt " ->@;<0 -1>"))
         in
         hovbox 2
           ( hvbox 0
@@ -2260,15 +2300,25 @@ and fmt_cases c ctx cs =
       fmt_if (not first) "@;<1000 0>"
       $ cbox_if (not c.conf.sparse) indent
           ( hvbox_if (not c.conf.sparse) indent fmt_lhs
-          $ ( match (c.conf.sparse, indent > 2, paren_body) with
-            | false, _, _ -> fmt "@ "
-            | true, false, false -> fmt "@;<1 2>"
-            | true, false, true -> fmt " (@;<1 2>"
-            | true, true, false -> fmt " "
-            | true, true, true -> fmt " (@;<1 4>" )
+          $ ( match
+                ( c.conf.sparse
+                , indent > 2
+                , paren_body
+                , delimiter_is_begin_end )
+              with
+            | false, _, _, _ -> fmt "@ "
+            | true, false, false, _ -> fmt "@;<1 2>"
+            | true, false, true, true -> fmt " begin@;<1 2>"
+            | true, false, true, false -> fmt " (@;<1 2>"
+            | true, true, false, _ -> fmt " "
+            | true, true, true, true -> fmt " begin@;<1 4>"
+            | true, true, true, false -> fmt " (@;<1 4>" )
           $ hovbox 0
               ( hovbox 0 (fmt_expression c ~parens:false xrhs)
-              $ fmt_if paren_body "@ )" ) ) )
+              $ fmt_if_k paren_body
+                  (fmt_or_k delimiter_is_begin_end
+                     (fmt "@;<1000 0>end")
+                     (fmt "@ )")) ) ) )
 
 and is_arrow_or_poly = function
   | { ptyp_desc = Ptyp_arrow _ } -> true
