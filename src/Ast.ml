@@ -1450,7 +1450,11 @@ end = struct
     | Pld _, {pexp_desc= Pexp_tuple _} -> false
     | Str {pstr_desc= Pstr_eval _}, {pexp_desc= Pexp_tuple _} -> false
     | Cl {pcl_desc= Pcl_apply _}, {pexp_desc= Pexp_apply _} -> true
-    | Exp {pexp_desc}, _ -> (
+    | Exp {pexp_desc = Pexp_ifthenelse (_,thn,_); _}, { pexp_desc = Pexp_let _ }
+      when thn == exp -> true
+    | Exp {pexp_desc = Pexp_ifthenelse (_,_,Some els); _}, { pexp_desc = Pexp_let _ }
+      when els == exp -> true
+    | Exp {pexp_desc;_}, _ ->  (
       match pexp_desc with
       | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
           List.exists cases ~f:(fun {pc_rhs} -> pc_rhs == exp)
