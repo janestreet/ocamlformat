@@ -3157,7 +3157,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
             $ fmt_docstring c ~epi:(fmt "@,") doc )
       ; bdy=
           Cmts.fmt c.cmts pmod_loc
-          @@ wrap_fits_breaks "(" ")"
+          @@ wrap "(" ")"
                ( fmt "val "
                $ fmt_expression c (sub_exp ~ctx e1)
                $ fmt "@;<1 2>: "
@@ -3175,7 +3175,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
             $ fmt_docstring c ~epi:(fmt "@,") doc )
       ; bdy=
           Cmts.fmt c.cmts pmod_loc
-          @@ wrap_fits_breaks "(" ")"
+          @@ wrap "(" ")"
                (fmt "val " $ fmt_expression c (sub_exp ~ctx e1))
       ; epi=
           Some
