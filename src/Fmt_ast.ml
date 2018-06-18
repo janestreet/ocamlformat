@@ -1910,7 +1910,7 @@ and fmt_expression c ?(box = true) ?epi ?eol ?parens ?ext
         fmt_module_expr c (sub_mod ~ctx me)
       in
       opn
-      $ wrap_fits_breaks "(" ")"
+      $ wrap "(" ")"
           ( fmt "module " $ Option.call ~f:pro $ psp $ bdy $ cls $ esp
           $ Option.call ~f:epi )
       $ fmt_atrs
@@ -3551,7 +3551,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
       ; bdy=
           Cmts.fmt c.cmts pmod_loc
           @@ hvbox 2
-               (wrap_fits_breaks "(" ")"
+               (wrap "(" ")"
                   ( fmt "val "
                   $ fmt_expression c (sub_exp ~ctx e1)
                   $ fmt "@;<1 2>: "
@@ -3574,7 +3574,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
       ; bdy=
           Cmts.fmt c.cmts pmod_loc
           @@ hvbox 2
-               (wrap_fits_breaks "(" ")"
+               (wrap "(" ")"
                   (fmt "val " $ fmt_expression c (sub_exp ~ctx e1)))
       ; epi=
           Option.some_if has_epi
