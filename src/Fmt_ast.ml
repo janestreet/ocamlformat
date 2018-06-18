@@ -1663,7 +1663,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
         if parens then
           if delimiter_is_begin_end c ctx then
             wrap "begin" "end" (fmt "@;" $ x $ fmt "@;")
-          else wrap_fits_breaks_if_no_space "(" ")" x
+          else wrap_fits_breaks_if_no_space parens "(" ")" x
         else x
       in
       match cs with
