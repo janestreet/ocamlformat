@@ -310,6 +310,15 @@ let rec sugar_functor c ~allow_attributes ({ast= me} as xme) =
       ((arg, xarg_mt) :: xargs, xbody_me)
   | _ -> ([], xme)
 
+
+let rec sugar_mod_with c ({ast= me} as xme) =
+  let ctx = Mty me in
+  match me with
+  | {pmty_desc = Pmty_with (mt, wcs); pmty_attributes = []} ->
+      let args, rest = sugar_mod_with c (sub_mty ~ctx mt) in
+      wcs :: args, rest
+  | _ -> [],  xme
+
 let delimiter_is_begin_end c ctx =
   let begin_end =
     (c.conf.begin_end :> [`Match | `Try | `If | `Other] list)
@@ -2624,9 +2633,10 @@ and fmt_module_type c ({ast= mty} as xmty) =
               $ fmt " ->@ " $ Option.call ~f:blk.pro )
       ; epi= Some (Option.call ~f:blk.epi $ Cmts.fmt_after c.cmts pmty_loc)
       }
-  | Pmty_with (mt, wcs) ->
+  | Pmty_with _ ->
+      let wcs, mt = sugar_mod_with c (sub_mty ~ctx mty) in
       let {opn; pro; psp; bdy; cls; esp; epi} =
-        fmt_module_type c (sub_mty ~ctx mt)
+        fmt_module_type c mt
       in
       { empty with
         bdy=
@@ -2634,9 +2644,10 @@ and fmt_module_type c ({ast= mty} as xmty) =
             (wrap_if parens "(" ")"
                ( opn $ Option.call ~f:pro $ psp $ bdy $ cls $ esp
                $ Option.call ~f:epi
-               $ list_fl wcs (fun ~first ~last:_ wc ->
+               $ list_fl (List.rev wcs) (fun ~first:_ ~last:_ wcs_and ->
+                   list_fl wcs_and (fun ~first ~last:_ wc ->
                      fmt_or first "@ with" "@;<1 1>and"
-                     $ fmt_with_constraint c ctx wc ) ))
+                     $ fmt_with_constraint c ctx wc ) )))
       ; epi=
           Some (fmt_attributes c ~key:"@" pmty_attributes ~pre:(fmt "@ "))
       }
