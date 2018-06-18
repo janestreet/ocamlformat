@@ -698,9 +698,10 @@ and fmt_package_type c ctx ({txt}, cnstrs) =
   $ fmt_if (not (List.is_empty cnstrs)) "@;<1 2>"
   $ hvbox 0
       (list_fl cnstrs (fun ~first ~last:_ ({txt}, typ) ->
-           fmt_or first "with type " "@;<1 1>and type "
+           fmt_or first "with type " "@;<1000 1>and type "
            $ fmt_longident txt $ fmt " = "
-           $ fmt_core_type c (sub_typ ~ctx typ) ))
+           $ fmt_core_type c (sub_typ ~ctx typ)
+       ))
 
 and fmt_row_field c ctx = function
   | Rtag ({txt; loc}, atrs, const, typs) ->
@@ -1505,7 +1506,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
       let cnd_exps = sugar_ite c xexp in
       let delimiter_is_begin_end = delimiter_is_begin_end c ctx in
       hvbox 0
-        (wrap_fits_breaks_if parens "(" ")"
+        (wrap_fits_breaks_if_no_space parens "(" ")"
            (list_fl cnd_exps
               (fun ~first ~last (xcnd, xbch, pexp_attributes) ->
                 let parens_bch = parenze_exp xbch in
