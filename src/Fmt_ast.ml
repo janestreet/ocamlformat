@@ -2249,9 +2249,7 @@ and fmt_class_type_field c ctx (cf: class_type_field) =
   let fmt_cmts = Cmts.fmt c.cmts ?eol:None pctf_loc in
   let doc, atrs = doc_atrs pctf_attributes in
   let fmt_atrs = fmt_attributes c ~pre:(fmt " ") ~key:"@@" atrs in
-  fmt_docstring c ~pro:(fmt "@\n")
-    ~epi:(match doc with Some (_, true) -> fmt "@\n@\n" | _ -> fmt "@\n")
-    doc
+  fmt_docstring c ~pro:(fmt "@\n") ~epi:(fmt "@\n") doc
   $ hvbox_if true 0
     @@ fmt_cmts
          ( match pctf_desc with
@@ -2446,8 +2444,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
   Cmts.fmt c.cmts loc @@ Cmts.fmt c.cmts ptype_loc
   @@ hvbox 0
        ( fmt_docstring c
-           ~epi:
-             (match doc with Some (_, true) -> fmt "@,@," | _ -> fmt "@,")
+           ~epi:(fmt "@,")
            doc
        $ hvbox 0
            ( hvbox 2
@@ -2487,8 +2484,7 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
       ( hvbox 2
           ( wrap_if (is_symbol_id txt) "( " " )" (str txt)
           $ fmt_constructor_arguments_result c ctx pcd_args pcd_res )
-      $ fmt_if (Option.is_some doc) "@;<2 0>"
-      $ fmt_docstring c doc
+      $ fmt_docstring c ~pro:(fmt "@;<2 0>") doc
       $ fmt_attributes c ~pre:(fmt " ") ~key:"@" atrs )
   $ Cmts.fmt_after c.cmts ?pro:None ~epi:(fmt "@ ") loc
   $ Cmts.fmt_after c.cmts ?pro:None ~epi:(fmt "@ ") pcd_loc
@@ -2785,10 +2781,7 @@ and fmt_class_types c ctx ~pre ~sep (cls: class_type class_infos list) =
       in
       let doc, atrs = doc_atrs pci_attributes in
       Cmts.fmt c.cmts pci_loc
-      @@ fmt_docstring c
-           ~epi:
-             (match doc with Some (_, true) -> fmt "@,@," | _ -> fmt "@,")
-           doc
+      @@ fmt_docstring c ~epi:(fmt "@,") doc
       $ hovbox 2
           ( hvbox 2
               ( str (if first then pre else "and")
@@ -2819,9 +2812,7 @@ and fmt_class_exprs c ctx (cls: class_expr class_infos list) =
       in
       let doc, atrs = doc_atrs pci_attributes in
       Cmts.fmt c.cmts pci_loc
-      @@ fmt_docstring c
-           ~epi:
-             (match doc with Some (_, true) -> fmt "@,@," | _ -> fmt "@,")
+      @@ fmt_docstring c ~epi:(fmt "@,")
            doc
       $ hvbox 2
           ( hovbox 2
@@ -3436,7 +3427,7 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
   in
   fmt_docstring c
     ?pro:(if first then None else Some (fmt "@;<1000 0>"))
-    ~epi:(match doc with Some (_, true) -> fmt "@,@," | _ -> fmt "@,")
+    ~epi:(fmt "@,")
     doc
   $ Cmts.fmt_before c.cmts pvb_loc
   $ hvbox indent

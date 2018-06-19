@@ -9,3 +9,22 @@ let _ =
       e)
   in
   ()
+;;
+
+(** test *)
+let x =
+  1;
+  2
+
+(** testf1 *)
+
+(** testf2 *)
+
+(** test *)
+and y =
+  2;
+  3
+
+(** test *)
+and z = 5
+;;
