@@ -3429,7 +3429,7 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
     atrs, []
   in
   fmt_docstring c
-    ?pro:(match doc with Some (_, true) -> Some (fmt "@;<1000 0>") | _ -> None)
+    ?pro:(if first then None else Some (fmt "@;<1000 0>"))
     ~epi:(match doc with Some (_, true) -> fmt "@,@," | _ -> fmt "@,")
     doc
   $ Cmts.fmt_before c.cmts pvb_loc
