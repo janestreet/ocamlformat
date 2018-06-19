@@ -2845,6 +2845,35 @@ and fmt_class_exprs c ctx (cls: class_expr class_infos list) =
       $ fmt_attributes c ~key:"@@" atrs )
 
 and fmt_module c ?epi keyword name xargs xbody colon xmty attributes =
+  match xargs, xbody, xmty with
+  | [], Some ({ast = {pmod_desc = Pmod_ident _}} as xbody), None ->
+    let {txt= name; loc} = name in
+    let doc, atrs = doc_atrs attributes in
+    let { opn= opn_b
+        ; pro= pro_b
+        ; psp= psp_b
+        ; bdy= bdy_b
+        ; cls= cls_b
+        ; esp= esp_b
+        ; epi= epi_b } = fmt_module_expr c xbody
+    in
+    hvbox 0
+      ( fmt_docstring c ~epi:(fmt "@,") doc
+        $ hvbox 4
+            ( keyword $ fmt " "
+              $ Cmts.fmt c.cmts loc @@ str name
+              $ fmt " =")
+        $ fmt "@,"
+        $ hvbox 0 (
+          opn_b
+          $ fmt "@,"
+          $ fmt_if (Option.is_some pro_b) "@;"
+          $ Option.call ~f:pro_b $ close_box $ psp_b
+          $ fmt_if (Option.is_none pro_b) "@;"
+          $ bdy_b $ cls_b $ esp_b $ Option.call ~f:epi_b
+          $ fmt_attributes c ~pre:(fmt "@ ") ~key:"@@" atrs)
+        $ Option.call ~f:epi )
+  | _ ->
   let {txt= name; loc} = name in
   let doc, atrs = doc_atrs attributes in
   let arg_blks =
