@@ -504,7 +504,16 @@ end = struct
                   check_type d1
               | _ -> false ) )
       | _ -> assert false )
-    | Mod _ -> assert false
+    | Mod ctx -> (
+        match ctx.pmod_desc with
+        | Pmod_unpack
+            { pexp_desc=
+                Pexp_constraint
+                  (_, {ptyp_desc= Ptyp_package (_,typs); _})
+            ; _ } ->
+            assert (List.exists typs ~f:snd_f)
+        | _ -> assert false
+      )
     | Sig ctx -> (
       match ctx.psig_desc with
       | Psig_value {pval_type= t1} -> assert (typ == t1)

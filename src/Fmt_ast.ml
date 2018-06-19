@@ -314,9 +314,13 @@ let rec sugar_functor c ~allow_attributes ({ast= me} as xme) =
 let rec sugar_mod_with c ({ast= me} as xme) =
   let ctx = Mty me in
   match me with
-  | {pmty_desc = Pmty_with (mt, wcs); pmty_attributes = []} ->
-      let args, rest = sugar_mod_with c (sub_mty ~ctx mt) in
-      wcs :: args, rest
+  | {pmty_desc = Pmty_with (mt, wcs); pmty_attributes} ->
+      let body = (sub_mty ~ctx mt) in
+      let args, rest =
+        match pmty_attributes with
+        | [] -> sugar_mod_with c body
+        | _ -> [], body in
+      (ctx, wcs) :: args, rest
   | _ -> [],  xme
 
 let delimiter_is_begin_end c ctx =
@@ -519,7 +523,7 @@ let fmt_docstring c ?pro ?epi doc =
       fmt_if_k
         (not (Cmts.doc_is_dup c.cmts doc))
         ( Cmts.fmt c.cmts loc
-          @@ vbox_if false 0
+          @@ vbox_if true 0
                ( fmt "(**"
                  $ (if c.conf.wrap_comments then fill_text else str) txt
                  $ fmt "*)"
@@ -2447,7 +2451,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
   Cmts.fmt c.cmts loc @@ Cmts.fmt c.cmts ptype_loc
   @@ hvbox 0
        ( fmt_docstring c
-           ~epi:(fmt "@,")
+           ~epi:(fmt "@;<1000 0>")
            doc
        $ hvbox 0
            ( hvbox 2
@@ -2615,7 +2619,7 @@ and fmt_module_type c ({ast= mty} as xmty) =
             $ fmt_attributes c ~key:"@" pmty_attributes ~pre:(fmt "@ ") ) }
   | Pmty_functor _ ->
     let xargs, mt2 =
-      sugar_functor_type c ~allow_attributes:true (sub_mty ~ctx mty)
+      sugar_functor_type c ~allow_attributes:true xmty
     in
     let blk = fmt_module_type c mt2 in
     { blk with
@@ -2639,7 +2643,7 @@ and fmt_module_type c ({ast= mty} as xmty) =
       ; epi= Some (Option.call ~f:blk.epi $ Cmts.fmt_after c.cmts pmty_loc)
       }
   | Pmty_with _ ->
-      let wcs, mt = sugar_mod_with c (sub_mty ~ctx mty) in
+      let wcs, mt = sugar_mod_with c xmty in
       let {opn; pro; psp; bdy; cls; esp; epi} =
         fmt_module_type c mt
       in
@@ -2649,7 +2653,7 @@ and fmt_module_type c ({ast= mty} as xmty) =
             (wrap_if parens "(" ")"
                ( opn $ Option.call ~f:pro $ psp $ bdy $ cls $ esp
                $ Option.call ~f:epi
-               $ list_fl (List.rev wcs) (fun ~first:_ ~last:_ wcs_and ->
+               $ list_fl (List.rev wcs) (fun ~first:_ ~last:_ (ctx, wcs_and) ->
                    list_fl wcs_and (fun ~first ~last:_ wc ->
                      fmt_or first "@ with" "@;<1 1>and"
                      $ fmt_with_constraint c ctx wc ) )))
