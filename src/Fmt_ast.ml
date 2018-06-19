@@ -487,10 +487,9 @@ let fmt_variance = function
 
 let doc_atrs atrs =
   let doc, rev_atrs =
-    List.fold atrs ~init:(None, []) ~f:(fun (doc, rev_atrs) atr ->
-        match (doc, atr) with
-        | ( None
-          , ( {txt= ("ocaml.doc" | "ocaml.text") as txt}
+    List.fold atrs ~init:([], []) ~f:(fun (docs, rev_atrs) atr ->
+        match atr with
+        | ( {txt= ("ocaml.doc" | "ocaml.text") as txt}
             , PStr
                 [ { pstr_desc=
                       Pstr_eval
@@ -498,27 +497,34 @@ let doc_atrs atrs =
                               Pexp_constant (Pconst_string (doc, None))
                           ; pexp_loc= loc
                           ; pexp_attributes= [] }
-                        , [] ) } ] ) ) ->
-            (Some ({txt= doc; loc}, String.equal "ocaml.text" txt), rev_atrs)
-        | _ -> (doc, atr :: rev_atrs) )
+                        , [] ) } ] ) ->
+            (({txt= doc; loc}, String.equal "ocaml.text" txt) :: docs, rev_atrs)
+        | _ -> (docs, atr :: rev_atrs) )
   in
-  (doc, List.rev rev_atrs)
+  (List.rev doc, List.rev rev_atrs)
 
 let fmt_docstring c ?pro ?epi doc =
-  opt doc (fun (({txt; loc} as doc), floating) ->
-      let epi =
-        match epi with
-        | Some _ -> epi
-        | None when floating -> Some (fmt "@,")
-        | None -> None
-      in
+  let epi = match epi,doc with
+    | Some epi, _ :: _ -> epi
+    | Some _, []
+    | None, _ -> fmt ""
+  in
+  let pro = match pro,doc with
+    | Some pro, _ :: _ -> pro
+    | Some _, []
+    | None,_ -> fmt ""
+  in
+  pro
+  $ list doc "@;" (fun (({txt; loc} as doc), floating) ->
       fmt_if_k
         (not (Cmts.doc_is_dup c.cmts doc))
         ( Cmts.fmt c.cmts loc
-        @@ vbox_if (Option.is_none pro) 0
-             ( Option.call ~f:pro $ fmt "(**"
-             $ (if c.conf.wrap_comments then fill_text else str) txt
-             $ fmt "*)" $ Option.call ~f:epi ) ) )
+          @@ vbox_if false 0
+               ( fmt "(**"
+                 $ (if c.conf.wrap_comments then fill_text else str) txt
+                 $ fmt "*)"
+                 $ fmt_if floating "@," ) ) )
+  $ epi
 
 let fmt_extension_suffix c ext =
   opt ext (fun {txt; loc} -> str "%" $ Cmts.fmt c.cmts loc (str txt))
@@ -3210,7 +3216,7 @@ and fmt_structure c ?(sep= "") ctx itms =
     List.group itms ~break:(fun itmI itmJ ->
         let has_doc itm =
           match itm.pstr_desc with
-          | Pstr_attribute atr -> Option.is_some (fst (doc_atrs [atr]))
+          | Pstr_attribute atr -> not (List.is_empty (fst (doc_atrs [atr])))
           | Pstr_eval (_, atrs)
            |Pstr_value (_, {pvb_attributes= atrs} :: _)
            |Pstr_primitive {pval_attributes= atrs}
@@ -3224,10 +3230,10 @@ and fmt_structure c ?(sep= "") ctx itms =
            |Pstr_extension (_, atrs)
            |Pstr_class_type ({pci_attributes= atrs} :: _)
            |Pstr_class ({pci_attributes= atrs} :: _) ->
-              Option.is_some (fst (doc_atrs atrs))
+              not (List.is_empty (fst (doc_atrs atrs)))
           | Pstr_module {pmb_attributes; pmb_expr= {pmod_attributes}} ->
-              Option.is_some
-                (fst (doc_atrs (List.append pmb_attributes pmod_attributes)))
+              not (List.is_empty 
+                (fst (doc_atrs (List.append pmb_attributes pmod_attributes))))
           | Pstr_value (_, [])
            |Pstr_type (_, [])
            |Pstr_recmodule []
