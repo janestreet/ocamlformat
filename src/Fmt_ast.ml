@@ -2641,7 +2641,7 @@ and fmt_module_type c ({ast= mty} as xmty) =
                         $ opt mt1 (fun mt1 ->
                           let {opn; pro; psp; bdy; cls; esp; epi} = mt1 in
 
-                          opn $ fmt " :@ " $ Option.call ~f:pro
+                          opn $ fmt " :@," $ Option.call ~f:pro
                           $ psp $ fmt "@;<1 2>" $ bdy $ esp $
                           Option.call ~f:epi  $ cls))))
               $ fmt " ->@ " $ Option.call ~f:blk.pro )
