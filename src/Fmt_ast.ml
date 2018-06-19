@@ -3252,7 +3252,7 @@ and fmt_module c ?epi keyword name xargs xbody colon xmty attributes =
     $ fmt_if (Option.is_none pro_b && Option.is_some xbody) "@ "
     $ bdy_b $ cls_b $ esp_b $ Option.call ~f:epi_b
     $ fmt_attributes c ~pre:(fmt "@ ") ~key:"@@" atrs
-    $ fmt_if_k (Option.is_some epi) (fmt_or (Option.is_some epi_b) " " "@ ")
+    $ fmt_if_k (Option.is_some epi) (fmt_or (Option.is_some epi_b) "@ " "@ ")
     $ Option.call ~f:epi )
 
 and fmt_module_declaration c ctx ~rec_flag ~first pmd =
