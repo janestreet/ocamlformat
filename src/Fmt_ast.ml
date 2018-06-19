@@ -527,7 +527,7 @@ let fmt_docstring c ?pro ?epi doc =
                ( fmt "(**"
                  $ (if c.conf.wrap_comments then fill_text else str) txt
                  $ fmt "*)"
-                 $ fmt_if floating "@," ) ) )
+                 $ fmt_if floating "@\n" ) ) )
   $ epi
 
 let fmt_extension_suffix c ext =
@@ -2451,7 +2451,7 @@ and fmt_type_declaration c ?(pre= "") ?(suf= ("" : _ format)) ?(brk= suf)
   Cmts.fmt c.cmts loc @@ Cmts.fmt c.cmts ptype_loc
   @@ hvbox 0
        ( fmt_docstring c
-           ~epi:(fmt "@;<1000 0>")
+           ~epi:(fmt "@\n")
            doc
        $ hvbox 0
            ( hvbox 2
@@ -2727,8 +2727,12 @@ and fmt_signature_item c {ast= si} =
   | Psig_attribute ({txt= "ocamlformat.disable"; _}, _) ->
       raise Formatting_disabled
   | Psig_attribute atr ->
-      let doc, atrs = doc_atrs [atr] in
-      fmt_docstring c ~epi:(fmt "") doc $ fmt_attributes c ~key:"@@@" atrs
+    begin match doc_atrs [atr] with
+    | [], [] -> assert false
+    | _ :: _, _ :: _ -> assert false
+    | [], atrs -> fmt_attributes c ~key:"@@@" atrs
+    | doc, [] -> fmt_docstring c (List.map doc ~f:(fun (d,_) -> d,false))
+    end
   | Psig_exception exc ->
       hvbox 2
         (fmt_exception ~pre:(fmt "exception@ ") c (fmt " of ") ctx exc)
@@ -2771,7 +2775,7 @@ and fmt_signature_item c {ast= si} =
                  if Poly.(rec_flag = Recursive) then "type "
                  else "type nonrec "
                else "and "
-             and brk : _ format = if not last then "\n" else "" in
+             and brk : _ format = if not last then "@\n" else "" in
              fmt_type_declaration c ~pre ~brk ctx decl
              $ fmt_if (not last) "@ " ))
   | Psig_typext te -> fmt_type_extension c ctx te
@@ -3326,7 +3330,7 @@ and fmt_structure_item c ~sep ~last:last_item ?ext {ctx; ast= si} =
                  if Poly.(rec_flag = Recursive) then "type "
                  else "type nonrec "
                else "and "
-             and brk : _ format = if not last then "\n" else "" in
+             and brk : _ format = if not last then "@\n" else "" in
              fmt_type_declaration c ~pre ~brk ctx decl
              $ fmt_if (not last) "@ " ))
   | Pstr_typext te -> fmt_type_extension c ctx te
@@ -3437,8 +3441,8 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
     atrs, []
   in
   fmt_docstring c
-    ?pro:(if first then None else Some (fmt "@;<1000 0>"))
-    ~epi:(fmt "@,")
+    ?pro:(if first then None else Some (fmt "@\n"))
+    ~epi:(fmt "@\n")
     doc
   $ Cmts.fmt_before c.cmts pvb_loc
   $ hvbox indent
