@@ -2300,6 +2300,11 @@ and fmt_cases c ctx cs =
         | _ -> 2
       in
       let paren_body = parenze_exp xrhs in
+      let paren_body, paren_inner =
+        if paren_body
+        then false, true
+        else false, false
+      in
       let fmt_lhs =
         let xlhs = sub_pat ~ctx pc_lhs in
         let paren_lhs =
@@ -2343,7 +2348,7 @@ and fmt_cases c ctx cs =
             | true, true, true, true -> fmt " begin@;<1 4>"
             | true, true, true, false -> fmt " (@;<1 4>" )
           $ hovbox 0
-              ( hovbox 0 (fmt_expression c ~parens:false xrhs)
+              ( hovbox 0 (fmt_expression c ~parens:paren_inner xrhs)
               $ fmt_if_k paren_body
                   (fmt_or_k delimiter_is_begin_end (fmt "@;<1000 0>end")
                      (fmt "@ )")) ) ) )
@@ -3234,7 +3239,7 @@ and fmt_structure c ?(sep= "") ctx itms =
            |Pstr_class ({pci_attributes= atrs} :: _) ->
               not (List.is_empty (fst (doc_atrs atrs)))
           | Pstr_module {pmb_attributes; pmb_expr= {pmod_attributes}} ->
-              not (List.is_empty 
+              not (List.is_empty
                 (fst (doc_atrs (List.append pmb_attributes pmod_attributes))))
           | Pstr_value (_, [])
            |Pstr_type (_, [])
