@@ -568,6 +568,9 @@ and fmt_extension c ctx key (({txt} as ext), pld) =
         $ fmt_if protect_token " " )
 
 and fmt_attributes c ?(pre= fmt "") ?(suf= fmt "") ?(box= true) ~key attrs =
+  match attrs with
+  | [] -> fmt ""
+  | attrs ->
   let split = List.length attrs > 1 in
   let box = split && box in
   hvbox_if box 0
@@ -3280,8 +3283,12 @@ and fmt_structure_item c ~sep ~last:last_item ?ext {ctx; ast= si} =
   | Pstr_attribute ({txt= "ocamlformat.disable"; _}, _) ->
       raise Formatting_disabled
   | Pstr_attribute atr ->
-      let doc, atrs = doc_atrs [atr] in
-      fmt_docstring c ~epi:(fmt "") doc $ fmt_attributes c ~key:"@@@" atrs
+      begin match doc_atrs [atr] with
+      | [], [] -> assert false
+      | _ :: _, _ :: _ -> assert false
+      | [], atrs -> fmt_attributes c ~key:"@@@" atrs
+      | doc, [] -> fmt_docstring c (List.map doc ~f:(fun (d,_) -> d,false))
+      end
   | Pstr_eval (exp, atrs) ->
       let doc, atrs = doc_atrs atrs in
       str sep $ fmt_docstring c doc
