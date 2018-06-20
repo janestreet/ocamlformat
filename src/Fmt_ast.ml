@@ -2613,11 +2613,11 @@ and fmt_module_type c ({ast= mty} as xmty) =
   | Pmty_signature s ->
       let empty = List.is_empty s in
       { opn= open_hvbox 0
-      ; pro= Some (fmt "sig" $ fmt_if empty " ")
+      ; pro= Some (fmt "sig")
       ; psp= fmt_if (not empty) "@;<1000 2>"
       ; bdy= fmt_signature c ctx s
       ; cls= close_box
-      ; esp= fmt_if (not empty) "@;<1000 0>"
+      ; esp= fmt_or empty " " "@;<1000 2>"
       ; epi=
           Some
             ( fmt "end"
@@ -2846,7 +2846,7 @@ and fmt_class_exprs c ctx (cls: class_expr class_infos list) =
 
 and fmt_module c ?epi keyword name xargs xbody colon xmty attributes =
   match xargs, xbody, xmty with
-  | [], Some ({ast = {pmod_desc = Pmod_ident _}} as xbody), None ->
+  | [], Some ({ast = {pmod_desc = Pmod_ident _| Pmod_unpack _}} as xbody), None ->
     let {txt= name; loc} = name in
     let doc, atrs = doc_atrs attributes in
     let { opn= opn_b
