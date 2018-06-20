@@ -3191,7 +3191,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
       ; psp= fmt_if (not empty) "@;<1000 2>"
       ; bdy= fmt_structure c ~sep:";; " ctx sis
       ; cls= close_box
-      ; esp= fmt "@ "
+      ; esp= fmt_or empty " " "@;<1000 2>"
       ; epi=
           Some
             ( fmt "end"
