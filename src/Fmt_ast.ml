@@ -2611,9 +2611,13 @@ and fmt_module_type c ({ast= mty} as xmty) =
           Some (fmt_attributes c ~key:"@" pmty_attributes ~pre:(fmt "@ "))
       }
   | Pmty_signature s ->
-      let empty = List.is_empty s in
+    let empty = List.is_empty s in
+    let doc, atrs = doc_atrs pmty_attributes in
+
       { opn= open_hvbox 0
-      ; pro= Some (fmt "sig")
+      ; pro= Some (Cmts.fmt_before c.cmts pmty_loc
+                   $ fmt_docstring c ~epi:(fmt "@,") doc
+                   $ fmt "sig")
       ; psp= fmt_if (not empty) "@;<1000 2>"
       ; bdy= fmt_signature c ctx s
       ; cls= close_box
@@ -2621,7 +2625,8 @@ and fmt_module_type c ({ast= mty} as xmty) =
       ; epi=
           Some
             ( fmt "end"
-            $ fmt_attributes c ~key:"@" pmty_attributes ~pre:(fmt "@ ") ) }
+            $ Cmts.fmt_after c.cmts pmty_loc
+            $ fmt_attributes c ~key:"@" atrs ~pre:(fmt "@ ") ) }
   | Pmty_functor _ ->
     let xargs, mt2 =
       sugar_functor_type c ~allow_attributes:true xmty
