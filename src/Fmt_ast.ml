@@ -3507,7 +3507,9 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
     match xbody.ast with {pexp_desc= Pexp_fun _} -> 1 | _ -> 2
   in
   let at_attrs,at_at_attrs =
-    atrs, []
+    match ext with
+    | None -> atrs, []
+    | Some _ -> [], atrs
   in
   fmt_docstring c
     ?pro:(if first then None else Some (fmt "@\n"))
@@ -3528,7 +3530,7 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
               $ Option.call ~f:fmt_cstr)
           $ fmt "=" )
       $ fmt_body c xbody
-      $ fmt_attributes c ~key:"@@" at_at_attrs
+      $ fmt_attributes c ~pre:(fmt "@;") ~key:"@@" at_at_attrs
       $ Cmts.fmt_after c.cmts pvb_loc
       $ (match in_ with Some in_ -> in_ indent | None -> Fn.const ())
       $ Option.call ~f:epi )
