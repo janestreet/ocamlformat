@@ -1375,6 +1375,8 @@ end = struct
     | {pcl_desc= Pcl_fun _}, Non_apply -> true
     | _ -> false
 
+  let memo_parenzed_inner_nested_match = Hashtbl.Poly.create ()
+
   (** [exposed cls exp] holds if there is a right-most subexpression of
       [exp] which satisfies [mem_cls_exp cls] and is not parenthesized. *)
   let rec exposed_right_exp =
@@ -1444,26 +1446,87 @@ end = struct
       mem_cls_cl cls cl
       || Hashtbl.Poly.find_or_add memo (cls, cl) ~default:exposed_
 
+  and mark_parenzed_inner_nested_match exp =
+    let exposed_ () =
+      let continue subexp =
+        if not (parenze_exp (sub_exp ~ctx:(Exp exp) subexp))
+        then mark_parenzed_inner_nested_match subexp;
+        false
+      in
+      match exp.pexp_desc with
+      | Pexp_assert e
+      |Pexp_construct
+         ({txt= Lident "::"}, Some {pexp_desc= Pexp_tuple [_; e]})
+      |Pexp_construct (_, Some e)
+      |Pexp_fun (_, _, _, e)
+      |Pexp_ifthenelse (_, e, None)
+      |Pexp_ifthenelse (_, _, Some e)
+      |Pexp_lazy e
+      |Pexp_newtype (_, e)
+      |Pexp_open (_, _, e)
+      |Pexp_sequence (_, e)
+      |Pexp_setfield (_, _, e)
+      |Pexp_setinstvar (_, e)
+      |Pexp_variant (_, Some e) ->
+        continue e
+      | Pexp_let (_, _, e)
+      |Pexp_letexception (_, e)
+      |Pexp_letmodule (_, _, e)
+        -> continue e
+      | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e, _)}]) ->
+        (match e.pexp_desc with
+         | Pexp_function _ | Pexp_match _ | Pexp_try _ ->
+           mark_parenzed_inner_nested_match e;
+           true
+         | _ -> continue e)
+      | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
+        List.iter cases ~f:(fun case -> mark_parenzed_inner_nested_match case.pc_rhs);
+        true
+      | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
+      | Pexp_tuple es -> continue (List.last_exn es)
+      | Pexp_array _ | Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
+      |Pexp_construct (_, None)
+      |Pexp_extension _ | Pexp_field _ | Pexp_for _ | Pexp_ident _
+      |Pexp_new _ | Pexp_object _ | Pexp_override _ | Pexp_pack _
+      |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
+      |Pexp_variant (_, None)
+      |Pexp_while _ ->
+        false
+    in
+    let (_ : bool) =
+      Hashtbl.Poly.find_or_add memo_parenzed_inner_nested_match exp
+        ~default:exposed_ in
+    ()
+
   (** [parenze_exp {ctx; ast}] holds when expression [ast] should be
       parenthesized in context [ctx]. *)
   and parenze_exp ({ctx; ast= exp} as xexp) =
+    let rec ifthenelse pexp_desc =
+      match pexp_desc with
+      | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e, _)}]) -> ifthenelse e.pexp_desc
+      | Pexp_let _
+      | Pexp_match _
+      | Pexp_try _
+        -> true
+      | _ -> false
+    in
     assert (check_exp xexp ; true) ;
     is_displaced_prefix_op xexp
     || is_displaced_infix_op xexp
     || has_trailing_attributes_exp exp
+    || Hashtbl.find memo_parenzed_inner_nested_match exp |> Option.value ~default:false
     ||
     match (ctx, exp) with
     | Exp {pexp_desc= Pexp_extension _}, {pexp_desc= Pexp_tuple _} -> false
     | Pld _, {pexp_desc= Pexp_tuple _} -> false
     | Str {pstr_desc= Pstr_eval _}, {pexp_desc= Pexp_tuple _} -> false
     | Cl {pcl_desc= Pcl_apply _}, {pexp_desc= Pexp_apply _} -> true
-    | Exp {pexp_desc = Pexp_ifthenelse (_,thn,_); _}, { pexp_desc = Pexp_let _ }
-      when thn == exp -> true
-    | Exp {pexp_desc = Pexp_ifthenelse (_,_,Some els); _}, { pexp_desc = Pexp_let _ }
-      when els == exp -> true
+    | Exp {pexp_desc = Pexp_ifthenelse (_ ,e, _)}, { pexp_desc } when e == exp && ifthenelse pexp_desc -> true
+    | Exp {pexp_desc = Pexp_ifthenelse (_ ,_, Some e)}, { pexp_desc } when e == exp && ifthenelse pexp_desc -> true
     | Exp {pexp_desc;_}, _ ->  (
         match pexp_desc with
-      | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
+        | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
+          List.iter cases ~f:(fun {pc_rhs; _} -> mark_parenzed_inner_nested_match pc_rhs);
           List.exists cases ~f:(fun {pc_rhs} -> pc_rhs == exp)
           (* && (List.last_exn cases).pc_rhs != exp *)
           && exposed_right_exp Match exp

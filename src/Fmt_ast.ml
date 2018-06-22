@@ -2302,12 +2302,7 @@ and fmt_cases c ctx cs =
             2
         | _ -> 2
       in
-      let paren_body = parenze_exp xrhs in
-      let paren_body, paren_inner =
-        if paren_body
-        then false, true
-        else false, false
-      in
+      let paren_body = false in
       let fmt_lhs =
         let xlhs = sub_pat ~ctx pc_lhs in
         let paren_lhs =
@@ -2351,7 +2346,7 @@ and fmt_cases c ctx cs =
             | true, true, true, true -> fmt " begin@;<1 4>"
             | true, true, true, false -> fmt " (@;<1 4>" )
           $ hovbox 0
-              ( hovbox 0 (fmt_expression c ~parens:paren_inner xrhs)
+              ( hovbox 0 (fmt_expression c xrhs)
               $ fmt_if_k paren_body
                   (fmt_or_k delimiter_is_begin_end (fmt "@;<1000 0>end")
                      (fmt "@ )")) ) ) )
