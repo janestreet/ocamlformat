@@ -1696,12 +1696,21 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
           else wrap_fits_breaks_if_no_space parens "(" ")" x
         else x
       in
-      match cs with
-      | []
-       |_ :: _ :: _
-       |[ { pc_lhs=
-              {ppat_desc= Ppat_or _ | Ppat_alias ({ppat_desc= Ppat_or _}, _)}
-          } ] ->
+      let special_case_for_single_case =
+        match cs with
+        | []
+        |_ :: _ :: _
+        |[ { pc_lhs=
+               {ppat_desc= Ppat_or _ | Ppat_alias ({ppat_desc= Ppat_or _}, _)}
+           } ] -> None
+        | [{pc_lhs; pc_guard; pc_rhs}] ->
+          let inside_js = true in
+          if inside_js
+          then None
+          else Some (pc_lhs, pc_guard, pc_rhs)
+      in
+      match special_case_for_single_case with
+      | None ->
           hvbox 0
             (wrap
                ( hvbox 0
@@ -1712,7 +1721,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                    $ fmt_expression c (sub_exp ~ctx e0)
                    $ fmt "@ with" )
                $ fmt "@ " $ fmt_cases c ctx cs ))
-      | [{pc_lhs; pc_guard; pc_rhs}] ->
+      | Some (pc_lhs, pc_guard, pc_rhs) ->
           wrap
             (hovbox 2
                ( hvbox 0
