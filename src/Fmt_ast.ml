@@ -3366,7 +3366,7 @@ and fmt_structure_item c ~sep ~last:last_item ?ext ?(use_file=false) {ctx; ast= 
   | Pstr_eval (exp, atrs) ->
       let doc, atrs = doc_atrs atrs in
       str sep $ fmt_docstring c doc
-      $ cbox 0 (fmt_if (at_top && not use_file) ";;" $ fmt_expression c (sub_exp ~ctx exp))
+      $ cbox 0 (fmt_if (at_top && not use_file) ";; " $ fmt_expression c (sub_exp ~ctx exp))
       $ fmt_attributes c ~pre:(fmt " ") ~key:"@@" atrs
   | Pstr_exception extn_constr ->
       hvbox 2
