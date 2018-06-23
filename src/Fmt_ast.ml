@@ -3497,7 +3497,7 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
                 ( Some
                     (fmt "@,"
                      $ cbox 0 (
-                       fmt_core_type ~pro:":" ~need_space:true ~box:false c (sub_typ ~ctx typ) $ fmt "@ "))
+                       fmt_core_type ~pro:":" ~need_space:true ~box:false c (sub_typ ~ctx typ)))
                 , sub_exp ~ctx exp )
             | _ -> (None, xbody)
           in
@@ -3523,12 +3523,11 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
                        $ fmt_extension_suffix c ext
                        $ fmt_attributes c ~key:"@" at_attrs
                        $ fmt " " $ fmt_pattern c xpat
-                       $ fmt "@;<1 2>"
+                       $ fmt_if (not (List.is_empty xargs)) "@;<1 2>"
                        $ fmt_fun_args c xargs
                        )
-              $ fmt "@,"
               $ Option.call ~f:fmt_cstr)
-          $ fmt "=" )
+          $ fmt "@;=" )
       $ fmt_body c xbody
       $ fmt_attributes c ~pre:(fmt "@;") ~key:"@@" at_at_attrs
       $ Cmts.fmt_after c.cmts pvb_loc
