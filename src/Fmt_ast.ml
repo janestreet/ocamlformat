@@ -1007,7 +1007,7 @@ and fmt_fun_args c args =
   in
   fmt_if_k
     (not (List.is_empty args))
-    (list args "@;" (fun x -> hovbox 0 (fmt_fun_arg x)))
+    (list args "@;" (fun x -> hovbox 0 (fmt_fun_arg x)) $ fmt "@ ")
 
 and fmt_body c ({ast= body} as xbody) =
   let ctx = Exp body in
@@ -1208,7 +1208,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                   ( str "%"
                   $ hovbox 2
                       ( str txt $ fmt " "
-                      $ (fmt "fun " $ fmt_fun_args c xargs $ fmt "@ ->") )
+                      $ (fmt "fun " $ fmt_fun_args c xargs $ fmt "->") )
                   $ fmt "@ " $ fmt_expression c xbody ))
            $ fmt "@ ;@ "
            $ list
@@ -1239,7 +1239,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                   ( str "%"
                   $ hovbox 2
                       ( str txt $ fmt " "
-                      $ (fmt "fun " $ fmt_fun_args c xargs $ fmt "@ ->") )
+                      $ (fmt "fun " $ fmt_fun_args c xargs $ fmt "->") )
                   $ fmt "@ " $ fmt_expression c xbody )) ))
   | Pexp_apply
       ( { pexp_desc= Pexp_ident {txt= Ldot (Lident "Array", "get")}
@@ -1375,7 +1375,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                          $ fmt_cmts
                            @@ hvbox 0
                                 ( fmt "(fun " $ fmt_fun_args c xargs
-                                $ fmt "@ ->" ) )
+                                $ fmt "->" ) )
                      $ fmt "@;<1 2>"
                      $ fmt_expression c
                          ?box:
@@ -1516,7 +1516,7 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                 ( fmt "fun "
                 $ fmt_attributes c ~key:"@" pexp_attributes ~suf:(fmt " ")
                 $ fmt_fun_args c xargs )
-            $ fmt "@ ->" )
+            $ fmt "->" )
           $ fmt_body c xbody )
         $ fits_breaks_if parens ")" ")" )
   | Pexp_function cs ->
@@ -2121,7 +2121,7 @@ and fmt_class_expr c ?eol ?(box= true) ({ast= exp} as xexp) =
         (if Option.is_none eol then 2 else 1)
         ( fmt_if parens "("
         $ ( open_hovbox 2
-          $ (hovbox 4 (fmt "fun " $ fmt_fun_args c xargs) $ fmt "@ ->")
+          $ (hovbox 4 (fmt "fun " $ fmt_fun_args c xargs) $ fmt "->")
           $ close_box $ fmt "@ "
           $ fmt_class_expr c ~eol:(fmt "@;<1000 0>") xbody )
         $ fits_breaks_if parens ")" "@ )" )
@@ -2207,11 +2207,8 @@ and fmt_class_field c ctx (cf: class_field) =
           | {pexp_desc= Pexp_constraint _}, Some _ -> (poly, xbody)
           | _, poly -> (poly, xbody)
         in
-        (match xargs with
-         | [] -> fmt ""
-         | _ -> fmt_fun_args c xargs $ fmt "@ "
-        )
-        $ opt ty (fun t -> fmt ":@ " $ fmt_core_type c (sub_typ ~ctx t))
+        fmt_fun_args c xargs
+        $ opt ty (fun t -> fmt " : " $ fmt_core_type c (sub_typ ~ctx t))
         $ fmt "=@;"
         $ hvbox 2 (fmt_expression c e)
     | Cfk_concrete (_, e) ->
@@ -2848,11 +2845,8 @@ and fmt_class_exprs c ctx (cls: class_expr class_infos list) =
               $ fmt_if Poly.(pci_virt = Virtual) "@ virtual"
               $ fmt "@ "
               $ fmt_class_params c ctx ~epi:(fmt "@ ") pci_params
-              $ str pci_name.txt
-              $ fmt "@;<1 2>"
-              $ ( (match xargs with
-                | [] -> fmt ""
-                | _ -> fmt_fun_args c xargs $ fmt "@ ")
+              $ str pci_name.txt $ fmt "@;<1 2>"
+              $ ( fmt_fun_args c xargs
                 $ opt ty (fun t ->
                       fmt ":@ " $ fmt_class_type c (sub_cty ~ctx t) )
                 $ fmt "=" ) )
@@ -3522,12 +3516,9 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
             ( hvbox 2 (str keyword
                        $ fmt_extension_suffix c ext
                        $ fmt_attributes c ~key:"@" at_attrs
-                       $ fmt " " $ fmt_pattern c xpat
-                       $ fmt_if (not (List.is_empty xargs)) "@;<1 2>"
-                       $ fmt_fun_args c xargs
-                       )
-              $ Option.call ~f:fmt_cstr)
-          $ fmt "@;=" )
+                       $ fmt " " $ fmt_pattern c xpat $ fmt "@ " $ fmt_fun_args c xargs)
+            $ Option.call ~f:fmt_cstr)
+          $ fmt "=" )
       $ fmt_body c xbody
       $ fmt_attributes c ~pre:(fmt "@;") ~key:"@@" at_at_attrs
       $ Cmts.fmt_after c.cmts pvb_loc
