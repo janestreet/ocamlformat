@@ -1581,10 +1581,10 @@ and fmt_expression c ?(box= true) ?epi ?eol ?parens ?ext
                         $ fmt "@ " )
                     $ hvbox 2
                         ( fmt_or (Option.is_some xcnd) "then" "else"
-                        $ fmt_if_k parens_bch
-                            (fmt_or_k delimiter_is_begin_end (fmt " begin")
-                               (fmt " ("))
-                        $ fmt "@ "
+                        $ fmt_or_k parens_bch
+                            (fmt_or_k delimiter_is_begin_end (fmt " begin@,")
+                               (fmt " (@,"))
+                            (fmt "@ ")
                         $ fmt_expression c ~box:false ~parens:false xbch
                         $ fmt_if_k parens_bch
                             (fmt_or_k delimiter_is_begin_end (fmt " end")
