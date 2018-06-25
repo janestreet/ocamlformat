@@ -1475,8 +1475,8 @@ end = struct
         -> continue e
       | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e, _)}]) ->
         (match e.pexp_desc with
-         | Pexp_function _ | Pexp_match _ | Pexp_try _ ->
-           mark_parenzed_inner_nested_match e;
+         | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
+           List.iter cases ~f:(fun case -> mark_parenzed_inner_nested_match case.pc_rhs);
            true
          | _ -> continue e)
       | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
@@ -1525,6 +1525,7 @@ end = struct
     | Exp {pexp_desc = Pexp_ifthenelse (_ ,_, Some e)}, { pexp_desc } when e == exp && ifthenelse pexp_desc -> true
     | Exp {pexp_desc;_}, _ ->  (
         match pexp_desc with
+        | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval ({pexp_desc = (Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases))}, _)}])
         | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
           List.iter cases ~f:(fun {pc_rhs; _} -> mark_parenzed_inner_nested_match pc_rhs);
           List.exists cases ~f:(fun {pc_rhs} -> pc_rhs == exp)
