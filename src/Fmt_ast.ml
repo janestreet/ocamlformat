@@ -2628,7 +2628,7 @@ and fmt_module_type c ({ast= mty} as xmty) =
       ; psp= fmt_if (not empty) "@;<1000 2>"
       ; bdy= fmt_signature c ctx s
       ; cls= close_box
-      ; esp= fmt_or empty " " "@;<1000 2>"
+      ; esp= fmt_or empty " " "@;<1000 0>"
       ; epi=
           Some
             ( fmt "end"
@@ -3206,7 +3206,7 @@ and fmt_module_expr c ({ast= m} as xmod) =
       ; psp= fmt_if (not empty) "@;<1000 2>"
       ; bdy= fmt_structure c ~sep:";; " ctx sis
       ; cls= close_box
-      ; esp= fmt_or empty " " "@;<1000 2>"
+      ; esp= fmt_or empty " " "@;<1000 0>"
       ; epi=
           Some
             ( fmt "end"

@@ -28,22 +28,28 @@ module U :
   S
   with type ttttttttt = int
    and type uuuuuuuu = int
-   and type vvvvvvvvvvv = int = struct
-end
+   and type vvvvvvvvvvv = int = struct end
 
 module U :
   S
   with type ttttttttt = int
    and type uuuuuuu = int
-  with type vvvvvvvvv = int = struct
+  with type vvvvvvvvv = int = struct end
+
+module U =
+ (val S
+  : S
+  with type t = int
+   and type u = int)
+
+module U =
+ (val S
+  : S
+  with type t = int
+   and type u = int)
+
+module S : sig
+  val x : int
+end = struct
+  let x = 3
 end
-
-module U = (val S
-  : S
-  with type t = int
-   and type u = int)
-
-module U = (val S
-  : S
-  with type t = int
-   and type u = int)
