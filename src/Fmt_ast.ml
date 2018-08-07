@@ -1976,7 +1976,7 @@ and fmt_expression c ?(box = true) ?epi ?eol ?parens ?ext
                     list grp
                       ( match c.conf.sequence_style with
                       | `Separator -> " ;@ "
-                      | `Terminator -> ";@ " )
+                      | `Terminator -> ";@;<1000 0>" )
                       (fmt_expression c) ))
            $ fmt_atrs ))
   | Pexp_setfield (e1, lid, e2) ->
