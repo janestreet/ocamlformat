@@ -1886,6 +1886,13 @@ end = struct
             else exposed_right_exp Non_apply exp
         | _ -> exposed_right_exp Non_apply exp )
     in
+    let rec ifthenelse pexp_desc =
+      match pexp_desc with
+      | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e, _)}]) ->
+          ifthenelse e.pexp_desc
+      | Pexp_let _ | Pexp_match _ | Pexp_try _ -> true
+      | _ -> false
+    in
     assert (check_exp xexp ; true) ;
     is_displaced_prefix_op xexp
     || is_displaced_infix_op xexp
@@ -1902,6 +1909,12 @@ end = struct
     | Pld _, {pexp_desc= Pexp_tuple _} -> false
     | Str {pstr_desc= Pstr_eval _}, {pexp_desc= Pexp_tuple _} -> false
     | Cl {pcl_desc= Pcl_apply _}, _ -> parenze ()
+    | Exp {pexp_desc= Pexp_ifthenelse (_, e, _)}, {pexp_desc}
+      when e == exp && ifthenelse pexp_desc ->
+        true
+    | Exp {pexp_desc= Pexp_ifthenelse (_, _, Some e)}, {pexp_desc}
+      when e == exp && ifthenelse pexp_desc ->
+        true
     | ( Exp {pexp_desc= Pexp_apply (op, (Nolabel, _) :: (Nolabel, e1) :: _)}
       , { pexp_desc=
             Pexp_apply ({pexp_desc= Pexp_ident {txt= Lident "not"}}, _) } )
