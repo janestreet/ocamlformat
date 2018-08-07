@@ -137,6 +137,12 @@ let wrap_if_fits_and cnd pre suf k fs =
   k fs ;
   fits_breaks_if cnd suf "" fs
 
+let wrap_fits_breaks_and_space pre suf k fs =
+  let pre = pre ^ " " in
+  fits_breaks_if true pre pre fs ;
+  k fs ;
+  fits_breaks_if true (" " ^ suf) ("@;<1000 0>" ^ suf) fs
+
 let wrap_fits_breaks_if cnd pre suf k fs =
   fits_breaks_if cnd pre (pre ^ " ") fs ;
   k fs ;
