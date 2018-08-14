@@ -1019,8 +1019,8 @@ and fmt_pattern c ?pro ?parens ({ctx= ctx0; ast= pat} as xpat) =
             (fun ~first:first_grp ~last:_ xpat_grp ->
               list_fl xpat_grp (fun ~first ~last xpat ->
                   let pro =
-                    if first_grp && first then pro0 $ open_hovbox (-2)
-                    else if first then proI $ open_hovbox (-2)
+                    if first_grp && first then pro0 $ open_hvbox (-2)
+                    else if first then proI $ open_hvbox (-2)
                     else pro2
                   in
                   (* side effects of Cmts.fmt_before before [fmt_pattern] is
@@ -2597,7 +2597,7 @@ and fmt_cases c ctx cs =
         in
         let pro =
           fmt_or_k
-            (break_cases_level c > 1)
+            (true || break_cases_level c > 1)
             (break_unless_newline 1000 0 $ fmt "| ")
             (if first then if_newline "| " else fmt "| ")
         in
@@ -2611,7 +2611,8 @@ and fmt_cases c ctx cs =
           $ fmt_if_k (indent <= 2) fmt_arrow_close_box )
         $ fmt_if_k (indent > 2) fmt_arrow_close_box
       in
-      fmt_if (not first) "@ " $ leading_cmt
+      fmt_if (not first) "@;<1000 0>"
+      $ leading_cmt
       $ cbox_if
           (break_cases_level c = 0)
           indent
