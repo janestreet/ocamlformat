@@ -3852,9 +3852,12 @@ and fmt_value_binding c ~rec_flag ~first ?ext ?in_ ?epi ctx binding =
             $ fmt_extension_suffix c ext
             $ fmt_attributes c ~key:"@" at_attrs
             $ fmt_if (first && Poly.(rec_flag = Recursive)) " rec"
-            $ fmt " " $ fmt_pattern c xpat
-            $ fmt_if (not (List.is_empty xargs)) "@ "
-            $ hvbox_if (not c.conf.wrap_fun_args) 0 (fmt_fun_args c xargs)
+            $ hvbox_if
+                (not c.conf.wrap_fun_args)
+                0
+                ( fmt " " $ fmt_pattern c xpat
+                $ fmt_if (not (List.is_empty xargs)) "@ "
+                $ fmt_fun_args c xargs )
             $ Option.call ~f:fmt_cstr )
         $
         if Option.is_some fmt_cstr then fmt "@ ="
