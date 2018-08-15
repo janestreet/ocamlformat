@@ -915,6 +915,44 @@ let update_using_env conf =
                 , Sexp.List [Sexp.Atom name; Sexp.Atom value] ) ))
   with Sys_error _ -> conf
 
+
+let read_profile profile conf =
+  String.split ~on:'\n' profile
+  |> List.fold ~init:conf ~f:(fun conf line ->
+         match parse_line conf ~from:(`File ("", 0)) line with
+         | Ok conf -> conf
+         | Error _ -> assert false )
+
+let janestreet_profile =
+  {|
+break-cases=fit
+break-infix=fit-or-vertical
+break-string-literals=wrap
+doc-comments=before
+extension-sugar=preserve
+field-space=loose
+if-then-else=keyword-first
+indicate-nested-or-patterns=false
+infix-precedence=parens
+leading-nested-match-parens=true
+let-and=sparse
+let-open=preserve
+margin=90
+ocp-indent-compat=true
+parens-tuple=multi-line-only
+sequence-style=terminator
+type-decl=sparse
+wrap-fun-args=false
+module-item-spacing=compact
+|}
+
+
+let janestreet_locked =
+  match Caml.Sys.getenv "OCAMLFORMAT_OUTSIDE_JANESTREET" with
+  | "true" -> false
+  | _ -> true
+  | exception _ -> true
+
 type 'a input = {kind: 'a; name: string; file: string; conf: t}
 
 type action =
@@ -938,6 +976,8 @@ let update_using_xdg =
   | None -> Staged.stage (fun conf -> conf)
 
 let build_config ~filename =
+  if janestreet_locked then default |> read_profile janestreet_profile
+  else
   default
   |> Staged.unstage update_using_xdg
   |> read_config ~filename ~parents:true
@@ -965,4 +1005,8 @@ let action =
 
 and debug = !debug
 
-let parse_line_in_attribute = parse_line ~from:`Attribute
+let parse_line_in_attribute =
+  let locked _ _ =
+    Error (`Malformed "locally configure ocamlformat was disabled")
+  in
+  if janestreet_locked then locked else parse_line ~from:`Attribute
