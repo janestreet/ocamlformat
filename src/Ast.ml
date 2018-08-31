@@ -1921,7 +1921,7 @@ end = struct
     | ( Exp {pexp_desc= Pexp_apply (op, (Nolabel, _) :: (Nolabel, e1) :: _)}
       , { pexp_desc=
             Pexp_apply ({pexp_desc= Pexp_ident {txt= Lident "not"}}, _) } )
-      when is_infix op && not (e1 == exp) ->
+      when is_infix op && not (e1 == exp) && false ->
         true
     | ( Exp {pexp_desc= Pexp_apply (e, _)}
       , {pexp_desc= Pexp_construct _ | Pexp_variant _} )
