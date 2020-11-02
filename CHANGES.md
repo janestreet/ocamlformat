@@ -49,6 +49,8 @@
 
   + Do not change the spaces within the code spans in docstrings (#1499, @gpetiot)
 
+  + Fix position of comments around list constructor (::) (#1524, @gpetiot)
+
 #### New features
 
 #### Internal
