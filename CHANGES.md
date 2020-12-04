@@ -2,6 +2,33 @@
 
 #### Removed
 
+  + Remove the 'let-open' option, deprecated since 0.16.0 (#1563, @gpetiot)
+
+#### Bug fixes
+
+  + Fix parsing of invalid file wrt original source handling (#1542, @hhugo)
+
+  + Preserve the syntax of infix set/get operators (#1528, @gpetiot)
+    `String.get` and similar calls used to be automatically rewritten to their corresponding infix form `.()`, that was incorrect when using the `-unsafe` compilation flag. Now the concrete syntax of these calls is preserved.
+
+  + Add location of invalid docstring in warning messages (#1529, @gpetiot)
+
+  + Fix comments on the same line as prev and next elements (#1556, @gpetiot)
+
+  + Break or-patterns after comments and preserve their position at the end of line (#1555, @gpetiot)
+
+  + Fix linebreak between signature items of the same group (#1560, @gpetiot)
+
+  + Fix stack overflow on large string constants (#1562, @gpetiot)
+
+#### Changes
+
+  + Add buffer filename in the logs when applying ocamlformat (#1557, @dannywillems)
+
+### 0.16.0 (2020-11-16)
+
+#### Removed
+
   + Remove the 'escape-chars' option, deprecated since 0.14.0 (#1462, @gpetiot)
 
   + Remove the 'escape-strings' option, deprecated since 0.14.0 (#1463, @gpetiot)
