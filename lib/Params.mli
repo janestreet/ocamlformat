@@ -11,6 +11,8 @@
 
 module Format = Format_
 
+val parens_if : bool -> Conf.t -> ?disambiguate:bool -> Fmt.t -> Fmt.t
+
 val wrap_exp :
      Conf.t
   -> ?disambiguate:bool

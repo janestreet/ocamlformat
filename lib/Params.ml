@@ -23,6 +23,18 @@ let parens_or_begin_end (c : Conf.t) source ~loc =
       in
       if String.is_prefix ~prefix:"begin" str then `Begin_end else `Parens
 
+let parens_if parens (c : Conf.t) ?(disambiguate = false) k =
+  if disambiguate && c.Conf.disambiguate_non_breaking_match then
+    wrap_if_fits_or parens "(" ")" k
+  else if not parens then k
+  else
+    match c.Conf.indicate_multiline_delimiters with
+    | `Space ->
+      Fmt.fits_breaks "(" "(" $ k $ Fmt.fits_breaks ")" ~hint:(1, 0) ")"
+    | `Closing_on_separate_line ->
+      Fmt.fits_breaks "(" "(" $ k $ Fmt.fits_breaks ")" ~hint:(1000, 0) ")"
+    | _ -> wrap "(" ")" k
+
 let wrap_exp (c : Conf.t) ?(disambiguate = false) ?(fits_breaks = true)
     ~parens ~loc source k =
   match parens_or_begin_end c source ~loc with
