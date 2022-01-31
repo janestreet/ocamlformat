@@ -3595,6 +3595,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to local.ml.stdout
+   (with-stderr-to local.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/local.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml local.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml.err local.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to locally_abtract_types.ml.stdout
    (with-stderr-to locally_abtract_types.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/locally_abtract_types.ml})))))
