@@ -2130,6 +2130,18 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+   (with-outputs-to local.ml.output
+     (run %{bin:ocamlformat} %{dep:tests/local.ml}))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml local.ml.output)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
    (with-outputs-to locally_abtract_types.ml.output
      (run %{bin:ocamlformat} %{dep:tests/locally_abtract_types.ml}))))
 
