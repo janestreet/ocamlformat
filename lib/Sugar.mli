@@ -21,7 +21,7 @@ val decompose_arrow :
     Ast.t is a ctx that has similarly been updated to remove the attributes *)
 
 type arg_kind =
-  | Val of arg_label * pattern Ast.xt * expression Ast.xt option
+  | Val of bool * arg_label * pattern Ast.xt * expression Ast.xt option
   | Newtypes of string loc list
 
 val fun_ :
