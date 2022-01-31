@@ -14,6 +14,45 @@ open Asttypes
 open Ast
 open Extended_ast
 
+let check_local_attr attrs =
+  match
+    List.partition_tf attrs ~f:(fun attr ->
+        String.equal attr.attr_name.txt "ocaml.local")
+  with
+  | [], _ -> attrs, false
+  | _::_, rest -> rest, true
+
+(* This function pulls apart an arrow type, pulling out local attributes into
+   bools and producing a context without those attributes.  This addresses the
+   problem that we need to remove the local attributes so that they can be
+   printed specially, and that the context needs to be updated to reflect this
+   to pass some internal ocamlformat sanity checks.  It's not the cleanest
+   solution in a vacuum, but is perhaps the one that will cause the fewest merge
+   conflicts in the future. *)
+let decompose_arrow ctx ctl ct2 =
+  let pull_out_local ap =
+    let ptyp_attributes, local = check_local_attr ap.pap_type.ptyp_attributes in
+    { ap with pap_type = { ap.pap_type with ptyp_attributes } }, local
+  in
+  let args = List.map ~f:pull_out_local ctl in
+  let (res_ap,_) as res =
+    let ptyp_attributes, local = check_local_attr ct2.ptyp_attributes in
+    let ap =
+      { pap_label = Nolabel;
+        pap_loc = ct2.ptyp_loc;
+        pap_type = { ct2 with ptyp_attributes }
+      }
+    in
+    ap, local
+  in
+  let ctx_typ = Ptyp_arrow (List.map ~f:fst args, res_ap.pap_type) in
+  let ctx =
+    match ctx with
+    | Typ cty -> Typ { cty with ptyp_desc = ctx_typ }
+    | _ -> assert false
+  in
+  (args @ [res], ctx)
+
 let rec or_pat ?(allow_attribute = true) cmts ({ast= pat; _} as xpat) =
   let ctx = Pat pat in
   match pat with

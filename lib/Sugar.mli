@@ -13,6 +13,13 @@ open Migrate_ast
 open Asttypes
 open Extended_ast
 
+val decompose_arrow :
+  Ast.t -> arrow_param list -> core_type -> (arrow_param * bool) list * Ast.t
+(** [decompose_arrow ctl ct2] returns a list of arrow params, where the last is
+    a dummy param corresponding to ct2 (the return type) and a bool indicating
+    the presence of a local attribute (which has been removed).  The returned
+    Ast.t is a ctx that has similarly been updated to remove the attributes *)
+
 val or_pat :
   ?allow_attribute:bool -> Cmts.t -> pattern Ast.xt -> pattern Ast.xt list
 (** [or_pat allow_attribute cmts pat] returns the list of patterns of a
