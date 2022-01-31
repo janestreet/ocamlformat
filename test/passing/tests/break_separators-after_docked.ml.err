@@ -1,2 +1,8 @@
+<<<<<<< HEAD
 Warning: tests/break_separators.ml:324 exceeds the margin
 Warning: tests/break_separators.ml:334 exceeds the margin
+||||||| parent of 21fd82a8 (Rebase of janestreet/jane 0d7b8ee..62a1097 onto ocaml-ppx/main b178884.)
+Warning: tests/break_separators.ml:335 exceeds the margin
+=======
+Warning: tests/break_separators.ml:393 exceeds the margin
+>>>>>>> 21fd82a8 (Rebase of janestreet/jane 0d7b8ee..62a1097 onto ocaml-ppx/main b178884.)
