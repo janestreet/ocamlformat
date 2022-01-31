@@ -52,6 +52,11 @@ type obj_closed_flag =
   | OClosed
   | OOpen of Location.t
 
+type global_flag =
+  | Global
+  | Nonlocal
+  | Nothing
+
 type label = string
 
 type arg_label =
