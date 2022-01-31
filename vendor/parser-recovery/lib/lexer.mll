@@ -236,37 +236,6 @@ let is_keyword name = Hashtbl.mem keyword_table name
 let check_label_name lexbuf name =
   if is_keyword name then error lexbuf (Keyword_as_label name)
 
-(* To "unlex" a few characters *)
-let set_lexeme_length buf n = (
-  let open Lexing in
-  if n < 0 then
-    invalid_arg "set_lexeme_length: offset should be positive";
-  if n > buf.lex_curr_pos - buf.lex_start_pos then
-    invalid_arg "set_lexeme_length: offset larger than lexeme";
-  buf.lex_curr_pos <- buf.lex_start_pos + n;
-  buf.lex_curr_p <- {buf.lex_start_p
-                     with pos_cnum = buf.lex_abs_pos + buf.lex_curr_pos};
-)
-
-let disambiguate lexbuf txt =
-  let pos = ref 0 in
-  let len = String.length txt in
-  let is_digit c = c >= '0' && c <= '9' in
-  while !pos < len && is_digit txt.[!pos] do incr pos done;
-  let txt =
-    if !pos < len then (
-      set_lexeme_length lexbuf !pos;
-      String.sub txt 0 !pos
-    ) else
-      txt
-  in
-  TYPE_DISAMBIGUATOR txt
-
-let try_disambiguate lexbuf = function
-  | INT (txt, None) -> Some (disambiguate lexbuf txt)
-  | FLOAT (txt, _)  -> Some (disambiguate lexbuf txt)
-  | _ -> None
-
 (* Update the current location with file name and line number. *)
 
 let update_loc lexbuf file line absolute chars =
@@ -287,26 +256,26 @@ let escaped_newlines = ref false
 
 (* Warn about Latin-1 characters used in idents *)
 
-let warn_latin1 lexbuf =
-  Location.deprecated
+let warn_latin1 lexbuf = ignore lexbuf
+  (*Location.deprecated
     (Location.curr lexbuf)
-    "ISO-Latin1 characters in identifiers"
-
-type comment = [ `Comment of string | `Docstring of string ]
+    "ISO-Latin1 characters in identifiers"*)
 
 let handle_docstrings = ref true
-let comment_list : (comment * _) list ref = ref []
+let comment_list = ref []
 
-let add_comment (txt, loc) =
-  comment_list := (`Comment txt, loc) :: !comment_list
+let add_comment com =
+  comment_list := com :: !comment_list
 
 let add_docstring_comment ds =
-  let txt = Docstrings.docstring_body ds
-  and loc = Docstrings.docstring_loc ds in
-  comment_list := (`Docstring txt, loc) :: !comment_list
+  let com =
+    ("*" ^ Docstrings.docstring_body ds, Docstrings.docstring_loc ds)
+  in
+    add_comment com
 
 let comments () = List.rev !comment_list
 
+(*
 (* Error report *)
 
 open Format
@@ -359,6 +328,7 @@ let () =
       | _ ->
           None
     )
+*)
 
 }
 
@@ -486,17 +456,17 @@ rule token = parse
   | "\'" newline "\'"
       { update_loc lexbuf None 1 false 1;
         (* newline is ('\013'* '\010') *)
-        CHAR ('\n', "\\n") }
+        CHAR '\n' }
   | "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
-      { CHAR (c, String.make 1 c) }
-  | "\'" ("\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) as s) "\'"
-      { CHAR (char_for_backslash c, s) }
-  | "\'" ("\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] as s) "\'"
-      { CHAR (char_for_decimal_code lexbuf 2, s) }
-  | "\'" ("\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] as s) "\'"
-      { CHAR (char_for_octal_code lexbuf 3, s) }
-  | "\'" ("\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] as s) "\'"
-      { CHAR (char_for_hexadecimal_code lexbuf 3, s) }
+      { CHAR c }
+  | "\'\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) "\'"
+      { CHAR (char_for_backslash c) }
+  | "\'\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] "\'"
+      { CHAR(char_for_decimal_code lexbuf 2) }
+  | "\'\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] "\'"
+      { CHAR(char_for_octal_code lexbuf 3) }
+  | "\'\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "\'"
+      { CHAR(char_for_hexadecimal_code lexbuf 3) }
   | "\'" ("\\" _ as esc)
       { error lexbuf (Illegal_escape (esc, None)) }
   | "\'\'"
@@ -521,8 +491,8 @@ rule token = parse
         in
         COMMENT (s, loc) }
   | "(*)"
-      { if !print_warnings then
-          Location.prerr_warning (Location.curr lexbuf) Warnings.Comment_start;
+      { (*if !print_warnings then
+          Location.prerr_warning (Location.curr lexbuf) Warnings.Comment_start;*)
         let s, loc = wrap_comment_lexer comment lexbuf in
         COMMENT (s, loc) }
   | "(*" (('*'*) as stars) "*)"
@@ -532,8 +502,8 @@ rule token = parse
         else
           COMMENT (stars, Location.curr lexbuf) }
   | "*)"
-      { let loc = Location.curr lexbuf in
-        Location.prerr_warning loc Warnings.Comment_not_end;
+      { (*let loc = Location.curr lexbuf in
+        Location.prerr_warning loc Warnings.Comment_not_end;*)
         lexbuf.Lexing.lex_curr_pos <- lexbuf.Lexing.lex_curr_pos - 1;
         let curpos = lexbuf.lex_curr_p in
         lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
@@ -606,7 +576,6 @@ rule token = parse
   | "**" symbolchar * as op
             { INFIXOP4 op }
   | '%'     { PERCENT }
-  | '/'     { SLASH }
   | ['*' '/' '%'] symbolchar * as op
             { INFIXOP3 op }
   | '#' symbolchar_or_hash + as op
@@ -741,15 +710,15 @@ and string = parse
 (*  Should be an error, but we are very lax.
           error lexbuf (Illegal_escape (Lexing.lexeme lexbuf, None))
 *)
-          let loc = Location.curr lexbuf in
-          Location.prerr_warning loc Warnings.Illegal_backslash;
+          (*let loc = Location.curr lexbuf in
+          Location.prerr_warning loc Warnings.Illegal_backslash;*)
         end;
         store_lexeme lexbuf;
         string lexbuf
       }
   | newline
-      { if not (in_comment ()) then
-          Location.prerr_warning (Location.curr lexbuf) Warnings.Eol_in_string;
+      { (*if not (in_comment ()) then
+          Location.prerr_warning (Location.curr lexbuf) Warnings.Eol_in_string;*)
         update_loc lexbuf None 1 false 0;
         store_lexeme lexbuf;
         string lexbuf
