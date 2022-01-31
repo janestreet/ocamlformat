@@ -46,6 +46,11 @@ type closed_flag = Closed | Open
 
 type closed_flag_loc = Closed | Open of Location.t
 
+type global_flag =
+  | Global
+  | Nonlocal
+  | Nothing
+
 type label = string
 
 type arg_label =
