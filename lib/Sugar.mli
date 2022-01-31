@@ -22,7 +22,7 @@ val decompose_arrow :
     attributes *)
 
 type arg_kind =
-  | Val of arg_label * pattern Ast.xt * expression Ast.xt option
+  | Val of bool * arg_label * pattern Ast.xt * expression Ast.xt option
   | Newtypes of string loc list
 
 val fun_ :
