@@ -4315,7 +4315,7 @@ and fmt_let c ctx ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~loc
   $ fmt_atrs
 
 and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
-    {lb_op; lb_pat; lb_typ; lb_exp; lb_attrs; lb_loc; lb_pun} =
+    {lb_op; lb_pat; lb_typ; lb_exp; lb_attrs; lb_local; lb_loc; lb_pun} =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let doc1, atrs = doc_atrs lb_attrs in
@@ -4380,6 +4380,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
                               $ fmt_extension_suffix c ext
                               $ fmt_attributes c ~key:"@" at_attrs
                               $ fmt_if rec_flag " rec"
+                              $ fmt_if lb_local " local_"
                               $ fmt_or pat_has_cmt "@ " " "
                               $ fmt_pattern c lb_pat )
                           $ fmt_if_k
