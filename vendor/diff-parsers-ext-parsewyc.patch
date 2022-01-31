@@ -273,7 +273,7 @@
  %token FUN                    "fun"
  %token FUNCTION               "function"
  %token FUNCTOR                "functor"
- %token GREATER                ">"
+ %token GLOBAL                 "global_"
 @@@@
  %token <string> LETOP         "let*" (* just an example *)
  %token <string> ANDOP         "and*" (* just an example *)
@@ -295,11 +295,11 @@
  %token LET                    "let"
  %token <string> LIDENT        "lident" (* just an example *)
 +  [@recover.expr "<invalid-lident>"]
+ %token LOCAL                  "local_"
  %token LPAREN                 "("
  %token LBRACKETAT             "[@"
  %token LBRACKETATAT           "[@@"
  %token LBRACKETATATAT         "[@@@"
- %token MATCH                  "match"
 @@@@
  %token PERCENT                "%"
  %token PLUS                   "+"
@@ -548,7 +548,7 @@
        { let desc, attrs = $1 in
          mkexp_attrs ~loc:$sloc desc attrs }
 @@@@
-       { (mk_newtypes ~loc:$sloc $5 $7).pexp_desc, $2 }
+         (mk_newtypes ~loc:$sloc $5 $7).pexp_desc, (ext, attrs) }
    | MATCH ext_attributes seq_expr WITH match_cases
        { Pexp_match($3, $5), $2 }
    | TRY ext_attributes seq_expr WITH match_cases
