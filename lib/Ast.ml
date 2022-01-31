@@ -1990,15 +1990,18 @@ end = struct
         true
     | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _} )
+        | Str {pstr_desc= Pstr_value _; _}
+        | Vb _)
       , Ppat_constraint ({ppat_desc= Ppat_any; _}, _) ) ->
         true
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _} )
+        | Str {pstr_desc= Pstr_value _; _}
+        | Vb _)
       , Ppat_constraint ({ppat_desc= Ppat_tuple _; _}, _) ) ->
         false
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _} )
+        | Str {pstr_desc= Pstr_value _; _}
+        | Vb _)
       , Ppat_constraint _ ) ->
         true
     | _, Ppat_constraint _

@@ -424,11 +424,26 @@ module Let_binding = struct
     ; lb_exp: expression xt
     ; lb_pun: bool
     ; lb_attrs: attribute list
+    ; lb_local: bool
     ; lb_loc: Location.t }
 
   let type_cstr cmts ~ctx lb_pat lb_exp =
+    let islocal, ctx, lb_pat, lb_exp =
+      match lb_exp.pexp_desc with
+      | Pexp_apply
+        ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
+         [Nolabel, sbody]) ->
+         let sattrs, _ = check_local_attr sbody.pexp_attributes in
+         let sbody = {sbody with pexp_attributes = sattrs} in
+         let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
+         let pat = {lb_pat with ppat_attributes = pattrs} in
+         let fake_ctx = Vb {pvb_pat = pat; pvb_expr = sbody; pvb_attributes = []; pvb_loc = Location.none } in
+         true, fake_ctx, sub_pat ~ctx:fake_ctx pat, sub_exp ~ctx:fake_ctx sbody
+      | _ ->
+         false, ctx, sub_pat ~ctx lb_pat, sub_exp ~ctx lb_exp
+    in
     let ({ast= pat; _} as xpat) =
-      match (lb_pat.ppat_desc, lb_exp.pexp_desc) with
+      match (lb_pat.ast.ppat_desc, lb_exp.ast.pexp_desc) with
       (* recognize and undo the pattern of code introduced by
          ocaml/ocaml@fd0dc6a0fbf73323c37a73ea7e8ffc150059d6ff to fix
          https://caml.inria.fr/mantis/view.php?id=7344 *)
@@ -437,21 +452,22 @@ module Let_binding = struct
             , {ptyp_desc= Ptyp_poly ([], typ1); _} )
         , Pexp_constraint (_, typ2) )
         when equal_core_type typ1 typ2 ->
-          Cmts.relocate cmts ~src:lb_pat.ppat_loc ~before:pat.ppat_loc
+          Cmts.relocate cmts ~src:lb_pat.ast.ppat_loc ~before:pat.ppat_loc
             ~after:pat.ppat_loc ;
-          sub_pat ~ctx:(Pat lb_pat) pat
+          sub_pat ~ctx:(Pat lb_pat.ast) pat
       | ( Ppat_constraint (pat, {ptyp_desc= Ptyp_poly ([], typ1); _})
         , Pexp_coerce (_, _, typ2) )
         when equal_core_type typ1 typ2 ->
-          Cmts.relocate cmts ~src:lb_pat.ppat_loc ~before:pat.ppat_loc
+          Cmts.relocate cmts ~src:lb_pat.ast.ppat_loc ~before:pat.ppat_loc
             ~after:pat.ppat_loc ;
-          sub_pat ~ctx:(Pat lb_pat) pat
-      | _ -> sub_pat ~ctx lb_pat
+          sub_pat ~ctx:(Pat lb_pat.ast) pat
+      | _ -> sub_pat ~ctx lb_pat.ast
     in
     let pat_is_extension {ppat_desc; _} =
       match ppat_desc with Ppat_extension _ -> true | _ -> false
     in
-    let ({ast= body; _} as xbody) = sub_exp ~ctx lb_exp in
+    let ({ast= body; _} as xbody) = sub_exp ~ctx lb_exp.ast in
+    let pat, typ, exp =
     if
       (not (List.is_empty xbody.ast.pexp_attributes)) || pat_is_extension pat
     then (xpat, `None [], xbody)
@@ -506,15 +522,18 @@ module Let_binding = struct
               let typ1 = Option.map typ1 ~f:(sub_typ ~ctx) in
               (xpat, `Coerce (typ1, sub_typ ~ctx typ2), sub_exp ~ctx exp)
           | _ -> (xpat, `None xargs, xbody) )
+    in
+    islocal, pat, typ, exp
 
   let of_value_binding cmts ~ctx ~first vb =
-    let pat, typ, exp = type_cstr cmts ~ctx vb.pvb_pat vb.pvb_expr in
+    let islocal, pat, typ, exp = type_cstr cmts ~ctx vb.pvb_pat vb.pvb_expr in
     { lb_op= Location.{txt= (if first then "let" else "and"); loc= none}
     ; lb_pat= pat
     ; lb_typ= typ
     ; lb_exp= exp
     ; lb_pun= false
     ; lb_attrs= vb.pvb_attributes
+    ; lb_local= islocal
     ; lb_loc= vb.pvb_loc }
 
   let of_value_bindings cmts ~ctx =
@@ -522,7 +541,7 @@ module Let_binding = struct
 
   let of_binding_ops cmts ~ctx bos =
     List.map bos ~f:(fun bo ->
-        let pat, typ, exp = type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp in
+        let islocal, pat, typ, exp = type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp in
         { lb_op= bo.pbop_op
         ; lb_pat= pat
         ; lb_typ= typ
@@ -533,5 +552,6 @@ module Let_binding = struct
                 String.equal v e
             | _ -> false )
         ; lb_attrs= []
+        ; lb_local= islocal
         ; lb_loc= bo.pbop_loc } )
 end
