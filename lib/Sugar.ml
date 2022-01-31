@@ -14,20 +14,42 @@ open Asttypes
 open Ast
 open Extended_ast
 
+let check_local_attr attrs =
+  match
+    List.partition_tf attrs ~f:(fun attr ->
+        String.equal attr.attr_name.txt "ocaml.local")
+  with
+  | [], _ -> attrs, false
+  | _::_, rest -> rest, true
+
 let rec arrow_typ cmts i ({ast= typ; _} as xtyp) =
   let ctx = Typ typ in
   let {ptyp_desc; ptyp_loc; _} = typ in
   match ptyp_desc with
   | Ptyp_arrow (l, t1, t2) ->
+      let ctx, local1, t1, local2, t2 =
+        match
+          check_local_attr t1.ptyp_attributes,
+          check_local_attr t2.ptyp_attributes
+        with
+        | (_, false), (_, false) ->
+           ctx, false, t1, false, t2
+        | (attr1, local1), (attr2, local2) ->
+           let t1 = { t1 with ptyp_attributes = attr1 } in
+           let t2 = { t2 with ptyp_attributes = attr2 } in
+           let ctx = Typ {typ with ptyp_desc = Ptyp_arrow (l, t1, t2) } in
+           ctx, local1, t1, local2, t2
+      in
+
       let before = if i > 0 then ptyp_loc else t1.ptyp_loc in
       Cmts.relocate cmts ~src:ptyp_loc ~before ~after:t2.ptyp_loc ;
       let rest =
         match t2.ptyp_attributes with
-        | [] -> arrow_typ cmts (i + 1) (sub_typ ~ctx t2)
-        | _ -> [(ptyp_loc, Nolabel, sub_typ ~ctx t2)]
+        | [] when not local2 -> arrow_typ cmts (i + 1) (sub_typ ~ctx t2)
+        | _ -> [(ptyp_loc, local2, Nolabel, sub_typ ~ctx t2)]
       in
-      (ptyp_loc, l, sub_typ ~ctx t1) :: rest
-  | _ -> [(ptyp_loc, Nolabel, xtyp)]
+      (ptyp_loc, local1, l, sub_typ ~ctx t1) :: rest
+  | _ -> [(ptyp_loc, false, Nolabel, xtyp)]
 
 let arrow_typ cmts t = arrow_typ cmts 0 t
 
