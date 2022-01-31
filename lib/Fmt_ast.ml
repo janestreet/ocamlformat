@@ -667,6 +667,8 @@ and fmt_core_type c ?(box = true) ?(in_type_declaration = false) ?pro
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
+  let ptyp_attributes = List.filter ptyp_attributes ~f:(fun a ->
+    not (String.equal a.attr_name.txt "ocaml.curry")) in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
   ( match (ptyp_desc, pro) with
@@ -717,12 +719,13 @@ and fmt_core_type c ?(box = true) ?(in_type_declaration = false) ?pro
              ( if Poly.(c.conf.break_separators = `Before) then
                if parens then "@;<1 1>-> " else "@ -> "
              else " ->@;<1 0>" )
-             (fun (locI, lI, xtI) ->
+             (fun (locI, localI, lI, xtI) ->
                let arg_label lbl =
                  match lbl with
-                 | Nolabel -> None
-                 | Labelled l -> Some (str l $ fmt ":@,")
-                 | Optional l -> Some (str "?" $ str l $ fmt ":@,")
+                 | Nolabel ->
+                    if localI then Some (str "local_ ") else None
+                 | Labelled l -> Some (str l $ fmt ":@," $ fmt_if localI "local_ ")
+                 | Optional l -> Some (str "?" $ str l $ fmt ":@," $ fmt_if localI "local_ ")
                in
                let arg =
                  match arg_label lI with

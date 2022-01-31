@@ -1881,6 +1881,10 @@ end = struct
               ; _ } ) }
       when List.exists t ~f:(phys_equal typ) ->
         true
+    | { ast= {ptyp_desc= Ptyp_arrow _; ptyp_attributes= attrs; _ }; _ }
+      when List.exists attrs ~f:(fun a ->
+               String.equal a.attr_name.txt "ocaml.curry") ->
+        true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
