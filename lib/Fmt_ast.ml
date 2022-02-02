@@ -1347,6 +1347,14 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
       , update_config_maybe_disabled c pexp_loc pexp_attributes
         @@ fun c ->
         fmt_cases c ctx cs $ fmt_if parens ")" $ Cmts.fmt_after c pexp_loc )
+  | { pexp_desc=
+        Pexp_apply
+          ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
+            ; _ }
+          , [(Nolabel, sbody)] )
+    ; _ } ->
+      ( fmt " local_"
+      , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | _ -> (noop, fmt_expression c ~eol:(fmt "@;<1000 0>") xbody)
 
 and fmt_indexop_access c ctx ~fmt_atrs ~has_attr ~parens x =
@@ -1940,6 +1948,10 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
            (hvbox indent_wrap
               ( fmt_infix_op_args ~parens:inner_wrap c xexp infix_op_args
               $ fmt_atrs ) ) )
+  | Pexp_apply
+      ( {pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr []); _}
+      , [(Nolabel, sbody)] ) ->
+      fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody)
   | Pexp_prefix (op, e) ->
       let has_cmts = Cmts.has_before c.cmts e.pexp_loc in
       hvbox 2
