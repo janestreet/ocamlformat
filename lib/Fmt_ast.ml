@@ -3269,6 +3269,18 @@ and fmt_label_declaration c ctx ?(last = false) decl =
              (fits_breaks ~level:5 "" ";") )
           (str ";")
   in
+  let is_nonlocal, is_global, atrs =
+    match
+      List.partition_map atrs ~f:(fun a ->
+        match a.attr_name.txt with
+        | "ocaml.nonlocal" -> First `Nonlocal
+        | "ocaml.global" -> First `Global
+        | _ -> Second a)
+    with
+    | [`Nonlocal], atrs -> true, false, atrs
+    | [`Global], atrs -> false, true, atrs
+    | _ -> false, false, atrs
+  in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
     $ hvbox 4
@@ -3276,6 +3288,8 @@ and fmt_label_declaration c ctx ?(last = false) decl =
             ( hvbox 4
                 ( hvbox 2
                     ( fmt_if (is_mutable pld_mutable) "mutable "
+                    $ fmt_if is_nonlocal "nonlocal_ "
+                    $ fmt_if is_global "global_ "
                     $ fmt_str_loc c pld_name $ fmt_if field_loose " "
                     $ fmt ":@ "
                     $ fmt_core_type c (sub_typ ~ctx pld_type)
