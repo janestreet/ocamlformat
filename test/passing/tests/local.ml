@@ -2,10 +2,13 @@ let f a b c = 1
 
 let f (local_ a) ~foo:(local_ b) ?foo:(local_ c = 1) ~(local_ d) = ()
 
-let f () =
+let xs = [(fun (local_ a) (type b) ~(local_ c) -> local_ 1)]
+
+let f () = local_
   let a = [local_ 1] in
   let local_ r = 1 in
-  let local_ f : 'a. 'a -> 'a = fun x -> x in
+  let local_ f : 'a. 'a -> 'a = fun x -> local_ x in
+  let local_ g a b c : int = 1 in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
 
 type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}

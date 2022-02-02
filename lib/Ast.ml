@@ -2253,6 +2253,9 @@ end = struct
     ||
     match (ctx, exp) with
     | Str {pstr_desc= Pstr_eval _; _}, _ -> false
+    | Exp {pexp_desc= Pexp_apply
+       ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
+        [Nolabel, _]); _}, _ -> false
     | ( _
       , { pexp_desc=
             Pexp_apply ({pexp_desc= Pexp_ident {txt= id; _}; _}, _ :: _)
