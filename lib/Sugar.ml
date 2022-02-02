@@ -17,10 +17,10 @@ open Extended_ast
 let check_local_attr attrs =
   match
     List.partition_tf attrs ~f:(fun attr ->
-        String.equal attr.attr_name.txt "ocaml.local")
+        String.equal attr.attr_name.txt "ocaml.local" )
   with
-  | [], _ -> attrs, false
-  | _::_, rest -> rest, true
+  | [], _ -> (attrs, false)
+  | _ :: _, rest -> (rest, true)
 
 let rec arrow_typ cmts i ({ast= typ; _} as xtyp) =
   let ctx = Typ typ in
@@ -29,18 +29,16 @@ let rec arrow_typ cmts i ({ast= typ; _} as xtyp) =
   | Ptyp_arrow (l, t1, t2) ->
       let ctx, local1, t1, local2, t2 =
         match
-          check_local_attr t1.ptyp_attributes,
-          check_local_attr t2.ptyp_attributes
+          ( check_local_attr t1.ptyp_attributes
+          , check_local_attr t2.ptyp_attributes )
         with
-        | (_, false), (_, false) ->
-           ctx, false, t1, false, t2
+        | (_, false), (_, false) -> (ctx, false, t1, false, t2)
         | (attr1, local1), (attr2, local2) ->
-           let t1 = { t1 with ptyp_attributes = attr1 } in
-           let t2 = { t2 with ptyp_attributes = attr2 } in
-           let ctx = Typ {typ with ptyp_desc = Ptyp_arrow (l, t1, t2) } in
-           ctx, local1, t1, local2, t2
+            let t1 = {t1 with ptyp_attributes= attr1} in
+            let t2 = {t2 with ptyp_attributes= attr2} in
+            let ctx = Typ {typ with ptyp_desc= Ptyp_arrow (l, t1, t2)} in
+            (ctx, local1, t1, local2, t2)
       in
-
       let before = if i > 0 then ptyp_loc else t1.ptyp_loc in
       Cmts.relocate cmts ~src:ptyp_loc ~before ~after:t2.ptyp_loc ;
       let rest =
@@ -98,20 +96,17 @@ let fun_ cmts ?(will_keep_first_ast_node = true) xexp =
           let xargs, xbody = fun_ (sub_exp ~ctx body) in
           let islocal, pat =
             match check_local_attr pattern.ppat_attributes with
-            | _, false ->
-               false, sub_pat ~ctx pattern
+            | _, false -> (false, sub_pat ~ctx pattern)
             | ppat_attributes, true ->
-               let pattern = { pattern with ppat_attributes } in
-               let ctx =
-                 Exp {exp with pexp_desc = Pexp_fun (label, default, pattern, body) }
-               in
-               true, sub_pat ~ctx pattern
+                let pattern = {pattern with ppat_attributes} in
+                let ctx =
+                  Exp
+                    { exp with
+                      pexp_desc= Pexp_fun (label, default, pattern, body) }
+                in
+                (true, sub_pat ~ctx pattern)
           in
-          ( Val
-              ( islocal
-              , label
-              , pat
-              , Option.map default ~f:(sub_exp ~ctx) )
+          ( Val (islocal, label, pat, Option.map default ~f:(sub_exp ~ctx))
             :: xargs
           , xbody )
       | Pexp_newtype (name, body) ->
@@ -143,20 +138,17 @@ let cl_fun ?(will_keep_first_ast_node = true) cmts xexp =
           let xargs, xbody = fun_ (sub_cl ~ctx body) in
           let islocal, pat =
             match check_local_attr pattern.ppat_attributes with
-            | _, false ->
-               false, sub_pat ~ctx pattern
+            | _, false -> (false, sub_pat ~ctx pattern)
             | ppat_attributes, true ->
-               let pattern = { pattern with ppat_attributes } in
-               let ctx =
-                 Cl {exp with pcl_desc = Pcl_fun (label, default, pattern, body) }
-               in
-               true, sub_pat ~ctx pattern
+                let pattern = {pattern with ppat_attributes} in
+                let ctx =
+                  Cl
+                    { exp with
+                      pcl_desc= Pcl_fun (label, default, pattern, body) }
+                in
+                (true, sub_pat ~ctx pattern)
           in
-          ( Val
-              ( islocal
-              , label
-              , pat
-              , Option.map default ~f:(sub_exp ~ctx) )
+          ( Val (islocal, label, pat, Option.map default ~f:(sub_exp ~ctx))
             :: xargs
           , xbody )
       | _ -> ([], xexp)
@@ -455,16 +447,25 @@ module Let_binding = struct
     let islocal, ctx, lb_pat, lb_exp =
       match lb_exp.pexp_desc with
       | Pexp_apply
-        ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
-         [Nolabel, sbody]) ->
-         let sattrs, _ = check_local_attr sbody.pexp_attributes in
-         let sbody = {sbody with pexp_attributes = sattrs} in
-         let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
-         let pat = {lb_pat with ppat_attributes = pattrs} in
-         let fake_ctx = Vb {pvb_pat = pat; pvb_expr = sbody; pvb_attributes = []; pvb_loc = Location.none } in
-         true, fake_ctx, sub_pat ~ctx:fake_ctx pat, sub_exp ~ctx:fake_ctx sbody
-      | _ ->
-         false, ctx, sub_pat ~ctx lb_pat, sub_exp ~ctx lb_exp
+          ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
+            ; _ }
+          , [(Nolabel, sbody)] ) ->
+          let sattrs, _ = check_local_attr sbody.pexp_attributes in
+          let sbody = {sbody with pexp_attributes= sattrs} in
+          let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
+          let pat = {lb_pat with ppat_attributes= pattrs} in
+          let fake_ctx =
+            Vb
+              { pvb_pat= pat
+              ; pvb_expr= sbody
+              ; pvb_attributes= []
+              ; pvb_loc= Location.none }
+          in
+          ( true
+          , fake_ctx
+          , sub_pat ~ctx:fake_ctx pat
+          , sub_exp ~ctx:fake_ctx sbody )
+      | _ -> (false, ctx, sub_pat ~ctx lb_pat, sub_exp ~ctx lb_exp)
     in
     let ({ast= pat; _} as xpat) =
       match (lb_pat.ast.ppat_desc, lb_exp.ast.pexp_desc) with
@@ -492,65 +493,70 @@ module Let_binding = struct
     in
     let ({ast= body; _} as xbody) = sub_exp ~ctx lb_exp.ast in
     let pat, typ, exp =
-    if
-      (not (List.is_empty xbody.ast.pexp_attributes)) || pat_is_extension pat
-    then (xpat, `None [], xbody)
-    else
-      match polynewtype cmts pat body with
-      | Some (xpat, pvars, xtyp, xbody) ->
-          (xpat, `Polynewtype (pvars, xtyp), xbody)
-      | None -> (
-          let xpat =
-            match xpat.ast.ppat_desc with
-            | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
-                sub_pat ~ctx:xpat.ctx p
-            | _ -> xpat
-          in
-          let xargs, ({ast= body; _} as xbody) =
-            match pat with
-            | {ppat_desc= Ppat_var _; ppat_attributes= []; _} ->
-                fun_ cmts ~will_keep_first_ast_node:false xbody
-            | _ -> ([], xbody)
-          in
-          let ctx = Exp body in
-          match (body.pexp_desc, pat.ppat_desc) with
-          | ( Pexp_constraint
-                ( ({pexp_desc= Pexp_pack _; pexp_attributes= []; _} as exp)
-                , ({ptyp_desc= Ptyp_package _; ptyp_attributes= []; _} as typ)
-                )
-            , _ )
-            when Source.type_constraint_is_first typ exp.pexp_loc ->
-              Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
-                ~after:exp.pexp_loc ;
-              (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
-          | ( Pexp_constraint
-                ({pexp_desc= Pexp_pack _; _}, {ptyp_desc= Ptyp_package _; _})
-            , _ )
-           |Pexp_constraint _, Ppat_constraint _ ->
-              (xpat, `None xargs, xbody)
-          | Pexp_constraint (exp, typ), _
-            when Source.type_constraint_is_first typ exp.pexp_loc ->
-              Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
-                ~after:exp.pexp_loc ;
-              (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
-          (* The type constraint is always printed before the declaration for
-             functions, for other value bindings we preserve its position. *)
-          | Pexp_constraint (exp, typ), _ when not (List.is_empty xargs) ->
-              Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
-                ~after:exp.pexp_loc ;
-              (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
-          | Pexp_coerce (exp, typ1, typ2), _
-            when Source.type_constraint_is_first typ2 exp.pexp_loc ->
-              Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
-                ~after:exp.pexp_loc ;
-              let typ1 = Option.map typ1 ~f:(sub_typ ~ctx) in
-              (xpat, `Coerce (typ1, sub_typ ~ctx typ2), sub_exp ~ctx exp)
-          | _ -> (xpat, `None xargs, xbody) )
+      if
+        (not (List.is_empty xbody.ast.pexp_attributes))
+        || pat_is_extension pat
+      then (xpat, `None [], xbody)
+      else
+        match polynewtype cmts pat body with
+        | Some (xpat, pvars, xtyp, xbody) ->
+            (xpat, `Polynewtype (pvars, xtyp), xbody)
+        | None -> (
+            let xpat =
+              match xpat.ast.ppat_desc with
+              | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
+                  sub_pat ~ctx:xpat.ctx p
+              | _ -> xpat
+            in
+            let xargs, ({ast= body; _} as xbody) =
+              match pat with
+              | {ppat_desc= Ppat_var _; ppat_attributes= []; _} ->
+                  fun_ cmts ~will_keep_first_ast_node:false xbody
+              | _ -> ([], xbody)
+            in
+            let ctx = Exp body in
+            match (body.pexp_desc, pat.ppat_desc) with
+            | ( Pexp_constraint
+                  ( ({pexp_desc= Pexp_pack _; pexp_attributes= []; _} as exp)
+                  , ( {ptyp_desc= Ptyp_package _; ptyp_attributes= []; _} as
+                    typ ) )
+              , _ )
+              when Source.type_constraint_is_first typ exp.pexp_loc ->
+                Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
+                  ~after:exp.pexp_loc ;
+                (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
+            | ( Pexp_constraint
+                  ( {pexp_desc= Pexp_pack _; _}
+                  , {ptyp_desc= Ptyp_package _; _} )
+              , _ )
+             |Pexp_constraint _, Ppat_constraint _ ->
+                (xpat, `None xargs, xbody)
+            | Pexp_constraint (exp, typ), _
+              when Source.type_constraint_is_first typ exp.pexp_loc ->
+                Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
+                  ~after:exp.pexp_loc ;
+                (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
+            (* The type constraint is always printed before the declaration
+               for functions, for other value bindings we preserve its
+               position. *)
+            | Pexp_constraint (exp, typ), _ when not (List.is_empty xargs) ->
+                Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
+                  ~after:exp.pexp_loc ;
+                (xpat, `Other (xargs, sub_typ ~ctx typ), sub_exp ~ctx exp)
+            | Pexp_coerce (exp, typ1, typ2), _
+              when Source.type_constraint_is_first typ2 exp.pexp_loc ->
+                Cmts.relocate cmts ~src:body.pexp_loc ~before:exp.pexp_loc
+                  ~after:exp.pexp_loc ;
+                let typ1 = Option.map typ1 ~f:(sub_typ ~ctx) in
+                (xpat, `Coerce (typ1, sub_typ ~ctx typ2), sub_exp ~ctx exp)
+            | _ -> (xpat, `None xargs, xbody) )
     in
-    islocal, pat, typ, exp
+    (islocal, pat, typ, exp)
 
   let of_value_binding cmts ~ctx ~first vb =
-    let islocal, pat, typ, exp = type_cstr cmts ~ctx vb.pvb_pat vb.pvb_expr in
+    let islocal, pat, typ, exp =
+      type_cstr cmts ~ctx vb.pvb_pat vb.pvb_expr
+    in
     { lb_op= Location.{txt= (if first then "let" else "and"); loc= none}
     ; lb_pat= pat
     ; lb_typ= typ
@@ -565,7 +571,9 @@ module Let_binding = struct
 
   let of_binding_ops cmts ~ctx bos =
     List.map bos ~f:(fun bo ->
-        let islocal, pat, typ, exp = type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp in
+        let islocal, pat, typ, exp =
+          type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp
+        in
         { lb_op= bo.pbop_op
         ; lb_pat= pat
         ; lb_typ= typ

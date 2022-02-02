@@ -1913,9 +1913,9 @@ end = struct
           ( Str {pstr_desc= Pstr_exception _; _}
           | Sig {psig_desc= Psig_exception _; _} ) } ->
         true
-    | { ast= {ptyp_desc= Ptyp_arrow _; ptyp_attributes= attrs; _ }; _ }
+    | {ast= {ptyp_desc= Ptyp_arrow _; ptyp_attributes= attrs; _}; _}
       when List.exists attrs ~f:(fun a ->
-               String.equal a.attr_name.txt "ocaml.curry") ->
+               String.equal a.attr_name.txt "ocaml.curry" ) ->
         true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
@@ -1991,17 +1991,17 @@ end = struct
     | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
         | Str {pstr_desc= Pstr_value _; _}
-        | Vb _)
+        | Vb _ )
       , Ppat_constraint ({ppat_desc= Ppat_any; _}, _) ) ->
         true
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
         | Str {pstr_desc= Pstr_value _; _}
-        | Vb _)
+        | Vb _ )
       , Ppat_constraint ({ppat_desc= Ppat_tuple _; _}, _) ) ->
         false
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
         | Str {pstr_desc= Pstr_value _; _}
-        | Vb _)
+        | Vb _ )
       , Ppat_constraint _ ) ->
         true
     | _, Ppat_constraint _
@@ -2284,9 +2284,16 @@ end = struct
     ||
     match (ctx, exp) with
     | Str {pstr_desc= Pstr_eval _; _}, _ -> false
-    | Exp {pexp_desc= Pexp_apply
-       ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
-        [Nolabel, _]); _}, _ -> false
+    | ( Exp
+          { pexp_desc=
+              Pexp_apply
+                ( { pexp_desc=
+                      Pexp_extension ({txt= "extension.local"; _}, PStr [])
+                  ; _ }
+                , [(Nolabel, _)] )
+          ; _ }
+      , _ ) ->
+        false
     | ( _
       , { pexp_desc=
             Pexp_apply ({pexp_desc= Pexp_ident {txt= id; _}; _}, _ :: _)

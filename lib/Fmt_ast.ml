@@ -731,8 +731,10 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
-  let ptyp_attributes = List.filter ptyp_attributes ~f:(fun a ->
-    not (String.equal a.attr_name.txt "ocaml.curry")) in
+  let ptyp_attributes =
+    List.filter ptyp_attributes ~f:(fun a ->
+        not (String.equal a.attr_name.txt "ocaml.curry") )
+  in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
   ( match (ptyp_desc, pro) with
@@ -793,10 +795,12 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
              (fun (locI, localI, lI, xtI) ->
                let arg_label lbl =
                  match lbl with
-                 | Nolabel ->
-                    if localI then Some (str "local_ ") else None
-                 | Labelled l -> Some (str l $ fmt ":@," $ fmt_if localI "local_ ")
-                 | Optional l -> Some (str "?" $ str l $ fmt ":@," $ fmt_if localI "local_ ")
+                 | Nolabel -> if localI then Some (str "local_ ") else None
+                 | Labelled l ->
+                     Some (str l $ fmt ":@," $ fmt_if localI "local_ ")
+                 | Optional l ->
+                     Some
+                       (str "?" $ str l $ fmt ":@," $ fmt_if localI "local_ ")
                in
                let arg =
                  match arg_label lI with
@@ -1274,9 +1278,10 @@ and fmt_fun_args c args =
         , None )
       when String.equal l txt ->
         let symbol = match lbl with Labelled _ -> "~" | _ -> "?" in
-        cbox 0 (str symbol
-               $ Params.parens_if islocal c.conf
-                   (fmt_if islocal "local_ " $ fmt_pattern ~box:true c xpat))
+        cbox 0
+          ( str symbol
+          $ Params.parens_if islocal c.conf
+              (fmt_if islocal "local_ " $ fmt_pattern ~box:true c xpat) )
     | Val (islocal, (Optional _ as lbl), xpat, None) ->
         let has_attr = not (List.is_empty xpat.ast.ppat_attributes) in
         let outer_parens, inner_parens =
@@ -1292,11 +1297,13 @@ and fmt_fun_args c args =
           ( fmt_label lbl ":@,"
           $ hovbox 0
             @@ Params.parens_if outer_parens c.conf
-              (fmt_if islocal "local_ " $ fmt_pattern ~parens:inner_parens c xpat) )
+                 ( fmt_if islocal "local_ "
+                 $ fmt_pattern ~parens:inner_parens c xpat ) )
     | Val (islocal, ((Labelled _ | Nolabel) as lbl), xpat, None) ->
-        cbox 2 (fmt_label lbl ":@,"
-                $ Params.parens_if islocal c.conf
-                    (fmt_if islocal "local_ " $ fmt_pattern c xpat))
+        cbox 2
+          ( fmt_label lbl ":@,"
+          $ Params.parens_if islocal c.conf
+              (fmt_if islocal "local_ " $ fmt_pattern c xpat) )
     | Val
         ( islocal
         , Optional l
@@ -1306,7 +1313,9 @@ and fmt_fun_args c args =
       when String.equal l txt ->
         cbox 0
           (wrap "?(" ")"
-             ( fmt_if islocal "local_ " $ fmt_pattern c ~box:true xpat $ fmt " =@;<1 2>"
+             ( fmt_if islocal "local_ "
+             $ fmt_pattern c ~box:true xpat
+             $ fmt " =@;<1 2>"
              $ hovbox 2 (fmt_expression c xexp) ) )
     | Val
         ( islocal
@@ -1322,7 +1331,8 @@ and fmt_fun_args c args =
       when String.equal l txt ->
         cbox 0
           (wrap "?(" ")"
-             ( fmt_if islocal "local_ " $ fmt_pattern c ~parens:false ~box:true xpat
+             ( fmt_if islocal "local_ "
+             $ fmt_pattern c ~parens:false ~box:true xpat
              $ fmt " =@;<1 2>" $ fmt_expression c xexp ) )
     | Val (islocal, Optional l, xpat, Some xexp) ->
         let parens =
@@ -1333,7 +1343,8 @@ and fmt_fun_args c args =
         cbox 2
           ( str "?" $ str l
           $ wrap_k (fmt ":@,(") (str ")")
-              ( fmt_if islocal "local_ " $ fmt_pattern c ?parens ~box:true xpat
+              ( fmt_if islocal "local_ "
+              $ fmt_pattern c ?parens ~box:true xpat
               $ fmt " =@;<1 2>" $ fmt_expression c xexp ) )
     | Val (_, (Labelled _ | Nolabel), _, Some _) ->
         impossible "not accepted by parser"
@@ -1362,10 +1373,14 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
       , update_config_maybe_disabled c pexp_loc pexp_attributes
         @@ fun c ->
         fmt_cases c ctx cs $ fmt_if parens ")" $ Cmts.fmt_after c pexp_loc )
-  | { pexp_desc = Pexp_apply
-      ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
-       [Nolabel, sbody]); _} ->
-     (fmt " local_", fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody))
+  | { pexp_desc=
+        Pexp_apply
+          ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
+            ; _ }
+          , [(Nolabel, sbody)] )
+    ; _ } ->
+      ( fmt " local_"
+      , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | _ -> (noop, fmt_expression c ~eol:(fmt "@;<1000 0>") xbody)
 
 and fmt_index_op c ctx ~fmt_atrs ~has_attr ~parens op =
@@ -1941,8 +1956,8 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
               ( fmt_infix_op_args ?ext ~parens:inner_wrap c xexp infix_op_args
               $ fmt_atrs ) ) )
   | Pexp_apply
-      ({ pexp_desc = Pexp_extension({txt = "extension.local"; _}, PStr []); _ },
-       [Nolabel, sbody]) ->
+      ( {pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr []); _}
+      , [(Nolabel, sbody)] ) ->
       fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody)
   | Pexp_apply (e0, [(Nolabel, e1)]) when Exp.is_prefix e0 ->
       hvbox 2
@@ -3376,14 +3391,14 @@ and fmt_label_declaration c ctx ?(last = false) decl =
   let is_nonlocal, is_global, atrs =
     match
       List.partition_map atrs ~f:(fun a ->
-        match a.attr_name.txt with
-        | "ocaml.nonlocal" -> First `Nonlocal
-        | "ocaml.global" -> First `Global
-        | _ -> Second a)
+          match a.attr_name.txt with
+          | "ocaml.nonlocal" -> First `Nonlocal
+          | "ocaml.global" -> First `Global
+          | _ -> Second a )
     with
-    | [`Nonlocal], atrs -> true, false, atrs
-    | [`Global], atrs -> false, true, atrs
-    | _ -> false, false, atrs
+    | [`Nonlocal], atrs -> (true, false, atrs)
+    | [`Global], atrs -> (false, true, atrs)
+    | _ -> (false, false, atrs)
   in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
