@@ -7,9 +7,8 @@ let f () =
   let local_ r = 1 in
   let local_ f : 'a. 'a -> 'a = fun x -> x in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
-type 'a r = {
-  mutable a: 'a ;
-  nonlocal_ b: 'a ;
-  global_ c: 'a }
+
+type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}
+
 type ('a, 'b) cfn =
   a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
