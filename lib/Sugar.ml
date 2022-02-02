@@ -85,20 +85,17 @@ let fun_ cmts ?(will_keep_first_ast_node = true) xexp =
           let xargs, xbody = fun_ (sub_exp ~ctx body) in
           let islocal, pat =
             match check_local_attr pattern.ppat_attributes with
-            | _, false ->
-               false, sub_pat ~ctx pattern
+            | _, false -> (false, sub_pat ~ctx pattern)
             | ppat_attributes, true ->
-               let pattern = { pattern with ppat_attributes } in
-               let ctx =
-                 Exp {exp with pexp_desc = Pexp_fun (label, default, pattern, body) }
-               in
-               true, sub_pat ~ctx pattern
+                let pattern = {pattern with ppat_attributes} in
+                let ctx =
+                  Exp
+                    { exp with
+                      pexp_desc= Pexp_fun (label, default, pattern, body) }
+                in
+                (true, sub_pat ~ctx pattern)
           in
-          ( Val
-              ( islocal
-              , label
-              , pat
-              , Option.map default ~f:(sub_exp ~ctx) )
+          ( Val (islocal, label, pat, Option.map default ~f:(sub_exp ~ctx))
             :: xargs
           , xbody )
       | Pexp_newtype (name, body) ->
@@ -130,20 +127,17 @@ let cl_fun ?(will_keep_first_ast_node = true) cmts xexp =
           let xargs, xbody = fun_ (sub_cl ~ctx body) in
           let islocal, pat =
             match check_local_attr pattern.ppat_attributes with
-            | _, false ->
-               false, sub_pat ~ctx pattern
+            | _, false -> (false, sub_pat ~ctx pattern)
             | ppat_attributes, true ->
-               let pattern = { pattern with ppat_attributes } in
-               let ctx =
-                 Cl {exp with pcl_desc = Pcl_fun (label, default, pattern, body) }
-               in
-               true, sub_pat ~ctx pattern
+                let pattern = {pattern with ppat_attributes} in
+                let ctx =
+                  Cl
+                    { exp with
+                      pcl_desc= Pcl_fun (label, default, pattern, body) }
+                in
+                (true, sub_pat ~ctx pattern)
           in
-          ( Val
-              ( islocal
-              , label
-              , pat
-              , Option.map default ~f:(sub_exp ~ctx) )
+          ( Val (islocal, label, pat, Option.map default ~f:(sub_exp ~ctx))
             :: xargs
           , xbody )
       | _ -> ([], xexp)
