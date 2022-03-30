@@ -17,7 +17,7 @@ open Extended_ast
 let check_local_attr attrs =
   match
     List.partition_tf attrs ~f:(fun attr ->
-        String.equal attr.attr_name.txt "ocaml.local" )
+        String.equal attr.attr_name.txt "extension.local" )
   with
   | [], _ -> (attrs, false)
   | _ :: _, rest -> (rest, true)
