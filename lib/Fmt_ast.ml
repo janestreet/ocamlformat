@@ -824,7 +824,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
   let ptyp_attributes =
     List.filter ptyp_attributes ~f:(fun a ->
-        not (String.equal a.attr_name.txt "ocaml.curry") )
+        not (String.equal a.attr_name.txt "extension.curry") )
   in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
@@ -3372,8 +3372,8 @@ and fmt_label_declaration c ctx ?(last = false) decl =
     match
       List.partition_map atrs ~f:(fun a ->
           match a.attr_name.txt with
-          | "ocaml.nonlocal" -> First `Nonlocal
-          | "ocaml.global" -> First `Global
+          | "extension.nonlocal" -> First `Nonlocal
+          | "extension.global" -> First `Global
           | _ -> Second a )
     with
     | [`Nonlocal], atrs -> (true, false, atrs)
