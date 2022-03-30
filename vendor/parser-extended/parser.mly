@@ -185,11 +185,10 @@ let mkuplus ~oploc name arg =
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
 
-let local_loc = mknoloc "ocaml.local"
 let local_ext_loc = mknoloc "extension.local"
 
 let local_attr =
-  Attr.mk ~loc:Location.none local_loc (PStr [])
+  Attr.mk ~loc:Location.none local_ext_loc (PStr [])
 
 let local_extension =
   Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
@@ -216,10 +215,10 @@ let mktyp_local_if p typ =
   if p then mktyp_stack typ else typ
 
 let curry_attr =
-  Attr.mk ~loc:Location.none (mknoloc "ocaml.curry") (PStr [])
+  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 
 let is_curry_attr attr =
-  attr.attr_name.txt = "ocaml.curry"
+  attr.attr_name.txt = "extension.curry"
 
 let mktyp_curry typ =
   {typ with ptyp_attributes = curry_attr :: typ.ptyp_attributes}
@@ -231,12 +230,12 @@ let maybe_curry_typ typ =
       else mktyp_curry typ
   | _ -> typ
 
-let global_loc = mknoloc "ocaml.global"
+let global_loc = mknoloc "extension.global"
 
 let global_attr =
   Attr.mk ~loc:Location.none global_loc (PStr [])
 
-let nonlocal_loc = mknoloc "ocaml.nonlocal"
+let nonlocal_loc = mknoloc "extension.nonlocal"
 
 let nonlocal_attr =
   Attr.mk ~loc:Location.none nonlocal_loc (PStr [])
