@@ -1806,7 +1806,7 @@ end = struct
         true
     | {ast= {ptyp_desc= Ptyp_arrow _; ptyp_attributes= attrs; _}; _}
       when List.exists attrs ~f:(fun a ->
-               String.equal a.attr_name.txt "ocaml.curry" ) ->
+               String.equal a.attr_name.txt "extension.curry" ) ->
         true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
