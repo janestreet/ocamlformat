@@ -13,7 +13,8 @@
 
 (** Formatting options *)
 type fmt_opts =
-  { align_cases: bool
+  { align_pattern_matching_bar: [`Paren | `Keyword]
+  ; align_cases: bool
   ; align_constructors_decl: bool
   ; align_variants_decl: bool
   ; assignment_operator: [`Begin_line | `End_line]

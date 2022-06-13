@@ -12,7 +12,8 @@
 (** Configuration options *)
 
 type fmt_opts =
-  { align_cases: bool
+  { align_pattern_matching_bar: [`Paren | `Keyword]
+  ; align_cases: bool
   ; align_constructors_decl: bool
   ; align_variants_decl: bool
   ; assignment_operator: [`Begin_line | `End_line]
@@ -1437,7 +1438,8 @@ let ignore_invalid_options =
   mk ~default Arg.(value & flag & info ["ignore-invalid-option"] ~doc ~docs)
 
 let ocamlformat_profile =
-  { align_cases= false
+  { align_pattern_matching_bar= `Paren
+  ; align_cases= false
   ; align_constructors_decl= false
   ; align_variants_decl= false
   ; assignment_operator= `End_line
@@ -1501,7 +1503,8 @@ let ocamlformat_profile =
   ; wrap_fun_args= true }
 
 let conventional_profile =
-  { align_cases= C.default Formatting.align_cases
+  { align_pattern_matching_bar= `Paren
+  ; align_cases= C.default Formatting.align_cases
   ; align_constructors_decl= C.default Formatting.align_constructors_decl
   ; align_variants_decl= C.default Formatting.align_variants_decl
   ; assignment_operator= C.default Formatting.assignment_operator
@@ -1627,7 +1630,8 @@ let sparse_profile =
   ; wrap_fun_args= false }
 
 let janestreet_profile =
-  { align_constructors_decl= false
+  { align_pattern_matching_bar= `Keyword
+  ; align_constructors_decl= false
   ; align_cases= false
   ; align_variants_decl= false
   ; assignment_operator= `Begin_line
