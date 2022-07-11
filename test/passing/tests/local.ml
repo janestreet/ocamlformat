@@ -9,6 +9,7 @@ let f () = local_
   let local_ r = 1 in
   let local_ f : 'a. 'a -> 'a = fun x -> local_ x in
   let local_ g a b c : int = 1 in
+  let () = g (local_ fun () -> ()) in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
 
 type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}
