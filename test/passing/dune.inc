@@ -2298,6 +2298,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to include_functor.ml.stdout
+   (with-stderr-to include_functor.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml include_functor.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml.err include_functor.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to index_op.ml.stdout
    (with-stderr-to index_op.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/index_op.ml})))))
