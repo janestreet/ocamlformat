@@ -173,6 +173,11 @@ let local_attr =
 let local_extension =
   Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
 
+let include_functor_ext_loc = mknoloc "extension.include_functor"
+
+let include_functor_attr =
+  Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
+
 let mkexp_stack ~loc exp =
   ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
 
@@ -880,6 +885,8 @@ The precedences must be listed from low to high.
 %left     BAR                           /* pattern (p|p|p) */
 %nonassoc below_COMMA
 %left     COMMA                         /* expr/expr_comma_list (e,e,e) */
+%nonassoc below_FUNCTOR                 /* include M */
+%nonassoc FUNCTOR                       /* include functor M */
 %right    MINUSGREATER                  /* function_type (t -> t -> t) */
 %right    OR BARBAR                     /* expr (e || e || e) */
 %right    AMPERSAND AMPERAMPER          /* expr (e && e && e) */
@@ -1593,16 +1600,23 @@ module_binding_body:
 
 (* Shared material between structures and signatures. *)
 
+include_and_functor_attr:
+  | INCLUDE %prec below_FUNCTOR
+      { [] }
+  | INCLUDE FUNCTOR
+      { [include_functor_attr] }
+;
+
 (* An [include] statement can appear in a structure or in a signature,
    which is why this definition is parameterized. *)
 %inline include_statement(thing):
-  INCLUDE
+  attrs0 = include_and_functor_attr
   ext = ext
   attrs1 = attributes
   thing = thing
   attrs2 = post_item_attributes
   {
-    let attrs = attrs1 @ attrs2 in
+    let attrs = attrs0 @ attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
     Incl.mk thing ~attrs ~loc ~docs, ext
