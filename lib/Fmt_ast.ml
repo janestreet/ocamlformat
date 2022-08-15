@@ -1288,8 +1288,9 @@ and fmt_fun_args c args =
         let symbol = match lbl with Labelled _ -> "~" | _ -> "?" in
         cbox 0
           ( str symbol
-          $ Params.parens_if islocal c.conf
-              (fmt_if islocal "local_ " $ fmt_pattern ~box:true c xpat) )
+          $ hovbox 0
+           (Params.parens_if (islocal || parenze_pat xpat) c.conf
+          (fmt_if islocal "local_ " $ fmt_pattern ~parens:false c xpat)) )
     | Val (islocal, (Optional _ as lbl), xpat, None) ->
         let has_attr = not (List.is_empty xpat.ast.ppat_attributes) in
         let outer_parens, inner_parens =
