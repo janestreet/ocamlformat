@@ -2,6 +2,8 @@ let f a b c = 1
 
 let f (local_ a) ~foo:(local_ b) ?foo:(local_ c = 1) ~(local_ d) = ()
 
+let f ~(local_ x) ~(local_ y : string) ?(local_ z : string) = ()
+
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> local_ 1)]
 
 let f () = local_
