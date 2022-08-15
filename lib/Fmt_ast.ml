@@ -191,6 +191,14 @@ let update_items_config c items update_config =
   let _, items = List.fold_map items ~init:c ~f:with_config in
   items
 
+let check_include_functor_attr attrs =
+  match
+    List.partition_tf attrs ~f:(fun attr ->
+        String.equal attr.attr_name.txt "extension.include_functor" )
+  with
+  | [], _ -> (attrs, false)
+  | _ :: _, rest -> (rest, true)
+
 let box_semisemi c ~parent_ctx b k =
   let space = Poly.(c.conf.fmt_opts.sequence_style.v = `Separator) in
   match parent_ctx with
@@ -3653,6 +3661,9 @@ and fmt_signature_item c ?ext {ast= si; _} =
         $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs
         $ doc_after )
   | Psig_include {pincl_mod; pincl_attributes; pincl_loc} ->
+      let pincl_attributes, isfunctor =
+        check_include_functor_attr pincl_attributes
+      in
       update_config_maybe_disabled c pincl_loc pincl_attributes
       @@ fun c ->
       let doc_before, doc_after, atrs =
@@ -3660,7 +3671,10 @@ and fmt_signature_item c ?ext {ast= si; _} =
         fmt_docstring_around_item c ~force_before ~fit:true pincl_attributes
       in
       let keyword, ({pro; psp; bdy; esp; epi; _} as blk) =
-        let kwd = str "include" $ fmt_extension_suffix c ext in
+        let incl =
+          if isfunctor then fmt "include@ functor" else str "include"
+        in
+        let kwd = incl $ fmt_extension_suffix c ext in
         match pincl_mod with
         | {pmty_desc= Pmty_typeof me; pmty_loc; pmty_attributes= _} ->
             ( kwd
@@ -4242,9 +4256,13 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
       let pre = str "exception" $ fmt_extension_suffix c ext $ fmt "@ " in
       hvbox 2 ~name:"exn" (fmt_type_exception ~pre c ctx extn_constr)
   | Pstr_include {pincl_mod; pincl_attributes= attributes; pincl_loc} ->
+      let attributes, isfunctor = check_include_functor_attr attributes in
       update_config_maybe_disabled c pincl_loc attributes
       @@ fun c ->
-      let keyword = str "include" $ fmt_extension_suffix c ext $ fmt "@ " in
+      let incl =
+        if isfunctor then fmt "include@ functor" else str "include"
+      in
+      let keyword = incl $ fmt_extension_suffix c ext $ fmt "@ " in
       fmt_module_statement c ~attributes ~keyword (sub_mod ~ctx pincl_mod)
   | Pstr_module mb ->
       fmt_module_binding ?ext c ~rec_flag:false ~first:true (sub_mb ~ctx mb)
