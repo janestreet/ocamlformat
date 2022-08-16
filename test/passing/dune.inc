@@ -165,6 +165,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to attr_parens.ml.stdout
+   (with-stderr-to attr_parens.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/attr_parens.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attr_parens.ml attr_parens.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attr_parens.ml.err attr_parens.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to attribute_and_expression.ml.stdout
    (with-stderr-to attribute_and_expression.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/attribute_and_expression.ml})))))
