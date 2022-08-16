@@ -1849,7 +1849,8 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   | Pexp_apply
       ( {pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr []); _}
       , [(Nolabel, sbody)] ) ->
-      fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody)
+      Params.parens_if parens c.conf
+        (fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody))
   | Pexp_prefix (op, e) ->
       let has_cmts = Cmts.has_before c.cmts e.pexp_loc in
       hvbox 2
