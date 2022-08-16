@@ -2128,6 +2128,28 @@ end = struct
       | _ when rhs == exp -> false
       | _ -> failwith "exp must be lhs or rhs from the parent expression"
     in
+    let trailing_attrs_require_parens ctx exp =
+      match ctx with
+      | Exp {pexp_desc; _} -> (
+        match pexp_desc with
+        | Pexp_let (_, e)
+         |Pexp_letmodule (_, _, e)
+         |Pexp_letexception (_, e)
+         |Pexp_letopen (_, e)
+         |Pexp_open (_, e)
+         |Pexp_fun (_, _, _, e)
+         |Pexp_newtype (_, e)
+         |Pexp_constraint (e, _)
+         |Pexp_coerce (e, _, _)
+          when e == exp ->
+            false
+        | Pexp_let (lbs, _)
+          when List.exists lbs.lbs_bindings ~f:(fun lb ->
+                   lb.lb_expression == exp ) ->
+            false
+        | _ -> true )
+      | _ -> true
+    in
     assert_check_exp xexp ;
     Hashtbl.find marked_parenzed_inner_nested_match exp
     |> Option.value ~default:false
@@ -2305,10 +2327,16 @@ end = struct
       | _ -> (
         match exp.pexp_desc with
         | Pexp_list _ | Pexp_array _ -> false
-        | _ -> Exp.has_trailing_attributes exp || parenze () ) )
+        | _ ->
+            Exp.has_trailing_attributes exp
+            && trailing_attrs_require_parens ctx exp
+            || parenze () ) )
     | _, {pexp_desc= Pexp_list _; _} -> false
     | _, {pexp_desc= Pexp_array _; _} -> false
-    | _, exp when Exp.has_trailing_attributes exp -> true
+    | ctx, exp
+      when Exp.has_trailing_attributes exp
+           && trailing_attrs_require_parens ctx exp ->
+        true
     | _ -> false
 
   (** [parenze_cl {ctx; ast}] holds when class expr [ast] should be
