@@ -13,6 +13,10 @@ open Migrate_ast
 open Asttypes
 open Extended_ast
 
+val check_local_attr : attributes -> attributes * bool
+(** [check_local_attr attrs] returns the input list with any local attributes
+    removed, and a bool if there was a local. *)
+
 type arg_kind =
   | Val of arg_label * pattern Ast.xt * expression Ast.xt option
   | Newtypes of string loc list

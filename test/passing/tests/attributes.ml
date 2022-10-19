@@ -143,7 +143,7 @@ let () = ()
 
 and[@warning "-32"] f = ()
 
-external x : a -> b -> (a -> b[@test]) = ""
+external x : a -> b -> ((a -> b)[@test]) = ""
 
 let f = fun [@test] x y -> ()
 
