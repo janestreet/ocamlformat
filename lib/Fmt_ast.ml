@@ -711,12 +711,13 @@ and type_constr_and_body c xbody =
       fmt_cstr_and_xbody typ exp
   | _ -> (None, xbody)
 
-and fmt_arrow_param c ctx {pap_label= lI; pap_loc= locI; pap_type= tI} =
+and fmt_arrow_param c ctx ({pap_label= lI; pap_loc= locI; pap_type= tI}) =
+  let _, localI = Sugar.check_local_attr tI.ptyp_attributes in
   let arg_label lbl =
     match lbl with
-    | Nolabel -> None
-    | Labelled l -> Some (str l $ fmt ":@,")
-    | Optional l -> Some (str "?" $ str l $ fmt ":@,")
+    | Nolabel -> if localI then Some (str "local_ ") else None
+    | Labelled l -> Some (str l $ fmt ":@," $ fmt_if localI "local_ ")
+    | Optional l -> Some (str "?" $ str l $ fmt ":@," $ fmt_if localI "local_ ")
   in
   let xtI = sub_typ ~ctx tI in
   let arg =
@@ -736,6 +737,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
+  let ptyp_attributes = List.filter ptyp_attributes ~f:(fun a ->
+    not (String.equal a.attr_name.txt "ocaml.curry")) in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
   ( match pro with
