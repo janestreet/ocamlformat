@@ -837,6 +837,22 @@
     means that the list is empty, or a nonempty BAR-separated list of
     declarations, with an optional leading BAR. *)
 @@@@
+                                           ?foo: int -> int
+  *)
+ function_type:
+   | ty = tuple_type
+     %prec MINUSGREATER
+-      { ty }
++     { ty }
+   | ty = strict_function_type
+-      { ty }
++     { ty }
+ ;
+ strict_function_type:
+   | mktyp(
+       label = arg_label
+       local = optional_local
+@@@@
      UIDENT                    { $1 }
    | LIDENT                    { $1 }
  ;
