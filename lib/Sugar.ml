@@ -14,6 +14,14 @@ open Asttypes
 open Ast
 open Extended_ast
 
+let check_local_attr attrs =
+  match
+    List.partition_tf attrs ~f:(fun attr ->
+        String.equal attr.attr_name.txt "ocaml.local")
+  with
+  | [], _ -> attrs, false
+  | _::_, rest -> rest, true
+
 type arg_kind =
   | Val of arg_label * pattern xt * expression xt option
   | Newtypes of string loc list
