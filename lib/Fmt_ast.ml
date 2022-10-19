@@ -704,12 +704,14 @@ and type_constr_and_body c xbody =
       , sub_exp ~ctx:exp_ctx exp )
   | _ -> (None, xbody)
 
-and fmt_arrow_param c ctx {pap_label= lI; pap_loc= locI; pap_type= tI} =
+and fmt_arrow_param c ctx
+    ({pap_label= lI; pap_loc= locI; pap_type= tI}, localI) =
   let arg_label lbl =
     match lbl with
-    | Nolabel -> None
-    | Labelled l -> Some (str l.txt $ fmt ":@,")
-    | Optional l -> Some (str "?" $ str l.txt $ fmt ":@,")
+    | Nolabel -> if localI then Some (str "local_ ") else None
+    | Labelled l -> Some (str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
+    | Optional l ->
+        Some (str "?" $ str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
   in
   let xtI = sub_typ ~ctx tI in
   let arg =
@@ -754,6 +756,10 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
+  let ptyp_attributes =
+    List.filter ptyp_attributes ~f:(fun a ->
+        not (String.equal a.attr_name.txt "ocaml.curry") )
+  in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
   ( match pro with
@@ -799,6 +805,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_arrow (args, ret_typ) ->
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
+      let args, ret_typ, ctx = Sugar.decompose_arrow ctx args ret_typ in
       let indent =
         match pro with
         | Some pro when c.conf.fmt_opts.ocp_indent_compat.v ->
@@ -811,7 +818,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
                  (String.make (Int.max 1 (indent - String.length pro)) ' ') )
         | _ -> None
       in
-      let fmt_ret_typ = fmt_core_type c (sub_typ ~ctx ret_typ) in
+      let fmt_ret_typ = fmt_arrow_param c ctx ret_typ in
       fmt_arrow_type c ~ctx ?indent ~parens:parenze_constraint_ctx
         ~parent_has_parens:parens args (Some fmt_ret_typ)
   | Ptyp_constr (lid, []) -> fmt_longident_loc c lid
@@ -2791,6 +2798,7 @@ and fmt_class_type ?(pro = noop) c ({ast= typ; _} as xtyp) =
   | Pcty_arrow (args, rhs) ->
       Cmts.relocate c.cmts ~src:pcty_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:rhs.pcty_loc ;
+      let args = List.map ~f:(fun arg -> (arg, false)) args in
       let pro =
         pro ~cmt:true
         $ fmt_arrow_type c ~ctx ~parens:false ~parent_has_parens:parens args
@@ -4291,7 +4299,7 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
   $ fmt_atrs
 
 and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
-    {lb_op; lb_pat; lb_args; lb_typ; lb_exp; lb_attrs; lb_loc; lb_pun} =
+    {lb_op; lb_pat; lb_args; lb_typ; lb_exp; lb_attrs; lb_local; lb_loc; lb_pun} =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let lb_pun =
@@ -4362,6 +4370,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
       fmt_str_loc c lb_op
       $ fmt_extension_suffix c ext
       $ fmt_attributes c at_attrs $ fmt_if rec_flag " rec"
+      $ fmt_if lb_local " local_"
       $ fmt_or pat_has_cmt "@ " " "
     and pattern = fmt_pattern c lb_pat
     and args =

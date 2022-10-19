@@ -14,6 +14,46 @@ open Asttypes
 open Ast
 open Extended_ast
 
+let check_local_attr attrs =
+  match
+    List.partition_tf attrs ~f:(fun attr ->
+        String.equal attr.attr_name.txt "ocaml.local" )
+  with
+  | [], _ -> (attrs, false)
+  | _ :: _, rest -> (rest, true)
+
+(* This function pulls apart an arrow type, pulling out local attributes into
+   bools and producing a context without those attributes. This addresses the
+   problem that we need to remove the local attributes so that they can be
+   printed specially, and that the context needs to be updated to reflect
+   this to pass some internal ocamlformat sanity checks. It's not the
+   cleanest solution in a vacuum, but is perhaps the one that will cause the
+   fewest merge conflicts in the future. *)
+let decompose_arrow ctx ctl ct2 =
+  let pull_out_local ap =
+    let ptyp_attributes, local =
+      check_local_attr ap.pap_type.ptyp_attributes
+    in
+    ({ap with pap_type= {ap.pap_type with ptyp_attributes}}, local)
+  in
+  let args = List.map ~f:pull_out_local ctl in
+  let ((res_ap, _) as res) =
+    let ptyp_attributes, local = check_local_attr ct2.ptyp_attributes in
+    let ap =
+      { pap_label= Nolabel
+      ; pap_loc= ct2.ptyp_loc
+      ; pap_type= {ct2 with ptyp_attributes} }
+    in
+    (ap, local)
+  in
+  let ctx_typ = Ptyp_arrow (List.map ~f:fst args, res_ap.pap_type) in
+  let ctx =
+    match ctx with
+    | Typ cty -> Typ {cty with ptyp_desc= ctx_typ}
+    | _ -> assert false
+  in
+  (args, res, ctx)
+
 type arg_kind =
   | Val of arg_label * pattern xt * expression xt option
   | Newtypes of string loc list
@@ -224,6 +264,7 @@ module Let_binding = struct
     ; lb_exp: expression xt
     ; lb_pun: bool
     ; lb_attrs: attribute list
+    ; lb_local: bool
     ; lb_loc: Location.t }
 
   let split_annot cmts xargs ({ast= body; _} as xbody) =
@@ -268,9 +309,38 @@ module Let_binding = struct
     | Pexp_constraint _, Ppat_constraint _ -> (xargs, `None, xbody)
     | _ -> split_annot cmts xargs xbody
 
-  let type_cstr cmts ~ctx lb_pat lb_exp =
+  let unwrap_local ~ctx pvb_pat pvb_exp pvb_is_pun pvb_constraint =
+    match pvb_exp.pexp_desc with
+    | Pexp_apply
+        ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
+          ; _ }
+        , [(Nolabel, sbody)] ) ->
+      let sattrs, _ = check_local_attr sbody.pexp_attributes in
+      let sbody = {sbody with pexp_attributes= sattrs} in
+      let pattrs, _ = check_local_attr pvb_pat.ppat_attributes in
+      let pat = {pvb_pat with ppat_attributes= pattrs} in
+      let fake_ctx =
+        Lb
+          { pvb_pat= pat
+          ; pvb_expr= sbody
+          ; pvb_constraint
+          ; pvb_is_pun
+          ; pvb_attributes= []
+          ; pvb_loc= Location.none }
+      in
+      ( true
+      , fake_ctx
+      , sub_pat ~ctx:fake_ctx pat
+      , sub_exp ~ctx:fake_ctx sbody )
+    | _ -> (false, ctx, sub_pat ~ctx pvb_pat, sub_exp ~ctx pvb_exp)
+
+
+  let type_cstr cmts ~ctx lb_pat lb_exp lb_is_pun pvb_constraint =
+    let islocal, ctx, lb_pat, lb_exp =
+      unwrap_local ~ctx lb_pat lb_exp lb_is_pun pvb_constraint
+    in
     let ({ast= pat; _} as xpat) =
-      match (lb_pat.ppat_desc, lb_exp.pexp_desc) with
+      match (lb_pat.ast.ppat_desc, lb_exp.ast.pexp_desc) with
       (* recognize and undo the pattern of code introduced by
          ocaml/ocaml@fd0dc6a0fbf73323c37a73ea7e8ffc150059d6ff to fix
          https://caml.inria.fr/mantis/view.php?id=7344 *)
@@ -279,35 +349,35 @@ module Let_binding = struct
             , {ptyp_desc= Ptyp_poly ([], typ1); _} )
         , Pexp_constraint (_, typ2) )
         when equal_core_type typ1 typ2 ->
-          Cmts.relocate cmts ~src:lb_pat.ppat_loc ~before:pat.ppat_loc
-            ~after:pat.ppat_loc ;
-          sub_pat ~ctx:(Pat lb_pat) pat
+        Cmts.relocate cmts ~src:lb_pat.ast.ppat_loc ~before:pat.ppat_loc
+          ~after:pat.ppat_loc ;
+        sub_pat ~ctx:(Pat lb_pat.ast) pat
       | ( Ppat_constraint (_, {ptyp_desc= Ptyp_poly (_, typ1); _})
         , Pexp_coerce (_, _, typ2) )
         when equal_core_type typ1 typ2 ->
-          sub_pat ~ctx lb_pat
-      | _ -> sub_pat ~ctx lb_pat
+        sub_pat ~ctx lb_pat.ast
+      | _ -> sub_pat ~ctx lb_pat.ast
     in
     let pat_is_extension {ppat_desc; _} =
       match ppat_desc with Ppat_extension _ -> true | _ -> false
     in
-    let ({ast= body; _} as xbody) = sub_exp ~ctx lb_exp in
+    let ({ast= body; _} as xbody) = sub_exp ~ctx lb_exp.ast in
     if
       (not (List.is_empty xbody.ast.pexp_attributes)) || pat_is_extension pat
-    then (xpat, [], `None, xbody)
+    then (islocal, xpat, [], `None, xbody)
     else
       match polynewtype cmts pat body with
       | Some (xpat, pvars, xtyp, xbody) ->
-          (xpat, [], `Polynewtype (pvars, xtyp), xbody)
+        (islocal, xpat, [], `Polynewtype (pvars, xtyp), xbody)
       | None ->
-          let xpat =
-            match xpat.ast.ppat_desc with
-            | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
-                sub_pat ~ctx:xpat.ctx p
-            | _ -> xpat
-          in
-          let xargs, typ, xbody = split_fun_args cmts xpat xbody in
-          (xpat, xargs, typ, xbody)
+        let xpat =
+          match xpat.ast.ppat_desc with
+          | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
+            sub_pat ~ctx:xpat.ctx p
+          | _ -> xpat
+        in
+        let xargs, typ, xbody = split_fun_args cmts xpat xbody in
+        (islocal, xpat, xargs, typ, xbody)
 
   let typ_of_pvb_constraint ~ctx = function
     | Some (Pvc_constraint {locally_abstract_univars= []; typ}) ->
@@ -326,8 +396,8 @@ module Let_binding = struct
   let of_let_binding cmts ~ctx ~first
       {pvb_pat; pvb_expr; pvb_constraint; pvb_is_pun; pvb_attributes; pvb_loc}
       =
-    let lb_exp = sub_exp ~ctx pvb_expr
-    and lb_pat = sub_pat ~ctx pvb_pat
+    let islocal, _ctx, lb_pat, lb_exp =
+      unwrap_local ~ctx pvb_pat pvb_expr pvb_is_pun pvb_constraint
     and lb_typ = typ_of_pvb_constraint ~ctx pvb_constraint in
     let lb_args, lb_typ, lb_exp =
       if should_desugar_args lb_pat lb_typ then
@@ -341,6 +411,7 @@ module Let_binding = struct
     ; lb_exp
     ; lb_pun= pvb_is_pun
     ; lb_attrs= pvb_attributes
+    ; lb_local= islocal
     ; lb_loc= pvb_loc }
 
   let of_let_bindings cmts ~ctx =
@@ -348,8 +419,8 @@ module Let_binding = struct
 
   let of_binding_ops cmts ~ctx bos =
     List.map bos ~f:(fun bo ->
-        let lb_pat, lb_args, lb_typ, lb_exp =
-          type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp
+        let islocal, lb_pat, lb_args, lb_typ, lb_exp =
+          type_cstr cmts ~ctx bo.pbop_pat bo.pbop_exp false None
         in
         { lb_op= bo.pbop_op
         ; lb_pat
@@ -362,5 +433,6 @@ module Let_binding = struct
                 String.equal v e
             | _ -> false )
         ; lb_attrs= []
+        ; lb_local= islocal
         ; lb_loc= bo.pbop_loc } )
 end
