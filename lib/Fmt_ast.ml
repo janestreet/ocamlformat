@@ -711,12 +711,14 @@ and type_constr_and_body c xbody =
       fmt_cstr_and_xbody typ exp
   | _ -> (None, xbody)
 
-and fmt_arrow_param c ctx {pap_label= lI; pap_loc= locI; pap_type= tI} =
+and fmt_arrow_param c ctx
+    ({pap_label= lI; pap_loc= locI; pap_type= tI}, localI) =
   let arg_label lbl =
     match lbl with
-    | Nolabel -> None
-    | Labelled l -> Some (str l $ fmt ":@,")
-    | Optional l -> Some (str "?" $ str l $ fmt ":@,")
+    | Nolabel -> if localI then Some (str "local_ ") else None
+    | Labelled l -> Some (str l $ fmt ":@," $ fmt_if localI "local_ ")
+    | Optional l ->
+        Some (str "?" $ str l $ fmt ":@," $ fmt_if localI "local_ ")
   in
   let xtI = sub_typ ~ctx tI in
   let arg =
@@ -736,6 +738,10 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
+  let ptyp_attributes =
+    List.filter ptyp_attributes ~f:(fun a ->
+        not (String.equal a.attr_name.txt "ocaml.curry") )
+  in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
   ( match pro with
@@ -777,8 +783,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_arrow (ctl, ct2) ->
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn ctl).pap_type.ptyp_loc ~after:ct2.ptyp_loc ;
-      let ct2 = {pap_label= Nolabel; pap_loc= ct2.ptyp_loc; pap_type= ct2} in
-      let xt1N = List.rev (ct2 :: List.rev ctl) in
+      let xt1N, ctx = Sugar.decompose_arrow ctx ctl ct2 in
       let indent =
         if Poly.(c.conf.fmt_opts.break_separators.v = `Before) then 2 else 0
       in
@@ -2721,6 +2726,7 @@ and fmt_class_type c ({ast= typ; _} as xtyp) =
       Cmts.relocate c.cmts ~src:pcty_loc
         ~before:(List.hd_exn ctl).pap_type.ptyp_loc ~after:ct2.pcty_loc ;
       let xct2 = sub_cty ~ctx ct2 in
+      let ctl = List.map ~f:(fun ct -> (ct, false)) ctl in
       list ctl "@;-> " (fmt_arrow_param c ctx)
       $ fmt "@;-> "
       $ hvbox 0 (Cmts.fmt_before c ct2.pcty_loc $ fmt_class_type c xct2)
@@ -4172,7 +4178,7 @@ and fmt_let c ctx ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr
   $ fmt_atrs
 
 and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
-    {lb_op; lb_pat; lb_typ; lb_exp; lb_attrs; lb_loc; lb_pun} =
+    {lb_op; lb_pat; lb_typ; lb_exp; lb_attrs; lb_local; lb_loc; lb_pun} =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let lb_pun =
@@ -4244,6 +4250,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
                               $ fmt_extension_suffix c ext
                               $ fmt_attributes c at_attrs
                               $ fmt_if rec_flag " rec"
+                              $ fmt_if lb_local " local_"
                               $ fmt_or pat_has_cmt "@ " " "
                               $ fmt_pattern c lb_pat )
                           $ fmt_if_k
