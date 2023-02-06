@@ -650,8 +650,8 @@ and fmt_payload c ctx pld =
   | PStr mex ->
       fmt_if (not (List.is_empty mex)) "@ " $ fmt_structure c ctx mex
   | PSig mty ->
-      str ":"
-      $ fmt_if (not (List.is_empty mty)) "@ "
+      fmt ":@ " (* A trailing space is necessary because [:]] is the immutable
+                   array closing delimiter*)
       $ fmt_signature c ctx mty
   | PTyp typ -> fmt ":@ " $ fmt_core_type c (sub_typ ~ctx typ)
   | PPat (pat, exp) ->

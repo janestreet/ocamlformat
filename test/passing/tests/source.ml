@@ -7362,7 +7362,7 @@ type t = |
 ;;
 M.(Some x) [@foo]
 
-[@@@foo:]
+[@@@foo: ]
 
 let x = (A(B)).a
 
