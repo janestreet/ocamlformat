@@ -305,7 +305,7 @@ module Generic_array = struct
         [?\]]. *)*)
 
   let to_ast (type ast ast_desc)
-             (open_ : string) (close : string)
+             (_open_ : string) (_close : string)
              (array : ast list -> ast_desc)
         : (ast, ast_desc) t -> ast_desc = function
     | Literal elts ->
@@ -2542,7 +2542,7 @@ comprehension_clause_binding:
   | attributes LOCAL pattern IN expr
       { Extensions.Comprehensions.
           { pattern    = $3
-          ; iterator   = In (mkexp_stack ~loc:$sloc ~kwd_loc:($loc($2)) $5)
+          ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
           ; attributes = $1
           }
       }

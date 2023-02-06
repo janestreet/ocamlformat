@@ -2581,7 +2581,7 @@ comprehension_clause_binding:
   | attributes LOCAL pattern IN expr
       { Extensions.Comprehensions.
           { pattern    = $3
-          ; iterator   = In (mkexp_stack ~loc:$sloc ~kwd_loc:($loc($2)) $5)
+          ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
           ; attributes = $1
           }
       }
