@@ -392,10 +392,11 @@ module Extension = struct
     ]
 
   let default_extensions =
-    [ Local
-    ; Include_functor
-    ; Polymorphic_parameters
-    ]
+    (* [ Local
+     * ; Include_functor
+     * ; Polymorphic_parameters
+     * ] *)
+    all
 
   let extensions = ref ([] : t list)   (* -extension *)
   let equal (a : t) (b : t) = (a = b)
