@@ -136,6 +136,10 @@ let array_fold_transf (f : numbering -> 'a -> numbering * 'b) n (a : 'a array)
     : numbering * 'b array =
   match Array.length a with 0 -> (n, [||]) | 1 -> x
 
+let iarray_fold_transf (f : numbering -> 'a -> numbering * 'b) n
+    (a : 'a iarray) : numbering * 'b iarray =
+  match Iarray.length a with 0 -> (n, [::]) | 1 -> x
+
 let to_clambda_function (id, (function_decl : Flambda.function_declaration))
     : Clambda.ufunction =
   (* All that we need in the environment, for translating one closure from a

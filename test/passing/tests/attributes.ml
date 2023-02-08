@@ -82,7 +82,7 @@ if [@test] true then () else () ;;
 
 if [@test] true then () else if [@test] true then () else ()
 
-let _ = ((A [@test]), (() [@test]), ([] [@test]), [||] [@test])
+let _ = ((A [@test]), (() [@test]), ([] [@test]), [||] [@test], [::] [@test])
 
 type blocklist =
   { f1: int [@version 1, 1, 0]  (** short comment *)
@@ -327,6 +327,8 @@ let (Foo ((A | B) [@attr])) = ()
 let ([(A | B) [@attr]; b; c] [@attr]) = ()
 
 let ([|a; (A | B) [@attr]; c|] [@attr]) = ()
+
+let ([:a; (A | B) [@attr]; c:] [@attr]) = ()
 
 let {b= (A | B) [@attr]} = ()
 
