@@ -308,6 +308,9 @@ module Exp = struct
     | _ -> List.exists pexp_attributes ~f:(Fn.non Attr.is_doc)
 
   let rec is_trivial exp =
+    match Extensions.Expression.of_ast exp with
+    | Some eexp -> is_trivial_extension eexp
+    | None      ->
     match exp.pexp_desc with
     | Pexp_constant {pconst_desc= Pconst_string (_, _, None); _} -> true
     | Pexp_constant _ | Pexp_field _ | Pexp_ident _ | Pexp_send _ -> true
@@ -320,6 +323,14 @@ module Exp = struct
     | Pexp_array [] | Pexp_list [] -> true
     | Pexp_array [x] | Pexp_list [x] -> is_trivial x
     | _ -> false
+
+  and is_trivial_extension : Extensions.Expression.t -> _ = function
+    | Eexp_immutable_array (Iaexp_immutable_array []) -> true
+    | Eexp_immutable_array (Iaexp_immutable_array [x]) -> is_trivial x
+    | Eexp_immutable_array (Iaexp_immutable_array _)
+    | Eexp_comprehension
+        (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+      -> false
 
   let rec exposed_left e =
     match e.pexp_desc with
@@ -355,7 +366,14 @@ module Pat = struct
         true
     | _ -> false
 
-  let has_trailing_attributes {ppat_desc; ppat_attributes; _} =
+  let has_trailing_attributes_extension _ppat_attributes : Extensions.Pattern.t -> _ =
+    function
+    | Epat_immutable_array (Iapat_immutable_array _) -> false
+
+  let has_trailing_attributes ({ppat_desc; ppat_attributes; _} as pat) =
+    match Extensions.Pattern.of_ast pat with
+    | Some epat -> has_trailing_attributes_extension ppat_attributes epat
+    | None      ->
     match ppat_desc with
     | Ppat_construct (_, None)
      |Ppat_constant _ | Ppat_any | Ppat_var _
@@ -1339,6 +1357,14 @@ end = struct
     | Pat ctx -> (
         let f pI = pI == pat in
         let snd_f (_, pI) = pI == pat in
+        (* Inlined because we're closed over things *)
+        let check_extension : Extensions.Pattern.t -> _ = function
+          | Epat_immutable_array (Iapat_immutable_array p1N) ->
+              assert (List.exists p1N ~f)
+        in
+        match Extensions.Pattern.of_ast ctx with
+        | Some ectx -> check_extension ectx
+        | None      ->
         match ctx.ppat_desc with
         | Ppat_array p1N | Ppat_list p1N | Ppat_tuple p1N ->
             assert (List.exists p1N ~f)
@@ -1460,6 +1486,16 @@ end = struct
     | Exp ctx -> (
         let f eI = eI == exp in
         let snd_f (_, eI) = eI == exp in
+
+        (* Inlined because we're closed over things *)
+        let check_extension : Extensions.Expression.t -> _ = function
+          | Eexp_comprehension _ -> assert false (* XXX *)
+          | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
+              assert (List.exists e1N ~f)
+        in
+        match Extensions.Expression.of_ast ctx with
+        | Some ectx -> check_extension ectx
+        | None      ->
         match ctx.pexp_desc with
         | Pexp_construct
             ({txt= Lident "::"; _}, Some {pexp_desc= Pexp_tuple [e1; e2]; _})
@@ -1586,6 +1622,9 @@ end = struct
 
   let rec is_simple (c : Conf.t) width ({ast= exp; _} as xexp) =
     let ctx = Exp exp in
+    match Extensions.Expression.of_ast exp with
+    | Some eexp -> is_simple_extension c width xexp eexp
+    | None      ->
     match exp.pexp_desc with
     | Pexp_constant _ -> Exp.is_trivial exp
     | Pexp_field _ | Pexp_ident _ | Pexp_send _
@@ -1615,6 +1654,20 @@ end = struct
         is_simple c width (sub_exp ~ctx e0)
     | Pexp_extension (_, (PStr [] | PTyp _)) -> true
     | _ -> false
+
+  and is_simple_extension c width xexp : Extensions.Expression.t -> bool = function
+    | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
+        List.for_all e1N ~f:Exp.is_trivial && fit_margin c (width xexp)
+    | Eexp_comprehension (Cexp_list_comprehension _ | Cexp_array_comprehension _) ->
+        false
+
+  let prec_ctx_extension : Extensions.Expression.t -> _ =
+    let open Prec in
+    let open Assoc in
+    function
+    | Eexp_comprehension (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+    | Eexp_immutable_array (Iaexp_immutable_array _)
+      -> Some (Semi, Non)
 
   (** [prec_ctx {ctx; ast}] is the precedence of the context of [ast] within
       [ctx], where [ast] is an immediate sub-term (modulo syntactic sugar) of
@@ -1688,7 +1741,10 @@ end = struct
       | _ -> None )
     | {ast= Cty _; _} -> None
     | {ast= Typ _; _} -> None
-    | {ctx= Exp {pexp_desc; _}; ast= Exp exp} -> (
+    | {ctx= Exp ({pexp_desc; _} as ctx); ast= Exp exp} -> (
+      match Extensions.Expression.of_ast ctx with
+      | Some ectx -> prec_ctx_extension ectx
+      | None      ->
       match pexp_desc with
       | Pexp_tuple (e0 :: _) ->
           Some (Comma, if exp == e0 then Left else Right)
@@ -1960,6 +2016,12 @@ end = struct
     assert_check_pat xpat ;
     Pat.has_trailing_attributes pat
     ||
+    match Extensions.Pattern.of_ast pat with
+    | Some epat -> begin (* Inlined because it's simpler *)
+        match epat with
+        | Epat_immutable_array (Iapat_immutable_array _)  -> false
+    end
+    | None      ->
     match (ctx, pat.ppat_desc) with
     | ( Pat
           { ppat_desc=
@@ -2097,6 +2159,15 @@ end = struct
           (not (parenze_exp (sub_exp ~ctx:(Exp exp) subexp)))
           && exposed_right_exp cls subexp
         in
+        match Extensions.Expression.of_ast exp with
+        | Some eexp -> begin (* Inlined because we're closed over [memo] *)
+            match eexp with
+            | Eexp_comprehension
+                (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+            | Eexp_immutable_array (Iaexp_immutable_array _)
+              -> false
+        end
+        | None      ->
         match exp.pexp_desc with
         | Pexp_assert e
          |Pexp_construct
@@ -2173,6 +2244,15 @@ end = struct
           mark_parenzed_inner_nested_match subexp ;
         false
       in
+      match Extensions.Expression.of_ast exp with
+      | Some eexp -> begin (* Inlined because we're nested *)
+          match eexp with
+            | Eexp_comprehension
+                (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+            | Eexp_immutable_array (Iaexp_immutable_array _)
+              -> false
+        end
+      | None      ->
       match exp.pexp_desc with
       | Pexp_assert e
        |Pexp_construct
@@ -2304,6 +2384,8 @@ end = struct
     || Hashtbl.find marked_parenzed_inner_nested_match exp
        |> Option.value ~default:false
     ||
+    (* JST: No modular extensions match here, as we just want the final default
+       case; if that changes, add a match *)
     match (ctx, exp) with
     | Str {pstr_desc= Pstr_eval _; _}, _ -> false
     | ( Exp

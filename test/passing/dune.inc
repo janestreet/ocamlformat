@@ -2130,6 +2130,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to immutable_arrays.ml.stdout
+   (with-stderr-to immutable_arrays.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/immutable_arrays.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/immutable_arrays.ml immutable_arrays.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/immutable_arrays.ml.err immutable_arrays.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to include_functor.ml.stdout
    (with-stderr-to include_functor.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
