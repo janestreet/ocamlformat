@@ -33,6 +33,38 @@ let map' ~f l = [f x for x in l]
 (* ...and filter *)
 let filter' ~f l = [x for x in l when f x]
 
+let wrapping_inside_individual_comprehension_pieces =
+  [ this is a very long function_application so that we can see how the body
+      of_a comprehension line wraps
+    for
+      thoroughness =
+        we also want to_know how line wrapping looks inside the right hand
+          side of_a clause downto its length
+    and
+      similarly = we want
+        to know how line wrapping looks for_things_in every single part_of a
+             clause
+    for
+      example in
+        the sequence iteration case we also want_to test the line wrapping
+          behavior
+    when
+      we have a conditional we also want_to test the line wrapping behavior
+        for_it
+    for
+      some_patterns_can_get_so_long_that_after_them_they_force_wrapping = 0
+        to 1
+    and
+      those_patterns_themselves_are_long_enough_that_they_can't_break in
+        -ternally
+    and
+      can_even_grow_long_enough_to_force_wrapping_to_occur_right_before_the
+        in keyword
+    for
+      ( Other (patterns, they, can, get, really, terribly)
+      , Excessively (long, so, that, they, need, line, breaking) ) in
+        their own right ]
+
 (*********************************************************************
  * Arrays *)
 
@@ -68,6 +100,38 @@ let map' ~f l = [|f x for x in l|]
 (* ...and filter *)
 let filter' ~f l = [|x for x in l when f x|]
 
+let wrapping_inside_individual_comprehension_pieces =
+  [| this is a very long function_application so that we can see how the body
+       of_a comprehension line wraps
+     for
+       thoroughness =
+         we also want to_know how line wrapping looks inside the right hand
+           side of_a clause downto its length
+     and
+       similarly = we want
+         to know how line wrapping looks for_things_in every single part_of a
+              clause
+     for
+       example in
+         the sequence iteration case we also want_to test the line wrapping
+           behavior
+     when
+       we have a conditional we also want_to test the line wrapping behavior
+         for_it
+     for
+       some_patterns_can_get_so_long_that_after_them_they_force_wrapping = 0
+         to 1
+     and
+       those_patterns_themselves_are_long_enough_that_they_can't_break in
+         -ternally
+     and
+       can_even_grow_long_enough_to_force_wrapping_to_occur_right_before_the
+         in keyword
+     for
+       ( Other (patterns, they, can, get, really, terribly)
+       , Excessively (long, so, that, they, need, line, breaking) ) in
+         their own right |]
+
 (*********************************************************************
  * Immutable arrays *)
 
@@ -102,3 +166,35 @@ let map' ~f l = [:f x for x in l:]
 
 (* ...and filter *)
 let filter' ~f l = [:x for x in l when f x:]
+
+let wrapping_inside_individual_comprehension_pieces =
+  [: this is a very long function_application so that we can see how the body
+       of_a comprehension line wraps
+     for
+       thoroughness =
+         we also want to_know how line wrapping looks inside the right hand
+           side of_a clause downto its length
+     and
+       similarly = we want
+         to know how line wrapping looks for_things_in every single part_of a
+              clause
+     for
+       example in
+         the sequence iteration case we also want_to test the line wrapping
+           behavior
+     when
+       we have a conditional we also want_to test the line wrapping behavior
+         for_it
+     for
+       some_patterns_can_get_so_long_that_after_them_they_force_wrapping = 0
+         to 1
+     and
+       those_patterns_themselves_are_long_enough_that_they_can't_break in
+         -ternally
+     and
+       can_even_grow_long_enough_to_force_wrapping_to_occur_right_before_the
+         in keyword
+     for
+       ( Other (patterns, they, can, get, really, terribly)
+       , Excessively (long, so, that, they, need, line, breaking) ) in
+         their own right :]

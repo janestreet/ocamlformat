@@ -2839,7 +2839,7 @@ and fmt_comprehension
 and fmt_comprehension_clause c ~ctx (clause : Extensions.Comprehensions.clause) =
   let subclause kwd formatter item =
     fits_breaks " " ~hint:(1000,0) "" $
-    hvbox 2 (str kwd $ sp (Break (1,0)) $ formatter c item)
+    hvbox 2 (str kwd $ sp (Break (1,0)) $ hovbox 2 (formatter c item))
   in
   match clause with
   | For bindings ->
