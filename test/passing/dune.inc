@@ -1137,6 +1137,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to comprehensions.ml.stdout
+   (with-stderr-to comprehensions.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/comprehensions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comprehensions.ml comprehensions.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comprehensions.ml.err comprehensions.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to crlf_to_crlf.ml.stdout
    (with-stderr-to crlf_to_crlf.ml.stderr
      (run %{bin:ocamlformat} --margin-check --line-endings=crlf %{dep:tests/crlf_to_crlf.ml})))))
