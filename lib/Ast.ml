@@ -1322,6 +1322,18 @@ end = struct
     let dump {ctx; ast= cl} = dump ctx (Cl cl) in
     assert_no_raise ~f:check_cl ~dump xcl
 
+  let check_comprehension
+        ~pattern ~expression
+        (Extensions.Comprehensions.{body; clauses}) =
+    expression body || List.exists clauses ~f:(function
+      | For bindings ->
+        List.exists bindings ~f:(fun { iterator; pattern = pat; attributes = _ } ->
+          pattern pat ||
+          match iterator with
+          | Range { start; stop; direction = _ } -> expression start || expression stop
+          | In seq -> expression seq)
+      | When cond -> expression cond)
+
   let check_pat {ctx; ast= pat} =
     let check_pcstr_fields pcstr_fields =
       List.exists pcstr_fields ~f:(fun {pcf_desc; _} ->
@@ -1389,6 +1401,21 @@ end = struct
          |Ppat_variant (_, None) ->
             assert false )
     | Exp ctx -> (
+      (* Inlined because it's simpler *)
+      let check_extension : Extensions.Expression.t -> _ = function
+        | Eexp_comprehension
+            (Cexp_list_comprehension comp | Cexp_array_comprehension (_, comp))
+          ->
+            assert (check_comprehension
+                      ~pattern:(fun pat' -> pat' == pat)
+                      ~expression:(fun _ -> true)
+                      comp)
+        | Eexp_immutable_array (Iaexp_immutable_array _) ->
+            assert false
+      in
+      match Extensions.Expression.of_ast ctx with
+      | Some ectx -> check_extension ectx
+      | None      ->
       match ctx.pexp_desc with
       | Pexp_apply _ | Pexp_array _ | Pexp_list _ | Pexp_assert _
        |Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
@@ -1489,7 +1516,10 @@ end = struct
 
         (* Inlined because we're closed over things *)
         let check_extension : Extensions.Expression.t -> _ = function
-          | Eexp_comprehension _ -> assert false (* XXX *)
+          | Eexp_comprehension
+              (Cexp_list_comprehension comp | Cexp_array_comprehension (_, comp))
+            ->
+              assert (check_comprehension ~pattern:(fun _ -> true) ~expression:f comp)
           | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
               assert (List.exists e1N ~f)
         in
