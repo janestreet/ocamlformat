@@ -2456,15 +2456,17 @@ end = struct
         when List.exists args ~f:(fun (_, e0) ->
                  match (e0.pexp_desc, e0.pexp_attributes) with
                  | Pexp_list _, _ :: _ when e0 == exp -> true
+                 | Pexp_array _, _ :: _ when e0 == exp -> true
                  | _ -> false ) ->
           true
       | _ -> (
         match exp.pexp_desc with
-        | Pexp_list _ -> false
+        | Pexp_list _ | Pexp_array _ -> false
         | _ -> (Exp.has_trailing_attributes exp &&
                 trailing_attrs_require_parens ctx exp) ||
                parenze () ) )
     | _, {pexp_desc= Pexp_list _; _} -> false
+    | _, {pexp_desc= Pexp_array _; _} -> false
     | ctx, exp when Exp.has_trailing_attributes exp &&
                     trailing_attrs_require_parens ctx exp -> true
     | _ -> false
