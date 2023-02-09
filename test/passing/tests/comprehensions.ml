@@ -33,6 +33,14 @@ let map' ~f l = [f x for x in l]
 (* ...and filter *)
 let filter' ~f l = [x for x in l when f x]
 
+(* We can put comprehensions inside other comprehensions... *)
+let nested_comprehensions = [[i for i = 1 to n] for n = 1 to 10]
+
+(* ...in multiple_places *)
+let nested_comprehensions_rhs =
+  [k for n in [i * i for i = 1 to 10] for k = 1 to n]
+
+(* Sometimes comprehensions need to line-wrap *)
 let wrapping_inside_individual_comprehension_pieces =
   [ this is a very long function_application so that we can see how the body
       of_a comprehension line wraps
@@ -100,6 +108,14 @@ let map' ~f l = [|f x for x in l|]
 (* ...and filter *)
 let filter' ~f l = [|x for x in l when f x|]
 
+(* We can put comprehensions inside other comprehensions... *)
+let nested_comprehensions = [|[|i for i = 1 to n|] for n = 1 to 10|]
+
+(* ...in multiple_places *)
+let nested_comprehensions_rhs =
+  [|k for n in [|i * i for i = 1 to 10|] for k = 1 to n|]
+
+(* Sometimes comprehensions need to line-wrap *)
 let wrapping_inside_individual_comprehension_pieces =
   [| this is a very long function_application so that we can see how the body
        of_a comprehension line wraps
@@ -167,6 +183,14 @@ let map' ~f l = [:f x for x in l:]
 (* ...and filter *)
 let filter' ~f l = [:x for x in l when f x:]
 
+(* We can put comprehensions inside other comprehensions... *)
+let nested_comprehensions = [:[:i for i = 1 to n:] for n = 1 to 10:]
+
+(* ...in multiple_places *)
+let nested_comprehensions_rhs =
+  [:k for n in [:i * i for i = 1 to 10:] for k = 1 to n:]
+
+(* Sometimes comprehensions need to line-wrap *)
 let wrapping_inside_individual_comprehension_pieces =
   [: this is a very long function_application so that we can see how the body
        of_a comprehension line wraps
