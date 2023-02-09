@@ -2832,7 +2832,7 @@ and fmt_comprehension
   let wrapper_space = fits_breaks " " "" in
   wrap_fits_breaks c.conf open_ close
     ( wrap_if_k (space_around) wrapper_space wrapper_space
-        ( hvbox 2
+        ( hvbox 0 (* Don't indent the clauses to the right of the body *)
             ( fmt_expression c (sub_exp ~ctx body)
             $ sequence (List.map clauses ~f:(fmt_comprehension_clause ~ctx c)))))
 
