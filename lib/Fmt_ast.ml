@@ -2792,7 +2792,8 @@ and fmt_expression_extension
       c ~box:_ ~pro:_ ~epi:_ ~eol:_ ~parens:_ ~indent_wrap:_ ~ext:_
       ~pexp_loc ~fmt_atrs ~has_attr ~ctx
   : Extensions.Expression.t -> _ = function
-  | Eexp_comprehension _ -> str "COMP"
+  | Eexp_comprehension cexpr ->
+      fmt_comprehension_expr c ~fmt_atrs ~has_attr ~ctx cexpr
   | Eexp_immutable_array (Iaexp_immutable_array []) ->
       hvbox 0
         ( wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c pexp_loc)
@@ -2805,6 +2806,64 @@ and fmt_expression_extension
                (sub_exp ~ctx >> fmt_expression c)
                p )
         $ fmt_atrs )
+
+and fmt_comprehension_expr
+      c
+      ~fmt_atrs ~has_attr ~ctx
+      (cexpr : Extensions.Comprehensions.comprehension_expr) =
+  let punct, space_around, comp = match cexpr with
+    | Cexp_list_comprehension comp ->
+        "", c.conf.fmt_opts.space_around_lists, comp
+    | Cexp_array_comprehension (amut, comp) ->
+        let punct = match amut with
+          | Mutable -> "|"
+          | Immutable -> ":"
+        in
+        punct, c.conf.fmt_opts.space_around_arrays, comp
+  in
+  hvbox_if has_attr 0
+    ( fmt_comprehension c
+        ~ctx ~open_:("[" ^ punct) ~close:(punct ^ "]") ~space_around comp
+    $ fmt_atrs)
+
+
+and fmt_comprehension
+      c ~ctx ~open_ ~close ~space_around Extensions.Comprehensions.{ body; clauses } =
+  let wrapper_space = fits_breaks " " "" in
+  wrap_fits_breaks c.conf open_ close
+    ( wrap_if_k (space_around) wrapper_space wrapper_space
+        ( hvbox 2
+            ( fmt_expression c (sub_exp ~ctx body)
+            $ sequence (List.map clauses ~f:(fmt_comprehension_clause ~ctx c)))))
+
+and fmt_comprehension_clause c ~ctx (clause : Extensions.Comprehensions.clause) =
+  let subclause kwd formatter item =
+    fits_breaks " " ~hint:(1000,0) "" $
+    hvbox 2 (str kwd $ sp (Break (1,0)) $ formatter c item)
+  in
+  match clause with
+  | For bindings ->
+      list_fl bindings (fun ~first ~last:_ ->
+        subclause (if first then "for" else "and") (fmt_comprehension_binding ~ctx))
+  | When cond ->
+      subclause "when" (fun c xt -> fmt_expression c xt) (sub_exp ~ctx cond)
+
+and fmt_comprehension_binding
+      c ~ctx Extensions.Comprehensions.{ pattern; iterator; attributes } =
+  fmt_attributes c attributes $
+  fmt_pattern c (sub_pat ~ctx pattern) $
+  sp Space (* The harder break is after the [=]/[in] *) $
+  fmt_comprehension_iterator c ~ctx iterator
+
+and fmt_comprehension_iterator c ~ctx
+  : Extensions.Comprehensions.iterator -> _ = function
+  | Range { start; stop; direction } ->
+      fmt "=@;<1 0>" $
+      fmt_expression c (sub_exp ~ctx start) $
+      fmt_direction_flag direction $
+      fmt_expression c (sub_exp ~ctx stop)
+  | In seq ->
+      fmt "in@;<1 0>" $ fmt_expression c (sub_exp ~ctx seq)
 
 and fmt_let_bindings c ~ctx ?ext ~parens ~loc ~has_attr ~fmt_atrs ~fmt_expr
     rec_flag bindings body =
