@@ -2414,8 +2414,22 @@ end = struct
     || Hashtbl.find marked_parenzed_inner_nested_match exp
        |> Option.value ~default:false
     ||
-    (* JST: No modular extensions match here, as we just want the final default
-       case; if that changes, add a match *)
+    (* JST: We don't just do the full-scale match on
+       [Extensions.Expression.of_ast exp] here because the following match is on
+       [ctx, exp] and is very complicated.  These booleans let us integrate our
+       extended AST nodes into the match in the most natural possible way
+       relative to the structure of the existing match.  We make them lazy
+       because we only want to run [of_ast] if we know that [exp] isn't actually
+       a subterm of an extension expression. *)
+    let opt_eexp = lazy (Extensions.Expression.of_ast exp) in
+    let is_extension_comprehension = Lazy.map opt_eexp ~f:(function
+      | Some (Eexp_comprehension _) -> true
+      | _                           -> false)
+    in
+    let is_extension_immutable_array = Lazy.map opt_eexp ~f:(function
+      | Some (Eexp_immutable_array _) -> true
+      | _                             -> false)
+    in
     match (ctx, exp) with
     | Str {pstr_desc= Pstr_eval _; _}, _ -> false
     | ( Exp
@@ -2496,7 +2510,28 @@ end = struct
     | Exp {pexp_desc= Pexp_field (e, _); _}, {pexp_desc= Pexp_construct _; _}
       when e == exp ->
         true
-    | Exp {pexp_desc; _}, _ -> (
+    | Exp ({pexp_desc; _} as ctx_exp), _ -> (
+      (* JST: This is the old fallthrough case, but we need it for the
+         extensions match and the real match, so we factor it out; we have to do
+         an external match on [ctx_exp] because the below fallthrough case
+         matches on subterms, which can cause exceptions if we break into the
+         representation of a language extension. *)
+      let jst_fallthrough_case () =
+        match exp.pexp_desc with
+        | Pexp_list _ | Pexp_array _ -> false
+        | _ when Lazy.force is_extension_comprehension ||
+                 Lazy.force is_extension_immutable_array -> false
+        | _ -> (Exp.has_trailing_attributes exp &&
+                trailing_attrs_require_parens ctx exp) ||
+               parenze ()
+      in
+      match Extensions.Expression.of_ast ctx_exp with
+      | Some ctx_eexp -> begin match ctx_eexp with
+        | Eexp_comprehension _
+        | Eexp_immutable_array _ ->
+            jst_fallthrough_case ()
+        end
+      | None ->
       match pexp_desc with
       | Pexp_extension
           ( _
@@ -2566,19 +2601,28 @@ end = struct
       | Pexp_sequence (lhs, rhs) -> exp_in_sequence lhs rhs exp
       | Pexp_apply (_, args)
         when List.exists args ~f:(fun (_, e0) ->
+                 match Extensions.Expression.of_ast e0 with
+                 | Some ee0 -> begin match (ee0, e0.pexp_attributes) with
+                     | ( Eexp_comprehension
+                           (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+                       | Eexp_immutable_array (Iaexp_immutable_array _) )
+                     , _ :: _
+                     when e0 == exp (* Yes, [e0] *) ->
+                       true
+                     | _ -> false
+                 end
+                 | None ->
                  match (e0.pexp_desc, e0.pexp_attributes) with
                  | Pexp_list _, _ :: _ when e0 == exp -> true
                  | Pexp_array _, _ :: _ when e0 == exp -> true
                  | _ -> false ) ->
           true
-      | _ -> (
-        match exp.pexp_desc with
-        | Pexp_list _ | Pexp_array _ -> false
-        | _ -> (Exp.has_trailing_attributes exp &&
-                trailing_attrs_require_parens ctx exp) ||
-               parenze () ) )
+      | _ -> jst_fallthrough_case () )
     | _, {pexp_desc= Pexp_list _; _} -> false
     | _, {pexp_desc= Pexp_array _; _} -> false
+    | _, _ when Lazy.force is_extension_comprehension ||
+                Lazy.force is_extension_immutable_array ->
+        false
     | ctx, exp when Exp.has_trailing_attributes exp &&
                     trailing_attrs_require_parens ctx exp -> true
     | _ -> false

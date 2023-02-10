@@ -1735,10 +1735,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   @@
   match Extensions.Expression.of_ast exp with
   | Some eexp ->
-      fmt_expression_extension
-        c ~box ~pro ~epi ~eol ~parens ~indent_wrap ~ext
-        ~pexp_loc ~fmt_atrs ~has_attr ~ctx
-        eexp
+      fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx eexp
   | None ->
   match pexp_desc with
   | Pexp_apply (_, []) -> impossible "not produced by parser"
@@ -2788,28 +2785,28 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
       impossible "only used for methods, handled during method formatting"
   | Pexp_hole -> hvbox 0 (fmt_hole () $ fmt_atrs)
 
-and fmt_expression_extension
-      c ~box:_ ~pro:_ ~epi:_ ~eol:_ ~parens:_ ~indent_wrap:_ ~ext:_
-      ~pexp_loc ~fmt_atrs ~has_attr ~ctx
+and fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx
   : Extensions.Expression.t -> _ = function
   | Eexp_comprehension cexpr ->
-      fmt_comprehension_expr c ~fmt_atrs ~has_attr ~ctx cexpr
+      fmt_comprehension_expr c ~fmt_atrs ~has_attr ~parens ~ctx cexpr
   | Eexp_immutable_array (Iaexp_immutable_array []) ->
       hvbox 0
-        ( wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c pexp_loc)
-        $ fmt_atrs )
+        (Params.parens_if parens c.conf
+          ( wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c pexp_loc)
+          $ fmt_atrs ) )
   | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
       let p = Params.get_iarray_expr c.conf in
       hvbox_if has_attr 0
-        ( p.box
-            (fmt_expressions c (expression_width c) (sub_exp ~ctx) e1N
-               (sub_exp ~ctx >> fmt_expression c)
-               p )
-        $ fmt_atrs )
+        (Params.parens_if parens c.conf
+          ( p.box
+              (fmt_expressions c (expression_width c) (sub_exp ~ctx) e1N
+                 (sub_exp ~ctx >> fmt_expression c)
+                 p )
+          $ fmt_atrs ) )
 
 and fmt_comprehension_expr
       c
-      ~fmt_atrs ~has_attr ~ctx
+      ~fmt_atrs ~has_attr ~parens ~ctx
       (cexpr : Extensions.Comprehensions.comprehension_expr) =
   let punct, space_around, comp = match cexpr with
     | Cexp_list_comprehension comp ->
@@ -2822,9 +2819,10 @@ and fmt_comprehension_expr
         punct, c.conf.fmt_opts.space_around_arrays, comp
   in
   hvbox_if has_attr 0
-    ( fmt_comprehension c
-        ~ctx ~open_:("[" ^ punct) ~close:(punct ^ "]") ~space_around comp
-    $ fmt_atrs)
+    (Params.parens_if parens c.conf
+      ( fmt_comprehension c
+          ~ctx ~open_:("[" ^ punct) ~close:(punct ^ "]") ~space_around comp
+      $ fmt_atrs ) )
 
 
 and fmt_comprehension
