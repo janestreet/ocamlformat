@@ -192,6 +192,35 @@ let length =
     2777777777777777777777777777777777;
     27 ]
   [@foo]
+
+(* comprehensions are currently invariant under this setting *)
+
+(* this is a list comprehension *)
+let pythagorean =
+  [ (a, b, c)
+    for a = 1 to 10
+    for b = a to 10
+    for c = b to 10
+    when (a * a) + (b * b) = c * c ]
+  [@foo]
+
+(* this is an array comprehension *)
+let pythagorean =
+  [| (a, b, c)
+     for a = 1 to 10
+     for b = a to 10
+     for c = b to 10
+     when (a * a) + (b * b) = c * c |]
+  [@foo]
+
+(* this is an immutable array comprehension *)
+let pythagorean =
+  [: (a, b, c)
+     for a = 1 to 10
+     for b = a to 10
+     for c = b to 10
+     when (a * a) + (b * b) = c * c :]
+  [@foo]
 ;;
 
 Fooooooo.foo ~foooooooooooooo ~fooooooooo:""
