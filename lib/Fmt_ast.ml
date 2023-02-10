@@ -1289,7 +1289,6 @@ and fmt_pattern_extension ~ext:_ c ~pro:_ ~parens:_ ~box:_ ~ctx0 ~ctx ~ppat_loc
            (fun pat -> fmt_pattern c (sub_pat ~ctx pat))
            pats )
 
-
 and fmt_fun_args c args =
   let fmt_fun_arg (a : Sugar.arg_kind) =
     match a with
