@@ -193,7 +193,8 @@ let length =
   ; 27 ]
   [@foo]
 
-(* comprehensions are currently invariant under this setting *)
+(* Comprehensions are invariant under separator placement and wrapping vs.
+   breaking, but respect delimiter docking behavior *)
 
 (* this is a list comprehension *)
 let pythagorean =

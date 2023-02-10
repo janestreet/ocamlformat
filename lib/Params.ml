@@ -300,6 +300,18 @@ let get_array_expr (c : Conf.t) =
 let get_iarray_expr (c : Conf.t) =
   collection_expr c ~space_around:c.fmt_opts.space_around_arrays "[:" ":]"
 
+(* Modeled after [collection_expr] in [`After] mode *)
+let wrap_comprehension (c : Conf.t) ~space_around ~punctuation comp =
+  let opn = "[" ^ punctuation in
+  let cls = punctuation ^ "]" in
+  let space = if space_around then 1 else 0 in
+  if c.fmt_opts.dock_collection_brackets then
+    hvbox 0
+      (wrap_k (str opn) (str cls)
+         (break space 2 $ hvbox 0 comp $ break space 0))
+  else
+    hvbox 0 (wrap_collec c ~space_around opn cls comp)
+
 let box_pattern_docked (c : Conf.t) ~ctx ~space_around opn cls k =
   let space = if space_around then 1 else 0 in
   let indent_opn, indent_cls =
