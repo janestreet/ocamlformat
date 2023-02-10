@@ -2787,7 +2787,21 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
 and fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx
   : Extensions.Expression.t -> _ = function
   | Eexp_comprehension cexpr ->
-      fmt_comprehension_expr c ~fmt_atrs ~has_attr ~parens ~ctx cexpr
+      let punctuation, space_around, comp = match cexpr with
+        | Cexp_list_comprehension comp ->
+            "", c.conf.fmt_opts.space_around_lists, comp
+        | Cexp_array_comprehension (amut, comp) ->
+            let punct = match amut with
+              | Mutable -> "|"
+              | Immutable -> ":"
+            in
+            punct, c.conf.fmt_opts.space_around_arrays, comp
+      in
+      hvbox_if has_attr 0
+        (Params.parens_if parens c.conf
+          ( Params.wrap_comprehension c.conf ~space_around ~punctuation
+              ( fmt_comprehension c ~ctx comp )
+          $ fmt_atrs ) )
   | Eexp_immutable_array (Iaexp_immutable_array []) ->
       hvbox 0
         (Params.parens_if parens c.conf
@@ -2803,35 +2817,10 @@ and fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx
                  p )
           $ fmt_atrs ) )
 
-and fmt_comprehension_expr
-      c
-      ~fmt_atrs ~has_attr ~parens ~ctx
-      (cexpr : Extensions.Comprehensions.comprehension_expr) =
-  let punct, space_around, comp = match cexpr with
-    | Cexp_list_comprehension comp ->
-        "", c.conf.fmt_opts.space_around_lists, comp
-    | Cexp_array_comprehension (amut, comp) ->
-        let punct = match amut with
-          | Mutable -> "|"
-          | Immutable -> ":"
-        in
-        punct, c.conf.fmt_opts.space_around_arrays, comp
-  in
-  hvbox_if has_attr 0
-    (Params.parens_if parens c.conf
-      ( fmt_comprehension c
-          ~ctx ~open_:("[" ^ punct) ~close:(punct ^ "]") ~space_around comp
-      $ fmt_atrs ) )
-
-
-and fmt_comprehension
-      c ~ctx ~open_ ~close ~space_around Extensions.Comprehensions.{ body; clauses } =
-  let wrapper_space = fits_breaks " " "" in
-  wrap_fits_breaks c.conf open_ close
-    ( wrap_if_k (space_around) wrapper_space wrapper_space
-        ( hvbox 0 (* Don't indent the clauses to the right of the body *)
-            ( fmt_expression c (sub_exp ~ctx body)
-            $ sequence (List.map clauses ~f:(fmt_comprehension_clause ~ctx c)))))
+and fmt_comprehension c ~ctx Extensions.Comprehensions.{ body; clauses } =
+  hvbox 0 (* Don't indent the clauses to the right of the body *)
+    ( fmt_expression c (sub_exp ~ctx body)
+    $ sequence (List.map clauses ~f:(fmt_comprehension_clause ~ctx c)) )
 
 and fmt_comprehension_clause c ~ctx (clause : Extensions.Comprehensions.clause) =
   let subclause kwd formatter item =

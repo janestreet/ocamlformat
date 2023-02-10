@@ -220,33 +220,40 @@ let length =
   ]
   [@foo]
 
-(* comprehensions are currently invariant under this setting *)
+(* Comprehensions are invariant under separator placement and wrapping vs.
+   breaking, but respect delimiter docking behavior *)
 
 (* this is a list comprehension *)
 let pythagorean =
-  [ (a, b, c)
+  [
+    (a, b, c)
     for a = 1 to 10
     for b = a to 10
     for c = b to 10
-    when (a * a) + (b * b) = c * c ]
+    when (a * a) + (b * b) = c * c
+  ]
   [@foo]
 
 (* this is an array comprehension *)
 let pythagorean =
-  [| (a, b, c)
-     for a = 1 to 10
-     for b = a to 10
-     for c = b to 10
-     when (a * a) + (b * b) = c * c |]
+  [|
+    (a, b, c)
+    for a = 1 to 10
+    for b = a to 10
+    for c = b to 10
+    when (a * a) + (b * b) = c * c
+  |]
   [@foo]
 
 (* this is an immutable array comprehension *)
 let pythagorean =
-  [: (a, b, c)
-     for a = 1 to 10
-     for b = a to 10
-     for c = b to 10
-     when (a * a) + (b * b) = c * c :]
+  [:
+    (a, b, c)
+    for a = 1 to 10
+    for b = a to 10
+    for c = b to 10
+    when (a * a) + (b * b) = c * c
+  :]
   [@foo]
 ;;
 
