@@ -1322,17 +1322,33 @@ end = struct
     let dump {ctx; ast= cl} = dump ctx (Cl cl) in
     assert_no_raise ~f:check_cl ~dump xcl
 
+  module Comprehension_child = struct
+    type t = Expression of expression | Pattern of pattern
+  end
+
   let check_comprehension
-        ~pattern ~expression
-        (Extensions.Comprehensions.{body; clauses}) =
-    expression body || List.exists clauses ~f:(function
+        (Extensions.Comprehensions.{body; clauses})
+        (tgt : Comprehension_child.t)  =
+    let expression_is_child = match tgt with
+      | Expression exp -> fun exp' -> exp' == exp
+      | _              -> fun _    -> false
+    in
+    let pattern_is_child = match tgt with
+      | Pattern pat -> fun pat' -> pat' == pat
+      | _           -> fun _    -> false
+    in
+    expression_is_child body ||
+    List.exists clauses ~f:(function
       | For bindings ->
-        List.exists bindings ~f:(fun { iterator; pattern = pat; attributes = _ } ->
-          pattern pat ||
-          match iterator with
-          | Range { start; stop; direction = _ } -> expression start || expression stop
-          | In seq -> expression seq)
-      | When cond -> expression cond)
+          List.exists bindings ~f:(fun { iterator; pattern; attributes = _ } ->
+            pattern_is_child pattern ||
+            match iterator with
+            | Range { start; stop; direction = _ } ->
+                expression_is_child start || expression_is_child stop
+            | In seq ->
+                expression_is_child seq)
+      | When cond ->
+          expression_is_child cond)
 
   let check_pat {ctx; ast= pat} =
     let check_pcstr_fields pcstr_fields =
@@ -1406,10 +1422,7 @@ end = struct
         | Eexp_comprehension
             (Cexp_list_comprehension comp | Cexp_array_comprehension (_, comp))
           ->
-            assert (check_comprehension
-                      ~pattern:(fun pat' -> pat' == pat)
-                      ~expression:(fun _ -> true)
-                      comp)
+            assert (check_comprehension comp (Pattern pat))
         | Eexp_immutable_array (Iaexp_immutable_array _) ->
             assert false
       in
@@ -1519,7 +1532,7 @@ end = struct
           | Eexp_comprehension
               (Cexp_list_comprehension comp | Cexp_array_comprehension (_, comp))
             ->
-              assert (check_comprehension ~pattern:(fun _ -> true) ~expression:f comp)
+              assert (check_comprehension comp (Expression exp))
           | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
               assert (List.exists e1N ~f)
         in
