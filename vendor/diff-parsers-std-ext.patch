@@ -424,15 +424,18 @@
    tail = listx(delimiter, X, Y)
      { let xs, y = tail in
 @@@@
-         Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array [])) }
-   | mod_longident DOT
-     LBRACKETBAR expr_semi_list error
-       { unclosed "[|" $loc($3) "|]" $loc($5) }
+                ~loc:(make_loc $sloc)
+                Immutable_arrays
+                (Eexp_immutable_array (Iaexp_immutable_array elts))).pexp_desc)
+           $1 }
    | LBRACKET expr_semi_list RBRACKET
 -      { fst (mktailexp $loc($3) $2) }
 +      { Pexp_list $2 }
    | LBRACKET expr_semi_list error
        { unclosed "[" $loc($1) "]" $loc($3) }
+   | comprehension_expr { $1 }
+   | od=open_dot_declaration DOT comprehension_expr
+       { Pexp_open(od, mkexp ~loc:($loc($3)) $3) }
    | od=open_dot_declaration DOT LBRACKET expr_semi_list RBRACKET
 -      { let list_exp =
 -          (* TODO: review the location of list_exp *)
@@ -454,9 +457,9 @@
 +      { Ppat_list $2 }
      | LBRACKET pattern_semi_list error
        { unclosed "[" $loc($1) "]" $loc($3) }
-     | LBRACKETBAR pattern_semi_list BARRBRACKET
-       { Ppat_array $2 }
-     | LBRACKETBAR BARRBRACKET
+     | array_patterns(LBRACKETBAR, BARRBRACKET)
+         { Generic_array.pattern
+             "[|" "|]"
 @@@@
  (* A label-pattern list is a nonempty list of label-pattern pairs, optionally
     followed with an UNDERSCORE, separated-or-terminated with semicolons. *)
