@@ -268,11 +268,11 @@
  
 +type closed_flag_loc = Closed | Open of Location.t
 +
- type label = string
+ type global_flag =
+   | Global
+   | Nonlocal
+   | Nothing
  
- type arg_label =
-     Nolabel
-   | Labelled of string (*  label:T -> ... *)
 --- ocaml-4.13/docstrings.ml
 +++ ocaml-4.13-extended/docstrings.ml
 @@@@
@@ -358,8 +358,8 @@
    | _ ->
        Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
  
- (* TODO define an abstraction boundary between locations-as-pairs
-    and locations-as-Location.t; it should be clear when we move from
+ 
+ let local_ext_loc = mknoloc "extension.local"
 @@@@
  let mkpat_cons_desc consloc args =
    Ppat_construct(mkrhs (Lident "::") consloc, Some ([], args))
