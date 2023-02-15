@@ -178,6 +178,22 @@
  
  let make_loc (startpos, endpos) = {
 @@@@
+   Attr.mk ~loc:Location.none local_ext_loc (PStr [])
+ 
+ let local_extension =
+   Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
+ 
+-let include_functor_ext_loc = mknoloc "extension.include_functor"
+-
+-let include_functor_attr =
+-  Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
+-
+ let mkexp_stack ~loc exp =
+   ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
+ 
+ let mkpat_stack pat =
+   {pat with ppat_attributes = local_attr :: pat.ppat_attributes}
+@@@@
  
  let mkpat_opt_constraint ~loc p = function
    | None -> p
@@ -310,7 +326,7 @@
  %token FUN                    "fun"
  %token FUNCTION               "function"
  %token FUNCTOR                "functor"
- %token GREATER                ">"
+ %token GLOBAL                 "global_"
 @@@@
  %token <string> LETOP         "let*" (* just an example *)
  %token <string> ANDOP         "and*" (* just an example *)
@@ -332,11 +348,11 @@
  %token LET                    "let"
  %token <string> LIDENT        "lident" (* just an example *)
 +  [@recover.expr "<invalid-lident>"]
+ %token LOCAL                  "local_"
  %token LPAREN                 "("
  %token LBRACKETAT             "[@"
  %token LBRACKETATAT           "[@@"
  %token LBRACKETATATAT         "[@@@"
- %token MATCH                  "match"
 @@@@
  %token PERCENT                "%"
  %token PLUS                   "+"
@@ -391,6 +407,18 @@
  in favor of the first rule (in source file order).  A shift/reduce conflict
  is resolved by comparing the precedence and associativity of the token to
 @@@@
+ %right    COLONEQUAL                    /* expr (e := e := e) */
+ %nonassoc AS
+ %left     BAR                           /* pattern (p|p|p) */
+ %nonassoc below_COMMA
+ %left     COMMA                         /* expr/expr_comma_list (e,e,e) */
+-%nonassoc below_FUNCTOR                 /* include M */
+-%nonassoc FUNCTOR                       /* include functor M */
+ %right    MINUSGREATER                  /* function_type (t -> t -> t) */
+ %right    OR BARBAR                     /* expr (e || e || e) */
+ %right    AMPERSAND AMPERAMPER          /* expr (e && e && e) */
+ %nonassoc below_EQUAL
+ %left     INFIXOP0 EQUAL LESS GREATER   /* expr (e OP e OP e) */
  %right    INFIXOP1                      /* expr (e OP e OP e) */
  %nonassoc below_LBRACKETAT
  %nonassoc LBRACKETAT
@@ -460,6 +488,36 @@
  (* The various ways of annotating a core language expression that
     produces a first-class module that we wish to unpack. *)
  %inline expr_colon_package_type:
+@@@@
+ 
+ (* -------------------------------------------------------------------------- *)
+ 
+ (* Shared material between structures and signatures. *)
+ 
+-include_and_functor_attr:
+-  | INCLUDE %prec below_FUNCTOR
+-      { [] }
+-  | INCLUDE FUNCTOR
+-      { [include_functor_attr] }
+-;
+-
+ (* An [include] statement can appear in a structure or in a signature,
+    which is why this definition is parameterized. *)
+ %inline include_statement(thing):
+-  attrs0 = include_and_functor_attr
++  INCLUDE
+   ext = ext
+   attrs1 = attributes
+   thing = thing
+   attrs2 = post_item_attributes
+   {
+-    let attrs = attrs0 @ attrs1 @ attrs2 in
++    let attrs = attrs1 @ attrs2 in
+     let loc = make_loc $sloc in
+     let docs = symbol_docs $sloc in
+     Incl.mk thing ~attrs ~loc ~docs, ext
+   }
+ ;
 @@@@
  
  (* -------------------------------------------------------------------------- *)
@@ -579,6 +637,21 @@
        { let loc = ($startpos($2), $endpos($5)) in
          let od = Opn.mk ~override:$3 ~loc:(make_loc loc) $5 in
 @@@@
+       { $1 }
+   | poly_pattern
+       { $1 }
+ ;
+ %inline poly_pattern:
+-    mkpat(
+-      pat = pattern
++  mkpat(
++    pat = pattern
+       COLON
+       cty = mktyp(vars = typevar_list DOT ty = core_type
+               { Ptyp_poly(vars, ty) })
+         { Ppat_constraint(pat, cty) })
+       { $1 }
+@@@@
      { array, d, Brace,   i, r }
    | array=simple_expr d=dot LBRACKET i=index RBRACKET r=right
      { array, d, Bracket, i, r }
@@ -617,12 +690,12 @@
 +  (*| UNDERSCORE
 +     { not_expecting $loc($1) "wildcard \"_\"" }*)
  /* END AVOID */
+   | LOCAL seq_expr
+      { mkexp_stack ~loc:$sloc $2 }
  ;
  %inline expr_attrs:
-   | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
-       { Pexp_letmodule($4, $5, $7), $3 }
 @@@@
-       { (mk_newtypes ~loc:$sloc $5 $7).pexp_desc, $2 }
+         (mk_newtypes ~loc:$sloc $5 $7).pexp_desc, (ext, attrs) }
    | MATCH ext_attributes seq_expr WITH match_cases
        { Pexp_match($3, $5), $2 }
    | TRY ext_attributes seq_expr WITH match_cases
