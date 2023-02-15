@@ -2414,13 +2414,13 @@ end = struct
     || Hashtbl.find marked_parenzed_inner_nested_match exp
        |> Option.value ~default:false
     ||
-    (* JST: We don't just do the full-scale match on
-       [Extensions.Expression.of_ast exp] here because the following match is on
-       [ctx, exp] and is very complicated.  These booleans let us integrate our
-       extended AST nodes into the match in the most natural possible way
-       relative to the structure of the existing match.  We make them lazy
-       because we only want to run [of_ast] if we know that [exp] isn't actually
-       a subterm of an extension expression. *)
+    (* We don't just do the full-scale match on [Extensions.Expression.of_ast
+       exp] here because the following match is on [ctx, exp] and is very
+       complicated.  These booleans let us integrate our extended AST nodes into
+       the match in the most natural possible way relative to the structure of
+       the existing match.  We make them lazy because we only want to run
+       [of_ast] if we know that [exp] isn't actually a subterm of an extension
+       expression. *)
     let opt_eexp = lazy (Extensions.Expression.of_ast exp) in
     let is_extension_comprehension = Lazy.map opt_eexp ~f:(function
       | Some (Eexp_comprehension _) -> true
@@ -2511,12 +2511,12 @@ end = struct
       when e == exp ->
         true
     | Exp ({pexp_desc; _} as ctx_exp), _ -> (
-      (* JST: This is the old fallthrough case, but we need it for the
-         extensions match and the real match, so we factor it out; we have to do
-         an external match on [ctx_exp] because the below fallthrough case
-         matches on subterms, which can cause exceptions if we break into the
+      (* This is the old fallthrough case, but we need it for the extensions
+         match and the real match, so we factor it out; we have to do an
+         external match on [ctx_exp] because the below fallthrough case matches
+         on subterms, which can cause exceptions if we break into the
          representation of a language extension. *)
-      let jst_fallthrough_case () =
+      let fallthrough_case () =
         match exp.pexp_desc with
         | Pexp_list _ | Pexp_array _ -> false
         | _ when Lazy.force is_extension_comprehension ||
@@ -2529,7 +2529,7 @@ end = struct
       | Some ctx_eexp -> begin match ctx_eexp with
         | Eexp_comprehension _
         | Eexp_immutable_array _ ->
-            jst_fallthrough_case ()
+            fallthrough_case ()
         end
       | None ->
       match pexp_desc with
@@ -2617,7 +2617,7 @@ end = struct
                  | Pexp_array _, _ :: _ when e0 == exp -> true
                  | _ -> false ) ->
           true
-      | _ -> jst_fallthrough_case () )
+      | _ -> fallthrough_case () )
     | _, {pexp_desc= Pexp_list _; _} -> false
     | _, {pexp_desc= Pexp_array _; _} -> false
     | _, _ when Lazy.force is_extension_comprehension ||
