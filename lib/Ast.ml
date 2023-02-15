@@ -2607,7 +2607,9 @@ end = struct
                            (Cexp_list_comprehension _ | Cexp_array_comprehension _)
                        | Eexp_immutable_array (Iaexp_immutable_array _) )
                      , _ :: _
-                     when e0 == exp (* Yes, [e0] *) ->
+                     when e0 == exp ->
+                       (* Has to be [e0] and not [ee0], as [ee0] isn't a true
+                          OCaml expression and was just synthesized afresh *)
                        true
                      | _ -> false
                  end
