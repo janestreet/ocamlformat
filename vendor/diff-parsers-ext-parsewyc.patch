@@ -247,11 +247,10 @@
    let pattern    : _ -> _ -> _ -> (pattern,    pattern_desc)    t -> _ = to_ast
  end
  
-@@@@
-   (Extensions.Pattern.ast_of
+ let ppat_iarray loc elts =
+   (Extensions.Immutable_arrays.pat_of
       ~loc:(make_loc loc)
-      Immutable_arrays
-      (Epat_immutable_array (Iapat_immutable_array elts))).ppat_desc
+      (Iapat_immutable_array elts)).ppat_desc
  
 -let expecting loc nonterm =
 -    raise Syntaxerr.(Error(Expecting(make_loc loc, nonterm)))
@@ -900,8 +899,8 @@
            (fun elts -> Pexp_array elts)
            $1 }
 @@@@
-                Immutable_arrays
-                (Eexp_immutable_array (Iaexp_immutable_array elts))).pexp_desc)
+                ~loc:(make_loc $sloc)
+                (Iaexp_immutable_array elts)).pexp_desc)
            $1 }
    | LBRACKET expr_semi_list RBRACKET
        { Pexp_list $2 }
