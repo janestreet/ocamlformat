@@ -1791,6 +1791,9 @@ end = struct
       when List.exists attrs ~f:(fun a ->
                String.equal a.attr_name.txt "extension.curry" ) ->
         true
+    | { ast= {ptyp_desc= Ptyp_poly _; _}
+      ; ctx= Typ {ptyp_desc= Ptyp_arrow _; _} } ->
+        true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
@@ -1850,6 +1853,9 @@ end = struct
       | Ppat_construct _ | Ppat_record _ | Ppat_variant _ -> false
       | _ -> true )
     | Pat {ppat_desc= Ppat_construct _; _}, Ppat_cons _ -> true
+    | ( Exp {pexp_desc= Pexp_fun _; _}
+      , Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) ) ->
+      true
     | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
     | ( Exp {pexp_desc= Pexp_letop _; _}
       , ( Ppat_construct (_, Some _)
@@ -2126,7 +2132,7 @@ end = struct
       | Exp {pexp_desc; _} -> (
         match pexp_desc with
         | Pexp_let (_, e)
-         |Pexp_letmodule (_, _, e)
+         |Pexp_letmodule (_, _, _, e)
          |Pexp_letexception (_, e)
          |Pexp_letopen (_, e)
          |Pexp_open (_, e)
@@ -2136,9 +2142,9 @@ end = struct
          |Pexp_coerce (e, _, _)
           when e == exp ->
             false
-        | Pexp_let (lbs, _)
-          when List.exists lbs.lbs_bindings ~f:(fun lb ->
-                   lb.lb_expression == exp ) ->
+        | Pexp_let (pvbs, _)
+          when List.exists pvbs.pvbs_bindings ~f:(fun pvb ->
+                   pvb.pvb_expr == exp ) ->
             false
         | _ -> true )
       | _ -> true

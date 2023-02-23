@@ -2321,6 +2321,12 @@ labeled_simple_pattern:
       { (Nolabel, None, $1) }
   | LPAREN LOCAL let_pattern RPAREN
       { (Nolabel, None, mkpat_stack $3) }
+  | LABEL LPAREN poly_pattern RPAREN
+      { (Labelled $1, None, $3) }
+  | LABEL LPAREN LOCAL poly_pattern RPAREN
+      { (Labelled $1, None, mkpat_stack $4) }
+  | LPAREN poly_pattern RPAREN
+      { (Nolabel, None, $2) }
 ;
 
 pattern_var:
@@ -2341,6 +2347,11 @@ label_let_pattern:
       { let lab, pat = x in
         lab,
         mkpat ~loc:$sloc (Ppat_constraint (pat, cty)) }
+  | x = label_var COLON
+          cty = mktyp (vars = typevar_list DOT ty = core_type { Ptyp_poly(vars, ty) })
+      { let lab, pat = x in
+        lab,
+        mkpat ~loc:$sloc (Ppat_constraint (pat, cty)) }
 ;
 %inline label_var:
     mkrhs(LIDENT)
@@ -2351,6 +2362,17 @@ let_pattern:
       { $1 }
   | mkpat(pattern COLON core_type
       { Ppat_constraint($1, $3) })
+      { $1 }
+  | poly_pattern
+      { $1 }
+;
+%inline poly_pattern:
+    mkpat(
+      pat = pattern
+      COLON
+      cty = mktyp(vars = typevar_list DOT ty = core_type
+              { Ptyp_poly(vars, ty) })
+        { Ppat_constraint(pat, cty) })
       { $1 }
 ;
 
@@ -3487,7 +3509,7 @@ strict_function_type:
   | mktyp(
       label = arg_label
       local = optional_local
-      domain = extra_rhs(tuple_type)
+      domain = extra_rhs(param_type)
       MINUSGREATER
       codomain = strict_function_type
         { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
@@ -3496,7 +3518,7 @@ strict_function_type:
   | mktyp(
       label = arg_label
       arg_local = optional_local
-      domain = extra_rhs(tuple_type)
+      domain = extra_rhs(param_type)
       MINUSGREATER
       ret_local = optional_local
       codomain = tuple_type
@@ -3506,6 +3528,15 @@ strict_function_type:
             mktyp_local_if ret_local (maybe_curry_typ codomain)) }
     )
     { $1 }
+;
+%inline param_type:
+  | mktyp(
+    LPAREN vars = typevar_list DOT ty = core_type RPAREN
+      { Ptyp_poly(vars, ty) }
+    )
+    { $1 }
+  | ty = tuple_type
+    { ty }
 ;
 %inline arg_label:
   | label = optlabel
