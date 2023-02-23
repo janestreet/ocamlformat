@@ -424,9 +424,9 @@
    tail = listx(delimiter, X, Y)
      { let xs, y = tail in
 @@@@
+             (Extensions.Immutable_arrays.expr_of
                 ~loc:(make_loc $sloc)
-                Immutable_arrays
-                (Eexp_immutable_array (Iaexp_immutable_array elts))).pexp_desc)
+                (Iaexp_immutable_array elts)).pexp_desc)
            $1 }
    | LBRACKET expr_semi_list RBRACKET
 -      { fst (mktailexp $loc($3) $2) }
