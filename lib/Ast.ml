@@ -1770,6 +1770,9 @@ end = struct
       when List.exists attrs ~f:(fun a ->
                String.equal a.attr_name.txt "extension.curry" ) ->
         true
+    | { ast= {ptyp_desc= Ptyp_poly _; _}
+      ; ctx= Typ {ptyp_desc= Ptyp_arrow _; _} } ->
+        true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
@@ -1822,6 +1825,9 @@ end = struct
         | Ppat_cons _
         | Ppat_variant (_, Some _)
         | Ppat_or _ | Ppat_alias _ ) ) ->
+        true
+    | ( Exp {pexp_desc= Pexp_fun _; _}
+      , Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) ) ->
         true
     | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
     | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
