@@ -436,6 +436,19 @@ module Incl = struct
 
 end
 
+module Lb = struct
+  let mk ?(loc = !default_loc) ?(attrs = []) ?(docs = empty_docs)
+        ?(text = []) pat expr is_pun =
+    {
+      lb_pattern = pat;
+      lb_expression = expr;
+      lb_is_pun = is_pun;
+      lb_attributes =
+        add_text_attrs text (add_docs_attrs docs attrs);
+      lb_loc = loc;
+    }
+end
+
 module Ci = struct
   let mk ?(loc = !default_loc) ?(attrs = [])
         ?(docs = empty_docs) ?(text = [])

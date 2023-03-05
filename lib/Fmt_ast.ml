@@ -754,8 +754,9 @@ and fmt_payload c ctx pld =
   | PStr mex ->
       fmt_if (not (List.is_empty mex)) "@ " $ fmt_structure c ctx mex
   | PSig mty ->
-      str ":"
-      $ fmt_if (not (List.is_empty mty)) "@ "
+      fmt ":@ "
+      (* A trailing space is necessary because [:]] is the immutable array
+         closing delimiter*)
       $ fmt_signature c ctx mty
   | PTyp typ -> fmt ":@ " $ fmt_core_type c (sub_typ ~ctx typ)
   | PPat (pat, exp) ->
@@ -1058,6 +1059,14 @@ and fmt_pattern_attributes c xpat k =
       Params.parens_if parens_attr c.conf
         (k $ fmt_attributes c ~pre:Space attrs)
 
+and maybe_fmt_pattern_extension ~ext c ~pro ~parens ~box ~ctx0 ~ctx ~ppat_loc
+    pat fmt_normal_pattern =
+  match Extensions.Pattern.of_ast pat with
+  | Some epat ->
+      fmt_pattern_extension ~ext c ~pro ~parens ~box ~ctx0 ~ctx ~ppat_loc
+        epat
+  | None -> fmt_normal_pattern ()
+
 and fmt_pattern ?ext c ?pro ?parens ?(box = false)
     ({ctx= ctx0; ast= pat} as xpat) =
   protect c (Pat pat)
@@ -1073,7 +1082,9 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
      | _ -> fun k -> Cmts.fmt c ppat_loc @@ (fmt_opt pro $ k) )
   @@ hovbox_if box 0
   @@ fmt_pattern_attributes c xpat
-  @@
+  @@ maybe_fmt_pattern_extension ~ext c ~pro ~parens ~box ~ctx0 ~ctx
+       ~ppat_loc pat
+  @@ fun () ->
   match ppat_desc with
   | Ppat_any -> str "_"
   | Ppat_var {txt; loc} ->
@@ -1290,19 +1301,37 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
   | Ppat_extension ext ->
       hvbox c.conf.fmt_opts.extension_indent.v (fmt_extension c ctx ext)
   | Ppat_open (lid, pat) ->
+      let can_skip_parens_extension : Extensions.Pattern.t -> _ = function
+        | Epat_immutable_array (Iapat_immutable_array _) -> true
+      in
       let can_skip_parens =
-        match pat.ppat_desc with
-        | Ppat_array _ | Ppat_list _ | Ppat_record _ -> true
-        | Ppat_tuple _ ->
-            Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
-        | Ppat_construct ({txt= Lident "[]"; _}, None) -> true
-        | _ -> false
+        match Extensions.Pattern.of_ast pat with
+        | Some epat -> can_skip_parens_extension epat
+        | None -> (
+          match pat.ppat_desc with
+          | Ppat_array _ | Ppat_list _ | Ppat_record _ -> true
+          | Ppat_tuple _ ->
+              Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
+          | Ppat_construct ({txt= Lident "[]"; _}, None) -> true
+          | _ -> false )
       in
       let opn, cls = if can_skip_parens then (".", "") else (".(", ")") in
       cbox 0
         ( fmt_longident_loc c lid
         $ wrap_k (str opn) (str cls)
             (fmt "@;<0 2>" $ fmt_pattern c (sub_pat ~ctx pat)) )
+
+and fmt_pattern_extension ~ext:_ c ~pro:_ ~parens:_ ~box:_ ~ctx0 ~ctx
+    ~ppat_loc : Extensions.Pattern.t -> _ = function
+  | Epat_immutable_array (Iapat_immutable_array []) ->
+      hvbox 0
+        (wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c ppat_loc))
+  | Epat_immutable_array (Iapat_immutable_array pats) ->
+      let p = Params.get_iarray_pat c.conf ~ctx:ctx0 in
+      p.box
+        (fmt_elements_collection c p Pat.location ppat_loc
+           (sub_pat ~ctx >> fmt_pattern c >> hvbox 0)
+           pats )
 
 and fmt_fun_args c args =
   let fmt_fun_arg (a : Sugar.arg_kind) =
@@ -1335,12 +1364,20 @@ and fmt_fun_args c args =
     | Val (islocal, (Optional _ as lbl), xpat, None) ->
         let has_attr = not (List.is_empty xpat.ast.ppat_attributes) in
         let outer_parens, inner_parens =
-          match xpat.ast.ppat_desc with
-          | Ppat_any | Ppat_var _ -> (false, false)
-          | Ppat_unpack _ -> (not has_attr, true)
-          | Ppat_tuple _ -> (false, true)
-          | Ppat_or _ -> (has_attr, true)
-          | _ -> (not has_attr, false)
+          match Extensions.Pattern.of_ast xpat.ast with
+          | Some epat -> (
+            (* Inlined because there's nowhere better *)
+            match epat with
+            (* Same as the fallthrough case below *)
+            | Epat_immutable_array (Iapat_immutable_array _) ->
+                (not has_attr, false) )
+          | None -> (
+            match xpat.ast.ppat_desc with
+            | Ppat_any | Ppat_var _ -> (false, false)
+            | Ppat_unpack _ -> (not has_attr, true)
+            | Ppat_tuple _ -> (false, true)
+            | Ppat_or _ -> (has_attr, true)
+            | _ -> (not has_attr, false) )
         in
         let outer_parens = outer_parens || islocal in
         cbox 2
@@ -1777,6 +1814,14 @@ and fmt_match c ?epi ~parens ?ext ctx xexp cs e0 keyword =
              $ fmt "@ with" )
          $ fmt "@ " $ fmt_cases c ctx cs ) )
 
+and maybe_fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens
+    ~ctx exp fmt_normal_expr =
+  match Extensions.Expression.of_ast exp with
+  | Some eexp ->
+      fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx
+        eexp
+  | None -> fmt_normal_expr ()
+
 and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
     ?ext ({ast= exp; ctx= ctx0} as xexp) =
   protect c (Exp exp)
@@ -1796,7 +1841,9 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   hvbox_if box 0 ~name:"expr"
   @@ fmt_cmts
   @@ (fun fmt -> fmt_opt pro $ fmt)
-  @@
+  @@ maybe_fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens
+       ~ctx exp
+  @@ fun () ->
   match pexp_desc with
   | Pexp_apply (_, []) -> impossible "not produced by parser"
   | Pexp_sequence
@@ -2400,17 +2447,27 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
             $ fmt_expression c (sub_exp ~ctx exp) )
         $ fmt_atrs )
   | Pexp_open (lid, e0) ->
+      let can_skip_parens_extension attrs : Extensions.Expression.t -> _ =
+        function
+        | Eexp_comprehension
+            (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+         |Eexp_immutable_array (Iaexp_immutable_array _) ->
+            List.is_empty attrs
+      in
       let can_skip_parens =
         (not (Cmts.has_before c.cmts e0.pexp_loc))
         && (not (Cmts.has_after c.cmts e0.pexp_loc))
         &&
-        match e0.pexp_desc with
-        | (Pexp_array _ | Pexp_list _ | Pexp_record _)
-          when List.is_empty e0.pexp_attributes ->
-            true
-        | Pexp_tuple _ -> Poly.(c.conf.fmt_opts.parens_tuple.v = `Always)
-        | Pexp_construct ({txt= Lident "[]"; _}, None) -> true
-        | _ -> false
+        match Extensions.Expression.of_ast e0 with
+        | Some ee0 -> can_skip_parens_extension e0.pexp_attributes ee0
+        | None -> (
+          match e0.pexp_desc with
+          | (Pexp_array _ | Pexp_list _ | Pexp_record _)
+            when List.is_empty e0.pexp_attributes ->
+              true
+          | Pexp_tuple _ -> Poly.(c.conf.fmt_opts.parens_tuple.v = `Always)
+          | Pexp_construct ({txt= Lident "[]"; _}, None) -> true
+          | _ -> false )
       in
       let outer_parens = has_attr && parens in
       let inner_parens = not can_skip_parens in
@@ -2798,6 +2855,76 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
       @@ fmt_expression c ~box ?pro ?epi ?eol ~parens:true ~indent_wrap ?ext
            (sub_exp ~ctx e)
       $ fmt_atrs
+
+and fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens ~ctx :
+    Extensions.Expression.t -> _ = function
+  | Eexp_comprehension cexpr ->
+      let punctuation, space_around, comp =
+        match cexpr with
+        | Cexp_list_comprehension comp ->
+            ("", c.conf.fmt_opts.space_around_lists.v, comp)
+        | Cexp_array_comprehension (amut, comp) ->
+            let punct =
+              match amut with Mutable _ -> "|" | Immutable -> ":"
+            in
+            (punct, c.conf.fmt_opts.space_around_arrays.v, comp)
+      in
+      hvbox_if has_attr 0
+        (Params.parens_if parens c.conf
+           ( Params.wrap_comprehension c.conf ~space_around ~punctuation
+               (fmt_comprehension c ~ctx comp)
+           $ fmt_atrs ) )
+  | Eexp_immutable_array (Iaexp_immutable_array []) ->
+      hvbox 0
+        (Params.parens_if parens c.conf
+           ( wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c pexp_loc)
+           $ fmt_atrs ) )
+  | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
+      let p = Params.get_iarray_expr c.conf in
+      hvbox_if has_attr 0
+        (Params.parens_if parens c.conf
+           ( p.box
+               (fmt_expressions c (expression_width c) (sub_exp ~ctx) e1N
+                  (sub_exp ~ctx >> fmt_expression c)
+                  p pexp_loc )
+           $ fmt_atrs ) )
+
+and fmt_comprehension c ~ctx Extensions.Comprehensions.{body; clauses} =
+  hvbox 0 (* Don't indent the clauses to the right of the body *)
+    ( fmt_expression c (sub_exp ~ctx body)
+    $ sequence (List.map clauses ~f:(fmt_comprehension_clause ~ctx c)) )
+
+and fmt_comprehension_clause c ~ctx
+    (clause : Extensions.Comprehensions.clause) =
+  let subclause kwd formatter item =
+    fits_breaks " " ~hint:(1000, 0) ""
+    $ hvbox 2 (str kwd $ sp (Break (1, 0)) $ hovbox 2 (formatter c item))
+  in
+  match clause with
+  | For bindings ->
+      list_fl bindings (fun ~first ~last:_ ->
+          subclause
+            (if first then "for" else "and")
+            (fmt_comprehension_binding ~ctx) )
+  | When cond ->
+      subclause "when" (fun c xt -> fmt_expression c xt) (sub_exp ~ctx cond)
+
+and fmt_comprehension_binding c ~ctx
+    Extensions.Comprehensions.{pattern; iterator; attributes} =
+  fmt_attributes c attributes
+  $ fmt_pattern c (sub_pat ~ctx pattern)
+  $ sp Space
+  (* The harder break is after the [=]/[in] *)
+  $ fmt_comprehension_iterator c ~ctx iterator
+
+and fmt_comprehension_iterator c ~ctx :
+    Extensions.Comprehensions.iterator -> _ = function
+  | Range {start; stop; direction} ->
+      fmt "=@;<1 0>"
+      $ fmt_expression c (sub_exp ~ctx start)
+      $ fmt_direction_flag direction
+      $ fmt_expression c (sub_exp ~ctx stop)
+  | In seq -> fmt "in@;<1 0>" $ fmt_expression c (sub_exp ~ctx seq)
 
 and fmt_let_bindings c ~ctx ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr
     rec_flag bindings body =
