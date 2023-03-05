@@ -4,34 +4,8 @@ mod_ext_longident_ ::= UIDENT SLASH . TYPE_DISAMBIGUATOR
 Not enough annotation to recover from state 168:
 type_longident ::= LIDENT SLASH . TYPE_DISAMBIGUATOR
 
-# State 294 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
-
-
-# State 386 is preventing recovery from 2 states:
-atomic_type ::= LBRACKET row_field BAR . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
-
-
-# State 1128 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= COLON constructor_arguments MINUSGREATER . atomic_type
-
-
-# State 1328 is preventing recovery from 2 states:
-class_self_type ::= LPAREN . core_type RPAREN
-
-
-# State 318 is preventing recovery from 2 states:
-reversed_separated_nontrivial_llist(COMMA,core_type) ::= (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) COMMA . (x = core_type)
-
-
-# State 1435 is preventing recovery from 2 states:
-list(and_class_description) ::= AND list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT COLON . (cty = class_type) list(post_item_attribute) (xs = list(and_class_description))
-
-
-# State 1412 is preventing recovery from 2 states:
-class_type ::= (label = LIDENT) COLON . (domain = tuple_type) MINUSGREATER (codomain = class_type)
+# State 1392 is preventing recovery from 2 states:
+class_sig_field ::= VAL list(attribute) (flags = mutable_virtual_flags) LIDENT COLON . (ty = core_type) list(post_item_attribute)
 
 
 # State 166 is preventing recovery from 2 states:
@@ -44,211 +18,130 @@ atomic_type          ::= LPAREN . (xs = reversed_separated_nontrivial_llist(COMM
                        | LPAREN . core_type                                                   RPAREN                                   
 
 
-# State 301 is preventing recovery from 2 states:
+# State 376 is preventing recovery from 2 states:
+tag_field ::= name_tag OF opt_ampersand . (xs = reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr)) list(attribute)
+
+
+# State 302 is preventing recovery from 2 states:
 reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (xs = reversed_separated_nontrivial_llist(STAR,atomic_type)) STAR             (x = atomic_type) .
 atomic_type                                           ::= (ty = atomic_type)                                           . HASH           clty_longident     
                                                         | (ty = atomic_type)                                           . type_longident
 
 
-# State 310 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            (codomain = tuple_type)          
-                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      (codomain = tuple_type)          
-                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)          
-                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
-                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER LOCAL                             (codomain = tuple_type)          
-                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            (codomain = strict_function_type)
-                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      (codomain = strict_function_type)
-                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
-                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER (codomain = strict_function_type)
-
-
-# State 1659 is preventing recovery from 2 states:
-class_fun_binding ::= COLON . class_type EQUAL class_expr
-
-
-# State 1776 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+# State 371 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(BAR,row_field) ::= (xs = reversed_separated_nonempty_llist(BAR,row_field)) BAR . (x = row_field)
 
 
 # State 354 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL               (ty = tuple_type)                       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER (codomain = strict_function_type)
+strict_function_type ::= (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
 
 
-# State 1122 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= COLON (xs = reversed_nonempty_llist(typevar)) DOT . atomic_type          
-                                    | COLON (xs = reversed_nonempty_llist(typevar)) DOT . constructor_arguments MINUSGREATER atomic_type
+# State 988 is preventing recovery from 2 states:
+fun_def     ::= COLON              atomic_type      . MINUSGREATER seq_expr
+atomic_type ::= (ty = atomic_type) . HASH           clty_longident
+              | (ty = atomic_type) . type_longident
 
 
-# State 1124 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= COLON (xs = reversed_nonempty_llist(typevar)) DOT constructor_arguments MINUSGREATER . atomic_type
+# State 1169 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= COLON . (xs = reversed_nonempty_llist(typevar)) DOT          atomic_type          
+                                    | COLON . atomic_type                            
+                                    | COLON . (xs = reversed_nonempty_llist(typevar)) DOT          constructor_arguments MINUSGREATER atomic_type
+                                    | COLON . constructor_arguments                   MINUSGREATER atomic_type          
 
 
-# State 491 is preventing recovery from 2 states:
-label_let_pattern ::= LIDENT COLON . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type)
-                    | LIDENT COLON . (cty = core_type)                      
-
-
-# State 532 is preventing recovery from 2 states:
-with_constraint ::= TYPE type_parameters label_longident with_type_binder . alias_type (xs = reversed_llist(preceded(CONSTRAINT,constrain)))
-
-
-# State 537 is preventing recovery from 2 states:
-reversed_llist(preceded(CONSTRAINT,constrain)) ::= (xs = reversed_llist(preceded(CONSTRAINT,constrain))) CONSTRAINT core_type EQUAL . core_type
-
-
-# State 1362 is preventing recovery from 2 states:
-class_signature ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET clty_longident
+# State 1817 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
 
 
 # State 333 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)  
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LPAREN              (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             . (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
+strict_function_type ::= (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
 
 
-# State 1117 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(STAR,atomic_type) ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR             (x = atomic_type) .
-constructor_arguments                               ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR             (x = atomic_type) .
-atomic_type                                         ::= (ty = atomic_type)                                         . HASH           clty_longident     
-                                                      | (ty = atomic_type)                                         . type_longident
-
-
-# State 1351 is preventing recovery from 2 states:
-class_sig_field ::= METHOD list(attribute) private_virtual_flags LIDENT COLON . possibly_poly(core_type) list(post_item_attribute)
-
-
-# State 624 is preventing recovery from 2 states:
-letop_binding_body ::= (pat = simple_pattern) COLON . (typ = core_type) EQUAL (exp = seq_expr)
-
-
-# State 1771 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
-atomic_type          ::= LPAREN           . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH            clty_longident                           
-                       | LPAREN           . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN type_longident 
-                       | LPAREN           . MODULE                                                      ext    list(attribute) module_type                               RPAREN
-                       | LPAREN           . core_type                                                   RPAREN
-
-
-# State 1466 is preventing recovery from 2 states:
-list(generic_and_type_declaration(type_subst_kind)) ::= AND list(attribute) (params = type_parameters) LIDENT COLONEQUAL . nonempty_type_kind (xs_inlined1 = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute) (xs = list(generic_and_type_declaration(type_subst_kind)))
-
-
-# State 1116 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(STAR,atomic_type) ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR . (x = atomic_type)
-constructor_arguments                               ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR . (x = atomic_type)
-
-
-# State 1777 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)                
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     LOCAL                             (codomain = tuple_type)
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     (codomain = tuple_type)          
-                       | (label = LIDENT) COLON               LOCAL                                   LPAREN                            (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN                            MINUSGREATER            LOCAL . (codomain = tuple_type)
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     (codomain = strict_function_type)
-
-
-# State 291 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL             . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | LOCAL             . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (ty = tuple_type) MINUSGREATER        LOCAL                                   . (codomain = tuple_type)        
-                       | LOCAL             . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
-
-
-# State 493 is preventing recovery from 2 states:
-label_let_pattern ::= LIDENT COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type)
-
-
-# State 1748 is preventing recovery from 2 states:
-meth_list ::= LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute)
-            | LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
-            | LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) (tail = meth_list)
-
-
-# State 1125 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= COLON              (xs = reversed_nonempty_llist(typevar)) DOT            constructor_arguments MINUSGREATER atomic_type .
-atomic_type                       ::= (ty = atomic_type) . HASH                                  clty_longident
-                                    | (ty = atomic_type) . type_longident                       
-
-
-# State 270 is preventing recovery from 2 states:
-atomic_type ::= LBRACKETGREATER option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
-
-
-# State 341 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
-
-
-# State 810 is preventing recovery from 2 states:
-labeled_simple_pattern ::= LPAREN (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
-
-
-# State 1094 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= OF . constructor_arguments
-
-
-# State 682 is preventing recovery from 2 states:
-type_constraint ::= COLON . core_type COLONGREATER core_type
-                  | COLON . core_type
-
-
-# State 840 is preventing recovery from 2 states:
-let_binding_body_no_punning ::= val_ident COLON TYPE (xs = nonempty_list(mkrhs(LIDENT))) DOT . core_type EQUAL seq_expr
-
-
-# State 1366 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(COMMA,core_type) ::= (xs = reversed_separated_nonempty_llist(COMMA,core_type)) COMMA . (x = core_type)
-
-
-# State 1101 is preventing recovery from 2 states:
-label_declaration_semi ::= mutable_or_global_flag LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
-label_declaration      ::= mutable_or_global_flag LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute)
-
-
-# State 1756 is preventing recovery from 2 states:
-meth_list ::= (ty = atomic_type) SEMI .
-            | (ty = atomic_type) SEMI   . (tail = meth_list)
-
-
-# State 1129 is preventing recovery from 2 states:
+# State 1178 is preventing recovery from 2 states:
 generalized_constructor_arguments ::= COLON              constructor_arguments MINUSGREATER   atomic_type .
 atomic_type                       ::= (ty = atomic_type) . HASH                clty_longident
                                     | (ty = atomic_type) . type_longident     
 
 
-# State 305 is preventing recovery from 2 states:
-tuple_type                                            ::= (ty = atomic_type) .
-reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type)   . STAR           (x2 = atomic_type)
-atomic_type                                           ::= (ty = atomic_type)   . HASH           clty_longident    
-                                                        | (ty = atomic_type)   . type_longident
+# State 1592 is preventing recovery from 2 states:
+value ::= list(attribute) (mutable_ = virtual_with_mutable_flag) LIDENT COLON . (ty = core_type)
 
 
-# State 1789 is preventing recovery from 2 states:
+# State 272 is preventing recovery from 2 states:
+atomic_type ::= LBRACKET . row_field BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+              | LBRACKET . BAR       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
+              | LBRACKET . tag_field RBRACKET                                               
+
+
+# State 1174 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= COLON              (xs = reversed_nonempty_llist(typevar)) DOT            constructor_arguments MINUSGREATER atomic_type .
+atomic_type                       ::= (ty = atomic_type) . HASH                                  clty_longident
+                                    | (ty = atomic_type) . type_longident                       
+
+
+# State 378 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr) ::= (xs = reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr)) AMPERSAND . alias_type
+
+
+# State 1284 is preventing recovery from 2 states:
+possibly_poly(core_type) ::= (xs = reversed_nonempty_llist(typevar)) DOT . core_type
+
+
+# State 789 is preventing recovery from 2 states:
+labeled_simple_pattern ::= LABEL LPAREN LOCAL (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
+
+
+# State 1466 is preventing recovery from 2 states:
+class_type ::= (label = LIDENT) COLON (domain = tuple_type) MINUSGREATER . (codomain = class_type)
+
+
+# State 291 is preventing recovery from 2 states:
+strict_function_type ::= (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+
+
+# State 1179 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
+generalized_constructor_arguments                   ::= COLON               atomic_type .   
+constructor_arguments                               ::= (x = atomic_type) .
+atomic_type                                         ::= (ty = atomic_type)  . HASH           clty_longident
+                                                      | (ty = atomic_type)  . type_longident
+
+
+# State 534 is preventing recovery from 2 states:
+with_constraint ::= TYPE type_parameters label_longident COLONEQUAL . alias_type
+
+
+# State 818 is preventing recovery from 2 states:
+type_constraint             ::= COLON . core_type COLONGREATER core_type                                
+                              | COLON . core_type
+let_binding_body_no_punning ::= LOCAL val_ident   COLON        . (xs = reversed_nonempty_llist(typevar)) DOT core_type EQUAL seq_expr
+
+
+# State 1687 is preventing recovery from 2 states:
+class_simple_expr ::= LPAREN class_expr COLON . class_type RPAREN
+
+
+# State 1876 is preventing recovery from 2 states:
+generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE (ext = ext) list(attribute) (params = type_parameters) LIDENT COLONEQUAL . nonempty_type_kind (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)
+
+
+# State 1487 is preventing recovery from 2 states:
+list(and_class_description) ::= AND list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT COLON . (cty = class_type) list(post_item_attribute) (xs = list(and_class_description))
+
+
+# State 1434 is preventing recovery from 2 states:
+constrain_field ::= core_type EQUAL . core_type
+
+
+# State 1841 is preventing recovery from 2 states:
 strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
                        | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
                        | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER LOCAL                             (codomain = tuple_type)
@@ -258,38 +151,57 @@ strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER      
                        | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER (codomain = strict_function_type)
 
 
-# State 370 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(BAR,row_field) ::= (xs = reversed_separated_nonempty_llist(BAR,row_field)) BAR . (x = row_field)
+# State 1177 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= COLON constructor_arguments MINUSGREATER . atomic_type
 
 
-# State 1762 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+# State 1464 is preventing recovery from 2 states:
+class_type ::= (label = LIDENT) COLON . (domain = tuple_type) MINUSGREATER (codomain = class_type)
 
 
-# State 285 is preventing recovery from 2 states:
-atomic_type ::= LBRACKET BAR . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+# State 1930 is preventing recovery from 2 states:
+parse_core_type' ::= . parse_core_type
 
 
 # State 1467 is preventing recovery from 2 states:
-constr_extra_nonprefix_ident ::= LBRACKET . RBRACKET 
-atomic_type                  ::= LBRACKET . row_field BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
-                               | LBRACKET . BAR       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
-                               | LBRACKET . tag_field RBRACKET                                               
+class_signature ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET                                                clty_longident                                         
+atomic_type     ::= LBRACKET . row_field                                                 BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+                  | LBRACKET . BAR                                                       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
+                  | LBRACKET . tag_field                                                 RBRACKET                                               
 
 
-# State 646 is preventing recovery from 2 states:
-let_pattern ::= (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type)
+# State 1462 is preventing recovery from 2 states:
+signature_item ::= CLASS (ext = ext) list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT COLON . (cty = class_type) list(post_item_attribute) (bs = list(and_class_description))
 
 
-# State 332 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+# State 343 is preventing recovery from 2 states:
+strict_function_type ::= (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+atomic_type          ::= LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH                                      clty_longident
+                       | LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN type_longident                           
+                       | LPAREN             . MODULE                                                      ext    list(attribute)                           module_type    RPAREN          
+                       | LPAREN             . core_type                                                   RPAREN
 
 
-# State 1770 is preventing recovery from 2 states:
+# State 1432 is preventing recovery from 2 states:
+class_sig_field ::= CONSTRAINT list(attribute) . constrain_field list(post_item_attribute)
+
+
+# State 1631 is preventing recovery from 2 states:
+method_ ::= list(attribute) private_flag LIDENT COLON . TYPE                     (xs = nonempty_list(mkrhs(LIDENT))) DOT      core_type EQUAL seq_expr
+          | list(attribute) private_flag LIDENT COLON . possibly_poly(core_type) EQUAL                               seq_expr
+
+
+# State 1627 is preventing recovery from 2 states:
+method_ ::= list(attribute) (private_ = virtual_with_private_flag) LIDENT COLON . possibly_poly(core_type)
+
+
+# State 541 is preventing recovery from 2 states:
+reversed_llist(preceded(CONSTRAINT,constrain)) ::= (xs = reversed_llist(preceded(CONSTRAINT,constrain))) CONSTRAINT core_type EQUAL . core_type
+
+
+# State 1822 is preventing recovery from 2 states:
 strict_function_type ::= (label = LIDENT) COLON LOCAL . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
                        | (label = LIDENT) COLON LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
                        | (label = LIDENT) COLON LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
@@ -298,36 +210,18 @@ strict_function_type ::= (label = LIDENT) COLON LOCAL . (ty = tuple_type) MINUSG
                        | (label = LIDENT) COLON LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 1822 is preventing recovery from 2 states:
-signature_item                                           ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . type_longident PLUSEQ                           (priv = private_flag)                                 (xs = reversed_bar_llist(extension_constructor_declaration)) list(post_item_attribute)
-generic_type_declaration(nonrec_flag,type_kind)          ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . LIDENT         (kind_priv_manifest = type_kind) (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)                                   
-generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . LIDENT         COLONEQUAL                       nonempty_type_kind                                    (xs = reversed_llist(preceded(CONSTRAINT,constrain)))        list(post_item_attribute)
-
-
-# State 1713 is preventing recovery from 2 states:
-class_self_pattern ::= LPAREN pattern COLON . core_type RPAREN
-
-
 # State 1807 is preventing recovery from 2 states:
-strict_function_type ::= LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+meth_list   ::= (ty = atomic_type) .
+              | (ty = atomic_type)   . SEMI          
+              | (ty = atomic_type)   . SEMI           (tail = meth_list)
+atomic_type ::= (ty = atomic_type)   . HASH           clty_longident    
+              | (ty = atomic_type)   . type_longident
 
 
-# State 644 is preventing recovery from 2 states:
-let_pattern ::= (pat = pattern) COLON . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type)
-              | pattern         COLON . core_type                              
-
-
-# State 684 is preventing recovery from 2 states:
-type_constraint ::= COLON core_type COLONGREATER . core_type
-
-
-# State 1119 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
-constructor_arguments                               ::= (x = atomic_type) .
-atomic_type                                         ::= (ty = atomic_type)  . HASH           clty_longident
-                                                      | (ty = atomic_type)  . type_longident
+# State 1834 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
 
 
 # State 181 is preventing recovery from 2 states:
@@ -336,114 +230,47 @@ generic_type_declaration(nonrec_flag,type_kind) ::= TYPE (ext = ext) list(attrib
 
 
 # State 306 is preventing recovery from 2 states:
-reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type) STAR . (x2 = atomic_type)
+tuple_type                                            ::= (ty = atomic_type) .
+reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type)   . STAR           (x2 = atomic_type)
+atomic_type                                           ::= (ty = atomic_type)   . HASH           clty_longident    
+                                                        | (ty = atomic_type)   . type_longident
 
 
 # State 360 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)  
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) (ty = tuple_type)   MINUSGREATER                            LOCAL                             . (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER (codomain = strict_function_type)
+strict_function_type ::= (label = optlabel) (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | (label = optlabel) (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
 
 
-# State 808 is preventing recovery from 2 states:
-simple_pattern_not_ident ::= LPAREN pattern         COLON . core_type                               RPAREN
-labeled_simple_pattern   ::= LPAREN (pat = pattern) COLON . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN
+# State 1835 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              LOCAL                             (codomain = tuple_type)
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              (codomain = tuple_type)          
+                       | (label = LIDENT) COLON               LOCAL                                   (ty = tuple_type)                 MINUSGREATER            LOCAL  . (codomain = tuple_type)
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              (codomain = strict_function_type)
 
 
-# State 1421 is preventing recovery from 2 states:
-class_type ::= (label = optlabel) (domain = tuple_type) MINUSGREATER . (codomain = class_type)
+# State 299 is preventing recovery from 2 states:
+reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (xs = reversed_separated_nontrivial_llist(STAR,atomic_type)) STAR . (x = atomic_type)
 
 
-# State 1752 is preventing recovery from 2 states:
-meth_list ::= LIDENT COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) .
-            | LIDENT COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)   . (tail = meth_list)
+# State 1173 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= COLON (xs = reversed_nonempty_llist(typevar)) DOT constructor_arguments MINUSGREATER . atomic_type
 
 
-# State 535 is preventing recovery from 2 states:
-reversed_llist(preceded(CONSTRAINT,constrain)) ::= (xs = reversed_llist(preceded(CONSTRAINT,constrain))) CONSTRAINT . core_type EQUAL core_type
+# State 1849 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
 
 
-# State 377 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr) ::= (xs = reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr)) AMPERSAND . alias_type
+# State 1143 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= OF . constructor_arguments
 
 
-# State 1418 is preventing recovery from 2 states:
-class_type ::= (domain = tuple_type) MINUSGREATER . (codomain = class_type)
-
-
-# State 307 is preventing recovery from 2 states:
-reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type) STAR             (x2 = atomic_type) .
-atomic_type                                           ::= (ty = atomic_type) . HASH           clty_longident      
-                                                        | (ty = atomic_type) . type_longident
-
-
-# State 344 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
-
-
-# State 347 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
-
-
-# State 375 is preventing recovery from 2 states:
-tag_field ::= name_tag OF opt_ampersand . (xs = reversed_separated_nonempty_llist(AMPERSAND,core_type_no_attr)) list(attribute)
-
-
-# State 1755 is preventing recovery from 2 states:
-meth_list   ::= (ty = atomic_type) .
-              | (ty = atomic_type)   . SEMI          
-              | (ty = atomic_type)   . SEMI           (tail = meth_list)
-atomic_type ::= (ty = atomic_type)   . HASH           clty_longident    
-              | (ty = atomic_type)   . type_longident
-
-
-# State 1120 is preventing recovery from 2 states:
-generalized_constructor_arguments ::= COLON . (xs = reversed_nonempty_llist(typevar)) DOT          atomic_type          
-                                    | COLON . atomic_type                            
-                                    | COLON . (xs = reversed_nonempty_llist(typevar)) DOT          constructor_arguments MINUSGREATER atomic_type
-                                    | COLON . constructor_arguments                   MINUSGREATER atomic_type          
-
-
-# State 271 is preventing recovery from 2 states:
-atomic_type ::= LBRACKET . row_field BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
-              | LBRACKET . BAR       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
-              | LBRACKET . tag_field RBRACKET                                               
-
-
-# State 1765 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
-
-
-# State 172 is preventing recovery from 2 states:
-atomic_type ::= LESS . GREATER  
-              | LESS . meth_list GREATER
-
-
-# State 1788 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
-
-
-# State 264 is preventing recovery from 2 states:
-option(preceded(COLON,core_type)) ::= COLON . (x = core_type)
-
-
-# State 1419 is preventing recovery from 2 states:
-class_type ::= (label = optlabel) . (domain = tuple_type) MINUSGREATER (codomain = class_type)
-
-
-# State 295 is preventing recovery from 2 states:
+# State 296 is preventing recovery from 2 states:
 strict_function_type ::= LOCAL (ty = tuple_type)   MINUSGREATER                            LOCAL                             . (codomain = tuple_type)
                        | LOCAL . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)  
                        | LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
@@ -453,24 +280,150 @@ strict_function_type ::= LOCAL (ty = tuple_type)   MINUSGREATER                 
                        | LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 1804 is preventing recovery from 2 states:
+# State 1519 is preventing recovery from 2 states:
+constr_extra_nonprefix_ident ::= LBRACKET . RBRACKET 
+atomic_type                  ::= LBRACKET . row_field BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+                               | LBRACKET . BAR       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
+                               | LBRACKET . tag_field RBRACKET                                               
+
+
+# State 1418 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(COMMA,core_type) ::= (xs = reversed_separated_nonempty_llist(COMMA,core_type)) COMMA . (x = core_type)
+
+
+# State 307 is preventing recovery from 2 states:
+reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type) STAR . (x2 = atomic_type)
+
+
+# State 850 is preventing recovery from 2 states:
+let_binding_body_no_punning ::= val_ident COLON (xs = reversed_nonempty_llist(typevar)) DOT . core_type EQUAL seq_expr
+
+
+# State 312 is preventing recovery from 2 states:
+strict_function_type ::= (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+atomic_type          ::= LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN                                    HASH            clty_longident  
+                       | LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN                                    type_longident 
+                       | LPAREN             . MODULE                                                      ext                                       list(attribute) module_type      RPAREN
+                       | LPAREN             . core_type                                                   RPAREN                                   
+
+
+# State 793 is preventing recovery from 2 states:
+simple_pattern_not_ident ::= LPAREN pattern COLON           . core_type RPAREN                                   
+labeled_simple_pattern   ::= LABEL  LPAREN  (pat = pattern) COLON       . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN
+
+
+# State 1860 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL  . (ty = tuple_type)                     MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | LOCAL  . (ty = tuple_type)                     MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER (codomain = tuple_type)          
+                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER LOCAL        . (codomain = tuple_type)        
+                       | LOCAL  . (ty = tuple_type)                     MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER (codomain = strict_function_type)
+
+
+# State 1818 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = tuple_type)          
+                       | (label = LIDENT) COLON               LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                     (ty = core_type) RPAREN       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = strict_function_type)
+
+
+# State 271 is preventing recovery from 2 states:
+atomic_type ::= LBRACKETGREATER option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+
+
+# State 1175 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
+generalized_constructor_arguments                   ::= COLON               (xs = reversed_nonempty_llist(typevar)) DOT            atomic_type .
+constructor_arguments                               ::= (x = atomic_type) .
+atomic_type                                         ::= (ty = atomic_type)  . HASH                                  clty_longident
+                                                      | (ty = atomic_type)  . type_longident                       
+
+
+# State 1856 is preventing recovery from 2 states:
 strict_function_type ::= LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
                        | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
                        | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 339 is preventing recovery from 2 states:
-reversed_separated_nontrivial_llist(COMMA,core_type) ::= (x1 = core_type) COMMA . (x2 = core_type)
+# State 1765 is preventing recovery from 2 states:
+class_self_pattern ::= LPAREN pattern COLON . core_type RPAREN
 
 
-# State 1340 is preventing recovery from 2 states:
-class_sig_field ::= VAL list(attribute) (flags = mutable_virtual_flags) LIDENT COLON . (ty = core_type) list(post_item_attribute)
+# State 1823 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = LIDENT) COLON                                                         LOCAL  LPAREN          . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+atomic_type          ::= LPAREN           . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH            clty_longident                           
+                       | LPAREN           . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN type_longident 
+                       | LPAREN           . MODULE                                                      ext    list(attribute) module_type                               RPAREN
+                       | LPAREN           . core_type                                                   RPAREN
 
 
-# State 353 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+# State 172 is preventing recovery from 2 states:
+atomic_type ::= LESS . GREATER  
+              | LESS . meth_list GREATER
+
+
+# State 349 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL               LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                     (ty = core_type) RPAREN       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = strict_function_type)
+
+
+# State 497 is preventing recovery from 2 states:
+label_let_pattern ::= LIDENT COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type)
+
+
+# State 268 is preventing recovery from 2 states:
+atomic_type ::= LBRACKETLESS option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) GREATER  (xs_inlined1 = reversed_nonempty_llist(name_tag)) RBRACKET
+              | LBRACKETLESS option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+
+
+# State 1171 is preventing recovery from 2 states:
+generalized_constructor_arguments ::= COLON (xs = reversed_nonempty_llist(typevar)) DOT . atomic_type          
+                                    | COLON (xs = reversed_nonempty_llist(typevar)) DOT . constructor_arguments MINUSGREATER atomic_type
+
+
+# State 1874 is preventing recovery from 2 states:
+signature_item                                           ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . type_longident PLUSEQ                           (priv = private_flag)                                 (xs = reversed_bar_llist(extension_constructor_declaration)) list(post_item_attribute)
+generic_type_declaration(nonrec_flag,type_kind)          ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . LIDENT         (kind_priv_manifest = type_kind) (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)                                   
+generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE (ext = ext) list(attribute) (params = type_parameters) . LIDENT         COLONEQUAL                       nonempty_type_kind                                    (xs = reversed_llist(preceded(CONSTRAINT,constrain)))        list(post_item_attribute)
+
+
+# State 295 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+
+
+# State 1711 is preventing recovery from 2 states:
+class_fun_binding ::= COLON . class_type EQUAL class_expr
+
+
+# State 1804 is preventing recovery from 2 states:
+meth_list ::= LIDENT COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) .
+            | LIDENT COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)   . (tail = meth_list)
+
+
+# State 685 is preventing recovery from 2 states:
+type_constraint ::= COLONGREATER . core_type
+
+
+# State 345 is preventing recovery from 2 states:
+strict_function_type ::= (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
 # State 165 is preventing recovery from 2 states:
@@ -482,80 +435,73 @@ strict_function_type ::= LOCAL . (ty = tuple_type) MINUSGREATER                 
                        | LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 314 is preventing recovery from 2 states:
-atomic_type ::= LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN . HASH           clty_longident
-              | LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN . type_longident
+# State 1814 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = LIDENT) COLON LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 405 is preventing recovery from 2 states:
-simple_pattern_not_ident ::= HASH . type_longident
-
-
-# State 1766 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = tuple_type)          
-                       | (label = LIDENT) COLON               LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                     (ty = core_type) RPAREN       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = strict_function_type)
-
-
-# State 1824 is preventing recovery from 2 states:
-generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE (ext = ext) list(attribute) (params = type_parameters) LIDENT COLONEQUAL . nonempty_type_kind (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)
-
-
-# State 1130 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
-generalized_constructor_arguments                   ::= COLON               atomic_type .   
-constructor_arguments                               ::= (x = atomic_type) .
-atomic_type                                         ::= (ty = atomic_type)  . HASH           clty_longident
-                                                      | (ty = atomic_type)  . type_longident
-
-
-# State 530 is preventing recovery from 2 states:
-with_constraint ::= TYPE type_parameters label_longident COLONEQUAL . alias_type
+# State 308 is preventing recovery from 2 states:
+reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (x1 = atomic_type) STAR             (x2 = atomic_type) .
+atomic_type                                           ::= (ty = atomic_type) . HASH           clty_longident      
+                                                        | (ty = atomic_type) . type_longident
 
 
 # State 157 is preventing recovery from 2 states:
 type_kind ::= EQUAL . nonempty_type_kind
 
 
+# State 334 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)  
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LPAREN              (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             . (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
+
+
 # State 342 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL                                                         LPAREN . (xs = reversed_nonempty_llist(typevar)) DOT            (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
-atomic_type          ::= LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH                                      clty_longident
-                       | LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN type_longident                           
-                       | LPAREN             . MODULE                                                      ext    list(attribute)                           module_type    RPAREN          
-                       | LPAREN             . core_type                                                   RPAREN
+strict_function_type ::= (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | (label = optlabel) LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
 # State 348 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LOCAL               LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                     (ty = core_type) RPAREN       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
-                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
-                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)        RPAREN           MINUSGREATER (codomain = strict_function_type)
+strict_function_type ::= (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+
+
+# State 406 is preventing recovery from 2 states:
+simple_pattern_not_ident ::= HASH . type_longident
+
+
+# State 629 is preventing recovery from 2 states:
+letop_binding_body ::= (pat = simple_pattern) COLON . (typ = core_type) EQUAL (exp = seq_expr)
+
+
+# State 319 is preventing recovery from 2 states:
+reversed_separated_nontrivial_llist(COMMA,core_type) ::= (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) COMMA . (x = core_type)
 
 
 # State 1414 is preventing recovery from 2 states:
-class_type ::= (label = LIDENT) COLON (domain = tuple_type) MINUSGREATER . (codomain = class_type)
+class_signature ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET clty_longident
 
 
-# State 1555 is preventing recovery from 2 states:
-method_ ::= BANG list(attribute) private_flag LIDENT COLON . TYPE                     (xs = nonempty_list(mkrhs(LIDENT))) DOT      core_type EQUAL seq_expr
-          | BANG list(attribute) private_flag LIDENT COLON . possibly_poly(core_type) EQUAL                               seq_expr
+# State 1470 is preventing recovery from 2 states:
+class_type ::= (domain = tuple_type) MINUSGREATER . (codomain = class_type)
+
+
+# State 1518 is preventing recovery from 2 states:
+list(generic_and_type_declaration(type_subst_kind)) ::= AND list(attribute) (params = type_parameters) LIDENT COLONEQUAL . nonempty_type_kind (xs_inlined1 = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute) (xs = list(generic_and_type_declaration(type_subst_kind)))
 
 
 # State 815 is preventing recovery from 2 states:
-let_binding_body_no_punning ::= LOCAL val_ident COLON (xs = reversed_nonempty_llist(typevar)) DOT . core_type EQUAL seq_expr
-
-
-# State 1232 is preventing recovery from 2 states:
-possibly_poly(core_type) ::= (xs = reversed_nonempty_llist(typevar)) DOT . core_type
+labeled_simple_pattern ::= LPAREN (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
 
 
 # State 170 is preventing recovery from 2 states:
@@ -573,8 +519,9 @@ strict_function_type ::= (label = LIDENT) COLON . LOCAL             (ty = tuple_
                        | (label = LIDENT) COLON . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER (codomain = strict_function_type)
 
 
-# State 1575 is preventing recovery from 2 states:
-method_ ::= list(attribute) (private_ = virtual_with_private_flag) LIDENT COLON . possibly_poly(core_type)
+# State 495 is preventing recovery from 2 states:
+label_let_pattern ::= LIDENT COLON . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type)
+                    | LIDENT COLON . (cty = core_type)                      
 
 
 # State 171 is preventing recovery from 2 states:
@@ -587,39 +534,59 @@ atomic_type          ::= LPAREN           . (xs = reversed_separated_nontrivial_
                        | LPAREN           . core_type                                                   RPAREN
 
 
-# State 982 is preventing recovery from 2 states:
-fun_def ::= COLON . atomic_type MINUSGREATER seq_expr
-
-
 # State 112 is preventing recovery from 2 states:
 value_description ::= VAL (ext = ext) list(attribute) val_ident COLON . (ty = possibly_poly(core_type)) list(post_item_attribute)
 
 
-# State 1797 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
-                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+# State 1607 is preventing recovery from 2 states:
+method_ ::= BANG list(attribute) private_flag LIDENT COLON . TYPE                     (xs = nonempty_list(mkrhs(LIDENT))) DOT      core_type EQUAL seq_expr
+          | BANG list(attribute) private_flag LIDENT COLON . possibly_poly(core_type) EQUAL                               seq_expr
 
 
-# State 267 is preventing recovery from 2 states:
-atomic_type ::= LBRACKETLESS option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) GREATER  (xs_inlined1 = reversed_nonempty_llist(name_tag)) RBRACKET
-              | LBRACKETLESS option(BAR) . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+# State 1165 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(STAR,atomic_type) ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR . (x = atomic_type)
+constructor_arguments                               ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR . (x = atomic_type)
 
 
-# State 359 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | (label = optlabel) (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+# State 330 is preventing recovery from 2 states:
+strict_function_type ::= (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 1604 is preventing recovery from 2 states:
-class_simple_expr ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET class_longident
+# State 1166 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(STAR,atomic_type) ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR             (x = atomic_type) .
+constructor_arguments                               ::= (xs = reversed_separated_nonempty_llist(STAR,atomic_type)) STAR             (x = atomic_type) .
+atomic_type                                         ::= (ty = atomic_type)                                         . HASH           clty_longident     
+                                                      | (ty = atomic_type)                                         . type_longident
 
 
-# State 1782 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | (label = LIDENT) COLON LOCAL (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+# State 1634 is preventing recovery from 2 states:
+method_ ::= list(attribute) private_flag LIDENT COLON TYPE (xs = nonempty_list(mkrhs(LIDENT))) DOT . core_type EQUAL seq_expr
+
+
+# State 1800 is preventing recovery from 2 states:
+meth_list ::= LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute)
+            | LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
+            | LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) (tail = meth_list)
+
+
+# State 536 is preventing recovery from 2 states:
+with_constraint ::= TYPE type_parameters label_longident with_type_binder . alias_type (xs = reversed_llist(preceded(CONSTRAINT,constrain)))
+
+
+# State 987 is preventing recovery from 2 states:
+fun_def ::= COLON . atomic_type MINUSGREATER seq_expr
+
+
+# State 1829 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)                
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     LOCAL                             (codomain = tuple_type)
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     (codomain = tuple_type)          
+                       | (label = LIDENT) COLON               LOCAL                                   LPAREN                            (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN                            MINUSGREATER            LOCAL . (codomain = tuple_type)
+                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)                        RPAREN MINUSGREATER     (codomain = strict_function_type)
 
 
 # State 173 is preventing recovery from 2 states:
@@ -629,62 +596,76 @@ atomic_type ::= LPAREN . (xs = reversed_separated_nontrivial_llist(COMMA,core_ty
               | LPAREN . core_type                                                   RPAREN
 
 
-# State 298 is preventing recovery from 2 states:
-reversed_separated_nontrivial_llist(STAR,atomic_type) ::= (xs = reversed_separated_nontrivial_llist(STAR,atomic_type)) STAR . (x = atomic_type)
+# State 286 is preventing recovery from 2 states:
+atomic_type ::= LBRACKET BAR . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
 
 
-# State 788 is preventing recovery from 2 states:
-simple_pattern_not_ident ::= LPAREN pattern COLON           . core_type RPAREN                                   
-labeled_simple_pattern   ::= LABEL  LPAREN  (pat = pattern) COLON       . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN
+# State 355 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) LOCAL               (ty = tuple_type)                       MINUSGREATER                      LOCAL                   . (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN                    MINUSGREATER (codomain = strict_function_type)
+
+
+# State 649 is preventing recovery from 2 states:
+let_pattern ::= (pat = pattern) COLON . (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type)
+              | pattern         COLON . core_type                              
 
 
 # State 813 is preventing recovery from 2 states:
-type_constraint             ::= COLON . core_type COLONGREATER core_type                                
-                              | COLON . core_type
-let_binding_body_no_punning ::= LOCAL val_ident   COLON        . (xs = reversed_nonempty_llist(typevar)) DOT core_type EQUAL seq_expr
+simple_pattern_not_ident ::= LPAREN pattern         COLON . core_type                               RPAREN
+labeled_simple_pattern   ::= LPAREN (pat = pattern) COLON . (xs = reversed_nonempty_llist(typevar)) DOT    (ty = core_type) RPAREN
 
 
-# State 455 is preventing recovery from 2 states:
-simple_pattern_not_ident ::= LPAREN pattern COLON . core_type RPAREN
+# State 820 is preventing recovery from 2 states:
+let_binding_body_no_punning ::= LOCAL val_ident COLON (xs = reversed_nonempty_llist(typevar)) DOT . core_type EQUAL seq_expr
 
 
-# State 1230 is preventing recovery from 2 states:
-primitive_declaration ::= EXTERNAL (ext = ext) list(attribute) val_ident COLON . (ty = possibly_poly(core_type)) EQUAL (prim = nonempty_list(mkrhs(raw_string))) list(post_item_attribute)
-
-
-# State 1256 is preventing recovery from 2 states:
+# State 1308 is preventing recovery from 2 states:
 payload ::= COLON . core_type
           | COLON . signature
 
 
-# State 1410 is preventing recovery from 2 states:
-signature_item ::= CLASS (ext = ext) list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT COLON . (cty = class_type) list(post_item_attribute) (bs = list(and_class_description))
+# State 859 is preventing recovery from 2 states:
+let_binding_body_no_punning ::= simple_pattern_not_ident COLON . core_type EQUAL seq_expr
 
 
-# State 1582 is preventing recovery from 2 states:
-method_ ::= list(attribute) private_flag LIDENT COLON TYPE (xs = nonempty_list(mkrhs(LIDENT))) DOT . core_type EQUAL seq_expr
+# State 1473 is preventing recovery from 2 states:
+class_type ::= (label = optlabel) (domain = tuple_type) MINUSGREATER . (codomain = class_type)
+
+
+# State 1825 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+
+
+# State 1846 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
 # State 311 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LPAREN                                                        . (xs = reversed_nonempty_llist(typevar)) DOT             (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
-atomic_type          ::= LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN                                    HASH            clty_longident  
-                       | LPAREN             . (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN                                    type_longident 
-                       | LPAREN             . MODULE                                                      ext                                       list(attribute) module_type      RPAREN
-                       | LPAREN             . core_type                                                   RPAREN                                   
+strict_function_type ::= (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            (codomain = tuple_type)          
+                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      LOCAL                             (codomain = tuple_type)
+                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      (codomain = tuple_type)          
+                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            LOCAL                                   (codomain = tuple_type)          
+                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)                
+                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER LOCAL                             (codomain = tuple_type)          
+                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) . LOCAL             (ty = tuple_type)                       MINUSGREATER                            (codomain = strict_function_type)
+                       | (label = optlabel) . LOCAL             LPAREN                                  (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER                      (codomain = strict_function_type)
+                       | (label = optlabel) . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)      
+                       | (label = optlabel) . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER (codomain = strict_function_type)
 
 
-# State 837 is preventing recovery from 2 states:
-type_constraint             ::= COLON     . core_type COLONGREATER                              core_type                          
-                              | COLON     . core_type
-let_binding_body_no_punning ::= val_ident COLON       . TYPE                                    (xs = nonempty_list(mkrhs(LIDENT))) DOT       core_type EQUAL    seq_expr
-                              | val_ident COLON       . (xs = reversed_nonempty_llist(typevar)) DOT                                 core_type EQUAL     seq_expr
-
-
-# State 1579 is preventing recovery from 2 states:
-method_ ::= list(attribute) private_flag LIDENT COLON . TYPE                     (xs = nonempty_list(mkrhs(LIDENT))) DOT      core_type EQUAL seq_expr
-          | list(attribute) private_flag LIDENT COLON . possibly_poly(core_type) EQUAL                               seq_expr
+# State 1282 is preventing recovery from 2 states:
+primitive_declaration ::= EXTERNAL (ext = ext) list(attribute) val_ident COLON . (ty = possibly_poly(core_type)) EQUAL (prim = nonempty_list(mkrhs(raw_string))) list(post_item_attribute)
 
 
 # State 162 is preventing recovery from 2 states:
@@ -706,39 +687,50 @@ atomic_type                  ::= LPAREN . (xs = reversed_separated_nontrivial_ll
                                | LPAREN . core_type                                                   RPAREN
 
 
+# State 842 is preventing recovery from 2 states:
+type_constraint             ::= COLON     . core_type COLONGREATER                              core_type                          
+                              | COLON     . core_type
+let_binding_body_no_punning ::= val_ident COLON       . TYPE                                    (xs = nonempty_list(mkrhs(LIDENT))) DOT       core_type EQUAL    seq_expr
+                              | val_ident COLON       . (xs = reversed_nonempty_llist(typevar)) DOT                                 core_type EQUAL     seq_expr
+
+
 # State 845 is preventing recovery from 2 states:
-let_binding_body_no_punning ::= val_ident COLON (xs = reversed_nonempty_llist(typevar)) DOT . core_type EQUAL seq_expr
+let_binding_body_no_punning ::= val_ident COLON TYPE (xs = nonempty_list(mkrhs(LIDENT))) DOT . core_type EQUAL seq_expr
 
 
-# State 1635 is preventing recovery from 2 states:
-class_simple_expr ::= LPAREN class_expr COLON . class_type RPAREN
-
-
-# State 1126 is preventing recovery from 2 states:
-reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
-generalized_constructor_arguments                   ::= COLON               (xs = reversed_nonempty_llist(typevar)) DOT            atomic_type .
-constructor_arguments                               ::= (x = atomic_type) .
-atomic_type                                         ::= (ty = atomic_type)  . HASH                                  clty_longident
-                                                      | (ty = atomic_type)  . type_longident                       
-
-
-# State 680 is preventing recovery from 2 states:
-type_constraint ::= COLONGREATER . core_type
-
-
-# State 1558 is preventing recovery from 2 states:
+# State 1610 is preventing recovery from 2 states:
 method_ ::= BANG list(attribute) private_flag LIDENT COLON TYPE (xs = nonempty_list(mkrhs(LIDENT))) DOT . core_type EQUAL seq_expr
 
 
-# State 854 is preventing recovery from 2 states:
-let_binding_body_no_punning ::= simple_pattern_not_ident COLON . core_type EQUAL seq_expr
+# State 539 is preventing recovery from 2 states:
+reversed_llist(preceded(CONSTRAINT,constrain)) ::= (xs = reversed_llist(preceded(CONSTRAINT,constrain))) CONSTRAINT . core_type EQUAL core_type
 
 
-# State 1103 is preventing recovery from 2 states:
-possibly_poly(core_type_no_attr) ::= (xs = reversed_nonempty_llist(typevar)) DOT . alias_type
+# State 1859 is preventing recovery from 2 states:
+strict_function_type ::= LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
 
 
-# State 1798 is preventing recovery from 2 states:
+# State 292 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL             . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
+                       | LOCAL             . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (ty = tuple_type) MINUSGREATER        LOCAL                                   . (codomain = tuple_type)        
+                       | LOCAL             . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL             . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
+
+
+# State 265 is preventing recovery from 2 states:
+option(preceded(COLON,core_type)) ::= COLON . (x = core_type)
+
+
+# State 1700 is preventing recovery from 2 states:
+class_field ::= CONSTRAINT list(attribute) . constrain_field list(post_item_attribute)
+
+
+# State 1850 is preventing recovery from 2 states:
 strict_function_type ::= LOCAL . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
                        | LOCAL . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
                        | LOCAL LPAREN              (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER LOCAL                             . (codomain = tuple_type)
@@ -748,69 +740,80 @@ strict_function_type ::= LOCAL . (ty = tuple_type) MINUSGREATER                 
                        | LOCAL . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER (codomain = strict_function_type)
 
 
-# State 290 is preventing recovery from 2 states:
-strict_function_type ::= (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
-                       | (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
-                       | (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
+# State 687 is preventing recovery from 2 states:
+type_constraint ::= COLON . core_type COLONGREATER core_type
+                  | COLON . core_type
 
 
-# State 790 is preventing recovery from 2 states:
-labeled_simple_pattern ::= LABEL LPAREN (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
+# State 1656 is preventing recovery from 2 states:
+class_simple_expr ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET class_longident
 
 
-# State 1648 is preventing recovery from 2 states:
-class_field ::= CONSTRAINT list(attribute) . constrain_field list(post_item_attribute)
+# State 651 is preventing recovery from 2 states:
+let_pattern ::= (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type)
 
 
-# State 983 is preventing recovery from 2 states:
-fun_def     ::= COLON              atomic_type      . MINUSGREATER seq_expr
-atomic_type ::= (ty = atomic_type) . HASH           clty_longident
-              | (ty = atomic_type) . type_longident
+# State 1403 is preventing recovery from 2 states:
+class_sig_field ::= METHOD list(attribute) private_virtual_flags LIDENT COLON . possibly_poly(core_type) list(post_item_attribute)
 
 
-# State 1773 is preventing recovery from 2 states:
-strict_function_type ::= (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+# State 1828 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = tuple_type)          
+                       | (label = LIDENT) COLON LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT (ty = core_type) RPAREN MINUSGREATER . (codomain = strict_function_type)
+
+
+# State 361 is preventing recovery from 2 states:
+strict_function_type ::= LOCAL              . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)  
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER (codomain = tuple_type)          
+                       | (label = optlabel) (ty = tuple_type)   MINUSGREATER                            LOCAL                             . (codomain = tuple_type)
+                       | LOCAL              . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
+                       | LOCAL              . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)          RPAREN MINUSGREATER (codomain = strict_function_type)
+
+
+# State 387 is preventing recovery from 2 states:
+atomic_type ::= LBRACKET row_field BAR . (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
+
+
+# State 456 is preventing recovery from 2 states:
+simple_pattern_not_ident ::= LPAREN pattern COLON . core_type RPAREN
+
+
+# State 1150 is preventing recovery from 2 states:
+label_declaration_semi ::= mutable_or_global_flag LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
+label_declaration      ::= mutable_or_global_flag LIDENT COLON . possibly_poly(core_type_no_attr) list(attribute)
+
+
+# State 1152 is preventing recovery from 2 states:
+possibly_poly(core_type_no_attr) ::= (xs = reversed_nonempty_llist(typevar)) DOT . alias_type
+
+
+# State 1168 is preventing recovery from 2 states:
+reversed_separated_nonempty_llist(STAR,atomic_type) ::= (x = atomic_type) .
+constructor_arguments                               ::= (x = atomic_type) .
+atomic_type                                         ::= (ty = atomic_type)  . HASH           clty_longident
+                                                      | (ty = atomic_type)  . type_longident
 
 
 # State 1380 is preventing recovery from 2 states:
-class_sig_field ::= CONSTRAINT list(attribute) . constrain_field list(post_item_attribute)
+class_self_type ::= LPAREN . core_type RPAREN
 
 
-# State 1878 is preventing recovery from 2 states:
-parse_core_type' ::= . parse_core_type
-
-
-# State 1382 is preventing recovery from 2 states:
-constrain_field ::= core_type EQUAL . core_type
-
-
-# State 1794 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | LOCAL LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
-
-
-# State 1415 is preventing recovery from 2 states:
-class_signature ::= LBRACKET . (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET                                                clty_longident                                         
-atomic_type     ::= LBRACKET . row_field                                                 BAR                                                     (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET
-                  | LBRACKET . BAR                                                       (xs = reversed_separated_nonempty_llist(BAR,row_field)) RBRACKET                                               
-                  | LBRACKET . tag_field                                                 RBRACKET                                               
-
-
-# State 1540 is preventing recovery from 2 states:
-value ::= list(attribute) (mutable_ = virtual_with_mutable_flag) LIDENT COLON . (ty = core_type)
+# State 340 is preventing recovery from 2 states:
+reversed_separated_nontrivial_llist(COMMA,core_type) ::= (x1 = core_type) COMMA . (x2 = core_type)
 
 
 # State 1808 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL  . (ty = tuple_type)                     MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | LOCAL  . (ty = tuple_type)                     MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER (codomain = tuple_type)          
-                       | LPAREN (xs = reversed_nonempty_llist(typevar)) DOT                                     (ty = core_type)                  RPAREN                  MINUSGREATER LOCAL        . (codomain = tuple_type)        
-                       | LOCAL  . (ty = tuple_type)                     MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL  . LPAREN                                (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN       MINUSGREATER (codomain = strict_function_type)
+meth_list ::= (ty = atomic_type) SEMI .
+            | (ty = atomic_type) SEMI   . (tail = meth_list)
+
+
+# State 1840 is preventing recovery from 2 states:
+strict_function_type ::= (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . LOCAL                             (codomain = tuple_type)
+                       | (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . (codomain = tuple_type)          
+                       | (label = LIDENT) COLON (ty = tuple_type) MINUSGREATER . (codomain = strict_function_type)
 
 
 # State 126 is preventing recovery from 2 states:
@@ -823,24 +826,21 @@ atomic_type          ::= LPAREN . (xs = reversed_separated_nontrivial_llist(COMM
                        | LPAREN . core_type                                                   RPAREN
 
 
-# State 1783 is preventing recovery from 2 states:
-strict_function_type ::= LOCAL            . (ty = tuple_type) MINUSGREATER                            LOCAL                             (codomain = tuple_type)
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = tuple_type)          
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              LOCAL                             (codomain = tuple_type)
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              (codomain = tuple_type)          
-                       | (label = LIDENT) COLON               LOCAL                                   (ty = tuple_type)                 MINUSGREATER            LOCAL  . (codomain = tuple_type)
-                       | LOCAL            . (ty = tuple_type) MINUSGREATER                            (codomain = strict_function_type)
-                       | LOCAL            . LPAREN            (xs = reversed_nonempty_llist(typevar)) DOT                               (ty = core_type)        RPAREN MINUSGREATER              (codomain = strict_function_type)
+# State 689 is preventing recovery from 2 states:
+type_constraint ::= COLON core_type COLONGREATER . core_type
 
 
-# State 329 is preventing recovery from 2 states:
-strict_function_type ::= (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER LOCAL                             (codomain = tuple_type)
-                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = tuple_type)          
-                       | (label = optlabel) LPAREN (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN MINUSGREATER (codomain = strict_function_type)
+# State 1471 is preventing recovery from 2 states:
+class_type ::= (label = optlabel) . (domain = tuple_type) MINUSGREATER (codomain = class_type)
 
 
-# State 784 is preventing recovery from 2 states:
-labeled_simple_pattern ::= LABEL LPAREN LOCAL (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
+# State 315 is preventing recovery from 2 states:
+atomic_type ::= LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN . HASH           clty_longident
+              | LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN . type_longident
+
+
+# State 795 is preventing recovery from 2 states:
+labeled_simple_pattern ::= LABEL LPAREN (pat = pattern) COLON (xs = reversed_nonempty_llist(typevar)) DOT . (ty = core_type) RPAREN
 
 
 # State 182 is preventing recovery from 1 states:
@@ -853,55 +853,99 @@ generic_type_declaration(nonrec_flag,type_kind) ::= TYPE     (ext = ext) list(at
 atomic_type ::= LPAREN MODULE ext list(attribute) . module_type RPAREN
 
 
+# State 1225 is preventing recovery from 1 states:
+paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLONGREATER . module_type RPAREN
+
+
 # State 130 is preventing recovery from 1 states:
 mod_ext_longident_ ::= UIDENT   . SLASH TYPE_DISAMBIGUATOR
                      | UIDENT .
 ident              ::= UIDENT .
 
 
-# State 302 is preventing recovery from 1 states:
-atomic_type ::= (ty = atomic_type) HASH . clty_longident
+# State 1317 is preventing recovery from 1 states:
+open_description ::= OPEN (ext = ext) list(attribute) . mod_ext_longident list(post_item_attribute)
 
 
-# State 1279 is preventing recovery from 1 states:
-module_subst ::= MODULE (ext = ext) list(attribute) UIDENT COLONEQUAL . mod_ext_longident list(post_item_attribute)
-
-
-# State 272 is preventing recovery from 1 states:
-atomic_type ::= HASH . clty_longident
-
-
-# State 1284 is preventing recovery from 1 states:
-signature_item ::= MODULE (ext = ext) list(attribute) REC module_name COLON . (mty = module_type) list(post_item_attribute) (bs = list(and_module_declaration))
-
-
-# State 1179 is preventing recovery from 1 states:
-paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLON module_type COLONGREATER . module_type RPAREN
-
-
-# State 1161 is preventing recovery from 1 states:
-simple_expr ::= LPAREN MODULE ext list(attribute) module_expr COLON . module_type RPAREN
-
-
-# State 1299 is preventing recovery from 1 states:
-module_declaration_body ::= COLON . (mty = module_type)
-
-
-# State 553 is preventing recovery from 1 states:
+# State 557 is preventing recovery from 1 states:
 with_constraint ::= MODULE TYPE mty_longident COLONEQUAL . (rhs = module_type)
 
 
-# State 581 is preventing recovery from 1 states:
+# State 1351 is preventing recovery from 1 states:
+module_declaration_body ::= COLON . (mty = module_type)
+
+
+# State 565 is preventing recovery from 1 states:
+with_constraint ::= MODULE mod_longident COLONEQUAL . mod_ext_longident
+
+
+# State 1954 is preventing recovery from 1 states:
+parse_mty_longident' ::= . parse_mty_longident
+
+
+# State 559 is preventing recovery from 1 states:
+module_type ::= module_type MINUSGREATER . module_type
+
+
+# State 277 is preventing recovery from 1 states:
+mod_ext_longident ::= mod_ext_longident LPAREN . mod_ext_longident RPAREN
+
+
+# State 585 is preventing recovery from 1 states:
 paren_module_expr ::= LPAREN (me = module_expr) COLON . (mty = module_type) RPAREN
 
 
-# State 541 is preventing recovery from 1 states:
-with_constraint ::= MODULE TYPE . mty_longident COLONEQUAL (rhs = module_type)
-                  | MODULE TYPE . mty_longident EQUAL      (rhs = module_type)
+# State 1950 is preventing recovery from 1 states:
+parse_module_type' ::= . parse_module_type
+
+
+# State 1125 is preventing recovery from 1 states:
+module_binding_body ::= COLON . (mty = module_type) EQUAL (me = module_expr)
+
+
+# State 520 is preventing recovery from 1 states:
+functor_arg ::= LPAREN module_name COLON . (mty = module_type) RPAREN
+
+
+# State 1416 is preventing recovery from 1 states:
+class_signature ::= LBRACKET (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET . clty_longident
+
+
+# State 1452 is preventing recovery from 1 states:
+list(and_class_type_declaration) ::= AND list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT EQUAL . (csig = class_signature) list(post_item_attribute) (xs = list(and_class_type_declaration))
+
+
+# State 1377 is preventing recovery from 1 states:
+class_type_declarations ::= CLASS TYPE (ext = ext) list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT EQUAL . (csig = class_signature) list(post_item_attribute) (bs = list(and_class_type_declaration))
+
+
+# State 622 is preventing recovery from 1 states:
+simple_expr ::= mod_longident DOT LPAREN MODULE ext list(attribute) module_expr COLON . module_type RPAREN
+
+
+# State 303 is preventing recovery from 1 states:
+atomic_type ::= (ty = atomic_type) HASH . clty_longident
+
+
+# State 273 is preventing recovery from 1 states:
+atomic_type ::= HASH . clty_longident
+
+
+# State 1799 is preventing recovery from 1 states:
+type_longident                         ::= LIDENT   . SLASH TYPE_DISAMBIGUATOR              
+mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .
+meth_list                              ::= LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute)
+                                         | LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
+                                         | LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) (tail = meth_list)
+
+
+# State 1228 is preventing recovery from 1 states:
+paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLON . module_type COLONGREATER module_type RPAREN
+                    | LPAREN VAL list(attribute) (e = expr) COLON . module_type RPAREN      
 
 
 # State 521 is preventing recovery from 1 states:
-module_type ::= FUNCTOR list(attribute) reversed_nonempty_llist(functor_arg) MINUSGREATER . (mty = module_type)
+module_type ::= LPAREN . module_type RPAREN
 
 
 # State 167 is preventing recovery from 1 states:
@@ -921,57 +965,33 @@ strict_function_type                   ::= (label = LIDENT) . COLON LOCAL       
 mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .        
 
 
-# State 543 is preventing recovery from 1 states:
-with_constraint ::= MODULE TYPE mty_longident EQUAL . (rhs = module_type)
+# State 316 is preventing recovery from 1 states:
+atomic_type ::= LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH . clty_longident
 
 
-# State 1411 is preventing recovery from 1 states:
-type_longident                         ::= LIDENT           . SLASH TYPE_DISAMBIGUATOR   
-mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .        
-class_type                             ::= (label = LIDENT) . COLON (domain = tuple_type) MINUSGREATER (codomain = class_type)
+# State 1245 is preventing recovery from 1 states:
+option(preceded(EQUAL,module_type)) ::= EQUAL . (x = module_type)
 
 
-# State 1173 is preventing recovery from 1 states:
-paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLONGREATER . module_type RPAREN
+# State 1342 is preventing recovery from 1 states:
+list(and_module_declaration) ::= AND list(attribute) module_name COLON . (mty = module_type) list(post_item_attribute) (xs = list(and_module_declaration))
 
 
-# State 1076 is preventing recovery from 1 states:
-module_binding_body ::= COLON . (mty = module_type) EQUAL (me = module_expr)
+# State 545 is preventing recovery from 1 states:
+with_constraint ::= MODULE TYPE . mty_longident COLONEQUAL (rhs = module_type)
+                  | MODULE TYPE . mty_longident EQUAL      (rhs = module_type)
 
 
-# State 517 is preventing recovery from 1 states:
-module_type ::= LPAREN . module_type RPAREN
+# State 1231 is preventing recovery from 1 states:
+paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLON module_type COLONGREATER . module_type RPAREN
 
 
-# State 1361 is preventing recovery from 1 states:
-class_signature ::= LET OPEN BANG list(attribute) mod_longident IN . class_signature
+# State 525 is preventing recovery from 1 states:
+module_type ::= FUNCTOR list(attribute) reversed_nonempty_llist(functor_arg) MINUSGREATER . (mty = module_type)
 
 
-# State 555 is preventing recovery from 1 states:
-module_type ::= module_type MINUSGREATER . module_type
-
-
-# State 561 is preventing recovery from 1 states:
-with_constraint ::= MODULE mod_longident COLONEQUAL . mod_ext_longident
-
-
-# State 1856 is preventing recovery from 1 states:
-parse_any_longident' ::= . parse_any_longident
-
-
-# State 1261 is preventing recovery from 1 states:
-open_description ::= OPEN BANG (ext = ext) list(attribute) . mod_ext_longident list(post_item_attribute)
-
-
-# State 1823 is preventing recovery from 1 states:
-type_longident                                           ::= LIDENT   . SLASH     TYPE_DISAMBIGUATOR
-mk_longident(mod_ext_longident,LIDENT)                   ::= LIDENT .
-generic_type_declaration(nonrec_flag,type_kind)          ::= TYPE     (ext = ext) list(attribute)    (params = type_parameters) LIDENT . (kind_priv_manifest = type_kind) (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)                            
-generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE     (ext = ext) list(attribute)    (params = type_parameters) LIDENT . COLONEQUAL                       nonempty_type_kind                                    (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)
-
-
-# State 1307 is preventing recovery from 1 states:
-signature_item ::= INCLUDE (ext = ext) list(attribute) . (thing = module_type) list(post_item_attribute)
+# State 1427 is preventing recovery from 1 states:
+class_signature ::= LET OPEN list(attribute) mod_longident IN . class_signature
 
 
 # State 158 is preventing recovery from 1 states:
@@ -984,36 +1004,31 @@ constr_ident       ::= UIDENT .
 simple_pattern_not_ident ::= LPAREN MODULE ext list(attribute) module_name COLON . module_type RPAREN
 
 
-# State 1400 is preventing recovery from 1 states:
-list(and_class_type_declaration) ::= AND list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT EQUAL . (csig = class_signature) list(post_item_attribute) (xs = list(and_class_type_declaration))
+# State 1213 is preventing recovery from 1 states:
+simple_expr ::= LPAREN MODULE ext list(attribute) module_expr COLON . module_type RPAREN
 
 
-# State 1898 is preventing recovery from 1 states:
-parse_module_type' ::= . parse_module_type
+# State 1336 is preventing recovery from 1 states:
+signature_item ::= MODULE (ext = ext) list(attribute) REC module_name COLON . (mty = module_type) list(post_item_attribute) (bs = list(and_module_declaration))
 
 
-# State 558 is preventing recovery from 1 states:
+# State 562 is preventing recovery from 1 states:
 with_constraint ::= MODULE mod_longident EQUAL . mod_ext_longident
 
 
-# State 1265 is preventing recovery from 1 states:
-open_description ::= OPEN (ext = ext) list(attribute) . mod_ext_longident list(post_item_attribute)
+# State 1463 is preventing recovery from 1 states:
+type_longident                         ::= LIDENT           . SLASH TYPE_DISAMBIGUATOR   
+mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .        
+class_type                             ::= (label = LIDENT) . COLON (domain = tuple_type) MINUSGREATER (codomain = class_type)
 
 
-# State 1364 is preventing recovery from 1 states:
-class_signature ::= LBRACKET (xs = reversed_separated_nonempty_llist(COMMA,core_type)) RBRACKET . clty_longident
-
-
-# State 617 is preventing recovery from 1 states:
-simple_expr ::= mod_longident DOT LPAREN MODULE ext list(attribute) module_expr COLON . module_type RPAREN
-
-
-# State 516 is preventing recovery from 1 states:
-functor_arg ::= LPAREN module_name COLON . (mty = module_type) RPAREN
+# State 293 is preventing recovery from 1 states:
+type_longident                         ::= LIDENT   . SLASH TYPE_DISAMBIGUATOR
+mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .
 
 
 # State 1325 is preventing recovery from 1 states:
-class_type_declarations ::= CLASS TYPE (ext = ext) list(attribute) (virt = virtual_flag) (params = formal_class_parameters) LIDENT EQUAL . (csig = class_signature) list(post_item_attribute) (bs = list(and_class_type_declaration))
+module_type_subst ::= MODULE TYPE (ext = ext) list(attribute) ident COLONEQUAL . (typ = module_type) list(post_item_attribute)
 
 
 # State 114 is preventing recovery from 1 states:
@@ -1021,57 +1036,42 @@ mod_ext_longident_ ::= UIDENT   . SLASH TYPE_DISAMBIGUATOR
                      | UIDENT .
 
 
-# State 1193 is preventing recovery from 1 states:
-option(preceded(EQUAL,module_type)) ::= EQUAL . (x = module_type)
+# State 547 is preventing recovery from 1 states:
+with_constraint ::= MODULE TYPE mty_longident EQUAL . (rhs = module_type)
 
 
-# State 292 is preventing recovery from 1 states:
-type_longident                         ::= LIDENT   . SLASH TYPE_DISAMBIGUATOR
-mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .
+# State 1908 is preventing recovery from 1 states:
+parse_any_longident' ::= . parse_any_longident
 
 
-# State 276 is preventing recovery from 1 states:
-mod_ext_longident ::= mod_ext_longident LPAREN . mod_ext_longident RPAREN
+# State 1413 is preventing recovery from 1 states:
+class_signature ::= LET OPEN BANG list(attribute) mod_longident IN . class_signature
 
 
-# State 1747 is preventing recovery from 1 states:
-type_longident                         ::= LIDENT   . SLASH TYPE_DISAMBIGUATOR              
-mk_longident(mod_ext_longident,LIDENT) ::= LIDENT .
-meth_list                              ::= LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute)
-                                         | LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute)
-                                         | LIDENT   . COLON possibly_poly(core_type_no_attr) list(attribute) SEMI list(attribute) (tail = meth_list)
+# State 1875 is preventing recovery from 1 states:
+type_longident                                           ::= LIDENT   . SLASH     TYPE_DISAMBIGUATOR
+mk_longident(mod_ext_longident,LIDENT)                   ::= LIDENT .
+generic_type_declaration(nonrec_flag,type_kind)          ::= TYPE     (ext = ext) list(attribute)    (params = type_parameters) LIDENT . (kind_priv_manifest = type_kind) (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)                            
+generic_type_declaration(no_nonrec_flag,type_subst_kind) ::= TYPE     (ext = ext) list(attribute)    (params = type_parameters) LIDENT . COLONEQUAL                       nonempty_type_kind                                    (xs = reversed_llist(preceded(CONSTRAINT,constrain))) list(post_item_attribute)
 
 
-# State 1355 is preventing recovery from 1 states:
+# State 1407 is preventing recovery from 1 states:
 class_sig_field ::= INHERIT list(attribute) . class_signature list(post_item_attribute)
 
 
-# State 1375 is preventing recovery from 1 states:
-class_signature ::= LET OPEN list(attribute) mod_longident IN . class_signature
-
-
-# State 1886 is preventing recovery from 1 states:
+# State 1938 is preventing recovery from 1 states:
 parse_mod_ext_longident' ::= . parse_mod_ext_longident
 
 
-# State 1290 is preventing recovery from 1 states:
-list(and_module_declaration) ::= AND list(attribute) module_name COLON . (mty = module_type) list(post_item_attribute) (xs = list(and_module_declaration))
+# State 1313 is preventing recovery from 1 states:
+open_description ::= OPEN BANG (ext = ext) list(attribute) . mod_ext_longident list(post_item_attribute)
 
 
-# State 1176 is preventing recovery from 1 states:
-paren_module_expr ::= LPAREN VAL list(attribute) (e = expr) COLON . module_type COLONGREATER module_type RPAREN
-                    | LPAREN VAL list(attribute) (e = expr) COLON . module_type RPAREN      
+# State 1331 is preventing recovery from 1 states:
+module_subst ::= MODULE (ext = ext) list(attribute) UIDENT COLONEQUAL . mod_ext_longident list(post_item_attribute)
 
 
-# State 1273 is preventing recovery from 1 states:
-module_type_subst ::= MODULE TYPE (ext = ext) list(attribute) ident COLONEQUAL . (typ = module_type) list(post_item_attribute)
-
-
-# State 1902 is preventing recovery from 1 states:
-parse_mty_longident' ::= . parse_mty_longident
-
-
-# State 315 is preventing recovery from 1 states:
-atomic_type ::= LPAREN (xs = reversed_separated_nontrivial_llist(COMMA,core_type)) RPAREN HASH . clty_longident
+# State 1359 is preventing recovery from 1 states:
+signature_item ::= INCLUDE (ext = ext) list(attribute) . (thing = module_type) list(post_item_attribute)
 
 
