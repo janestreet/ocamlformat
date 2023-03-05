@@ -385,7 +385,6 @@ module Vb:
       expression -> value_binding
   end
 
-
 (** {1 Class language} *)
 
 (** Class type expressions *)
