@@ -10,6 +10,7 @@
 (**************************************************************************)
 
 open Parser_extended
+module Extensions = Extensions
 include Parsetree
 
 let equal_core_type : core_type -> core_type -> bool = Poly.equal

@@ -133,18 +133,29 @@ module Exp = struct
     | _ -> List.exists pexp_attributes ~f:(Fn.non Attr.is_doc)
 
   let rec is_trivial exp =
-    match exp.pexp_desc with
-    | Pexp_constant {pconst_desc= Pconst_string (_, _, None); _} -> true
-    | Pexp_constant _ | Pexp_field _ | Pexp_ident _ | Pexp_send _ -> true
-    | Pexp_construct (_, exp) -> Option.for_all exp ~f:is_trivial
-    | Pexp_prefix (_, e) -> is_trivial e
-    | Pexp_apply
-        ({pexp_desc= Pexp_ident {txt= Lident "not"; _}; _}, [(_, e1)]) ->
-        is_trivial e1
-    | Pexp_variant (_, None) -> true
-    | Pexp_array [] | Pexp_list [] -> true
-    | Pexp_array [x] | Pexp_list [x] -> is_trivial x
-    | _ -> false
+    match Extensions.Expression.of_ast exp with
+    | Some eexp -> is_trivial_extension eexp
+    | None -> (
+      match exp.pexp_desc with
+      | Pexp_constant {pconst_desc= Pconst_string (_, _, None); _} -> true
+      | Pexp_constant _ | Pexp_field _ | Pexp_ident _ | Pexp_send _ -> true
+      | Pexp_construct (_, exp) -> Option.for_all exp ~f:is_trivial
+      | Pexp_prefix (_, e) -> is_trivial e
+      | Pexp_apply
+          ({pexp_desc= Pexp_ident {txt= Lident "not"; _}; _}, [(_, e1)]) ->
+          is_trivial e1
+      | Pexp_variant (_, None) -> true
+      | Pexp_array [] | Pexp_list [] -> true
+      | Pexp_array [x] | Pexp_list [x] -> is_trivial x
+      | _ -> false )
+
+  and is_trivial_extension : Extensions.Expression.t -> _ = function
+    | Eexp_immutable_array (Iaexp_immutable_array []) -> true
+    | Eexp_immutable_array (Iaexp_immutable_array [x]) -> is_trivial x
+    | Eexp_immutable_array (Iaexp_immutable_array _)
+     |Eexp_comprehension
+        (Cexp_list_comprehension _ | Cexp_array_comprehension _) ->
+        false
 
   let rec exposed_left e =
     match e.pexp_desc with
@@ -190,15 +201,22 @@ module Pat = struct
     | Ppat_cons pl when List.for_all pl ~f:is_any -> true
     | _ -> false
 
-  let has_trailing_attributes {ppat_desc; ppat_attributes; _} =
-    match ppat_desc with
-    | Ppat_construct (_, None)
-     |Ppat_constant _ | Ppat_any | Ppat_var _
-     |Ppat_variant (_, None)
-     |Ppat_record _ | Ppat_array _ | Ppat_list _ | Ppat_type _
-     |Ppat_unpack _ | Ppat_extension _ | Ppat_open _ | Ppat_interval _ ->
-        false
-    | _ -> List.exists ppat_attributes ~f:(Fn.non Attr.is_doc)
+  let has_trailing_attributes_extension _ppat_attributes :
+      Extensions.Pattern.t -> _ = function
+    | Epat_immutable_array (Iapat_immutable_array _) -> false
+
+  let has_trailing_attributes ({ppat_desc; ppat_attributes; _} as pat) =
+    match Extensions.Pattern.of_ast pat with
+    | Some epat -> has_trailing_attributes_extension ppat_attributes epat
+    | None -> (
+      match ppat_desc with
+      | Ppat_construct (_, None)
+       |Ppat_constant _ | Ppat_any | Ppat_var _
+       |Ppat_variant (_, None)
+       |Ppat_record _ | Ppat_array _ | Ppat_list _ | Ppat_type _
+       |Ppat_unpack _ | Ppat_extension _ | Ppat_open _ | Ppat_interval _ ->
+          false
+      | _ -> List.exists ppat_attributes ~f:(Fn.non Attr.is_doc) )
 end
 
 let doc_atrs ?(acc = []) atrs =
@@ -1177,6 +1195,35 @@ end = struct
     let dump {ctx; ast= cl} = dump ctx (Cl cl) in
     assert_no_raise ~f:check_cl ~dump xcl
 
+  module Comprehension_child = struct
+    type t = Expression of expression | Pattern of pattern
+  end
+
+  let check_comprehension Extensions.Comprehensions.{body; clauses}
+      (tgt : Comprehension_child.t) =
+    let expression_is_child =
+      match tgt with
+      | Expression exp -> fun exp' -> exp' == exp
+      | _ -> fun _ -> false
+    in
+    let pattern_is_child =
+      match tgt with
+      | Pattern pat -> fun pat' -> pat' == pat
+      | _ -> fun _ -> false
+    in
+    expression_is_child body
+    || List.exists clauses ~f:(function
+         | For bindings ->
+             List.exists bindings
+               ~f:(fun {iterator; pattern; attributes= _} ->
+                 pattern_is_child pattern
+                 ||
+                 match iterator with
+                 | Range {start; stop; direction= _} ->
+                     expression_is_child start || expression_is_child stop
+                 | In seq -> expression_is_child seq )
+         | When cond -> expression_is_child cond )
+
   let check_pat {ctx; ast= pat} =
     let check_pcstr_fields pcstr_fields =
       List.exists pcstr_fields ~f:(fun {pcf_desc; _} ->
@@ -1211,56 +1258,79 @@ end = struct
     | Td _ -> assert false
     | Pat ctx -> (
         let f pI = pI == pat in
-        match ctx.ppat_desc with
-        | Ppat_array p1N | Ppat_list p1N | Ppat_tuple p1N | Ppat_cons p1N ->
-            assert (List.exists p1N ~f)
-        | Ppat_record (p1N, _) ->
-            assert (List.exists p1N ~f:(fun (_, _, x) -> Option.exists x ~f))
-        | Ppat_or l -> assert (List.exists ~f:(fun p -> p == pat) l)
-        | Ppat_alias (p1, _)
-         |Ppat_constraint (p1, _)
-         |Ppat_construct (_, Some (_, p1))
-         |Ppat_exception p1
-         |Ppat_lazy p1
-         |Ppat_open (_, p1)
-         |Ppat_variant (_, Some p1) ->
-            assert (p1 == pat)
-        | Ppat_extension (_, ext) -> assert (check_extensions ext)
-        | Ppat_any | Ppat_constant _
-         |Ppat_construct (_, None)
-         |Ppat_interval _ | Ppat_type _ | Ppat_unpack _ | Ppat_var _
-         |Ppat_variant (_, None) ->
-            assert false )
+        (* Inlined because we're closed over things *)
+        let check_extension : Extensions.Pattern.t -> _ = function
+          | Epat_immutable_array (Iapat_immutable_array p1N) ->
+              assert (List.exists p1N ~f)
+        in
+        match Extensions.Pattern.of_ast ctx with
+        | Some ectx -> check_extension ectx
+        | None -> (
+          match ctx.ppat_desc with
+          | Ppat_array p1N | Ppat_list p1N | Ppat_tuple p1N | Ppat_cons p1N
+            ->
+              assert (List.exists p1N ~f)
+          | Ppat_record (p1N, _) ->
+              assert (
+                List.exists p1N ~f:(fun (_, _, x) -> Option.exists x ~f) )
+          | Ppat_or l -> assert (List.exists ~f:(fun p -> p == pat) l)
+          | Ppat_alias (p1, _)
+           |Ppat_constraint (p1, _)
+           |Ppat_construct (_, Some (_, p1))
+           |Ppat_exception p1
+           |Ppat_lazy p1
+           |Ppat_open (_, p1)
+           |Ppat_variant (_, Some p1) ->
+              assert (p1 == pat)
+          | Ppat_extension (_, ext) -> assert (check_extensions ext)
+          | Ppat_any | Ppat_constant _
+           |Ppat_construct (_, None)
+           |Ppat_interval _ | Ppat_type _ | Ppat_unpack _ | Ppat_var _
+           |Ppat_variant (_, None) ->
+              assert false ) )
     | Exp ctx -> (
-      match ctx.pexp_desc with
-      | Pexp_apply _ | Pexp_array _ | Pexp_list _ | Pexp_assert _
-       |Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
-       |Pexp_construct _ | Pexp_field _ | Pexp_ident _ | Pexp_ifthenelse _
-       |Pexp_lazy _ | Pexp_letexception _ | Pexp_letmodule _ | Pexp_new _
-       |Pexp_newtype _ | Pexp_open _ | Pexp_override _ | Pexp_pack _
-       |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_sequence _
-       |Pexp_setfield _ | Pexp_setinstvar _ | Pexp_tuple _
-       |Pexp_unreachable | Pexp_variant _ | Pexp_while _ | Pexp_hole
-       |Pexp_beginend _ | Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
-       |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ ->
-          assert false
-      | Pexp_extension (_, ext) -> assert (check_extensions ext)
-      | Pexp_object {pcstr_self; pcstr_fields} ->
-          assert (
-            Option.exists ~f:(fun self_ -> self_ == pat) pcstr_self
-            || check_pcstr_fields pcstr_fields )
-      | Pexp_let ({lbs_bindings; _}, _) ->
-          assert (check_bindings lbs_bindings)
-      | Pexp_letop {let_; ands; _} ->
-          let f {pbop_pat; _} = check_subpat pbop_pat in
-          assert (f let_ || List.exists ~f ands)
-      | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
-          assert (
-            List.exists cases ~f:(function
-              | {pc_lhs; _} when pc_lhs == pat -> true
-              | _ -> false ) )
-      | Pexp_for (p, _, _, _, _) | Pexp_fun (_, _, p, _) -> assert (p == pat)
-      )
+        (* Inlined because it's simpler *)
+        let check_extension : Extensions.Expression.t -> _ = function
+          | Eexp_comprehension
+              ( Cexp_list_comprehension comp
+              | Cexp_array_comprehension (_, comp) ) ->
+              assert (check_comprehension comp (Pattern pat))
+          | Eexp_immutable_array (Iaexp_immutable_array _) -> assert false
+        in
+        match Extensions.Expression.of_ast ctx with
+        | Some ectx -> check_extension ectx
+        | None -> (
+          match ctx.pexp_desc with
+          | Pexp_apply _ | Pexp_array _ | Pexp_list _ | Pexp_assert _
+           |Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
+           |Pexp_construct _ | Pexp_field _ | Pexp_ident _
+           |Pexp_ifthenelse _ | Pexp_lazy _ | Pexp_letexception _
+           |Pexp_letmodule _ | Pexp_new _ | Pexp_newtype _ | Pexp_open _
+           |Pexp_override _ | Pexp_pack _ | Pexp_poly _ | Pexp_record _
+           |Pexp_send _ | Pexp_sequence _ | Pexp_setfield _
+           |Pexp_setinstvar _ | Pexp_tuple _ | Pexp_unreachable
+           |Pexp_variant _ | Pexp_while _ | Pexp_hole | Pexp_beginend _
+           |Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
+           |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ ->
+              assert false
+          | Pexp_extension (_, ext) -> assert (check_extensions ext)
+          | Pexp_object {pcstr_self; pcstr_fields} ->
+              assert (
+                Option.exists ~f:(fun self_ -> self_ == pat) pcstr_self
+                || check_pcstr_fields pcstr_fields )
+          | Pexp_let ({lbs_bindings; _}, _) ->
+              assert (check_bindings lbs_bindings)
+          | Pexp_letop {let_; ands; _} ->
+              let f {pbop_pat; _} = check_subpat pbop_pat in
+              assert (f let_ || List.exists ~f ands)
+          | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
+            ->
+              assert (
+                List.exists cases ~f:(function
+                  | {pc_lhs; _} when pc_lhs == pat -> true
+                  | _ -> false ) )
+          | Pexp_for (p, _, _, _, _) | Pexp_fun (_, _, p, _) ->
+              assert (p == pat) ) )
     | Lb x -> assert (x.lb_pattern == pat)
     | Mb _ -> assert false
     | Md _ -> assert false
@@ -1337,79 +1407,94 @@ end = struct
     | Exp ctx -> (
         let f eI = eI == exp in
         let snd_f (_, eI) = eI == exp in
-        match ctx.pexp_desc with
-        | Pexp_extension (_, ext) -> assert (check_extensions ext)
-        | Pexp_constant _ | Pexp_ident _ | Pexp_new _ | Pexp_pack _
-         |Pexp_unreachable | Pexp_hole ->
-            assert false
-        | Pexp_object {pcstr_fields; _} ->
-            assert (check_pcstr_fields pcstr_fields)
-        | Pexp_let ({lbs_bindings; _}, e) ->
-            assert (
-              List.exists lbs_bindings ~f:(fun {lb_expression; _} ->
-                  lb_expression == exp )
-              || e == exp )
-        | Pexp_letop {let_; ands; body} ->
-            let f {pbop_exp; _} = pbop_exp == exp in
-            assert (f let_ || List.exists ~f ands || body == exp)
-        | (Pexp_match (e, _) | Pexp_try (e, _)) when e == exp -> ()
-        | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
-          ->
-            assert (
-              List.exists cases ~f:(function
-                | {pc_guard= Some g; _} when g == exp -> true
-                | {pc_rhs; _} when pc_rhs == exp -> true
-                | _ -> false ) )
-        | Pexp_fun (_, default, _, body) ->
-            assert (Option.value_map default ~default:false ~f || body == exp)
-        | Pexp_indexop_access {pia_lhs; pia_kind= Builtin idx; pia_rhs; _} ->
-            assert (
-              pia_lhs == exp || idx == exp
-              || Option.value_map pia_rhs ~default:false ~f )
-        | Pexp_indexop_access
-            {pia_lhs; pia_kind= Dotop (_, _, idx); pia_rhs; _} ->
-            assert (
-              pia_lhs == exp || List.exists ~f idx
-              || Option.value_map pia_rhs ~default:false ~f )
-        | Pexp_prefix (_, e) -> assert (f e)
-        | Pexp_infix (_, e1, e2) -> assert (f e1 || f e2)
-        | Pexp_apply (e0, e1N) ->
-            (* FAIL *)
-            assert (e0 == exp || List.exists e1N ~f:snd_f)
-        | Pexp_tuple e1N | Pexp_array e1N | Pexp_list e1N | Pexp_cons e1N ->
-            assert (List.exists e1N ~f)
-        | Pexp_construct (_, e) | Pexp_variant (_, e) ->
-            assert (Option.exists e ~f)
-        | Pexp_record (e1N, e0) ->
-            assert (
-              Option.exists e0 ~f
-              || List.exists e1N ~f:(fun (_, _, e) -> Option.exists e ~f) )
-        | Pexp_assert e
-         |Pexp_beginend e
-         |Pexp_parens e
-         |Pexp_constraint (e, _)
-         |Pexp_coerce (e, _, _)
-         |Pexp_field (e, _)
-         |Pexp_lazy e
-         |Pexp_letexception (_, e)
-         |Pexp_letmodule (_, _, e)
-         |Pexp_newtype (_, e)
-         |Pexp_open (_, e)
-         |Pexp_letopen (_, e)
-         |Pexp_poly (e, _)
-         |Pexp_send (e, _)
-         |Pexp_setinstvar (_, e) ->
-            assert (e == exp)
-        | Pexp_sequence (e1, e2) -> assert (e1 == exp || e2 == exp)
-        | Pexp_setfield (e1, _, e2) | Pexp_while (e1, e2) ->
-            assert (e1 == exp || e2 == exp)
-        | Pexp_ifthenelse (eN, e) ->
-            assert (
-              List.exists eN ~f:(fun x -> f x.if_cond || f x.if_body)
-              || Option.exists e ~f )
-        | Pexp_for (_, e1, e2, _, e3) ->
-            assert (e1 == exp || e2 == exp || e3 == exp)
-        | Pexp_override e1N -> assert (List.exists e1N ~f:snd_f) )
+        (* Inlined because we're closed over things *)
+        let check_extension : Extensions.Expression.t -> _ = function
+          | Eexp_comprehension
+              ( Cexp_list_comprehension comp
+              | Cexp_array_comprehension (_, comp) ) ->
+              assert (check_comprehension comp (Expression exp))
+          | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
+              assert (List.exists e1N ~f)
+        in
+        match Extensions.Expression.of_ast ctx with
+        | Some ectx -> check_extension ectx
+        | None -> (
+          match ctx.pexp_desc with
+          | Pexp_extension (_, ext) -> assert (check_extensions ext)
+          | Pexp_constant _ | Pexp_ident _ | Pexp_new _ | Pexp_pack _
+           |Pexp_unreachable | Pexp_hole ->
+              assert false
+          | Pexp_object {pcstr_fields; _} ->
+              assert (check_pcstr_fields pcstr_fields)
+          | Pexp_let ({lbs_bindings; _}, e) ->
+              assert (
+                List.exists lbs_bindings ~f:(fun {lb_expression; _} ->
+                    lb_expression == exp )
+                || e == exp )
+          | Pexp_letop {let_; ands; body} ->
+              let f {pbop_exp; _} = pbop_exp == exp in
+              assert (f let_ || List.exists ~f ands || body == exp)
+          | (Pexp_match (e, _) | Pexp_try (e, _)) when e == exp -> ()
+          | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
+            ->
+              assert (
+                List.exists cases ~f:(function
+                  | {pc_guard= Some g; _} when g == exp -> true
+                  | {pc_rhs; _} when pc_rhs == exp -> true
+                  | _ -> false ) )
+          | Pexp_fun (_, default, _, body) ->
+              assert (
+                Option.value_map default ~default:false ~f || body == exp )
+          | Pexp_indexop_access {pia_lhs; pia_kind= Builtin idx; pia_rhs; _}
+            ->
+              assert (
+                pia_lhs == exp || idx == exp
+                || Option.value_map pia_rhs ~default:false ~f )
+          | Pexp_indexop_access
+              {pia_lhs; pia_kind= Dotop (_, _, idx); pia_rhs; _} ->
+              assert (
+                pia_lhs == exp || List.exists ~f idx
+                || Option.value_map pia_rhs ~default:false ~f )
+          | Pexp_prefix (_, e) -> assert (f e)
+          | Pexp_infix (_, e1, e2) -> assert (f e1 || f e2)
+          | Pexp_apply (e0, e1N) ->
+              (* FAIL *)
+              assert (e0 == exp || List.exists e1N ~f:snd_f)
+          | Pexp_tuple e1N | Pexp_array e1N | Pexp_list e1N | Pexp_cons e1N
+            ->
+              assert (List.exists e1N ~f)
+          | Pexp_construct (_, e) | Pexp_variant (_, e) ->
+              assert (Option.exists e ~f)
+          | Pexp_record (e1N, e0) ->
+              assert (
+                Option.exists e0 ~f
+                || List.exists e1N ~f:(fun (_, _, e) -> Option.exists e ~f) )
+          | Pexp_assert e
+           |Pexp_beginend e
+           |Pexp_parens e
+           |Pexp_constraint (e, _)
+           |Pexp_coerce (e, _, _)
+           |Pexp_field (e, _)
+           |Pexp_lazy e
+           |Pexp_letexception (_, e)
+           |Pexp_letmodule (_, _, e)
+           |Pexp_newtype (_, e)
+           |Pexp_open (_, e)
+           |Pexp_letopen (_, e)
+           |Pexp_poly (e, _)
+           |Pexp_send (e, _)
+           |Pexp_setinstvar (_, e) ->
+              assert (e == exp)
+          | Pexp_sequence (e1, e2) -> assert (e1 == exp || e2 == exp)
+          | Pexp_setfield (e1, _, e2) | Pexp_while (e1, e2) ->
+              assert (e1 == exp || e2 == exp)
+          | Pexp_ifthenelse (eN, e) ->
+              assert (
+                List.exists eN ~f:(fun x -> f x.if_cond || f x.if_body)
+                || Option.exists e ~f )
+          | Pexp_for (_, e1, e2, _, e3) ->
+              assert (e1 == exp || e2 == exp || e3 == exp)
+          | Pexp_override e1N -> assert (List.exists e1N ~f:snd_f) ) )
     | Lb x -> assert (x.lb_expression == exp)
     | Mb _ -> assert false
     | Md _ -> assert false
@@ -1464,43 +1549,63 @@ end = struct
 
   let rec is_simple (c : Conf.t) width ({ast= exp; _} as xexp) =
     let ctx = Exp exp in
-    match exp.pexp_desc with
-    | Pexp_constant _ -> Exp.is_trivial exp
-    | Pexp_field _ | Pexp_ident _ | Pexp_send _
-     |Pexp_construct (_, None)
-     |Pexp_variant (_, None) ->
-        true
-    | Pexp_cons l ->
-        List.for_all l ~f:(fun e -> is_simple c width (sub_exp ~ctx e))
-        && fit_margin c (width xexp)
-    | Pexp_construct (_, Some e0) | Pexp_variant (_, Some e0) ->
-        Exp.is_trivial e0
-    | Pexp_array e1N | Pexp_list e1N | Pexp_tuple e1N ->
+    match Extensions.Expression.of_ast exp with
+    | Some eexp -> is_simple_extension c width xexp eexp
+    | None -> (
+      match exp.pexp_desc with
+      | Pexp_constant _ -> Exp.is_trivial exp
+      | Pexp_field _ | Pexp_ident _ | Pexp_send _
+       |Pexp_construct (_, None)
+       |Pexp_variant (_, None) ->
+          true
+      | Pexp_cons l ->
+          List.for_all l ~f:(fun e -> is_simple c width (sub_exp ~ctx e))
+          && fit_margin c (width xexp)
+      | Pexp_construct (_, Some e0) | Pexp_variant (_, Some e0) ->
+          Exp.is_trivial e0
+      | Pexp_array e1N | Pexp_list e1N | Pexp_tuple e1N ->
+          List.for_all e1N ~f:Exp.is_trivial && fit_margin c (width xexp)
+      | Pexp_record (e1N, e0) ->
+          Option.for_all e0 ~f:Exp.is_trivial
+          && List.for_all e1N ~f:(fun (_, (ct1, ct2), eo) ->
+                 Option.is_none ct1 && Option.is_none ct2
+                 && Option.for_all eo ~f:Exp.is_trivial )
+          && fit_margin c (width xexp)
+      | Pexp_indexop_access {pia_lhs; pia_kind; pia_rhs= None; _} ->
+          Exp.is_trivial pia_lhs
+          && ( match pia_kind with
+             | Builtin idx -> Exp.is_trivial idx
+             | Dotop (_, _, idx) -> List.for_all idx ~f:Exp.is_trivial )
+          && fit_margin c (width xexp)
+      | Pexp_prefix (_, e) -> Exp.is_trivial e && fit_margin c (width xexp)
+      | Pexp_infix ({txt= ":="; _}, _, _) -> false
+      | Pexp_infix (_, e1, e2) ->
+          Exp.is_trivial e1 && Exp.is_trivial e2 && fit_margin c (width xexp)
+      | Pexp_apply (e0, e1N) ->
+          Exp.is_trivial e0
+          && List.for_all e1N ~f:(snd >> Exp.is_trivial)
+          && fit_margin c (width xexp)
+      | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e0, []); _}]) ->
+          is_simple c width (sub_exp ~ctx e0)
+      | Pexp_extension (_, (PStr [] | PTyp _)) -> true
+      | _ -> false )
+
+  and is_simple_extension c width xexp : Extensions.Expression.t -> bool =
+    function
+    | Eexp_immutable_array (Iaexp_immutable_array e1N) ->
         List.for_all e1N ~f:Exp.is_trivial && fit_margin c (width xexp)
-    | Pexp_record (e1N, e0) ->
-        Option.for_all e0 ~f:Exp.is_trivial
-        && List.for_all e1N ~f:(fun (_, (ct1, ct2), eo) ->
-               Option.is_none ct1 && Option.is_none ct2
-               && Option.for_all eo ~f:Exp.is_trivial )
-        && fit_margin c (width xexp)
-    | Pexp_indexop_access {pia_lhs; pia_kind; pia_rhs= None; _} ->
-        Exp.is_trivial pia_lhs
-        && ( match pia_kind with
-           | Builtin idx -> Exp.is_trivial idx
-           | Dotop (_, _, idx) -> List.for_all idx ~f:Exp.is_trivial )
-        && fit_margin c (width xexp)
-    | Pexp_prefix (_, e) -> Exp.is_trivial e && fit_margin c (width xexp)
-    | Pexp_infix ({txt= ":="; _}, _, _) -> false
-    | Pexp_infix (_, e1, e2) ->
-        Exp.is_trivial e1 && Exp.is_trivial e2 && fit_margin c (width xexp)
-    | Pexp_apply (e0, e1N) ->
-        Exp.is_trivial e0
-        && List.for_all e1N ~f:(snd >> Exp.is_trivial)
-        && fit_margin c (width xexp)
-    | Pexp_extension (_, PStr [{pstr_desc= Pstr_eval (e0, []); _}]) ->
-        is_simple c width (sub_exp ~ctx e0)
-    | Pexp_extension (_, (PStr [] | PTyp _)) -> true
-    | _ -> false
+    | Eexp_comprehension
+        (Cexp_list_comprehension _ | Cexp_array_comprehension _) ->
+        false
+
+  let prec_ctx_extension : Extensions.Expression.t -> _ =
+    let open Prec in
+    let open Assoc in
+    function
+    | Eexp_comprehension
+        (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+     |Eexp_immutable_array (Iaexp_immutable_array _) ->
+        Some (Semi, Non)
 
   (** [prec_ctx {ctx; ast}] is the precedence of the context of [ast] within
       [ctx], where [ast] is an immediate sub-term (modulo syntactic sugar) of
@@ -1582,64 +1687,68 @@ end = struct
       | _ -> None )
     | {ast= Cty _; _} -> None
     | {ast= Typ _; _} -> None
-    | {ctx= Exp {pexp_desc; _}; ast= Exp exp} -> (
-      match pexp_desc with
-      | Pexp_tuple (e0 :: _) ->
-          Some (Comma, if exp == e0 then Left else Right)
-      | Pexp_cons l ->
-          Some (ColonColon, if exp == List.last_exn l then Right else Left)
-      | Pexp_construct
-          ({txt= Lident "[]"; _}, Some {pexp_desc= Pexp_tuple [_; _]; _}) ->
-          Some (Semi, Non)
-      | Pexp_array _ | Pexp_list _ -> Some (Semi, Non)
-      | Pexp_construct (_, Some _)
-       |Pexp_assert _ | Pexp_lazy _
-       |Pexp_variant (_, Some _) ->
-          Some (Apply, Non)
-      | Pexp_indexop_access {pia_lhs= lhs; pia_rhs= rhs; _} -> (
-          if lhs == exp then Some (Dot, Left)
-          else
-            match rhs with
-            | Some e when e == exp -> Some (LessMinus, Right)
-            | _ -> Some (Low, Left) )
-      | Pexp_prefix ({txt= i; loc}, _) -> (
-        match i with
-        | "~-" | "~-." | "~+" | "~+." ->
-            if
-              loc.loc_end.pos_cnum - loc.loc_start.pos_cnum
-              = String.length i - 1
-            then Some (UMinus, Non)
-            else Some (High, Non)
-        | _ -> (
-          match i.[0] with
-          | '!' | '?' | '~' -> Some (High, Non)
-          | _ -> Some (Apply, Non) ) )
-      | Pexp_infix ({txt= i; _}, e1, _) -> (
-          let child = if e1 == exp then Left else Right in
-          match (i.[0], i) with
-          | _, ":=" -> Some (ColonEqual, child)
-          | _, ("or" | "||") -> Some (BarBar, child)
-          | _, ("&" | "&&") -> Some (AmperAmper, child)
-          | ('=' | '<' | '>' | '|' | '&' | '$'), _ | _, "!=" ->
-              Some (InfixOp0, child)
-          | ('@' | '^'), _ -> Some (InfixOp1, child)
-          | ('+' | '-'), _ -> Some (InfixOp2, child)
-          | '*', _ when String.(i <> "*") && Char.(i.[1] = '*') ->
-              Some (InfixOp4, child)
-          | ('*' | '/' | '%'), _ | _, ("lor" | "lxor" | "mod" | "land") ->
-              Some (InfixOp3, child)
-          | _, ("lsl" | "lsr" | "asr") -> Some (InfixOp4, child)
-          | '#', _ -> Some (HashOp, child)
-          | _ -> Some (Apply, child) )
-      | Pexp_apply _ -> Some (Apply, Non)
-      | Pexp_setfield (e0, _, _) when e0 == exp -> Some (Dot, Left)
-      | Pexp_setfield (_, _, e0) when e0 == exp -> Some (LessMinus, Non)
-      | Pexp_setinstvar _ -> Some (LessMinus, Non)
-      | Pexp_field _ -> Some (Dot, Left)
-      (* We use [Dot] so [x#y] has the same precedence as [x.y], it is
-         different to what is done in the parser, but it is intended. *)
-      | Pexp_send _ -> Some (Dot, Left)
-      | _ -> None )
+    | {ctx= Exp ({pexp_desc; _} as ctx); ast= Exp exp} -> (
+      match Extensions.Expression.of_ast ctx with
+      | Some ectx -> prec_ctx_extension ectx
+      | None -> (
+        match pexp_desc with
+        | Pexp_tuple (e0 :: _) ->
+            Some (Comma, if exp == e0 then Left else Right)
+        | Pexp_cons l ->
+            Some (ColonColon, if exp == List.last_exn l then Right else Left)
+        | Pexp_construct
+            ({txt= Lident "[]"; _}, Some {pexp_desc= Pexp_tuple [_; _]; _})
+          ->
+            Some (Semi, Non)
+        | Pexp_array _ | Pexp_list _ -> Some (Semi, Non)
+        | Pexp_construct (_, Some _)
+         |Pexp_assert _ | Pexp_lazy _
+         |Pexp_variant (_, Some _) ->
+            Some (Apply, Non)
+        | Pexp_indexop_access {pia_lhs= lhs; pia_rhs= rhs; _} -> (
+            if lhs == exp then Some (Dot, Left)
+            else
+              match rhs with
+              | Some e when e == exp -> Some (LessMinus, Right)
+              | _ -> Some (Low, Left) )
+        | Pexp_prefix ({txt= i; loc}, _) -> (
+          match i with
+          | "~-" | "~-." | "~+" | "~+." ->
+              if
+                loc.loc_end.pos_cnum - loc.loc_start.pos_cnum
+                = String.length i - 1
+              then Some (UMinus, Non)
+              else Some (High, Non)
+          | _ -> (
+            match i.[0] with
+            | '!' | '?' | '~' -> Some (High, Non)
+            | _ -> Some (Apply, Non) ) )
+        | Pexp_infix ({txt= i; _}, e1, _) -> (
+            let child = if e1 == exp then Left else Right in
+            match (i.[0], i) with
+            | _, ":=" -> Some (ColonEqual, child)
+            | _, ("or" | "||") -> Some (BarBar, child)
+            | _, ("&" | "&&") -> Some (AmperAmper, child)
+            | ('=' | '<' | '>' | '|' | '&' | '$'), _ | _, "!=" ->
+                Some (InfixOp0, child)
+            | ('@' | '^'), _ -> Some (InfixOp1, child)
+            | ('+' | '-'), _ -> Some (InfixOp2, child)
+            | '*', _ when String.(i <> "*") && Char.(i.[1] = '*') ->
+                Some (InfixOp4, child)
+            | ('*' | '/' | '%'), _ | _, ("lor" | "lxor" | "mod" | "land") ->
+                Some (InfixOp3, child)
+            | _, ("lsl" | "lsr" | "asr") -> Some (InfixOp4, child)
+            | '#', _ -> Some (HashOp, child)
+            | _ -> Some (Apply, child) )
+        | Pexp_apply _ -> Some (Apply, Non)
+        | Pexp_setfield (e0, _, _) when e0 == exp -> Some (Dot, Left)
+        | Pexp_setfield (_, _, e0) when e0 == exp -> Some (LessMinus, Non)
+        | Pexp_setinstvar _ -> Some (LessMinus, Non)
+        | Pexp_field _ -> Some (Dot, Left)
+        (* We use [Dot] so [x#y] has the same precedence as [x.y], it is
+           different to what is done in the parser, but it is intended. *)
+        | Pexp_send _ -> Some (Dot, Left)
+        | _ -> None ) )
     | {ctx= Cl {pcl_desc; _}; ast= Cl _ | Exp _} -> (
       match pcl_desc with Pcl_apply _ -> Some (Apply, Non) | _ -> None )
     | { ctx= Exp _
@@ -1845,91 +1954,100 @@ end = struct
     assert_check_pat xpat ;
     Pat.has_trailing_attributes pat
     ||
-    match (ctx, pat.ppat_desc) with
-    | Pat {ppat_desc= Ppat_cons pl; _}, Ppat_cons _
-      when List.last_exn pl == pat ->
-        false
-    | Pat {ppat_desc= Ppat_cons _; _}, inner -> (
-      match inner with
-      | Ppat_cons _ -> true
-      | Ppat_construct _ | Ppat_record _ | Ppat_variant _ -> false
-      | _ -> true )
-    | Pat {ppat_desc= Ppat_construct _; _}, Ppat_cons _ -> true
-    | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _} )
-      , ( Ppat_construct (_, Some _)
-        | Ppat_cons _
-        | Ppat_variant (_, Some _)
-        | Ppat_or _ | Ppat_alias _ ) ) ->
-        true
-    | ( Exp {pexp_desc= Pexp_fun _; _}
-      , Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) ) ->
-        true
-    | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
-    | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _}
-        | Lb _ )
-      , Ppat_constraint ({ppat_desc= Ppat_any; _}, _) ) ->
-        true
-    | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
-        | Str {pstr_desc= Pstr_value _; _}
-        | Lb _ )
-      , Ppat_constraint ({ppat_desc= Ppat_tuple _; _}, _) ) ->
-        false
-    | _, Ppat_constraint _
-     |_, Ppat_unpack _
-     |( Pat
-          { ppat_desc=
-              ( Ppat_alias _ | Ppat_array _ | Ppat_list _ | Ppat_constraint _
-              | Ppat_construct _ | Ppat_variant _ )
-          ; _ }
-      , Ppat_tuple _ )
-     |( ( Pat
+    match Extensions.Pattern.of_ast pat with
+    | Some epat -> (
+      (* Inlined because it's simpler *)
+      match epat with
+      | Epat_immutable_array (Iapat_immutable_array _) -> false )
+    | None -> (
+      match (ctx, pat.ppat_desc) with
+      | Pat {ppat_desc= Ppat_cons pl; _}, Ppat_cons _
+        when List.last_exn pl == pat ->
+          false
+      | Pat {ppat_desc= Ppat_cons _; _}, inner -> (
+        match inner with
+        | Ppat_cons _ -> true
+        | Ppat_construct _ | Ppat_record _ | Ppat_variant _ -> false
+        | _ -> true )
+      | Pat {ppat_desc= Ppat_construct _; _}, Ppat_cons _ -> true
+      | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
+          | Str {pstr_desc= Pstr_value _; _} )
+        , ( Ppat_construct (_, Some _)
+          | Ppat_cons _
+          | Ppat_variant (_, Some _)
+          | Ppat_or _ | Ppat_alias _ ) ) ->
+          true
+      | ( Exp {pexp_desc= Pexp_fun _; _}
+        , Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) ) ->
+          true
+      | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
+      | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
+          | Str {pstr_desc= Pstr_value _; _}
+          | Lb _ )
+        , Ppat_constraint ({ppat_desc= Ppat_any; _}, _) ) ->
+          true
+      | ( ( Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}
+          | Str {pstr_desc= Pstr_value _; _}
+          | Lb _ )
+        , Ppat_constraint ({ppat_desc= Ppat_tuple _; _}, _) ) ->
+          false
+      | _, Ppat_constraint _
+       |_, Ppat_unpack _
+       |( Pat
             { ppat_desc=
-                ( Ppat_construct _ | Ppat_exception _ | Ppat_or _
-                | Ppat_lazy _ | Ppat_tuple _ | Ppat_variant _ | Ppat_list _ )
+                ( Ppat_alias _ | Ppat_array _ | Ppat_list _
+                | Ppat_constraint _ | Ppat_construct _ | Ppat_variant _ )
             ; _ }
-        | Exp {pexp_desc= Pexp_fun _; _} )
-      , Ppat_alias _ )
-     |( Pat {ppat_desc= Ppat_lazy _; _}
-      , ( Ppat_construct _ | Ppat_cons _
-        | Ppat_variant (_, Some _)
-        | Ppat_or _ ) )
-     |( Pat
-          { ppat_desc=
-              ( Ppat_construct _ | Ppat_exception _ | Ppat_tuple _
-              | Ppat_variant _ | Ppat_list _ )
-          ; _ }
-      , Ppat_or _ )
-     |Pat {ppat_desc= Ppat_lazy _; _}, Ppat_tuple _
-     |Pat {ppat_desc= Ppat_tuple _; _}, Ppat_tuple _
-     |Pat _, Ppat_lazy _
-     |Pat _, Ppat_exception _
-     |Exp {pexp_desc= Pexp_fun _; _}, Ppat_or _
-     |Cl {pcl_desc= Pcl_fun _; _}, Ppat_variant (_, Some _)
-     |Cl {pcl_desc= Pcl_fun _; _}, Ppat_tuple _
-     |Cl {pcl_desc= Pcl_fun _; _}, Ppat_construct _
-     |Cl {pcl_desc= Pcl_fun _; _}, Ppat_alias _
-     |Cl {pcl_desc= Pcl_fun _; _}, Ppat_lazy _
-     |Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}, Ppat_exception _
-     |( Exp {pexp_desc= Pexp_fun _; _}
-      , ( Ppat_construct _ | Ppat_cons _ | Ppat_lazy _ | Ppat_tuple _
-        | Ppat_variant _ ) ) ->
-        true
-    | (Str _ | Exp _), Ppat_lazy _ -> true
-    | ( Pat {ppat_desc= Ppat_construct _ | Ppat_variant _; _}
-      , (Ppat_construct (_, Some _) | Ppat_cons _ | Ppat_variant (_, Some _))
-      ) ->
-        true
-    | ( ( Exp {pexp_desc= Pexp_let ({lbs_bindings; _}, _); _}
-        | Str {pstr_desc= Pstr_value {lbs_bindings; _}; _} )
-      , _ ) ->
-        List.exists lbs_bindings ~f:(function
-          | {lb_pattern; lb_expression= {pexp_desc= Pexp_constraint _; _}; _}
-            ->
-              lb_pattern == pat
-          | _ -> false )
-    | _ -> false
+        , Ppat_tuple _ )
+       |( ( Pat
+              { ppat_desc=
+                  ( Ppat_construct _ | Ppat_exception _ | Ppat_or _
+                  | Ppat_lazy _ | Ppat_tuple _ | Ppat_variant _ | Ppat_list _
+                    )
+              ; _ }
+          | Exp {pexp_desc= Pexp_fun _; _} )
+        , Ppat_alias _ )
+       |( Pat {ppat_desc= Ppat_lazy _; _}
+        , ( Ppat_construct _ | Ppat_cons _
+          | Ppat_variant (_, Some _)
+          | Ppat_or _ ) )
+       |( Pat
+            { ppat_desc=
+                ( Ppat_construct _ | Ppat_exception _ | Ppat_tuple _
+                | Ppat_variant _ | Ppat_list _ )
+            ; _ }
+        , Ppat_or _ )
+       |Pat {ppat_desc= Ppat_lazy _; _}, Ppat_tuple _
+       |Pat {ppat_desc= Ppat_tuple _; _}, Ppat_tuple _
+       |Pat _, Ppat_lazy _
+       |Pat _, Ppat_exception _
+       |Exp {pexp_desc= Pexp_fun _; _}, Ppat_or _
+       |Cl {pcl_desc= Pcl_fun _; _}, Ppat_variant (_, Some _)
+       |Cl {pcl_desc= Pcl_fun _; _}, Ppat_tuple _
+       |Cl {pcl_desc= Pcl_fun _; _}, Ppat_construct _
+       |Cl {pcl_desc= Pcl_fun _; _}, Ppat_alias _
+       |Cl {pcl_desc= Pcl_fun _; _}, Ppat_lazy _
+       |Exp {pexp_desc= Pexp_let _ | Pexp_letop _; _}, Ppat_exception _
+       |( Exp {pexp_desc= Pexp_fun _; _}
+        , ( Ppat_construct _ | Ppat_cons _ | Ppat_lazy _ | Ppat_tuple _
+          | Ppat_variant _ ) ) ->
+          true
+      | (Str _ | Exp _), Ppat_lazy _ -> true
+      | ( Pat {ppat_desc= Ppat_construct _ | Ppat_variant _; _}
+        , ( Ppat_construct (_, Some _)
+          | Ppat_cons _
+          | Ppat_variant (_, Some _) ) ) ->
+          true
+      | ( ( Exp {pexp_desc= Pexp_let ({lbs_bindings; _}, _); _}
+          | Str {pstr_desc= Pstr_value {lbs_bindings; _}; _} )
+        , _ ) ->
+          List.exists lbs_bindings ~f:(function
+            | { lb_pattern
+              ; lb_expression= {pexp_desc= Pexp_constraint _; _}
+              ; _ } ->
+                lb_pattern == pat
+            | _ -> false )
+      | _ -> false )
 
   let marked_parenzed_inner_nested_match =
     let memo = Hashtbl.Poly.create () in
@@ -1948,53 +2066,66 @@ end = struct
           (not (parenze_exp (sub_exp ~ctx:(Exp exp) subexp)))
           && exposed_right_exp cls subexp
         in
-        match exp.pexp_desc with
-        | Pexp_assert e
-         |Pexp_construct (_, Some e)
-         |Pexp_fun (_, _, _, e)
-         |Pexp_ifthenelse (_, Some e)
-         |Pexp_prefix (_, e)
-         |Pexp_infix (_, _, e)
-         |Pexp_lazy e
-         |Pexp_newtype (_, e)
-         |Pexp_open (_, e)
-         |Pexp_letopen (_, e)
-         |Pexp_sequence (_, e)
-         |Pexp_setfield (_, _, e)
-         |Pexp_setinstvar (_, e)
-         |Pexp_variant (_, Some e) ->
-            continue e
-        | Pexp_cons l -> continue (List.last_exn l)
-        | Pexp_ifthenelse (eN, None) -> continue (List.last_exn eN).if_body
-        | Pexp_extension
-            ( ext
-            , PStr
-                [ { pstr_desc= Pstr_eval (({pexp_attributes= []; _} as e), _)
-                  ; _ } ] )
-          when Source.extension_using_sugar ~name:ext ~payload:e.pexp_loc ->
-            continue e
-        | Pexp_let (_, e)
-         |Pexp_letop {body= e; _}
-         |Pexp_letexception (_, e)
-         |Pexp_letmodule (_, _, e) -> (
-          match cls with Match | Then | ThenElse -> continue e | _ -> false )
-        | Pexp_match _ when match cls with Then -> true | _ -> false ->
-            false
-        | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
-          ->
-            continue (List.last_exn cases).pc_rhs
-        | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
-        | Pexp_tuple es -> continue (List.last_exn es)
-        | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
-         |Pexp_constraint _
-         |Pexp_construct (_, None)
-         |Pexp_extension _ | Pexp_field _ | Pexp_for _ | Pexp_ident _
-         |Pexp_new _ | Pexp_object _ | Pexp_override _ | Pexp_pack _
-         |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
-         |Pexp_variant (_, None)
-         |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
-         |Pexp_indexop_access _ ->
-            false
+        match Extensions.Expression.of_ast exp with
+        | Some eexp -> (
+          (* Inlined because we're closed over [memo] *)
+          match eexp with
+          | Eexp_comprehension
+              (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+           |Eexp_immutable_array (Iaexp_immutable_array _) ->
+              false )
+        | None -> (
+          match exp.pexp_desc with
+          | Pexp_assert e
+           |Pexp_construct (_, Some e)
+           |Pexp_fun (_, _, _, e)
+           |Pexp_ifthenelse (_, Some e)
+           |Pexp_prefix (_, e)
+           |Pexp_infix (_, _, e)
+           |Pexp_lazy e
+           |Pexp_newtype (_, e)
+           |Pexp_open (_, e)
+           |Pexp_letopen (_, e)
+           |Pexp_sequence (_, e)
+           |Pexp_setfield (_, _, e)
+           |Pexp_setinstvar (_, e)
+           |Pexp_variant (_, Some e) ->
+              continue e
+          | Pexp_cons l -> continue (List.last_exn l)
+          | Pexp_ifthenelse (eN, None) -> continue (List.last_exn eN).if_body
+          | Pexp_extension
+              ( ext
+              , PStr
+                  [ { pstr_desc=
+                        Pstr_eval (({pexp_attributes= []; _} as e), _)
+                    ; _ } ] )
+            when Source.extension_using_sugar ~name:ext ~payload:e.pexp_loc
+            ->
+              continue e
+          | Pexp_let (_, e)
+           |Pexp_letop {body= e; _}
+           |Pexp_letexception (_, e)
+           |Pexp_letmodule (_, _, e) -> (
+            match cls with
+            | Match | Then | ThenElse -> continue e
+            | _ -> false )
+          | Pexp_match _ when match cls with Then -> true | _ -> false ->
+              false
+          | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
+            ->
+              continue (List.last_exn cases).pc_rhs
+          | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
+          | Pexp_tuple es -> continue (List.last_exn es)
+          | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
+           |Pexp_constraint _
+           |Pexp_construct (_, None)
+           |Pexp_extension _ | Pexp_field _ | Pexp_for _ | Pexp_ident _
+           |Pexp_new _ | Pexp_object _ | Pexp_override _ | Pexp_pack _
+           |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
+           |Pexp_variant (_, None)
+           |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
+           |Pexp_indexop_access _ ->
+              false )
       in
       Exp.mem_cls cls exp
       || Hashtbl.find_or_add memo (cls, exp) ~default:exposed_
@@ -2024,55 +2155,66 @@ end = struct
           mark_parenzed_inner_nested_match subexp ;
         false
       in
-      match exp.pexp_desc with
-      | Pexp_assert e
-       |Pexp_construct (_, Some e)
-       |Pexp_ifthenelse (_, Some e)
-       |Pexp_prefix (_, e)
-       |Pexp_infix (_, _, e)
-       |Pexp_lazy e
-       |Pexp_newtype (_, e)
-       |Pexp_open (_, e)
-       |Pexp_letopen (_, e)
-       |Pexp_fun (_, _, _, e)
-       |Pexp_sequence (_, e)
-       |Pexp_setfield (_, _, e)
-       |Pexp_setinstvar (_, e)
-       |Pexp_variant (_, Some e) ->
-          continue e
-      | Pexp_cons l -> continue (List.last_exn l)
-      | Pexp_let (_, e)
-       |Pexp_letop {body= e; _}
-       |Pexp_letexception (_, e)
-       |Pexp_letmodule (_, _, e) ->
-          continue e
-      | Pexp_ifthenelse (eN, None) -> continue (List.last_exn eN).if_body
-      | Pexp_extension (ext, PStr [{pstr_desc= Pstr_eval (e, _); _}])
-        when Source.extension_using_sugar ~name:ext ~payload:e.pexp_loc -> (
-        match e.pexp_desc with
+      match Extensions.Expression.of_ast exp with
+      | Some eexp -> (
+        (* Inlined because we're nested *)
+        match eexp with
+        | Eexp_comprehension
+            (Cexp_list_comprehension _ | Cexp_array_comprehension _)
+         |Eexp_immutable_array (Iaexp_immutable_array _) ->
+            false )
+      | None -> (
+        match exp.pexp_desc with
+        | Pexp_assert e
+         |Pexp_construct (_, Some e)
+         |Pexp_ifthenelse (_, Some e)
+         |Pexp_prefix (_, e)
+         |Pexp_infix (_, _, e)
+         |Pexp_lazy e
+         |Pexp_newtype (_, e)
+         |Pexp_open (_, e)
+         |Pexp_letopen (_, e)
+         |Pexp_fun (_, _, _, e)
+         |Pexp_sequence (_, e)
+         |Pexp_setfield (_, _, e)
+         |Pexp_setinstvar (_, e)
+         |Pexp_variant (_, Some e) ->
+            continue e
+        | Pexp_cons l -> continue (List.last_exn l)
+        | Pexp_let (_, e)
+         |Pexp_letop {body= e; _}
+         |Pexp_letexception (_, e)
+         |Pexp_letmodule (_, _, e) ->
+            continue e
+        | Pexp_ifthenelse (eN, None) -> continue (List.last_exn eN).if_body
+        | Pexp_extension (ext, PStr [{pstr_desc= Pstr_eval (e, _); _}])
+          when Source.extension_using_sugar ~name:ext ~payload:e.pexp_loc
+          -> (
+          match e.pexp_desc with
+          | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
+            ->
+              List.iter cases ~f:(fun case ->
+                  mark_parenzed_inner_nested_match case.pc_rhs ) ;
+              true
+          | _ -> continue e )
         | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
           ->
             List.iter cases ~f:(fun case ->
                 mark_parenzed_inner_nested_match case.pc_rhs ) ;
             true
-        | _ -> continue e )
-      | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
-          List.iter cases ~f:(fun case ->
-              mark_parenzed_inner_nested_match case.pc_rhs ) ;
-          true
-      | Pexp_indexop_access {pia_rhs= rhs; _} -> (
-        match rhs with Some e -> continue e | None -> false )
-      | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
-      | Pexp_tuple es -> continue (List.last_exn es)
-      | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
-       |Pexp_constraint _
-       |Pexp_construct (_, None)
-       |Pexp_extension _ | Pexp_field _ | Pexp_for _ | Pexp_ident _
-       |Pexp_new _ | Pexp_object _ | Pexp_override _ | Pexp_pack _
-       |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
-       |Pexp_variant (_, None)
-       |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _ ->
-          false
+        | Pexp_indexop_access {pia_rhs= rhs; _} -> (
+          match rhs with Some e -> continue e | None -> false )
+        | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
+        | Pexp_tuple es -> continue (List.last_exn es)
+        | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
+         |Pexp_constraint _
+         |Pexp_construct (_, None)
+         |Pexp_extension _ | Pexp_field _ | Pexp_for _ | Pexp_ident _
+         |Pexp_new _ | Pexp_object _ | Pexp_override _ | Pexp_pack _
+         |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
+         |Pexp_variant (_, None)
+         |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _ ->
+            false )
     in
     Hashtbl.find_or_add marked_parenzed_inner_nested_match exp
       ~default:exposed_
@@ -2152,6 +2294,24 @@ end = struct
     Hashtbl.find marked_parenzed_inner_nested_match exp
     |> Option.value ~default:false
     ||
+    (* We don't just do the full-scale match on [Extensions.Expression.of_ast
+       exp] here because the following match is on [ctx, exp] and is very
+       complicated. These booleans let us integrate our extended AST nodes
+       into the match in the most natural possible way relative to the
+       structure of the existing match. We make them lazy because we only
+       want to run [of_ast] if we know that [exp] isn't actually a subterm of
+       an extension expression. *)
+    let opt_eexp = lazy (Extensions.Expression.of_ast exp) in
+    let is_extension_comprehension =
+      Lazy.map opt_eexp ~f:(function
+        | Some (Eexp_comprehension _) -> true
+        | _ -> false )
+    in
+    let is_extension_immutable_array =
+      Lazy.map opt_eexp ~f:(function
+        | Some (Eexp_immutable_array _) -> true
+        | _ -> false )
+    in
     match (ctx, exp) with
     | Str {pstr_desc= Pstr_eval _; _}, _ -> false
     | ( Exp
@@ -2245,88 +2405,127 @@ end = struct
       , {pexp_desc= Pexp_construct _ | Pexp_cons _; _} )
       when e == exp ->
         true
-    | Exp {pexp_desc; _}, _ -> (
-      match pexp_desc with
-      | Pexp_extension
-          ( _
-          , PStr
-              [ { pstr_desc=
-                    Pstr_eval
-                      ( { pexp_desc=
-                            ( Pexp_function cases
-                            | Pexp_match (_, cases)
-                            | Pexp_try (_, cases) )
-                        ; _ }
-                      , _ )
-                ; _ } ] )
-       |Pexp_function cases
-       |Pexp_match (_, cases)
-       |Pexp_try (_, cases) ->
-          if !leading_nested_match_parens then
-            List.iter cases ~f:(fun {pc_rhs; _} ->
-                mark_parenzed_inner_nested_match pc_rhs ) ;
-          List.exists cases ~f:(fun {pc_rhs; _} -> pc_rhs == exp)
-          && exposed_right_exp Match exp
-      | Pexp_ifthenelse (eN, _)
-        when List.exists eN ~f:(fun x -> x.if_cond == exp) ->
-          false
-      | Pexp_ifthenelse (eN, None) when (List.last_exn eN).if_body == exp ->
-          exposed_right_exp Then exp
-      | Pexp_ifthenelse (eN, _)
-        when List.exists eN ~f:(fun x -> x.if_body == exp) ->
-          exposed_right_exp ThenElse exp
-      | Pexp_ifthenelse (_, Some els) when els == exp -> Exp.is_sequence exp
-      | Pexp_apply (({pexp_desc= Pexp_new _; _} as exp2), _) when exp2 == exp
-        ->
-          false
-      | Pexp_apply
-          ( ( { pexp_desc=
-                  Pexp_extension
-                    ( _
-                    , PStr
-                        [ { pstr_desc=
-                              Pstr_eval ({pexp_desc= Pexp_new _; _}, [])
-                          ; _ } ] )
-              ; _ } as exp2 )
-          , _ )
-        when exp2 == exp ->
-          false
-      | Pexp_record (flds, _)
-        when List.exists flds ~f:(fun (_, _, e0) ->
-                 Option.exists e0 ~f:(fun x -> x == exp) ) ->
-          exposed_right_exp Non_apply exp
-          (* Non_apply is perhaps pessimistic *)
-      | Pexp_record (_, Some ({pexp_desc= Pexp_prefix _; _} as e0))
-        when e0 == exp ->
-          (* don't put parens around [!e] in [{ !e with a; b }] *)
-          false
-      | Pexp_record
-          ( _
-          , Some
-              ( { pexp_desc=
-                    ( Pexp_ident _ | Pexp_constant _ | Pexp_record _
-                    | Pexp_field _ )
-                ; _ } as e0 ) )
-        when e0 == exp ->
-          false
-      | Pexp_record (_, Some e0) when e0 == exp -> true
-      | Pexp_sequence (lhs, rhs) -> exp_in_sequence lhs rhs exp
-      | Pexp_apply (_, args)
-        when List.exists args ~f:(fun (_, e0) ->
-                 match (e0.pexp_desc, e0.pexp_attributes) with
-                 | Pexp_list _, _ :: _ when e0 == exp -> true
-                 | Pexp_array _, _ :: _ when e0 == exp -> true
-                 | _ -> false ) ->
-          true
-      | _ -> (
-        match exp.pexp_desc with
-        | Pexp_list _ | Pexp_array _ -> false
-        | _ ->
-            Exp.has_trailing_attributes exp
-            && trailing_attrs_require_parens ctx exp
-            || parenze () ) )
+    | Exp ({pexp_desc; _} as ctx_exp), _ -> (
+        (* This is the old fallthrough case, but we need it for the
+           extensions match and the real match, so we factor it out; we have
+           to do an external match on [ctx_exp] because the below fallthrough
+           case matches on subterms, which can cause exceptions if we break
+           into the representation of a language extension. *)
+        let fallthrough_case () =
+          match exp.pexp_desc with
+          | Pexp_list _ | Pexp_array _ -> false
+          | _
+            when Lazy.force is_extension_comprehension
+                 || Lazy.force is_extension_immutable_array ->
+              false
+          | _ ->
+              Exp.has_trailing_attributes exp
+              && trailing_attrs_require_parens ctx exp
+              || parenze ()
+        in
+        match Extensions.Expression.of_ast ctx_exp with
+        | Some ctx_eexp -> (
+          match ctx_eexp with
+          | Eexp_comprehension _ | Eexp_immutable_array _ ->
+              fallthrough_case () )
+        | None -> (
+          match pexp_desc with
+          | Pexp_extension
+              ( _
+              , PStr
+                  [ { pstr_desc=
+                        Pstr_eval
+                          ( { pexp_desc=
+                                ( Pexp_function cases
+                                | Pexp_match (_, cases)
+                                | Pexp_try (_, cases) )
+                            ; _ }
+                          , _ )
+                    ; _ } ] )
+           |Pexp_function cases
+           |Pexp_match (_, cases)
+           |Pexp_try (_, cases) ->
+              if !leading_nested_match_parens then
+                List.iter cases ~f:(fun {pc_rhs; _} ->
+                    mark_parenzed_inner_nested_match pc_rhs ) ;
+              List.exists cases ~f:(fun {pc_rhs; _} -> pc_rhs == exp)
+              && exposed_right_exp Match exp
+          | Pexp_ifthenelse (eN, _)
+            when List.exists eN ~f:(fun x -> x.if_cond == exp) ->
+              false
+          | Pexp_ifthenelse (eN, None) when (List.last_exn eN).if_body == exp
+            ->
+              exposed_right_exp Then exp
+          | Pexp_ifthenelse (eN, _)
+            when List.exists eN ~f:(fun x -> x.if_body == exp) ->
+              exposed_right_exp ThenElse exp
+          | Pexp_ifthenelse (_, Some els) when els == exp ->
+              Exp.is_sequence exp
+          | Pexp_apply (({pexp_desc= Pexp_new _; _} as exp2), _)
+            when exp2 == exp ->
+              false
+          | Pexp_apply
+              ( ( { pexp_desc=
+                      Pexp_extension
+                        ( _
+                        , PStr
+                            [ { pstr_desc=
+                                  Pstr_eval ({pexp_desc= Pexp_new _; _}, [])
+                              ; _ } ] )
+                  ; _ } as exp2 )
+              , _ )
+            when exp2 == exp ->
+              false
+          | Pexp_record (flds, _)
+            when List.exists flds ~f:(fun (_, _, e0) ->
+                     Option.exists e0 ~f:(fun x -> x == exp) ) ->
+              exposed_right_exp Non_apply exp
+              (* Non_apply is perhaps pessimistic *)
+          | Pexp_record (_, Some ({pexp_desc= Pexp_prefix _; _} as e0))
+            when e0 == exp ->
+              (* don't put parens around [!e] in [{ !e with a; b }] *)
+              false
+          | Pexp_record
+              ( _
+              , Some
+                  ( { pexp_desc=
+                        ( Pexp_ident _ | Pexp_constant _ | Pexp_record _
+                        | Pexp_field _ )
+                    ; _ } as e0 ) )
+            when e0 == exp ->
+              false
+          | Pexp_record (_, Some e0) when e0 == exp -> true
+          | Pexp_sequence (lhs, rhs) -> exp_in_sequence lhs rhs exp
+          | Pexp_apply (_, args)
+            when List.exists args ~f:(fun (_, e0) ->
+                     match Extensions.Expression.of_ast e0 with
+                     | Some ee0 -> (
+                       match (ee0, e0.pexp_attributes) with
+                       | ( ( Eexp_comprehension
+                               ( Cexp_list_comprehension _
+                               | Cexp_array_comprehension _ )
+                           | Eexp_immutable_array (Iaexp_immutable_array _)
+                             )
+                         , _ :: _ )
+                         when e0 == exp ->
+                           (* Has to be [e0] and not [ee0], as [ee0] isn't a
+                              true OCaml expression and was just synthesized
+                              afresh *)
+                           true
+                       | _ -> false )
+                     | None -> (
+                       match (e0.pexp_desc, e0.pexp_attributes) with
+                       | Pexp_list _, _ :: _ when e0 == exp -> true
+                       | Pexp_array _, _ :: _ when e0 == exp -> true
+                       | _ -> false ) ) ->
+              true
+          | _ -> fallthrough_case () ) )
     | _, {pexp_desc= Pexp_list _; _} -> false
     | _, {pexp_desc= Pexp_array _; _} -> false
+    | _, _
+      when Lazy.force is_extension_comprehension
+           || Lazy.force is_extension_immutable_array ->
+        false
     | ctx, exp
       when Exp.has_trailing_attributes exp
            && trailing_attrs_require_parens ctx exp ->
