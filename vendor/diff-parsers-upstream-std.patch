@@ -1,5 +1,5 @@
---- parser-upstream/ast_helper.ml
-+++ parser-standard/ast_helper.ml
+--- ocaml-4.13-upstream/ast_helper.ml
++++ ocaml-4.13/ast_helper.ml
 @@@@
    let open_ ?loc ?attrs a b = mk ?loc ?attrs (Pexp_open (a, b))
    let letop ?loc ?attrs let_ ands body =
@@ -24,8 +24,8 @@
  module Sig = struct
    let mk ?(loc = !default_loc) d = {psig_desc = d; psig_loc = loc}
  
---- parser-upstream/ast_helper.mli
-+++ parser-standard/ast_helper.mli
+--- ocaml-4.13-upstream/ast_helper.mli
++++ ocaml-4.13/ast_helper.mli
 @@@@
      val extension: ?loc:loc -> ?attrs:attrs -> extension -> expression
      val unreachable: ?loc:loc -> ?attrs:attrs -> unit -> expression
@@ -50,8 +50,8 @@
  (** Signature items *)
  module Sig:
    sig
---- parser-upstream/ast_mapper.ml
-+++ parser-standard/ast_mapper.ml
+--- ocaml-4.13-upstream/ast_mapper.ml
++++ ocaml-4.13/ast_mapper.ml
 @@@@
    type_exception: mapper -> type_exception -> type_exception;
    type_kind: mapper -> type_kind -> type_kind;
@@ -117,30 +117,8 @@
  let extension_of_error {kind; main; sub} =
    if kind <> Location.Report_error then
      raise (Invalid_argument "extension_of_error: expected kind Report_error");
-@@@@
-       | "tool_name" ->
-           tool_name_ref := get_string payload
-       | "include_dirs" ->
-           Clflags.include_dirs := get_list get_string payload
-       | "load_path" ->
--          (* Duplicates Compmisc.auto_include, since we can't reference Compmisc
--             from this module. *)
--          let auto_include find_in_dir fn =
--            if !Clflags.no_std_include then
--              raise Not_found
--            else
--              let alert = Location.auto_include_alert in
--              Load_path.auto_include_otherlibs alert find_in_dir fn
--          in
--          Load_path.init ~auto_include (get_list get_string payload)
-+          ()
-       | "open_modules" ->
-           Clflags.open_modules := get_list get_string payload
-       | "for_package" ->
-           Clflags.for_package := get_option get_string payload
-       | "debug" ->
---- parser-upstream/ast_mapper.mli
-+++ parser-standard/ast_mapper.mli
+--- ocaml-4.13-upstream/ast_mapper.mli
++++ ocaml-4.13/ast_mapper.mli
 @@@@
    type_exception: mapper -> type_exception -> type_exception;
    type_kind: mapper -> type_kind -> type_kind;
@@ -155,8 +133,8 @@
      using an open recursion style: each method takes as its first
      argument the mapper to be applied to children in the syntax
      tree. *)
---- parser-upstream/asttypes.mli
-+++ parser-standard/asttypes.mli
+--- ocaml-4.13-upstream/asttypes.mli
++++ ocaml-4.13/asttypes.mli
 @@@@
  
  type override_flag = Override | Fresh
@@ -172,9 +150,9 @@
  
  type arg_label =
      Nolabel
-   | Labelled of string (** [label:T -> ...] *)
---- parser-upstream/lexer.mll
-+++ parser-standard/lexer.mll
+   | Labelled of string (*  label:T -> ... *)
+--- ocaml-4.13-upstream/lexer.mll
++++ ocaml-4.13/lexer.mll
 @@@@
      "false", FALSE;
      "for", FOR;
@@ -244,6 +222,27 @@
    let pos = lexbuf.lex_curr_p in
    let new_file = match file with
 @@@@
+   | "<"  { LESS }
+   | "<-" { LESSMINUS }
+   | "="  { EQUAL }
+   | "["  { LBRACKET }
+   | "[|" { LBRACKETBAR }
++  | "[:" { LBRACKETCOLON }
+   | "[<" { LBRACKETLESS }
+   | "[>" { LBRACKETGREATER }
+   | "]"  { RBRACKET }
+   | "{"  { LBRACE }
+   | "{<" { LBRACELESS }
+   | "|"  { BAR }
+   | "||" { BARBAR }
+   | "|]" { BARRBRACKET }
++  | ":]" { COLONRBRACKET }
+   | ">"  { GREATER }
+   | ">]" { GREATERRBRACKET }
+   | "}"  { RBRACE }
+   | ">}" { GREATERRBRACE }
+   | "[@" { LBRACKETAT }
+@@@@
    | ['+' '-'] symbolchar * as op
              { INFIXOP2 op }
    | "**" symbolchar * as op
@@ -286,8 +285,8 @@
      "(*"
        { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
          store_lexeme lexbuf;
---- parser-upstream/parse.ml
-+++ parser-standard/parse.ml
+--- ocaml-4.13-upstream/parse.ml
++++ ocaml-4.13/parse.ml
 @@@@
  let maybe_skip_phrase lexbuf =
    match !last_token with
@@ -383,8 +382,8 @@
  (* The code has been moved here so that one can reuse Pprintast.tyvar *)
  
  let prepare_error err =
---- parser-upstream/parser.mly
-+++ parser-standard/parser.mly
+--- ocaml-4.13-upstream/parser.mly
++++ ocaml-4.13/parser.mly
 @@@@
    | "+", Pexp_constant(Pconst_integer _)
    | ("+" | "+."), Pexp_constant(Pconst_float _) -> desc
@@ -392,14 +391,18 @@
        Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
  
 +
-+let local_loc = mknoloc "ocaml.local"
 +let local_ext_loc = mknoloc "extension.local"
 +
 +let local_attr =
-+  Attr.mk ~loc:Location.none local_loc (PStr [])
++  Attr.mk ~loc:Location.none local_ext_loc (PStr [])
 +
 +let local_extension =
 +  Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
++
++let include_functor_ext_loc = mknoloc "extension.include_functor"
++
++let include_functor_attr =
++  Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
 +
 +let mkexp_stack ~loc exp =
 +  ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
@@ -426,10 +429,10 @@
 +  if p then wrap_exp_stack exp else exp
 +
 +let curry_attr =
-+  Attr.mk ~loc:Location.none (mknoloc "ocaml.curry") (PStr [])
++  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 +
 +let is_curry_attr attr =
-+  attr.attr_name.txt = "ocaml.curry"
++  attr.attr_name.txt = "extension.curry"
 +
 +let mktyp_curry typ =
 +  {typ with ptyp_attributes = curry_attr :: typ.ptyp_attributes}
@@ -441,12 +444,12 @@
 +      else mktyp_curry typ
 +  | _ -> typ
 +
-+let global_loc = mknoloc "ocaml.global"
++let global_loc = mknoloc "extension.global"
 +
 +let global_attr =
 +  Attr.mk ~loc:Location.none global_loc (PStr [])
 +
-+let nonlocal_loc = mknoloc "ocaml.nonlocal"
++let nonlocal_loc = mknoloc "extension.nonlocal"
 +
 +let nonlocal_attr =
 +  Attr.mk ~loc:Location.none nonlocal_loc (PStr [])
@@ -469,34 +472,86 @@
  
  let mkexp_cons_desc consloc args =
 @@@@
+ 
+ let unclosed opening_name opening_loc closing_name closing_loc =
+   raise(Syntaxerr.Error(Syntaxerr.Unclosed(make_loc opening_loc, opening_name,
                                             make_loc closing_loc, closing_name)))
  
++(* Normal mutable arrays and immutable arrays are parsed identically, just with
++   different delimiters.  The parsing is done by the [array_exprs] rule, and the
++   [Generic_array] module provides (1) a type representing the possible results,
++   and (2) a function for going from that type to an AST fragment representing
++   an array. *)
++module Generic_array = struct
++  (** The three possible ways to parse an array (writing [[? ... ?]] for either
++      [[| ... |]] or [[: ... :]]): *)
++  type (_, _) t =
++    | Literal : 'ast list -> ('ast, 'ast_desc) t
++    (** A plain array literal/pattern, [[? x; y; z ?]] *)
++    | Opened_literal : open_declaration *
++                       Lexing.position *
++                       Lexing.position *
++                       expression list
++                     -> (expression, expression_desc) t
++    (** An array literal with a local open, [Module.[? x; y; z ?]] (only valid in
++        expressions) *)
++    | Unclosed : (Lexing.position * Lexing.position) *
++                 (Lexing.position * Lexing.position)
++               -> (_, _) t
++    (** Parse error: an unclosed array literal, [\[? x; y; z] with no closing
++        [?\]]. *)
++
++  let to_ast (type ast ast_desc)
++             (open_ : string) (close : string)
++             (array : ast list -> ast_desc)
++        : (ast, ast_desc) t -> ast_desc = function
++    | Literal elts ->
++        array elts
++    | Opened_literal(od, startpos, endpos, elts) ->
++        (Pexp_open(od, mkexp ~loc:(startpos, endpos) (array elts)) : ast_desc)
++    | Unclosed(startpos, endpos) ->
++        unclosed open_ startpos close endpos
++
++  let expression : _ -> _ -> _ -> (expression, expression_desc) t -> _ = to_ast
++  let pattern    : _ -> _ -> _ -> (pattern,    pattern_desc)    t -> _ = to_ast
++end
++
++let ppat_iarray loc elts =
++  (Extensions.Pattern.ast_of
++     ~loc:(make_loc loc)
++     Immutable_arrays
++     (Epat_immutable_array (Iapat_immutable_array elts))).ppat_desc
++
  let expecting loc nonterm =
      raise Syntaxerr.(Error(Expecting(make_loc loc, nonterm)))
  
--let removed_string_set loc =
--  raise(Syntaxerr.Error(Syntaxerr.Removed_string_set(make_loc loc)))
--
  (* Using the function [not_expecting] in a semantic action means that this
     syntactic form is recognized by the parser but is in fact incorrect. This
-    idiom is used in a few places to produce ad hoc syntax error messages. *)
- 
- (* This idiom should be used as little as possible, because it confuses the
 @@@@
+ 
+ let bigarray_untuplify = function
+     { pexp_desc = Pexp_tuple explist; pexp_loc = _ } -> explist
+   | exp -> [exp]
+ 
++(* Immutable array indexing is a regular operator, so it doesn't need a special
++   case here *)
  let builtin_arraylike_name loc _ ~assign paren_kind n =
    let opname = if assign then "set" else "get" in
    let opname = if !Clflags.unsafe then "unsafe_" ^ opname else opname in
    let prefix = match paren_kind with
      | Paren -> Lident "Array"
--    | Bracket ->
--        if assign then removed_string_set loc
--        else Lident "String"
-+    | Bracket -> Lident "String"
-     | Brace ->
-        let submodule_name = match n with
-          | One -> "Array1"
-          | Two -> "Array2"
-          | Three -> "Array3"
+@@@@
+ %token CLASS                  "class"
+ %token COLON                  ":"
+ %token COLONCOLON             "::"
+ %token COLONEQUAL             ":="
+ %token COLONGREATER           ":>"
++%token COLONRBRACKET          ":]"
+ %token COMMA                  ","
+ %token CONSTRAINT             "constraint"
+ %token DO                     "do"
+ %token DONE                   "done"
+ %token DOT                    "."
 @@@@
  %token <string * char option> FLOAT "42.0" (* just an example *)
  %token FOR                    "for"
@@ -510,6 +565,15 @@
  %token IF                     "if"
  %token IN                     "in"
 @@@@
+ %token LAZY                   "lazy"
+ %token LBRACE                 "{"
+ %token LBRACELESS             "{<"
+ %token LBRACKET               "["
+ %token LBRACKETBAR            "[|"
++%token LBRACKETCOLON          "[:"
+ %token LBRACKETLESS           "[<"
+ %token LBRACKETGREATER        "[>"
+ %token LBRACKETPERCENT        "[%"
  %token LBRACKETPERCENTPERCENT "[%%"
  %token LESS                   "<"
  %token LESSMINUS              "<-"
@@ -559,6 +623,31 @@
  in favor of the first rule (in source file order).  A shift/reduce conflict
  is resolved by comparing the precedence and associativity of the token to
 @@@@
+ */
+ 
+ %nonassoc IN
+ %nonassoc below_SEMI
+ %nonassoc SEMI                          /* below EQUAL ({lbl=...; lbl=...}) */
+-%nonassoc LET                           /* above SEMI ( ...; let ... in ...) */
++%nonassoc LET FOR                       /* above SEMI ( ...; let ... in ...) */
+ %nonassoc below_WITH
+ %nonassoc FUNCTION WITH                 /* below BAR  (match ... with ...) */
+ %nonassoc AND             /* above WITH (module rec A: SIG with ... and ...) */
+ %nonassoc THEN                          /* below ELSE (if ... then ...) */
+ %nonassoc ELSE                          /* (if ... then ... else ...) */
+@@@@
+ %right    COLONEQUAL                    /* expr (e := e := e) */
+ %nonassoc AS
+ %left     BAR                           /* pattern (p|p|p) */
+ %nonassoc below_COMMA
+ %left     COMMA                         /* expr/expr_comma_list (e,e,e) */
++%nonassoc below_FUNCTOR                 /* include M */
++%nonassoc FUNCTOR                       /* include functor M */
+ %right    MINUSGREATER                  /* function_type (t -> t -> t) */
+ %right    OR BARBAR                     /* expr (e || e || e) */
+ %right    AMPERSAND AMPERAMPER          /* expr (e && e && e) */
+ %nonassoc below_EQUAL
+ %left     INFIXOP0 EQUAL LESS GREATER   /* expr (e OP e OP e) */
  %right    INFIXOP1                      /* expr (e OP e OP e) */
  %nonassoc below_LBRACKETAT
  %nonassoc LBRACKETAT
@@ -572,12 +661,14 @@
  %nonassoc prec_constr_appl              /* above AS BAR COLONCOLON COMMA */
  %nonassoc below_HASH
 @@@@
+ %left     HASHOP
  %nonassoc below_DOT
  %nonassoc DOT DOTOP
  /* Finally, the first tokens of simple_expr are above everything else. */
  %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
-           LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
+-          LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
 -          NEW PREFIXOP STRING TRUE UIDENT
++          LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
 +          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
            LBRACKETPERCENT QUOTED_STRING_EXPR
  
@@ -598,6 +689,36 @@
  ;
  
  (* A parenthesized module expression is a module expression that begins
+@@@@
+ 
+ (* -------------------------------------------------------------------------- *)
+ 
+ (* Shared material between structures and signatures. *)
+ 
++include_and_functor_attr:
++  | INCLUDE %prec below_FUNCTOR
++      { [] }
++  | INCLUDE FUNCTOR
++      { [include_functor_attr] }
++;
++
+ (* An [include] statement can appear in a structure or in a signature,
+    which is why this definition is parameterized. *)
+ %inline include_statement(thing):
+-  INCLUDE
++  attrs0 = include_and_functor_attr
+   ext = ext
+   attrs1 = attributes
+   thing = thing
+   attrs2 = post_item_attributes
+   {
+-    let attrs = attrs1 @ attrs2 in
++    let attrs = attrs0 @ attrs1 @ attrs2 in
+     let loc = make_loc $sloc in
+     let docs = symbol_docs $sloc in
+     Incl.mk thing ~attrs ~loc ~docs, ext
+   }
+ ;
 @@@@
      { let seq = mkexp ~loc:$sloc (Pexp_sequence ($1, $5)) in
        let payload = PStr [mkstrexp seq []] in
@@ -630,11 +751,55 @@
        { (Nolabel, None, $1) }
 +  | LPAREN LOCAL let_pattern RPAREN
 +      { (Nolabel, None, mkpat_stack $3) }
++  | LABEL LPAREN poly_pattern RPAREN
++      { (Labelled $1, None, $3) }
++  | LABEL LPAREN LOCAL poly_pattern RPAREN
++      { (Labelled $1, None, mkpat_stack $4) }
++  | LPAREN poly_pattern RPAREN
++      { (Nolabel, None, $2) }
  ;
  
  pattern_var:
    mkpat(
        mkrhs(LIDENT)     { Ppat_var $1 }
+@@@@
+       { x }
+   | x = label_var COLON cty = core_type
+       { let lab, pat = x in
+         lab,
+         mkpat ~loc:$sloc (Ppat_constraint (pat, cty)) }
++  | x = label_var COLON
++          cty = mktyp (vars = typevar_list DOT ty = core_type { Ptyp_poly(vars, ty) })
++      { let lab, pat = x in
++        lab,
++        mkpat ~loc:$sloc (Ppat_constraint (pat, cty)) }
+ ;
+ %inline label_var:
+     mkrhs(LIDENT)
+       { ($1.Location.txt, mkpat ~loc:$sloc (Ppat_var $1)) }
+ ;
+@@@@
+     pattern
+       { $1 }
+   | mkpat(pattern COLON core_type
+       { Ppat_constraint($1, $3) })
+       { $1 }
++  | poly_pattern
++      { $1 }
++;
++%inline poly_pattern:
++    mkpat(
++      pat = pattern
++      COLON
++      cty = mktyp(vars = typevar_list DOT ty = core_type
++              { Ptyp_poly(vars, ty) })
++        { Ppat_constraint(pat, cty) })
++      { $1 }
+ ;
+ 
+ %inline indexop_expr(dot, index, right):
+   | array=simple_expr d=dot LPAREN i=index RPAREN r=right
+     { array, d, Paren,   i, r }
 @@@@
    | indexop_expr(qualified_dotop, expr_semi_list, LESSMINUS v=expr {Some v})
      { mk_indexop_expr user_indexing_operators ~loc:$sloc $1 }
@@ -674,6 +839,110 @@
        { Pexp_try($3, $5), $2 }
    | TRY ext_attributes seq_expr WITH error
 @@@@
+       { unclosed "(" $loc($1) ")" $loc($3) }
+   | LPAREN seq_expr type_constraint RPAREN
+       { mkexp_constraint ~loc:$sloc $2 $3 }
+   | indexop_expr(DOT, seq_expr, { None })
+       { mk_indexop_expr builtin_indexing_operators ~loc:$sloc $1 }
++  (* Immutable array indexing is a regular operator, so it doesn't need its own
++     rule and is handled by the next case *)
+   | indexop_expr(qualified_dotop, expr_semi_list, { None })
+       { mk_indexop_expr user_indexing_operators ~loc:$sloc $1 }
+   | indexop_error (DOT, seq_expr) { $1 }
+   | indexop_error (qualified_dotop, expr_semi_list) { $1 }
+   | simple_expr_attrs
+@@@@
+   | OBJECT ext_attributes class_structure END
+       { Pexp_object $3, $2 }
+   | OBJECT ext_attributes class_structure error
+       { unclosed "object" $loc($1) "end" $loc($4) }
+ ;
++
++comprehension_iterator:
++  | EQUAL expr direction_flag expr
++      { Extensions.Comprehensions.Range { start = $2 ; stop = $4 ; direction = $3 } }
++  | IN expr
++      { Extensions.Comprehensions.In $2 }
++;
++
++comprehension_clause_binding:
++  | attributes pattern comprehension_iterator
++      { Extensions.Comprehensions.{ pattern = $2 ; iterator = $3 ; attributes = $1 } }
++  (* We can't write [[e for local_ x = 1 to 10]], because the [local_] has to
++     move to the RHS and there's nowhere for it to move to; besides, you never
++     want that [int] to be [local_].  But we can parse [[e for local_ x in xs]].
++     We have to have that as a separate rule here because it moves the [local_]
++     over to the RHS of the binding, so we need everything to be visible. *)
++  | attributes LOCAL pattern IN expr
++      { Extensions.Comprehensions.
++          { pattern    = $3
++          ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
++          ; attributes = $1
++          }
++      }
++;
++
++comprehension_clause:
++  | FOR separated_nonempty_llist(AND, comprehension_clause_binding)
++      { Extensions.Comprehensions.For $2 }
++  | WHEN expr
++      { Extensions.Comprehensions.When $2 }
++
++%inline comprehension(lbracket, rbracket):
++  lbracket expr nonempty_llist(comprehension_clause) rbracket
++    { Extensions.Comprehensions.{ body = $2; clauses = $3 } }
++;
++
++%inline comprehension_ext_expr:
++  | comprehension(LBRACKET,RBRACKET)
++      { Extensions.Comprehensions.Cexp_list_comprehension  $1 }
++  | comprehension(LBRACKETBAR,BARRBRACKET)
++      { Extensions.Comprehensions.Cexp_array_comprehension (Mutable, $1) }
++  | comprehension(LBRACKETCOLON,COLONRBRACKET)
++      { Extensions.Comprehensions.Cexp_array_comprehension (Immutable, $1) }
++;
++
++%inline comprehension_expr:
++  comprehension_ext_expr
++    { (Extensions.Expression.ast_of
++         ~loc:(make_loc $sloc)
++         Comprehensions
++         (Eexp_comprehension $1)).pexp_desc }
++;
++
++%inline array_simple(ARR_OPEN, ARR_CLOSE, contents_semi_list):
++  | ARR_OPEN contents_semi_list ARR_CLOSE
++      { Generic_array.Literal $2 }
++  | ARR_OPEN contents_semi_list error
++      { Generic_array.Unclosed($loc($1),$loc($3)) }
++  | ARR_OPEN ARR_CLOSE
++      { Generic_array.Literal [] }
++;
++
++%inline array_exprs(ARR_OPEN, ARR_CLOSE):
++  | array_simple(ARR_OPEN, ARR_CLOSE, expr_semi_list)
++      { $1 }
++  | od=open_dot_declaration DOT ARR_OPEN expr_semi_list ARR_CLOSE
++      { Generic_array.Opened_literal(od, $startpos($3), $endpos, $4) }
++  | od=open_dot_declaration DOT ARR_OPEN ARR_CLOSE
++      { (* TODO: review the location of Pexp_array *)
++        Generic_array.Opened_literal(od, $startpos($3), $endpos, []) }
++  | mod_longident DOT
++    ARR_OPEN expr_semi_list error
++      { Generic_array.Unclosed($loc($3), $loc($5)) }
++;
++
++%inline array_patterns(ARR_OPEN, ARR_CLOSE):
++  | array_simple(ARR_OPEN, ARR_CLOSE, pattern_semi_list)
++      { $1 }
++;
++
+ %inline simple_expr_:
+   | mkrhs(val_longident)
+       { Pexp_ident ($1) }
+   | constant
+       { Pexp_constant $1 }
+@@@@
        { Pexp_send($1, $3) }
    | simple_expr op(HASHOP) simple_expr
        { mkinfix $1 $2 $3 }
@@ -686,6 +955,52 @@
    | mod_longident DOT LPAREN seq_expr error
        { unclosed "(" $loc($3) ")" $loc($5) }
    | LBRACE record_expr_content RBRACE
+@@@@
+       { let (exten, fields) = $4 in
+         Pexp_open(od, mkexp ~loc:($startpos($3), $endpos)
+                         (Pexp_record(fields, exten))) }
+   | mod_longident DOT LBRACE record_expr_content error
+       { unclosed "{" $loc($3) "}" $loc($5) }
+-  | LBRACKETBAR expr_semi_list BARRBRACKET
+-      { Pexp_array($2) }
+-  | LBRACKETBAR expr_semi_list error
+-      { unclosed "[|" $loc($1) "|]" $loc($3) }
+-  | LBRACKETBAR BARRBRACKET
+-      { Pexp_array [] }
+-  | od=open_dot_declaration DOT LBRACKETBAR expr_semi_list BARRBRACKET
+-      { Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array($4))) }
+-  | od=open_dot_declaration DOT LBRACKETBAR BARRBRACKET
+-      { (* TODO: review the location of Pexp_array *)
+-        Pexp_open(od, mkexp ~loc:($startpos($3), $endpos) (Pexp_array [])) }
+-  | mod_longident DOT
+-    LBRACKETBAR expr_semi_list error
+-      { unclosed "[|" $loc($3) "|]" $loc($5) }
++  | array_exprs(LBRACKETBAR, BARRBRACKET)
++      { Generic_array.expression
++          "[|" "|]"
++          (fun elts -> Pexp_array elts)
++          $1 }
++  | array_exprs(LBRACKETCOLON, COLONRBRACKET)
++      { Generic_array.expression
++          "[:" ":]"
++          (fun elts ->
++            (Extensions.Expression.ast_of
++               ~loc:(make_loc $sloc)
++               Immutable_arrays
++               (Eexp_immutable_array (Iaexp_immutable_array elts))).pexp_desc)
++          $1 }
+   | LBRACKET expr_semi_list RBRACKET
+       { fst (mktailexp $loc($3) $2) }
+   | LBRACKET expr_semi_list error
+       { unclosed "[" $loc($1) "]" $loc($3) }
++  | comprehension_expr { $1 }
++  | od=open_dot_declaration DOT comprehension_expr
++      { Pexp_open(od, mkexp ~loc:($loc($3)) $3) }
+   | od=open_dot_declaration DOT LBRACKET expr_semi_list RBRACKET
+       { let list_exp =
+           (* TODO: review the location of list_exp *)
+           let tail_exp, _tail_loc = mktailexp $loc($5) $4 in
+           mkexp ~loc:($startpos($3), $endpos) tail_exp in
 @@@@
      val_ident { mkpatvar ~loc:$sloc $1 }
  ;
@@ -774,6 +1089,33 @@
  ;
  match_case:
 @@@@
+       { unclosed "{" $loc($1) "}" $loc($3) }
+     | LBRACKET pattern_semi_list RBRACKET
+       { fst (mktailpat $loc($3) $2) }
+     | LBRACKET pattern_semi_list error
+       { unclosed "[" $loc($1) "]" $loc($3) }
+-    | LBRACKETBAR pattern_semi_list BARRBRACKET
+-      { Ppat_array $2 }
+-    | LBRACKETBAR BARRBRACKET
+-      { Ppat_array [] }
+-    | LBRACKETBAR pattern_semi_list error
+-      { unclosed "[|" $loc($1) "|]" $loc($3) }
++    | array_patterns(LBRACKETBAR, BARRBRACKET)
++        { Generic_array.pattern
++            "[|" "|]"
++            (fun elts -> Ppat_array elts)
++            $1 }
++    | array_patterns(LBRACKETCOLON, COLONRBRACKET)
++        { Generic_array.pattern
++            "[:" ":]"
++            (ppat_iarray $sloc)
++            $1 }
+   ) { $1 }
+ 
+ pattern_comma_list(self):
+     pattern_comma_list(self) COMMA pattern      { $3 :: $1 }
+   | self COMMA pattern                          { [$3; $1] }
+@@@@
      label_declaration                           { [$1] }
    | label_declaration_semi                      { [$1] }
    | label_declaration_semi label_declarations   { $1 :: $2 }
@@ -819,7 +1161,7 @@
 +  | mktyp(
 +      label = arg_label
 +      local = optional_local
-+      domain = extra_rhs(tuple_type)
++      domain = extra_rhs(param_type)
 +      MINUSGREATER
 +      codomain = strict_function_type
 +        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
@@ -827,8 +1169,9 @@
 +    { $1 }
    | mktyp(
        label = arg_label
+-      domain = extra_rhs(tuple_type)
 +      arg_local = optional_local
-       domain = extra_rhs(tuple_type)
++      domain = extra_rhs(param_type)
        MINUSGREATER
 -      codomain = function_type
 -        { Ptyp_arrow(label, domain, codomain) }
@@ -838,12 +1181,21 @@
 +        { Ptyp_arrow(label,
 +            mktyp_local_if arg_local domain,
 +            mktyp_local_if ret_local (maybe_curry_typ codomain)) }
++    )
++    { $1 }
++;
++%inline param_type:
++  | mktyp(
++    LPAREN vars = typevar_list DOT ty = core_type RPAREN
++      { Ptyp_poly(vars, ty) }
      )
      { $1 }
++  | ty = tuple_type
++    { ty }
  ;
  %inline arg_label:
    | label = optlabel
-@@@@
+       { Optional label }
    | label = LIDENT COLON
        { Labelled label }
    | /* empty */
@@ -933,34 +1285,36 @@
    | MODULE { "module" }
    | MUTABLE { "mutable" }
    | NEW { "new" }
---- parser-upstream/parsetree.mli
-+++ parser-standard/parsetree.mli
+--- ocaml-4.13-upstream/parsetree.mli
++++ ocaml-4.13/parsetree.mli
 @@@@
-   | Pexp_letop of letop
-       (** - [let* P = E0 in E1]
-             - [let* P0 = E00 and* P1 = E01 in E1] *)
-   | Pexp_extension of extension  (** [[%id]] *)
-   | Pexp_unreachable  (** [.] *)
-+  | Pexp_hole  (** [_] *)
+            let* P = E and* P = E in E *)
+   | Pexp_extension of extension
+         (* [%id] *)
+   | Pexp_unreachable
+         (* . *)
++  | Pexp_hole
++        (* _ *)
  
- and case =
+ and case =   (* (P -> E) or (P when E0 -> E) *)
      {
       pc_lhs: pattern;
       pc_guard: expression option;
 @@@@
-       (** [functor(X : MT1) -> ME] *)
-   | Pmod_apply of module_expr * module_expr  (** [ME1(ME2)] *)
-   | Pmod_constraint of module_expr * module_type  (** [(ME : MT)] *)
-   | Pmod_unpack of expression  (** [(val E)] *)
-   | Pmod_extension of extension  (** [[%id]] *)
-+  | Pmod_hole  (** [_] *)
+         (* (ME : MT) *)
+   | Pmod_unpack of expression
+         (* (val E) *)
+   | Pmod_extension of extension
+         (* [%id] *)
++  | Pmod_hole
++        (* _ *)
  
  and structure = structure_item list
  
  and structure_item =
      {
---- parser-upstream/printast.ml
-+++ parser-standard/printast.ml
+--- ocaml-4.13-upstream/printast.ml
++++ ocaml-4.13/printast.ml
 @@@@
    | Pexp_extension (s, arg) ->
        line i ppf "Pexp_extension \"%s\"\n" s.txt;
@@ -987,13 +1341,51 @@
  
  and structure_item i ppf x =
    line i ppf "structure_item %a\n" fmt_location x.pstr_loc;
---- parser-upstream/printast.mli
-+++ parser-standard/printast.mli
+--- ocaml-4.13-upstream/pprintast.ml
++++ ocaml-4.13/pprintast.ml
 @@@@
- val top_phrase : formatter -> toplevel_phrase -> unit
+         let fmt:(_,_,_)format =
+           "@[<hv0>@[<hv2>@[<2>for %a =@;%a@;%a%a@;do@]@;%a@]@;done@]" in
+         let expression = expression ctxt in
+         pp f fmt (pattern ctxt) s expression e1 direction_flag
+           df expression e2 expression e3
++    | Pexp_hole ->
++        pp f "_"
+     | _ ->  paren true (expression ctxt) f x
  
- val expression: int -> formatter -> expression -> unit
- val structure: int -> formatter -> structure -> unit
- val payload: int -> formatter -> payload -> unit
-+val core_type: int -> formatter -> core_type -> unit
-+val module_type: int -> formatter -> module_type -> unit
+ and attributes ctxt f l =
+   List.iter (attribute ctxt f) l
+ 
+@@@@
+         pp f "(%a)(%a)" (module_expr ctxt) me1 (module_expr ctxt) me2
+         (* Cf: #7200 *)
+     | Pmod_unpack e ->
+         pp f "(val@ %a)" (expression ctxt) e
+     | Pmod_extension e -> extension ctxt f e
++    | Pmod_hole ->
++        pp f "_"
+ 
+ and structure ctxt f x = list ~sep:"@\n" (structure_item ctxt) f x
+ 
+ and payload ctxt f = function
+   | PStr [{pstr_desc = Pstr_eval (e, attrs)}] ->
+@@@@
+ let class_type = class_type reset_ctxt
+ let structure_item = structure_item reset_ctxt
+ let signature_item = signature_item reset_ctxt
+ let binding = binding reset_ctxt
+ let payload = payload reset_ctxt
++let type_declaration = type_declaration reset_ctxt
+--- ocaml-4.13-upstream/pprintast.mli
++++ ocaml-4.13/pprintast.mli
+@@@@
+ val module_type: Format.formatter -> Parsetree.module_type -> unit
+ val structure_item: Format.formatter -> Parsetree.structure_item -> unit
+ val signature_item: Format.formatter -> Parsetree.signature_item -> unit
+ val binding: Format.formatter -> Parsetree.value_binding -> unit
+ val payload: Format.formatter -> Parsetree.payload -> unit
++val type_declaration: Format.formatter -> Parsetree.type_declaration -> unit
+ 
+ val tyvar: Format.formatter -> string -> unit
+   (** Print a type variable name, taking care of the special treatment
+       required for the single quote character in second position. *)
