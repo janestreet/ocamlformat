@@ -16,6 +16,11 @@ let f () = local_
 
 type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}
 
+type 'a r =
+  | Foo of global_ 'a
+  | Bar of nonlocal_ 'a * global_ 'a
+  | Baz of global_ int * nonlocal_ string * global_ 'a
+
 type ('a, 'b) cfn =
   a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
 
