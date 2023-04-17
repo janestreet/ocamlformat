@@ -620,6 +620,18 @@ let fmt_type_var s =
   $ fmt_if (String.length s > 1 && Char.equal s.[1] '\'') " "
   $ str s
 
+let split_global_flags_from_attrs atrs =
+  match
+    List.partition_map atrs ~f:(fun a ->
+        match a.attr_name.txt with
+        | "extension.nonlocal" -> First `Nonlocal
+        | "extension.global" -> First `Global
+        | _ -> Second a )
+  with
+  | [`Nonlocal], atrs -> (true, false, atrs)
+  | [`Global], atrs -> (false, true, atrs)
+  | _ -> (false, false, atrs)
+
 let rec fmt_extension_aux c ctx ~key (ext, pld) =
   match (ext.txt, pld, ctx) with
   (* Quoted extensions (since ocaml 4.11). *)
@@ -835,6 +847,11 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   let ptyp_attributes =
     List.filter ptyp_attributes ~f:(fun a ->
         not (String.equal a.attr_name.txt "extension.curry") )
+  in
+  let ptyp_attributes =
+    List.filter ptyp_attributes ~f:(fun a ->
+        (not (String.equal a.attr_name.txt "extension.global"))
+        && not (String.equal a.attr_name.txt "extension.nonlocal") )
   in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
@@ -3510,18 +3527,7 @@ and fmt_label_declaration c ctx ?(last = false) decl =
              (fits_breaks ~level:5 "" ";") )
           (str ";")
   in
-  let is_nonlocal, is_global, atrs =
-    match
-      List.partition_map atrs ~f:(fun a ->
-          match a.attr_name.txt with
-          | "extension.nonlocal" -> First `Nonlocal
-          | "extension.global" -> First `Global
-          | _ -> Second a )
-    with
-    | [`Nonlocal], atrs -> (true, false, atrs)
-    | [`Global], atrs -> (false, true, atrs)
-    | _ -> (false, false, atrs)
-  in
+  let is_nonlocal, is_global, atrs = split_global_flags_from_attrs atrs in
   hvbox 0
     ( Cmts.fmt_before c pld_loc
     $ hvbox
@@ -3576,11 +3582,20 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
           $ fmt_attributes_and_docstrings c pcd_attributes )
       $ Cmts.fmt_after c pcd_loc )
 
+and fmt_core_type_gf c ctx typ =
+  let {ptyp_attributes; _} = typ in
+  let is_nonlocal, is_global, _ =
+    split_global_flags_from_attrs ptyp_attributes
+  in
+  fmt_if is_nonlocal "nonlocal_ "
+  $ fmt_if is_global "global_ "
+  $ fmt_core_type c (sub_typ ~ctx typ)
+
 and fmt_constructor_arguments ?vars c ctx ~pre = function
   | Pcstr_tuple [] -> noop
   | Pcstr_tuple typs ->
       pre $ fmt "@ " $ fmt_opt vars
-      $ hvbox 0 (list typs "@ * " (sub_typ ~ctx >> fmt_core_type c))
+      $ hvbox 0 (list typs "@ * " (fmt_core_type_gf c ctx))
   | Pcstr_record (loc, lds) ->
       let p = Params.get_record_type c.conf in
       let fmt_ld ~first ~last x =
