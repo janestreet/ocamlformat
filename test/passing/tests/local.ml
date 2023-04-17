@@ -14,7 +14,12 @@ let f () = local_
   let () = g (local_ fun () -> ()) in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
 
-type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}
+type 'a r = {mutable a: 'a; b: 'a; global_ c: 'a}
+
+type 'a r =
+  | Foo of global_ 'a
+  | Bar of 'a * global_ 'a
+  | Baz of global_ int * string * global_ 'a
 
 type ('a, 'b) cfn =
   a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
