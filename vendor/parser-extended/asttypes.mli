@@ -54,7 +54,6 @@ type obj_closed_flag =
 
 type global_flag =
   | Global
-  | Nonlocal
   | Nothing
 
 type label = string

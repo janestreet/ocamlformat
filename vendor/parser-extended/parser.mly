@@ -229,27 +229,26 @@ let maybe_curry_typ typ =
       else mktyp_curry typ
   | _ -> typ
 
-let global_loc = mknoloc "extension.global"
+let global_loc loc = mkloc "extension.global" loc
 
-let global_attr =
-  Attr.mk ~loc:Location.none global_loc (PStr [])
+let global_attr loc =
+  Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
 
-let nonlocal_loc = mknoloc "extension.nonlocal"
+let mkld_global ld loc =
+  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
 
-let nonlocal_attr =
-  Attr.mk ~loc:Location.none nonlocal_loc (PStr [])
-
-let mkld_global ld =
-  { ld with pld_attributes = global_attr :: ld.pld_attributes }
-
-let mkld_nonlocal ld =
-  { ld with pld_attributes = nonlocal_attr :: ld.pld_attributes }
-
-let mkld_global_maybe gbl ld =
+let mkld_global_maybe gbl ld loc =
   match gbl with
-  | Global -> mkld_global ld
-  | Nonlocal -> mkld_nonlocal ld
+  | Global -> mkld_global ld loc
   | Nothing -> ld
+
+let mkcty_global cty loc =
+  { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
+
+let mkcty_global_maybe gbl cty loc =
+  match gbl with
+  | Global -> mkcty_global cty loc
+  | Nothing -> cty
 
 (* TODO define an abstraction boundary between locations-as-pairs
    and locations-as-Location.t; it should be clear when we move from
@@ -654,7 +653,6 @@ let mk_directive ~loc name arg =
 %token MODULE                 "module"
 %token MUTABLE                "mutable"
 %token NEW                    "new"
-%token NONLOCAL               "nonlocal_"
 %token NONREC                 "nonrec"
 %token OBJECT                 "object"
 %token OF                     "of"
@@ -3264,8 +3262,14 @@ generalized_constructor_arguments:
                                   { ($2,Pcstr_tuple [],Some $4) }
 ;
 
+%inline atomic_type_gbl:
+  gbl = global_flag cty = atomic_type {
+  mkcty_global_maybe gbl cty (make_loc $loc(gbl))
+}
+;
+
 constructor_arguments:
-  | tys = inline_separated_nonempty_llist(STAR, atomic_type)
+  | tys = inline_separated_nonempty_llist(STAR, atomic_type_gbl)
     %prec below_HASH
       { Pcstr_tuple tys }
   | LBRACE label_declarations RBRACE
@@ -3281,7 +3285,8 @@ label_declaration:
       { let info = symbol_info $endpos in
         let mut, gbl = $1 in
         mkld_global_maybe gbl
-          (Type.field $2 $4 ~mut ~attrs:$5 ~loc:(make_loc $sloc) ~info) }
+          (Type.field $2 $4 ~mut ~attrs:$5 ~loc:(make_loc $sloc) ~info)
+          (make_loc $loc($1)) }
 ;
 label_declaration_semi:
     mutable_or_global_flag mkrhs(label) COLON poly_type_no_attr attributes
@@ -3293,7 +3298,8 @@ label_declaration_semi:
        in
        let mut, gbl = $1 in
        mkld_global_maybe gbl
-         (Type.field $2 $4 ~mut ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info) }
+         (Type.field $2 $4 ~mut ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info)
+         (make_loc $loc($1)) }
 ;
 
 /* Type Extensions */
@@ -3916,7 +3922,10 @@ mutable_or_global_flag:
   | MUTABLE                                     { Mutable (make_loc $sloc),
                                                   Nothing }
   | GLOBAL                                      { Immutable, Global }
-  | NONLOCAL                                    { Immutable, Nonlocal }
+;
+%inline global_flag:
+          { Nothing }
+  | GLOBAL { Global }
 ;
 virtual_flag:
     /* empty */                                 { Concrete }
@@ -4009,7 +4018,6 @@ single_attr_id:
   | FUN { "fun" }
   | FUNCTION { "function" }
   | FUNCTOR { "functor" }
-  | NONLOCAL { "nonlocal_" }
   | IF { "if" }
   | IN { "in" }
   | INCLUDE { "include" }
