@@ -213,6 +213,15 @@ let mktyp_local_if p typ =
 let wrap_exp_local_if p exp =
   if p then wrap_exp_stack exp else exp
 
+let exclave_ext_loc loc = mkloc "extension.exclave" loc
+
+let exclave_extension loc =
+  Exp.mk ~loc:Location.none
+    (Pexp_extension(exclave_ext_loc loc, PStr []))
+
+let mkexp_exclave ~loc ~kwd_loc exp =
+  ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
+
 let curry_attr =
   Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 
@@ -609,6 +618,7 @@ let check_layout loc id =
 %token EOF                    ""
 %token EQUAL                  "="
 %token EXCEPTION              "exception"
+%token EXCLAVE                "exclave_"
 %token EXTERNAL               "external"
 %token FALSE                  "false"
 %token <string * char option> FLOAT "42.0" (* just an example *)
@@ -2300,6 +2310,8 @@ expr:
 /* END AVOID */
   | LOCAL seq_expr
      { mkexp_stack ~loc:$sloc $2 }
+  | EXCLAVE seq_expr
+     { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
 ;
 %inline expr_attrs:
   | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
