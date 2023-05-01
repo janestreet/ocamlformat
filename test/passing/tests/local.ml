@@ -14,6 +14,15 @@ let f () = local_
   let () = g (local_ fun () -> ()) in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
 
+let f () =
+  exclave_
+  (let a = [exclave_ 1] in
+   let local_ r = 1 in
+   let local_ f : 'a. 'a -> 'a = fun x -> exclave_ x in
+   let local_ g a b c : int = 1 in
+   let () = g (exclave_ (fun () -> ())) in
+   exclave_ "asdfasdfasdfasdfasdfasdfasdf" )
+
 type 'a r = {mutable a: 'a; nonlocal_ b: 'a; global_ c: 'a}
 
 type 'a r =
