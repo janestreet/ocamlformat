@@ -548,6 +548,15 @@ let split_global_flags_from_attrs atrs =
   | [`Global], atrs -> (true, atrs)
   | _ -> (false, atrs)
 
+let is_layout attr =
+  match attr.attr_name.txt with
+  | "any" -> true
+  | "value" -> true
+  | "void" -> true
+  | "immediate" -> true
+  | "immediate64" -> true
+  | _ -> false
+
 let rec fmt_extension_aux c ctx ~key (ext, pld) =
   match (ext.txt, pld, ctx) with
   (* Quoted extensions (since ocaml 4.11). *)
@@ -752,8 +761,15 @@ and fmt_arrow_param c ctx
    [xtyp] should be parenthesized. [constraint_ctx] gives the higher context
    of the expression, i.e. if the expression is part of a `fun`
    expression. *)
+(* I think instead of having a [tydecl_param] argument here, the right thing
+   would be for [xtyp] to provide enough information to determine whether we
+   are printing a type parameter in a typedecl. But it doesn't, and that
+   change would be a much bigger diff and make rebasing on upstream harder in
+   the future. When layouts are upstreamed and upstream ocamlformat gets
+   support for them, we should remove tydecl_param and go with whatever their
+   solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
-    ({ast= typ; ctx} as xtyp) =
+    ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
@@ -777,12 +793,20 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   let doc, atrs = doc_atrs ptyp_attributes in
   Cmts.fmt c ptyp_loc
   @@ (fun k -> k $ fmt_docstring c ~pro:(fmt "@ ") doc)
-  @@ ( if List.is_empty atrs then Fn.id
-       else fun k ->
-         hvbox 0 (Params.parens c.conf (k $ fmt_attributes c ~pre:Cut atrs))
-     )
+  @@ ( match atrs with
+     | [] -> Fn.id
+     | [attr] when is_layout attr ->
+         Fn.id
+         (* layout annotations on type params are printed by the type
+            parameter printer. Revisit when we have support for pretty layout
+            annotations in more places. *)
+     | _ ->
+         fun k ->
+           hvbox 0
+             (Params.parens_if (not tydecl_param) c.conf
+                (k $ fmt_attributes c ~pre:Cut atrs) ) )
   @@
-  let parens = parenze_typ xtyp in
+  let parens = (not tydecl_param) && parenze_typ xtyp in
   hvbox_if box 0
   @@ Params.parens_if
        (match typ.ptyp_desc with Ptyp_tuple _ -> false | _ -> parens)
@@ -3268,15 +3292,28 @@ and fmt_value_description ?ext c ctx vd =
     $ fmt_item_attributes c ~pre:(Break (1, 2)) atrs
     $ doc_after )
 
+and fmt_tydcl_param c ctx ty =
+  fmt_core_type ~tydecl_param:true c (sub_typ ~ctx ty)
+  $
+  match ty.ptyp_attributes with
+  | [] | _ :: _ :: _ -> noop
+  | [attr] -> fmt_if_k (is_layout attr) (fmt "@ :@ " $ str attr.attr_name.txt)
+
 and fmt_tydcl_params c ctx params =
-  fmt_if_k
-    (not (List.is_empty params))
-    ( wrap_fits_breaks_if ~space:false c.conf
-        (List.length params > 1)
-        "(" ")"
+  let empty, parenize =
+    match params with
+    | [] -> (true, false)
+    | [(p, _)] -> (
+        ( false
+        , match p.ptyp_attributes with
+          | [] | _ :: _ :: _ -> false
+          | [attr] -> is_layout attr ) )
+    | _ :: _ :: _ -> (false, true)
+  in
+  fmt_if_k (not empty)
+    ( wrap_fits_breaks_if ~space:false c.conf parenize "(" ")"
         (list params (Params.comma_sep c.conf) (fun (ty, vc) ->
-             fmt_variance_injectivity c vc
-             $ fmt_core_type c (sub_typ ~ctx ty) ) )
+             fmt_variance_injectivity c vc $ fmt_tydcl_param c ctx ty ) )
     $ fmt "@ " )
 
 and fmt_class_params c ctx params =

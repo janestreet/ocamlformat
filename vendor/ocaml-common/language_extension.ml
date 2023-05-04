@@ -1,9 +1,13 @@
+type maturity = Stable | Beta | Alpha
+
 type t =
   | Comprehensions
   | Local
   | Include_functor
   | Polymorphic_parameters
   | Immutable_arrays
+  | Module_strengthening
+  | Layouts of maturity
 
 let equal (a : t) (b : t) = (a = b)
 
@@ -13,6 +17,20 @@ let all =
   ; Include_functor
   ; Polymorphic_parameters
   ; Immutable_arrays
+  ; Module_strengthening
+  ; Layouts Alpha
+  ; Layouts Beta
+  ; Layouts Stable
+  ]
+
+let max_compatible =
+  [ Comprehensions
+  ; Local
+  ; Include_functor
+  ; Polymorphic_parameters
+  ; Immutable_arrays
+  ; Module_strengthening
+  ; Layouts Alpha
   ]
 
 let default_extensions =
@@ -22,18 +40,26 @@ let default_extensions =
   ]
 
 let to_string = function
-  | Comprehensions -> "comprehensions_experimental"
+  | Comprehensions -> "comprehensions"
   | Local -> "local"
   | Include_functor -> "include_functor"
   | Polymorphic_parameters -> "polymorphic_parameters"
-  | Immutable_arrays -> "immutable_arrays_experimental"
+  | Immutable_arrays -> "immutable_arrays"
+  | Module_strengthening -> "module_strengthening"
+  | Layouts Alpha -> "layouts_alpha"
+  | Layouts Beta -> "layouts_beta"
+  | Layouts Stable -> "layouts"
 
 let of_string extn = match String.lowercase_ascii extn with
-  | "comprehensions_experimental" -> Some Comprehensions
+  | "comprehensions" -> Some Comprehensions
   | "local" -> Some Local
   | "include_functor" -> Some Include_functor
   | "polymorphic_parameters" -> Some Polymorphic_parameters
-  | "immutable_arrays_experimental" -> Some Immutable_arrays
+  | "immutable_arrays" -> Some Immutable_arrays
+  | "strengthening" -> Some Module_strengthening
+  | "layouts_alpha" -> Some (Layouts Alpha)
+  | "layouts_beta" -> Some (Layouts Beta)
+  | "layouts" -> Some (Layouts Stable)
   | _ -> None
 
 let of_string_exn extn =
@@ -41,14 +67,25 @@ let of_string_exn extn =
   | Some extn -> extn
   | None -> raise (Arg.Bad(Printf.sprintf "Extension %s is not known" extn))
 
-(* We'll do this in a more principled way later *)
+(* We'll do this in a more principled way later. *)
+(* CR layouts: Note that layouts is only "mostly" erasable, because of annoying
+   interactions with the pre-layouts [@@immediate] attribute like:
+
+     type ('a : immediate) t = 'a [@@immediate]
+
+   But we've decided to punt on this issue in the short term.
+*)
 let is_erasable = function
-  | Local ->
+  | Local
+  | Layouts Alpha
+  | Layouts Beta
+  | Layouts Stable ->
       true
   | Comprehensions
   | Include_functor
   | Polymorphic_parameters
-  | Immutable_arrays ->
+  | Immutable_arrays
+  | Module_strengthening ->
       false
 
 module Universe = struct
@@ -80,6 +117,22 @@ let extensions = ref default_extensions (* -extension *)
 let universe   = ref Universe.Any       (* -only-erasable-extensions,
                                            -disable-all-extensions *)
 
+type compatibility = Compatible | Duplicate | Incompatible of string
+
+let check_conflicts t1 =
+  let layouts_err =
+    "Invalid extensions: Please enable at most one of 'layouts', \
+     'layouts_beta', and 'layouts_alpha'."
+  in
+  let c = List.find_map (fun t2 ->
+    if t1 = t2 then Some Duplicate else
+      match t1, t2 with
+      | Layouts _, Layouts _ -> Some (Incompatible layouts_err)
+      | _, _ -> None)
+    !extensions
+  in
+  Option.value c ~default:Compatible
+
 let set extn ~enabled =
   if enabled then begin
     if not (Universe.is_allowed !universe extn) then
@@ -88,11 +141,21 @@ let set extn ~enabled =
         (if enabled then "enable" else "disable")
         (to_string extn)
         (Universe.compiler_options !universe)));
-    if not (List.exists (equal extn) !extensions) then
-      extensions := extn :: !extensions
+    match check_conflicts extn with
+    | Duplicate -> ()
+    | Compatible -> extensions := extn :: !extensions
+    | Incompatible err -> raise (Arg.Bad err)
   end else
     extensions :=
-      List.filter (fun extn' -> not (equal extn extn')) !extensions
+      List.filter (fun extn' ->
+        match extn, extn' with
+        | Layouts _, Layouts _ ->
+          raise (Arg.Bad(Printf.sprintf
+             "Cannot disable extension %s because extension %s is enabled. \
+              Please enable or disable at most one of the layouts extensions."
+             (to_string extn) (to_string extn')))
+        | _, _ -> not (equal extn extn'))
+        !extensions
 
 let enable  = set ~enabled:true
 let disable = set ~enabled:false
