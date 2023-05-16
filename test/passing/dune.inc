@@ -165,6 +165,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to attr_parens.ml.stdout
+   (with-stderr-to attr_parens.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/attr_parens.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attr_parens.ml attr_parens.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attr_parens.ml.err attr_parens.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to attribute_and_expression.ml.stdout
    (with-stderr-to attribute_and_expression.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/attribute_and_expression.ml})))))
@@ -1201,6 +1219,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/comments_in_record.ml.err comments_in_record.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comprehensions.ml.stdout
+   (with-stderr-to comprehensions.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/comprehensions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comprehensions.ml comprehensions.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comprehensions.ml.err comprehensions.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2257,6 +2293,42 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/ifand.ml.err ifand.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to immutable_arrays.ml.stdout
+   (with-stderr-to immutable_arrays.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/immutable_arrays.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/immutable_arrays.ml immutable_arrays.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/immutable_arrays.ml.err immutable_arrays.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to include_functor.ml.stdout
+   (with-stderr-to include_functor.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml include_functor.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml.err include_functor.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3577,6 +3649,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to local.ml.stdout
+   (with-stderr-to local.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/local.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml local.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml.err local.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to locally_abtract_types.ml.stdout
    (with-stderr-to locally_abtract_types.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/locally_abtract_types.ml})))))
@@ -4203,6 +4293,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/parens_tuple_patterns.ml.err parens_tuple_patterns.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to polyparams.ml.stdout
+   (with-stderr-to polyparams.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/polyparams.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/polyparams.ml polyparams.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/polyparams.ml.err polyparams.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )

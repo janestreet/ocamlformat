@@ -56,6 +56,7 @@ let keyword_table =
     "fun", FUN;
     "function", FUNCTION;
     "functor", FUNCTOR;
+    "global_", GLOBAL;
     "if", IF;
     "in", IN;
     "include", INCLUDE;
@@ -63,11 +64,13 @@ let keyword_table =
     "initializer", INITIALIZER;
     "lazy", LAZY;
     "let", LET;
+    "local_", LOCAL;
     "match", MATCH;
     "method", METHOD;
     "module", MODULE;
     "mutable", MUTABLE;
     "new", NEW;
+    "nonlocal_", NONLOCAL;
     "nonrec", NONREC;
     "object", OBJECT;
     "of", OF;
@@ -564,6 +567,7 @@ rule token = parse
   | "="  { EQUAL }
   | "["  { LBRACKET }
   | "[|" { LBRACKETBAR }
+  | "[:" { LBRACKETCOLON }
   | "[<" { LBRACKETLESS }
   | "[>" { LBRACKETGREATER }
   | "]"  { RBRACKET }
@@ -572,6 +576,7 @@ rule token = parse
   | "|"  { BAR }
   | "||" { BARBAR }
   | "|]" { BARRBRACKET }
+  | ":]" { COLONRBRACKET }
   | ">"  { GREATER }
   | ">]" { GREATERRBRACKET }
   | "}"  { RBRACE }

@@ -377,6 +377,12 @@ module Incl:
   end
 
 
+module Lb:
+  sig
+    val mk: ?loc:loc -> ?attrs:attrs -> ?docs:docs -> ?text:text ->
+      pattern -> expression -> bool -> let_binding
+  end
+
 (** {1 Class language} *)
 
 (** Class type expressions *)
