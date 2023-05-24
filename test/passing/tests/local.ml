@@ -34,3 +34,5 @@ type ('a, 'b) cfn =
   a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
 
 type loc_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
+
+let _ = local_ ()
