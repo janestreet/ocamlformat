@@ -291,8 +291,17 @@ module Let_binding = struct
           ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
             ; _ }
           , [(Nolabel, sbody)] ) ->
-          let sattrs, _ = check_local_attr sbody.pexp_attributes in
-          let sbody = {sbody with pexp_attributes= sattrs} in
+          let islocal, sbody =
+            (* The desugaring is only valid for some patterns. The pattern
+               part must still be rewritten as the parser duplicated the type
+               annotations and extensions into the pattern and the
+               expression. *)
+            match lb_pat.ppat_desc with
+            | Ppat_any -> (false, lb_exp)
+            | _ ->
+                let sattrs, _ = check_local_attr sbody.pexp_attributes in
+                (true, {sbody with pexp_attributes= sattrs})
+          in
           let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
           let pat = {lb_pat with ppat_attributes= pattrs} in
           let fake_ctx =
@@ -303,7 +312,7 @@ module Let_binding = struct
               ; lb_attributes= []
               ; lb_loc= Location.none }
           in
-          ( true
+          ( islocal
           , fake_ctx
           , sub_pat ~ctx:fake_ctx pat
           , sub_exp ~ctx:fake_ctx sbody )
