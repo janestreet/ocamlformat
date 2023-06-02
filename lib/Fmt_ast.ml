@@ -763,13 +763,13 @@ and fmt_arrow_param c ctx
    [xtyp] should be parenthesized. [constraint_ctx] gives the higher context
    of the expression, i.e. if the expression is part of a `fun`
    expression. *)
-(* CR layouts: Instead of having a [tydecl_param] argument here, the right thing
-   would be for [xtyp] to provide enough information to determine whether we are
-   printing a type parameter in a typedecl. But it doesn't, and that change
-   would be a much bigger diff and make rebasing on upstream harder in the
-   future. When layouts are upstreamed and upstream ocamlformat gets support for
-   them, we should remove tydecl_param and go with whatever their solution
-   is. *)
+(* CR layouts: Instead of having a [tydecl_param] argument here, the right
+   thing would be for [xtyp] to provide enough information to determine
+   whether we are printing a type parameter in a typedecl. But it doesn't,
+   and that change would be a much bigger diff and make rebasing on upstream
+   harder in the future. When layouts are upstreamed and upstream ocamlformat
+   gets support for them, we should remove tydecl_param and go with whatever
+   their solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
     ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
   protect c (Typ typ)
@@ -801,8 +801,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
      | [attr] when is_layout attr ->
          Fn.id
          (* CR layouts v1.5: layout annotations on type params are printed by
-            the type parameter printer. Revisit when we have support for pretty
-            layout annotations in more places. *)
+            the type parameter printer. Revisit when we have support for
+            pretty layout annotations in more places. *)
      | _ ->
          fun k ->
            hvbox 0
@@ -3300,17 +3300,18 @@ and fmt_tydcl_param c ctx ty =
   $
   (* CR layouts v1.5: When we added the syntax for layout annotations on type
      parameters to the parser, we also made it possible for people to put
-     arbitrary attributes on type parameters.  Previously, the parser didn't
-     accept attributes at all here, though there has always been a place in the
-     parse tree.
+     arbitrary attributes on type parameters. Previously, the parser didn't
+     accept attributes at all here, though there has always been a place in
+     the parse tree.
 
-     The parser currently allows you to have either a pretty layout annotation
-     or arbitrary attributes, but not both.  A pretty layout annotation only
-     parses if it's the only attribute, so we only print the pretty syntax in
-     that case. Probably we'll change this in v1.5.
+     The parser currently allows you to have either a pretty layout
+     annotation or arbitrary attributes, but not both. A pretty layout
+     annotation only parses if it's the only attribute, so we only print the
+     pretty syntax in that case. Probably we'll change this in v1.5.
 
-     In the case of multiple attributes, which may include layouts, they'll be
-     printed as normal attributes by [fmt_core_type]. So we do nothing here.  *)
+     In the case of multiple attributes, which may include layouts, they'll
+     be printed as normal attributes by [fmt_core_type]. So we do nothing
+     here. *)
   match ty.ptyp_attributes with
   | [] | _ :: _ :: _ -> noop
   | [attr] -> fmt_if_k (is_layout attr) (fmt "@ :@ " $ str attr.attr_name.txt)
