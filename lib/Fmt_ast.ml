@@ -207,8 +207,8 @@ let collection_last_cmt ?pro c (loc : Location.t) locs =
       with
       | [] -> noop
       | (_, semicolon_loc) :: _ ->
-          Cmts.fmt_after ?pro c last ~filter:(fun Cmt.{loc; _} ->
-              Location.compare loc semicolon_loc >= 0 ) )
+          Cmts.fmt_after ?pro c last ~filter:(fun cmt ->
+              Location.compare (Cmt.loc cmt) semicolon_loc >= 0 ) )
 
 let fmt_elements_collection ?pro ?(first_sep = true) ?(last_sep = true) c
     (p : Params.elements_collection) f loc fmt_x xs =
@@ -589,9 +589,10 @@ let sequence_blank_line c (l1 : Location.t) (l2 : Location.t) =
   | `Preserve_one ->
       let rec loop prev_pos = function
         | cmt :: tl ->
+            let loc = Cmt.loc cmt in
             (* Check empty line before each comment *)
-            Source.empty_line_between c.source prev_pos cmt.Cmt.loc.loc_start
-            || loop cmt.Cmt.loc.loc_end tl
+            Source.empty_line_between c.source prev_pos loc.loc_start
+            || loop loc.loc_end tl
         | [] ->
             (* Check empty line after all comments *)
             Source.empty_line_between c.source prev_pos l2.loc_start
@@ -3747,6 +3748,20 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
             $ fmt_attributes c ~pre:Blank pmty_attributes
             $ fmt "@;<1 2>"
             $ list args "@;<1 2>" (fmt_functor_param c ctx)
+            $ fmt "@;<1 2>->"
+            $ opt blk.pro (fun pro -> str " " $ pro) )
+      ; epi= Some (fmt_opt blk.epi $ Cmts.fmt_after c pmty_loc)
+      ; psp=
+          fmt_or_k (Option.is_none blk.pro)
+            (fits_breaks " " ~hint:(1, 2) "")
+            blk.psp }
+  | Pmty_gen (gen_loc, mt) ->
+      let blk = fmt_module_type c (sub_mty ~ctx mt) in
+      { blk with
+        pro=
+          Some
+            ( Cmts.fmt_before c pmty_loc
+            $ Cmts.fmt c gen_loc (wrap "(" ")" (Cmts.fmt_within c gen_loc))
             $ fmt "@;<1 2>->"
             $ opt blk.pro (fun pro -> str " " $ pro) )
       ; epi= Some (fmt_opt blk.epi $ Cmts.fmt_after c pmty_loc)
