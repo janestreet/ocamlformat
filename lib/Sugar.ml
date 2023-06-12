@@ -332,10 +332,10 @@ module Let_binding = struct
                annotations and extensions into the pattern and the
                expression. *)
             match lb_pat.ppat_desc with
-            | Ppat_any -> (false, lb_exp)
-            | _ ->
+            | Ppat_var _ | Ppat_constraint ({ppat_desc = Ppat_var _;_}, _) ->
                 let sattrs, _ = check_local_attr sbody.pexp_attributes in
                 (true, {sbody with pexp_attributes= sattrs})
+            | _ -> (false, lb_exp)
           in
           let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
           let pat = {lb_pat with ppat_attributes= pattrs} in
