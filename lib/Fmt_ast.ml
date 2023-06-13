@@ -542,13 +542,11 @@ let split_global_flags_from_attrs atrs =
   match
     List.partition_map atrs ~f:(fun a ->
         match a.attr_name.txt with
-        | "extension.nonlocal" -> First `Nonlocal
         | "extension.global" -> First `Global
         | _ -> Second a )
   with
-  | [`Nonlocal], atrs -> (true, false, atrs)
-  | [`Global], atrs -> (false, true, atrs)
-  | _ -> (false, false, atrs)
+  | [`Global], atrs -> (true, atrs)
+  | _ -> (false, atrs)
 
 let is_layout attr =
   match attr.attr_name.txt with
@@ -781,8 +779,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   in
   let ptyp_attributes =
     List.filter ptyp_attributes ~f:(fun a ->
-        (not (String.equal a.attr_name.txt "extension.global"))
-        && not (String.equal a.attr_name.txt "extension.nonlocal") )
+        not (String.equal a.attr_name.txt "extension.global") )
   in
   update_config_maybe_disabled c ptyp_loc ptyp_attributes
   @@ fun c ->
@@ -3466,7 +3463,7 @@ and fmt_label_declaration c ctx ?(last = false) decl =
              (fits_breaks ~level:5 "" ";") )
           (str ";")
   in
-  let is_nonlocal, is_global, atrs = split_global_flags_from_attrs atrs in
+  let is_global, atrs = split_global_flags_from_attrs atrs in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
     $ hvbox 4
@@ -3474,7 +3471,6 @@ and fmt_label_declaration c ctx ?(last = false) decl =
             ( hvbox 4
                 ( hvbox 2
                     ( fmt_mutable_flag c pld_mutable
-                    $ fmt_if is_nonlocal "nonlocal_ "
                     $ fmt_if is_global "global_ "
                     $ fmt_str_loc c pld_name $ fmt_if field_loose " "
                     $ fmt ":@ "
@@ -3518,12 +3514,8 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
 
 and fmt_core_type_gf c ctx typ =
   let {ptyp_attributes; _} = typ in
-  let is_nonlocal, is_global, _ =
-    split_global_flags_from_attrs ptyp_attributes
-  in
-  fmt_if is_nonlocal "nonlocal_ "
-  $ fmt_if is_global "global_ "
-  $ fmt_core_type c (sub_typ ~ctx typ)
+  let is_global, _ = split_global_flags_from_attrs ptyp_attributes in
+  fmt_if is_global "global_ " $ fmt_core_type c (sub_typ ~ctx typ)
 
 and fmt_constructor_arguments ?vars c ctx ~pre = function
   | Pcstr_tuple [] -> noop
