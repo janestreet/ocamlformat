@@ -33,3 +33,18 @@
    ]}
    See the code?
 *)
+
+(** Unexpected line break. *)
+
+let f =
+  g (fun x -> function
+    | A -> 1
+    | B -> 2)
+;;
+
+let f =
+  Some
+    (fun x -> function
+       | A -> 1
+       | B -> 2)
+;;
