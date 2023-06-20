@@ -3041,7 +3041,7 @@
  (action
   (with-stdout-to js_2023.ml.stdout
    (with-stderr-to js_2023.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/js_2023.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --disable-conf-files --enable-outside-detected-project %{dep:tests/js_2023.ml})))))
 
 (rule
  (alias runtest)

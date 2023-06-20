@@ -4,3 +4,8 @@
 
  (* Here, [my_list=[]]. *)
 (* spruce-dev@ *)
+
+(** Unexpected line wrapping. *)
+
+(* xxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx
+   xxxx] xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx] *)

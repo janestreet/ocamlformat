@@ -1,1 +1,3 @@
 --profile=janestreet
+--disable-conf-files
+--enable-outside-detected-project
