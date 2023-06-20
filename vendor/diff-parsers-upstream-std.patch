@@ -1,5 +1,5 @@
---- ocaml-4.13-upstream/ast_helper.ml
-+++ ocaml-4.13/ast_helper.ml
+--- parser-upstream/ast_helper.ml
++++ parser-standard/ast_helper.ml
 @@@@
    let open_ ?loc ?attrs a b = mk ?loc ?attrs (Pexp_open (a, b))
    let letop ?loc ?attrs let_ ands body =
@@ -24,8 +24,8 @@
  module Sig = struct
    let mk ?(loc = !default_loc) d = {psig_desc = d; psig_loc = loc}
  
---- ocaml-4.13-upstream/ast_helper.mli
-+++ ocaml-4.13/ast_helper.mli
+--- parser-upstream/ast_helper.mli
++++ parser-standard/ast_helper.mli
 @@@@
      val extension: ?loc:loc -> ?attrs:attrs -> extension -> expression
      val unreachable: ?loc:loc -> ?attrs:attrs -> unit -> expression
@@ -50,8 +50,8 @@
  (** Signature items *)
  module Sig:
    sig
---- ocaml-4.13-upstream/ast_mapper.ml
-+++ ocaml-4.13/ast_mapper.ml
+--- parser-upstream/ast_mapper.ml
++++ parser-standard/ast_mapper.ml
 @@@@
    type_exception: mapper -> type_exception -> type_exception;
    type_kind: mapper -> type_kind -> type_kind;
@@ -117,8 +117,30 @@
  let extension_of_error {kind; main; sub} =
    if kind <> Location.Report_error then
      raise (Invalid_argument "extension_of_error: expected kind Report_error");
---- ocaml-4.13-upstream/ast_mapper.mli
-+++ ocaml-4.13/ast_mapper.mli
+@@@@
+       | "tool_name" ->
+           tool_name_ref := get_string payload
+       | "include_dirs" ->
+           Clflags.include_dirs := get_list get_string payload
+       | "load_path" ->
+-          (* Duplicates Compmisc.auto_include, since we can't reference Compmisc
+-             from this module. *)
+-          let auto_include find_in_dir fn =
+-            if !Clflags.no_std_include then
+-              raise Not_found
+-            else
+-              let alert = Location.auto_include_alert in
+-              Load_path.auto_include_otherlibs alert find_in_dir fn
+-          in
+-          Load_path.init ~auto_include (get_list get_string payload)
++          ()
+       | "open_modules" ->
+           Clflags.open_modules := get_list get_string payload
+       | "for_package" ->
+           Clflags.for_package := get_option get_string payload
+       | "debug" ->
+--- parser-upstream/ast_mapper.mli
++++ parser-standard/ast_mapper.mli
 @@@@
    type_exception: mapper -> type_exception -> type_exception;
    type_kind: mapper -> type_kind -> type_kind;
@@ -133,8 +155,8 @@
      using an open recursion style: each method takes as its first
      argument the mapper to be applied to children in the syntax
      tree. *)
---- ocaml-4.13-upstream/asttypes.mli
-+++ ocaml-4.13/asttypes.mli
+--- parser-upstream/asttypes.mli
++++ parser-standard/asttypes.mli
 @@@@
  
  type override_flag = Override | Fresh
@@ -150,9 +172,9 @@
  
  type arg_label =
      Nolabel
-   | Labelled of string (*  label:T -> ... *)
---- ocaml-4.13-upstream/lexer.mll
-+++ ocaml-4.13/lexer.mll
+   | Labelled of string (** [label:T -> ...] *)
+--- parser-upstream/lexer.mll
++++ parser-standard/lexer.mll
 @@@@
      "false", FALSE;
      "for", FOR;
@@ -285,8 +307,8 @@
      "(*"
        { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
          store_lexeme lexbuf;
---- ocaml-4.13-upstream/parse.ml
-+++ ocaml-4.13/parse.ml
+--- parser-upstream/parse.ml
++++ parser-standard/parse.ml
 @@@@
  let maybe_skip_phrase lexbuf =
    match !last_token with
@@ -382,8 +404,8 @@
  (* The code has been moved here so that one can reuse Pprintast.tyvar *)
  
  let prepare_error err =
---- ocaml-4.13-upstream/parser.mly
-+++ ocaml-4.13/parser.mly
+--- parser-upstream/parser.mly
++++ parser-standard/parser.mly
 @@@@
    | "+", Pexp_constant(Pconst_integer _)
    | ("+" | "+."), Pexp_constant(Pconst_float _) -> desc
@@ -444,27 +466,39 @@
 +      else mktyp_curry typ
 +  | _ -> typ
 +
-+let global_loc = mknoloc "extension.global"
++let global_loc loc = mkloc "extension.global" loc
 +
-+let global_attr =
-+  Attr.mk ~loc:Location.none global_loc (PStr [])
++let global_attr loc =
++  Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
 +
-+let nonlocal_loc = mknoloc "extension.nonlocal"
++let nonlocal_loc loc = mkloc "extension.nonlocal" loc
 +
-+let nonlocal_attr =
-+  Attr.mk ~loc:Location.none nonlocal_loc (PStr [])
++let nonlocal_attr loc =
++  Attr.mk ~loc:Location.none (nonlocal_loc loc) (PStr [])
 +
-+let mkld_global ld =
-+  { ld with pld_attributes = global_attr :: ld.pld_attributes }
++let mkld_global ld loc =
++  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
 +
-+let mkld_nonlocal ld =
-+  { ld with pld_attributes = nonlocal_attr :: ld.pld_attributes }
++let mkld_nonlocal ld loc =
++  { ld with pld_attributes = nonlocal_attr loc :: ld.pld_attributes }
 +
-+let mkld_global_maybe gbl ld =
++let mkld_global_maybe gbl ld loc =
 +  match gbl with
-+  | Global -> mkld_global ld
-+  | Nonlocal -> mkld_nonlocal ld
++  | Global -> mkld_global ld loc
++  | Nonlocal -> mkld_nonlocal ld loc
 +  | Nothing -> ld
++
++let mkcty_global cty loc =
++  { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
++
++let mkcty_nonlocal cty loc =
++  { cty with ptyp_attributes = nonlocal_attr loc :: cty.ptyp_attributes }
++
++let mkcty_global_maybe gbl cty loc =
++  match gbl with
++  | Global -> mkcty_global cty loc
++  | Nonlocal -> mkcty_nonlocal cty loc
++  | Nothing -> cty
 +
  (* TODO define an abstraction boundary between locations-as-pairs
     and locations-as-Location.t; it should be clear when we move from
@@ -524,8 +558,14 @@
  let expecting loc nonterm =
      raise Syntaxerr.(Error(Expecting(make_loc loc, nonterm)))
  
+-let removed_string_set loc =
+-  raise(Syntaxerr.Error(Syntaxerr.Removed_string_set(make_loc loc)))
+-
  (* Using the function [not_expecting] in a semantic action means that this
     syntactic form is recognized by the parser but is in fact incorrect. This
+    idiom is used in a few places to produce ad hoc syntax error messages. *)
+ 
+ (* This idiom should be used as little as possible, because it confuses the
 @@@@
  
  let bigarray_untuplify = function
@@ -539,6 +579,15 @@
    let opname = if !Clflags.unsafe then "unsafe_" ^ opname else opname in
    let prefix = match paren_kind with
      | Paren -> Lident "Array"
+-    | Bracket ->
+-        if assign then removed_string_set loc
+-        else Lident "String"
++    | Bracket -> Lident "String"
+     | Brace ->
+        let submodule_name = match n with
+          | One -> "Array1"
+          | Two -> "Array2"
+          | Three -> "Array3"
 @@@@
  %token CLASS                  "class"
  %token COLON                  ":"
@@ -1111,6 +1160,26 @@
      pattern_comma_list(self) COMMA pattern      { $3 :: $1 }
    | self COMMA pattern                          { [$3; $1] }
 @@@@
+                                   { ([],Pcstr_tuple [],Some $2) }
+   | COLON typevar_list DOT atomic_type %prec below_HASH
+                                   { ($2,Pcstr_tuple [],Some $4) }
+ ;
+ 
++%inline atomic_type_gbl:
++  gbl = global_flag cty = atomic_type {
++  mkcty_global_maybe gbl cty (make_loc $loc(gbl))
++}
++;
++
+ constructor_arguments:
+-  | tys = inline_separated_nonempty_llist(STAR, atomic_type)
++  | tys = inline_separated_nonempty_llist(STAR, atomic_type_gbl)
+     %prec below_HASH
+       { Pcstr_tuple tys }
+   | LBRACE label_declarations RBRACE
+       { Pcstr_record $2 }
+ ;
+@@@@
      label_declaration                           { [$1] }
    | label_declaration_semi                      { [$1] }
    | label_declaration_semi label_declarations   { $1 :: $2 }
@@ -1122,7 +1191,8 @@
 -        Type.field $2 $4 ~mut:$1 ~attrs:$5 ~loc:(make_loc $sloc) ~info }
 +        let mut, gbl = $1 in
 +        mkld_global_maybe gbl
-+          (Type.field $2 $4 ~mut ~attrs:$5 ~loc:(make_loc $sloc) ~info) }
++          (Type.field $2 $4 ~mut ~attrs:$5 ~loc:(make_loc $sloc) ~info)
++          (make_loc $loc($1)) }
  ;
  label_declaration_semi:
 -    mutable_flag mkrhs(label) COLON poly_type_no_attr attributes SEMI attributes
@@ -1136,7 +1206,8 @@
 -       Type.field $2 $4 ~mut:$1 ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info }
 +       let mut, gbl = $1 in
 +       mkld_global_maybe gbl
-+         (Type.field $2 $4 ~mut ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info) }
++         (Type.field $2 $4 ~mut ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info)
++         (make_loc $loc($1)) }
  ;
  
  /* Type Extensions */
@@ -1153,23 +1224,23 @@
 +;
 +
 +strict_function_type:
-+  | mktyp(
-+      label = arg_label
-+      local = optional_local
-+      domain = extra_rhs(param_type)
-+      MINUSGREATER
-+      codomain = strict_function_type
-+        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
-+    )
-+    { $1 }
    | mktyp(
        label = arg_label
 -      domain = extra_rhs(tuple_type)
-+      arg_local = optional_local
++      local = optional_local
 +      domain = extra_rhs(param_type)
        MINUSGREATER
 -      codomain = function_type
 -        { Ptyp_arrow(label, domain, codomain) }
++      codomain = strict_function_type
++        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
+     )
+     { $1 }
++  | mktyp(
++      label = arg_label
++      arg_local = optional_local
++      domain = extra_rhs(param_type)
++      MINUSGREATER
 +      ret_local = optional_local
 +      codomain = tuple_type
 +      %prec MINUSGREATER
@@ -1183,8 +1254,8 @@
 +  | mktyp(
 +    LPAREN vars = typevar_list DOT ty = core_type RPAREN
 +      { Ptyp_poly(vars, ty) }
-     )
-     { $1 }
++    )
++    { $1 }
 +  | ty = tuple_type
 +    { ty }
  ;
@@ -1255,6 +1326,11 @@
 +  | GLOBAL                                      { Immutable, Global }
 +  | NONLOCAL                                    { Immutable, Nonlocal }
 +;
++%inline global_flag:
++          { Nothing }
++  | GLOBAL { Global }
++  | NONLOCAL { Nonlocal }
++;
  virtual_flag:
      /* empty */                                 { Concrete }
    | VIRTUAL                                     { Virtual }
@@ -1280,36 +1356,34 @@
    | MODULE { "module" }
    | MUTABLE { "mutable" }
    | NEW { "new" }
---- ocaml-4.13-upstream/parsetree.mli
-+++ ocaml-4.13/parsetree.mli
+--- parser-upstream/parsetree.mli
++++ parser-standard/parsetree.mli
 @@@@
-            let* P = E and* P = E in E *)
-   | Pexp_extension of extension
-         (* [%id] *)
-   | Pexp_unreachable
-         (* . *)
-+  | Pexp_hole
-+        (* _ *)
+   | Pexp_letop of letop
+       (** - [let* P = E0 in E1]
+             - [let* P0 = E00 and* P1 = E01 in E1] *)
+   | Pexp_extension of extension  (** [[%id]] *)
+   | Pexp_unreachable  (** [.] *)
++  | Pexp_hole  (** [_] *)
  
- and case =   (* (P -> E) or (P when E0 -> E) *)
+ and case =
      {
       pc_lhs: pattern;
       pc_guard: expression option;
 @@@@
-         (* (ME : MT) *)
-   | Pmod_unpack of expression
-         (* (val E) *)
-   | Pmod_extension of extension
-         (* [%id] *)
-+  | Pmod_hole
-+        (* _ *)
+       (** [functor(X : MT1) -> ME] *)
+   | Pmod_apply of module_expr * module_expr  (** [ME1(ME2)] *)
+   | Pmod_constraint of module_expr * module_type  (** [(ME : MT)] *)
+   | Pmod_unpack of expression  (** [(val E)] *)
+   | Pmod_extension of extension  (** [[%id]] *)
++  | Pmod_hole  (** [_] *)
  
  and structure = structure_item list
  
  and structure_item =
      {
---- ocaml-4.13-upstream/printast.ml
-+++ ocaml-4.13/printast.ml
+--- parser-upstream/printast.ml
++++ parser-standard/printast.ml
 @@@@
    | Pexp_extension (s, arg) ->
        line i ppf "Pexp_extension \"%s\"\n" s.txt;
@@ -1336,51 +1410,13 @@
  
  and structure_item i ppf x =
    line i ppf "structure_item %a\n" fmt_location x.pstr_loc;
---- ocaml-4.13-upstream/pprintast.ml
-+++ ocaml-4.13/pprintast.ml
+--- parser-upstream/printast.mli
++++ parser-standard/printast.mli
 @@@@
-         let fmt:(_,_,_)format =
-           "@[<hv0>@[<hv2>@[<2>for %a =@;%a@;%a%a@;do@]@;%a@]@;done@]" in
-         let expression = expression ctxt in
-         pp f fmt (pattern ctxt) s expression e1 direction_flag
-           df expression e2 expression e3
-+    | Pexp_hole ->
-+        pp f "_"
-     | _ ->  paren true (expression ctxt) f x
+ val top_phrase : formatter -> toplevel_phrase -> unit
  
- and attributes ctxt f l =
-   List.iter (attribute ctxt f) l
- 
-@@@@
-         pp f "(%a)(%a)" (module_expr ctxt) me1 (module_expr ctxt) me2
-         (* Cf: #7200 *)
-     | Pmod_unpack e ->
-         pp f "(val@ %a)" (expression ctxt) e
-     | Pmod_extension e -> extension ctxt f e
-+    | Pmod_hole ->
-+        pp f "_"
- 
- and structure ctxt f x = list ~sep:"@\n" (structure_item ctxt) f x
- 
- and payload ctxt f = function
-   | PStr [{pstr_desc = Pstr_eval (e, attrs)}] ->
-@@@@
- let class_type = class_type reset_ctxt
- let structure_item = structure_item reset_ctxt
- let signature_item = signature_item reset_ctxt
- let binding = binding reset_ctxt
- let payload = payload reset_ctxt
-+let type_declaration = type_declaration reset_ctxt
---- ocaml-4.13-upstream/pprintast.mli
-+++ ocaml-4.13/pprintast.mli
-@@@@
- val module_type: Format.formatter -> Parsetree.module_type -> unit
- val structure_item: Format.formatter -> Parsetree.structure_item -> unit
- val signature_item: Format.formatter -> Parsetree.signature_item -> unit
- val binding: Format.formatter -> Parsetree.value_binding -> unit
- val payload: Format.formatter -> Parsetree.payload -> unit
-+val type_declaration: Format.formatter -> Parsetree.type_declaration -> unit
- 
- val tyvar: Format.formatter -> string -> unit
-   (** Print a type variable name, taking care of the special treatment
-       required for the single quote character in second position. *)
+ val expression: int -> formatter -> expression -> unit
+ val structure: int -> formatter -> structure -> unit
+ val payload: int -> formatter -> payload -> unit
++val core_type: int -> formatter -> core_type -> unit
++val module_type: int -> formatter -> module_type -> unit
