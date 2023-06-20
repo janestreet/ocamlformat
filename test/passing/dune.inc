@@ -3039,6 +3039,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_2023.ml.stdout
+   (with-stderr-to js_2023.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/js_2023.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_2023.ml js_2023.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_2023.ml.err js_2023.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_args.ml.stdout
    (with-stderr-to js_args.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/js_args.ml})))))
