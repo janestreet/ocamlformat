@@ -98,7 +98,7 @@ let fmt_constant i f x =
   let i = i+1 in
   match x.pconst_desc with
   | Pconst_integer (j,m) -> line i f "PConst_int (%s,%a)\n" j fmt_char_option m
-  | Pconst_char (c) -> line i f "PConst_char %02x\n" (Char.code c)
+  | Pconst_char (c, s) -> line i f "PConst_char (%02x,%s)\n" (Char.code c) s
   | Pconst_string (s, strloc, None) ->
       line i f "PConst_string(%S,%a,None)\n" s fmt_location strloc
   | Pconst_string (s, strloc, Some delim) ->
@@ -179,8 +179,8 @@ let string i ppf s = line i ppf "\"%s\"\n" s
 let string_loc i ppf s = line i ppf "%a\n" fmt_string_loc s
 let arg_label i ppf = function
   | Nolabel -> line i ppf "Nolabel\n"
-  | Optional s -> line i ppf "Optional \"%s\"\n" s
-  | Labelled s -> line i ppf "Labelled \"%s\"\n" s
+  | Optional s -> line i ppf "Optional %a\n" fmt_string_loc s
+  | Labelled s -> line i ppf "Labelled %a\n" fmt_string_loc s
 
 let paren_kind i ppf = function
   | Paren -> line i ppf "Paren\n"
@@ -429,8 +429,9 @@ and expression i ppf x =
   | Pexp_override (l) ->
       line i ppf "Pexp_override\n";
       list i string_x_expression ppf l;
-  | Pexp_letmodule (s, me, e) ->
+  | Pexp_letmodule (s, args, me, e) ->
       line i ppf "Pexp_letmodule %a\n" fmt_str_opt_loc s;
+      list i functor_parameter ppf args;
       module_expr i ppf me;
       expression i ppf e;
   | Pexp_letexception (cd, e) ->
@@ -778,6 +779,16 @@ and class_declaration i ppf x =
   line i ppf "pci_expr =\n";
   class_expr (i+1) ppf x.pci_expr;
 
+and functor_parameter i ppf x =
+  line i ppf "functor_parameter %a\n" fmt_location x.loc;
+  let i = i+1 in
+  match x.txt with
+  | Unit ->
+      line i ppf "Unit\n"
+  | Named (s, mt) ->
+      line i ppf "Named %a\n" fmt_str_opt_loc s;
+      module_type i ppf mt
+
 and module_type i ppf x =
   line i ppf "module_type %a\n" fmt_location x.pmty_loc;
   attributes i ppf x.pmty_attributes;
@@ -788,13 +799,13 @@ and module_type i ppf x =
   | Pmty_signature (s) ->
       line i ppf "Pmty_signature\n";
       signature i ppf s;
-  | Pmty_functor (Unit, mt2) ->
-      line i ppf "Pmty_functor ()\n";
-      module_type i ppf mt2;
-  | Pmty_functor (Named (s, mt1), mt2) ->
-      line i ppf "Pmty_functor %a\n" fmt_str_opt_loc s;
-      module_type i ppf mt1;
-      module_type i ppf mt2;
+  | Pmty_functor (params, mt) ->
+      line i ppf "Pmty_functor\n";
+      list i functor_parameter ppf params;
+      module_type i ppf mt
+  | Pmty_gen (loc, mt) ->
+      line i ppf "Pmty_gen %a\n" fmt_location loc;
+      module_type i ppf mt
   | Pmty_with (mt, l) ->
       line i ppf "Pmty_with\n";
       module_type i ppf mt;
@@ -902,13 +913,10 @@ and module_expr i ppf x =
   | Pmod_structure (s) ->
       line i ppf "Pmod_structure\n";
       structure i ppf s;
-  | Pmod_functor (Unit, me) ->
-      line i ppf "Pmod_functor ()\n";
-      module_expr i ppf me;
-  | Pmod_functor (Named (s, mt), me) ->
-      line i ppf "Pmod_functor %a\n" fmt_str_opt_loc s;
-      module_type i ppf mt;
-      module_expr i ppf me;
+  | Pmod_functor (params, me) ->
+      line i ppf "Pmod_functor\n";
+      list i functor_parameter ppf params;
+      module_expr i ppf me
   | Pmod_apply (me1, me2) ->
       line i ppf "Pmod_apply\n";
       module_expr i ppf me1;
@@ -994,12 +1002,14 @@ and module_type_declaration i ppf x =
 and module_declaration i ppf pmd =
   line i ppf "module_declaration %a %a\n" fmt_str_opt_loc pmd.pmd_name
     fmt_location pmd.pmd_loc;
+  list i functor_parameter ppf pmd.pmd_args;
   attributes i ppf pmd.pmd_attributes;
   module_type (i+1) ppf pmd.pmd_type;
 
 and module_binding i ppf x =
   line i ppf "module_binding %a %a\n" fmt_str_opt_loc x.pmb_name
     fmt_location x.pmb_loc;
+  list i functor_parameter ppf x.pmb_args;
   attributes i ppf x.pmb_attributes;
   module_expr (i+1) ppf x.pmb_expr
 

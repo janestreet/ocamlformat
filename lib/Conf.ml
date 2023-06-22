@@ -109,6 +109,7 @@ let conventional_profile from =
   ; type_decl= elt `Compact
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
+  ; wrap_docstrings= elt true
   ; wrap_fun_args= elt true }
 
 let default_profile = conventional_profile
@@ -176,6 +177,7 @@ let ocamlformat_profile from =
   ; type_decl= elt `Compact
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
+  ; wrap_docstrings= elt true
   ; wrap_fun_args= elt true }
 
 let janestreet_profile from =
@@ -222,14 +224,14 @@ let janestreet_profile from =
   ; margin= elt 90
   ; match_indent= elt 0
   ; match_indent_nested= elt `Never
-  ; max_indent= elt @@ Some 2
+  ; max_indent= elt None
   ; module_item_spacing= elt `Compact
   ; nested_match= elt `Wrap
   ; ocp_indent_compat= elt true
   ; parens_ite= elt true
   ; parens_tuple= elt `Multi_line_only
   ; parens_tuple_patterns= elt `Multi_line_only
-  ; parse_docstrings= elt false
+  ; parse_docstrings= elt true
   ; parse_toplevel_phrases= elt false
   ; sequence_blank_line= elt `Compact
   ; sequence_style= elt `Terminator
@@ -242,6 +244,7 @@ let janestreet_profile from =
   ; type_decl= elt `Sparse
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
+  ; wrap_docstrings= elt false
   ; wrap_fun_args= elt false }
 
 let default =
@@ -256,7 +259,6 @@ let default =
       ; max_iters= elt 10
       ; ocaml_version= elt Ocaml_version.Releases.v4_04_0
       ; quiet= elt false
-      ; range= elt @@ Range.make ?range:None
       ; disable_conf_attrs= elt false
       ; version_check= elt true } }
 
@@ -1436,18 +1438,6 @@ module Operational = struct
       (fun conf elt -> update conf ~f:(fun f -> {f with quiet= elt}))
       (fun conf -> conf.opr_opts.quiet)
 
-  let range =
-    let doc =
-      "Apply the formatting to a range of lines. Must be included between 1 \
-       and the number of lines of the input. If a range is invalid the \
-       whole input is considered. Warning: only supported in conbination \
-       with `--numeric` for now."
-    in
-    let docv = "X-Y" in
-    Decl.range ~names:["range"] ~default ~doc ~docv ~kind
-      (fun conf elt -> update conf ~f:(fun f -> {f with range= elt}))
-      (fun conf -> conf.opr_opts.range)
-
   let disable_conf_attrs =
     let doc = "Disable configuration in attributes." in
     Decl.flag ~default ~names:["disable-conf-attrs"] ~doc ~kind
@@ -1472,7 +1462,6 @@ module Operational = struct
       ; elt max_iters
       ; elt ocaml_version
       ; elt quiet
-      ; elt range
       ; elt disable_conf_attrs
       ; elt version_check ]
 end

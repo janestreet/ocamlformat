@@ -115,6 +115,7 @@ type fmt_opts =
   ; type_decl: [`Compact | `Sparse] elt
   ; type_decl_indent: int elt
   ; wrap_comments: bool elt  (** Wrap comments at margin. *)
+  ; wrap_docstrings: bool elt
   ; wrap_fun_args: bool elt }
 
 (** Options changing the tool's behavior *)
@@ -130,7 +131,6 @@ type opr_opts =
   ; ocaml_version: Ocaml_version.t elt
         (** Version of OCaml syntax of the output. *)
   ; quiet: bool elt
-  ; range: (string -> Range.t) elt
   ; disable_conf_attrs: bool elt
   ; version_check: bool elt }
 

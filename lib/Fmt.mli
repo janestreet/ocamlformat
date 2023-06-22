@@ -218,10 +218,3 @@ val hvbox_if : ?name:string -> bool -> int -> t -> t
 val hovbox_if : ?name:string -> bool -> int -> t -> t
 (** Conditionally wrap a format thunk with an hovbox with specified
     indentation. *)
-
-(** Text filling --------------------------------------------------------*)
-
-val fill_text : ?epi:string -> string -> t
-(** Format a non-empty string as filled text wrapped at the margin. *)
-
-type code_formatter = string -> t or_error

@@ -628,3 +628,23 @@ type x =
     \,d\xi
     }
 *)
+
+(** {[
+     let _ = {|
+        Doc-comment contains code blocks that contains string with breaks and
+        ending with trailing spaces.
+       |}
+   ]} *)
+
+(** ISO-Latin1 characters in identifiers
+    {[ω]}*)
+
+(** Here, [my_list=[]]. *)
+
+(** Here, [my_list=\[\]]. *)
+
+(** This code block will change due to the brackets being re-escaped.
+    [ [ \[ [] ] ]. *)
+
+(** at@ *)
+(** \@at *)

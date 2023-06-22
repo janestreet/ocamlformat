@@ -58,7 +58,13 @@
     :with-test
     (= :version)))
   (ocp-indent
-   (>= 1.8.0))
+   (or
+    (and
+     (= :with-test false)
+     (>= 1.8.0))
+    (and
+     :with-test
+     (>= 1.8.1))))
   stdio
   (uuseg
    (>= 10.0.0))
@@ -80,7 +86,13 @@
   (ocaml
    (>= 4.08))
   (cmdliner
-   (>= 1.1.0))
+   (or
+    (and
+     (= :with-test false)
+     (>= 1.1.0))
+    (and
+     :with-test
+     (>= 1.2.0))))
   dune
   (ocamlformat-lib
    (= :version))

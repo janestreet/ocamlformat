@@ -13,7 +13,9 @@ open Fmt
 open Odoc_parser.Ast
 module Loc = Odoc_parser.Loc
 
-type conf = {fmt_code: Fmt.code_formatter}
+type fmt_code = Conf.t -> offset:int -> string -> string or_error
+
+type c = {fmt_code: fmt_code; conf: Conf.t}
 
 (** Escape characters if they are not already escaped. [escapeworthy] should
     be [true] if the character should be escaped, [false] otherwise. *)
@@ -36,30 +38,56 @@ let ensure_escape ?(escape_char = '\\') ~escapeworthy s =
   stash len ;
   Buffer.contents dst
 
-let escape_brackets s =
-  let escapeworthy = function '[' | ']' -> true | _ -> false in
-  ensure_escape ~escapeworthy s
+(** Insert [ins] into [s] at every indexes in [ats]. *)
+let insert_ats s ins ats =
+  let len = String.length s in
+  let b = Buffer.create (len + (String.length ins * List.length ats)) in
+  let stash pos until = Buffer.add_substring b s ~pos ~len:(until - pos) in
+  let rec loop last_ins = function
+    | [] -> stash last_ins len
+    | i :: tl -> stash last_ins i ; Buffer.add_string b ins ; loop i tl
+  in
+  loop 0 (List.sort ~compare:Int.compare ats) ;
+  Buffer.contents b
+
+let escape_balanced_brackets s =
+  (* Do not escape paired brackets. Opening and closing that couldn't be
+     paired will be escaped. *)
+  let rec brackets_to_escape opens closes i =
+    if i >= String.length s then opens @ closes
+    else
+      let opens, closes =
+        match s.[i] with
+        | '[' -> (i :: opens, closes)
+        | ']' -> (
+          match opens with
+          | [] -> (opens, i :: closes)
+          | _ :: tl -> (tl, closes) )
+        | _ -> (opens, closes)
+      in
+      brackets_to_escape opens closes (i + 1)
+  in
+  insert_ats s "\\" (brackets_to_escape [] [] 0)
 
 let escape_all s =
-  let escapeworthy = function
-    | '@' | '{' | '}' | '[' | ']' -> true
-    | _ -> false
-  in
+  let escapeworthy = function '{' | '}' | '[' | ']' -> true | _ -> false in
   ensure_escape ~escapeworthy s
 
 let split_on_whitespaces =
   String.split_on_chars ~on:['\t'; '\n'; '\011'; '\012'; '\r'; ' ']
 
 (** Escape special characters and normalize whitespaces *)
-let str_normalized ?(escape = escape_all) s =
-  split_on_whitespaces s
-  |> List.filter ~f:(Fn.non String.is_empty)
-  |> fun s -> list s "@ " (fun s -> escape s |> str)
+let str_normalized ?(escape = escape_all) c s =
+  if c.conf.fmt_opts.wrap_docstrings.v then
+    split_on_whitespaces s
+    |> List.filter ~f:(Fn.non String.is_empty)
+    |> fun s -> list s "@ " (fun s -> escape s |> str)
+  else str (escape s)
 
 let ign_loc ~f with_loc = f with_loc.Loc.value
 
-let fmt_verbatim_block s =
-  let force_break = String.contains s '\n' in
+let fmt_verbatim_block ~loc s =
+  let force_break = loc.Loc.start.line < loc.end_.line in
   let content =
     (* Literal newline to avoid indentation *)
     if force_break then wrap "\n" "@\n" (str s)
@@ -71,7 +99,7 @@ let fmt_metadata (lang, meta) =
   let fmt_meta meta = str " " $ str meta in
   str "@" $ ign_loc ~f:str lang $ opt meta (ign_loc ~f:fmt_meta)
 
-let fmt_code_block conf s1 s2 =
+let fmt_code_block c s1 s2 =
   let wrap_code x =
     str "{" $ opt s1 fmt_metadata $ fmt "[@;<1000 2>" $ x $ fmt "@ ]}"
   in
@@ -81,28 +109,32 @@ let fmt_code_block conf s1 s2 =
     else if String.length l = 0 then str "\n"
     else fmt "@," $ str l
   in
-  let fmt_no_code s =
+  let fmt_code s =
     let lines = String.split_lines s in
     let box = match lines with _ :: _ :: _ -> vbox 0 | _ -> hvbox 0 in
     box (wrap_code (vbox 0 (list_fl lines fmt_line)))
   in
-  let Odoc_parser.Loc.{location; value} = s2 in
+  let Odoc_parser.Loc.{location; value= original} = s2 in
   match s1 with
   | Some ({value= "ocaml"; _}, _) | None -> (
-    match conf.fmt_code value with
-    | Ok formatted -> hvbox 0 (wrap_code formatted)
+    (* [offset] doesn't take into account code blocks nested into lists. *)
+    match c.fmt_code c.conf ~offset:2 original with
+    | Ok formatted -> fmt_code formatted
     | Error (`Msg message) ->
         ( match message with
         | "" -> ()
         | _ when Option.is_none s1 -> ()
         | _ ->
-            Docstring.warn Stdlib.Format.err_formatter
-              { location
-              ; message= Format.sprintf "invalid code block: %s" message } ) ;
-        fmt_no_code value )
-  | Some _ -> fmt_no_code value
+            if not c.conf.opr_opts.quiet.v then
+              Docstring.warn Stdlib.Format.err_formatter
+                { location
+                ; message= Format.sprintf "invalid code block: %s" message }
+        ) ;
+        fmt_code original )
+  | Some _ -> fmt_code original
 
-let fmt_code_span s = hovbox 0 (wrap "[" "]" (str (escape_brackets s)))
+let fmt_code_span s =
+  hovbox 0 (wrap "[" "]" (str (escape_balanced_brackets s)))
 
 let fmt_math_span s = hovbox 2 (wrap "{m " "}" (str s))
 
@@ -132,58 +164,68 @@ let list_should_use_heavy_syntax items =
   in
   List.exists items ~f:heavy_nestable_block_elements
 
-(* Decide if should break between two elements *)
-let block_element_should_break elem next =
+(* Decide if a blank line should be added between two elements *)
+let block_element_should_blank elem next =
   match (elem, next) with
-  (* Mandatory breaks *)
-  | `List (_, _, _), _ | `Paragraph _, `Paragraph _ -> true
-  (* Arbitrary breaks *)
-  | (`Paragraph _ | `Heading _), _ | _, (`Paragraph _ | `Heading _) -> true
+  | `Tag _, `Tag _ -> false
+  (* Mandatory blanks lines. *)
+  | (`List _ | `Tag _), _ | `Paragraph _, `Paragraph _ -> true
   | _, _ -> false
 
+let should_preserve_blank _c (a : Loc.span) (b : Loc.span) =
+  (* Whether there were already an empty line *)
+  b.start.line - a.end_.line > 1
+
 (* Format a list of block_elements separated by newlines Inserts blank line
-   depending on [block_element_should_break] *)
-let list_block_elem elems f =
+   depending on [block_element_should_blank] *)
+let list_block_elem c elems f =
   list_pn elems (fun ~prev:_ elem ~next ->
-      let elem = elem.Loc.value in
       let break =
         match next with
-        | Some {Loc.value= n; _}
-          when block_element_should_break
-                 (elem :> block_element)
-                 (n :> block_element) ->
-            fmt "\n@\n"
-        | Some _ -> fmt "@\n"
+        | Some n ->
+            if
+              block_element_should_blank
+                (elem.Loc.value :> block_element)
+                (n.value :> block_element)
+              || should_preserve_blank c elem.location n.location
+            then fmt "\n@\n"
+            else fmt "@\n"
         | None -> noop
       in
       f elem $ break )
 
-let space_elt : inline_element with_location = Loc.(at (span []) (`Space ""))
+let space_elt c : inline_element with_location =
+  let sp = if c.conf.fmt_opts.wrap_docstrings.v then "" else " " in
+  Loc.(at (span []) (`Space sp))
 
-let rec fmt_inline_elements elements =
+let non_wrap_space sp = if String.contains sp '\n' then fmt "@\n" else str sp
+
+let rec fmt_inline_elements c elements =
   let wrap_elements opn cls ~always_wrap hd = function
     | [] -> wrap_if always_wrap opn cls hd
-    | tl -> wrap opn cls (hd $ fmt_inline_elements (space_elt :: tl))
+    | tl -> wrap opn cls (hd $ fmt_inline_elements c (space_elt c :: tl))
   in
   let rec aux = function
     | [] -> noop
-    | `Space _ :: `Word w :: t ->
-        (* Escape lines starting with '+' or '-' *)
-        let escape =
-          if String.length w > 0 && Char.(w.[0] = '+' || w.[0] = '-') then
-            "\\"
-          else ""
-        in
-        cbreak ~fits:("", 1, "") ~breaks:("", 0, escape)
-        $ str_normalized w $ aux t
-    | `Space _ :: t -> fmt "@ " $ aux t
-    | `Word w :: t -> str_normalized w $ aux t
+    | `Space sp :: `Word (("-" | "+") as w) :: t ->
+        (* Escape lines starting with '+' or '-'. *)
+        fmt_or_k c.conf.fmt_opts.wrap_docstrings.v
+          (cbreak ~fits:("", 1, "") ~breaks:("", 0, "\\"))
+          (non_wrap_space sp)
+        $ str w $ aux t
+    | `Space sp :: t ->
+        fmt_or_k c.conf.fmt_opts.wrap_docstrings.v (fmt "@ ")
+          (non_wrap_space sp)
+        $ aux t
+    | `Word w :: t ->
+        fmt_if (String.is_prefix ~prefix:"@" w) "\\"
+        $ str_normalized c w $ aux t
     | `Code_span s :: t -> fmt_code_span s $ aux t
     | `Math_span s :: t -> fmt_math_span s $ aux t
     | `Raw_markup (lang, s) :: t ->
         let lang =
           match lang with
-          | Some l -> str_normalized l $ str ":"
+          | Some l -> str_normalized c l $ str ":"
           | None -> noop
         in
         wrap "{%%" "%%}" (lang $ str s) $ aux t
@@ -196,24 +238,27 @@ let rec fmt_inline_elements elements =
           | `Superscript -> "^"
           | `Subscript -> "_"
         in
-        hovbox
+        hovbox_if c.conf.fmt_opts.wrap_docstrings.v
           (1 + String.length s + 1)
-          (wrap_elements "{" "}" ~always_wrap:true (str_normalized s) elems)
+          (wrap_elements "{" "}" ~always_wrap:true (str_normalized c s) elems)
         $ aux t
     | `Reference (_kind, rf, txt) :: t ->
         let rf = wrap "{!" "}" (fmt_reference rf) in
         wrap_elements "{" "}" ~always_wrap:false rf txt $ aux t
     | `Link (url, txt) :: t ->
-        let url = wrap "{:" "}" (str_normalized url) in
-        hovbox 2 @@ wrap_elements "{" "}" ~always_wrap:false url txt $ aux t
+        let url = wrap "{:" "}" (str_normalized c url) in
+        hovbox_if c.conf.fmt_opts.wrap_docstrings.v 2
+        @@ wrap_elements "{" "}" ~always_wrap:false url txt
+        $ aux t
   in
   aux (List.map elements ~f:(ign_loc ~f:Fn.id))
 
-and fmt_nestable_block_element c = function
-  | `Paragraph elems -> fmt_inline_elements elems
+and fmt_nestable_block_element c elm =
+  match elm.Loc.value with
+  | `Paragraph elems -> fmt_inline_elements c elems
   | `Code_block (s1, s2) -> fmt_code_block c s1 s2
   | `Math_block s -> fmt_math_block s
-  | `Verbatim s -> fmt_verbatim_block s
+  | `Verbatim s -> fmt_verbatim_block ~loc:elm.location s
   | `Modules mods ->
       hovbox 0
         (wrap "{!modules:@," "@,}"
@@ -241,7 +286,7 @@ and fmt_list_light c kind items =
   vbox 0 (list items "@," fmt_item)
 
 and fmt_nestable_block_elements c elems =
-  list_block_elem elems (fmt_nestable_block_element c)
+  list_block_elem c elems (fmt_nestable_block_element c)
 
 let at = char '@'
 
@@ -274,21 +319,46 @@ let fmt_tag c = function
   | `Closed -> fmt_tag_args c "closed"
   | `Canonical ref -> fmt_tag_args c "canonical" ~arg:(fmt_reference ref)
 
-let fmt_block_element c = function
+let fmt_block_element c elm =
+  match elm.Loc.value with
   | `Tag tag -> hovbox 2 (fmt_tag c tag)
   | `Heading (lvl, lbl, elems) ->
       let lvl = Int.to_string lvl in
       let lbl =
         match lbl with
-        | Some lbl -> str ":" $ str_normalized lbl
+        | Some lbl -> str ":" $ str_normalized c lbl
         | None -> noop
       in
       let elems =
-        if List.is_empty elems then elems else space_elt :: elems
+        if List.is_empty elems then elems else space_elt c :: elems
       in
-      hovbox 0 (wrap "{" "}" (str lvl $ lbl $ fmt_inline_elements elems))
-  | #nestable_block_element as elm ->
-      hovbox 0 (fmt_nestable_block_element c elm)
+      hovbox 0 (wrap "{" "}" (str lvl $ lbl $ fmt_inline_elements c elems))
+  | #nestable_block_element as value ->
+      hovbox 0 (fmt_nestable_block_element c {elm with value})
 
-let fmt ~fmt_code (docs : t) =
-  vbox 0 (list_block_elem docs (fmt_block_element {fmt_code}))
+let fmt_ast conf ~fmt_code (docs : t) =
+  let c = {fmt_code; conf} in
+  vbox 0 (list_block_elem c docs (fmt_block_element c))
+
+let fmt_parsed (conf : Conf.t) ~fmt_code ~input ~offset parsed =
+  let open Fmt in
+  let begin_space = String.starts_with_whitespace input in
+  (* The offset is used to adjust the margin when formatting code blocks. *)
+  let offset = offset + if begin_space then 1 else 0 in
+  let fmt_code conf ~offset:offset' input =
+    fmt_code conf ~offset:(offset + offset') input
+  in
+  let fmt_parsed parsed =
+    fmt_if begin_space " "
+    $ fmt_ast conf ~fmt_code parsed
+    $ fmt_if
+        (String.length input > 1 && String.ends_with_whitespace input)
+        " "
+  in
+  match parsed with
+  | _ when not conf.fmt_opts.parse_docstrings.v -> str input
+  | Ok parsed -> fmt_parsed parsed
+  | Error msgs ->
+      if not conf.opr_opts.quiet.v then
+        List.iter msgs ~f:(Docstring.warn Format.err_formatter) ;
+      str input

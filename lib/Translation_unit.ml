@@ -184,19 +184,6 @@ let with_buffer_formatter ~buffer_size k =
   if Buffer.length buffer > 0 then Format_.pp_print_newline fs () ;
   Buffer.contents buffer
 
-let recover (type a) (fg : a Extended_ast.t) ~input_name str : a =
-  let lexbuf = Lexing.from_string str in
-  Location.init lexbuf input_name ;
-  match fg with
-  | Structure -> Parser_recovery.structure lexbuf
-  | Signature -> Parser_recovery.signature lexbuf
-  | Use_file -> Parser_recovery.use_file lexbuf
-  | Core_type -> failwith "no recovery for core_type"
-  | Module_type -> failwith "no recovery for module_type"
-  | Expression -> failwith "no recovery for expression"
-  | Repl_file -> failwith "no recovery for repl_file"
-  | Documentation -> failwith "no recovery for .mld files"
-
 let strconst_mapper locs =
   let constant self c =
     match c.Parsetree.pconst_desc with
@@ -227,12 +214,7 @@ let check_comments (conf : Conf.t) cmts ~old:t_old ~new_:t_new =
     let errors =
       check_remaining_comments cmts
       >>= fun () ->
-      let split_cmts = List.partition_map ~f:(Cmts.is_docstring conf) in
-      let old_docs, old_cmts = split_cmts t_old.comments in
-      let new_docs, new_cmts = split_cmts t_new.comments in
-      Normalize_extended_ast.diff_cmts conf old_cmts new_cmts
-      >>= fun () ->
-      Normalize_extended_ast.diff_docstrings conf old_docs new_docs
+      Normalize_extended_ast.diff_cmts conf t_old.comments t_new.comments
     in
     match errors with
     | Ok () -> ()
@@ -275,10 +257,13 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
       in
       (contents, cmts_t)
     in
-    if conf.opr_opts.debug.v then
-      format ~box_debug:true |> fst
-      |> dump_formatted ~suffix:".boxes"
-      |> (ignore : string option -> unit) ;
+    ( if conf.opr_opts.debug.v then
+        format ~box_debug:true |> fst
+        |> dump_formatted ~suffix:".boxes"
+        |> function
+        | Some file ->
+            if i = 1 then Format.eprintf "[DEBUG] Box structure: %s\n" file
+        | None -> () ) ;
     let fmted, cmts_t = format ~box_debug:false in
     let conf =
       if conf.opr_opts.debug.v then conf
@@ -364,7 +349,14 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
               args
           else
             let args = args ~suffix:".unequal-ast" in
-            internal_error [`Ast_changed] args ) ;
+            internal_error [`Ast_changed] args
+        else
+          dump_ast std_fg ~suffix:""
+            (Normalize_std_ast.ast std_fg conf std_t_new.ast)
+          |> function
+          | Some file ->
+              if i = 1 then Format.eprintf "[DEBUG] AST structure: %s\n" file
+          | None -> () ) ;
       check_comments conf cmts_t ~old:t ~new_:t_new ;
       (* Too many iteration ? *)
       if i >= conf.opr_opts.max_iters.v then (
@@ -417,44 +409,3 @@ let parse_and_format syntax =
   let (Extended_ast.Any ext) = Extended_ast.of_syntax syntax in
   let (Std_ast.Any std) = std_of_extended ext in
   parse_and_format ext std
-
-let numeric (type a b) (fg : a list Extended_ast.t)
-    (std_fg : b list Std_ast.t) ~input_name ~source ~range (conf : Conf.t) =
-  let lines = String.split_lines source in
-  Location.input_name := input_name ;
-  let preserve_beginend = Poly.(conf.fmt_opts.exp_grouping.v = `Preserve) in
-  let parse_ast = Extended_ast.Parse.ast ~preserve_beginend in
-  let parse_or_recover ~src =
-    match parse_result parse_ast fg conf ~source:src ~input_name with
-    | Ok parsed -> Ok parsed
-    | Error _ -> parse_result recover fg conf ~source:src ~input_name
-  in
-  match
-    let+ parsed = parse_or_recover ~src:source in
-    let+ std_parsed =
-      parse_result Std_ast.Parse.ast std_fg conf ~source ~input_name
-    in
-    let+ _, fmted_src =
-      format fg std_fg ~input_name ~prev_source:source ~parsed ~std_parsed
-        conf
-    in
-    let+ {ast= fmted_ast; source= fmted_src; _} =
-      parse_result parse_ast fg ~source:fmted_src conf ~input_name
-    in
-    let unformatted = (parsed.ast, source) in
-    let formatted = (fmted_ast, fmted_src) in
-    Ok
-      (Indent.Valid_ast.indent_range fg ~lines ~range ~unformatted ~formatted)
-  with
-  | Ok x -> x
-  | Error _ -> Indent.Partial_ast.indent_range ~source ~range
-
-let numeric = function
-  | Syntax.Structure -> numeric Structure Structure
-  | Syntax.Signature -> numeric Signature Signature
-  | Syntax.Use_file -> numeric Use_file Use_file
-  | Syntax.Core_type -> failwith "numeric not implemented for Core_type"
-  | Syntax.Module_type -> failwith "numeric not implemented for Module_type"
-  | Syntax.Expression -> failwith "numeric not implemented for Expression"
-  | Syntax.Repl_file -> failwith "numeric not implemented for Repl_file"
-  | Syntax.Documentation -> failwith "numeric not implemented for .mld files"

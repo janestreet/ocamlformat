@@ -40,8 +40,8 @@ type t =
         (* aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
            cccccccccccccccccccccccccccc ddddddddddddddddd eeeee *)
   ; b: float
-        (* aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
-           cccccccccccccccccccccccccccc ddddddddddddddddd eeeee *) }
+    (* aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
+       cccccccccccccccccccccccccccc ddddddddddddddddd eeeee *) }
 
 type t =
   | Tuple of {elts: t vector; packed: bool}
@@ -79,3 +79,22 @@ type program =
   { prog_globals: global list (* global variables *)
   ; prog_struct_types: lltype list (* data structures *)
   ; prog_lib_funcs: func list (* library functions *) }
+
+type t =
+  { mutable ci_fixed: IntervalSet.t
+  ; mutable ci_spilled:
+      (* spilled stack slots (reg.loc = Stack (Local n)) still in use *)
+      IntervalSet.t }
+
+type t =
+  { mutable ci_fixed: IntervalSet.t
+  ; mutable
+      (* spilled stack slots (reg.loc = Stack (Local n)) still in use *)
+      ci_spilled:
+      IntervalSet.t }
+
+type t =
+  { mutable ci_fixed: IntervalSet.t
+  ; mutable ci_spilled
+      (* spilled stack slots (reg.loc = Stack (Local n)) still in use *):
+      IntervalSet.t }

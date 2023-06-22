@@ -10,6 +10,7 @@
 (**************************************************************************)
 
 open Extended_ast
+open Asttypes
 
 val parens_if : bool -> Conf.t -> ?disambiguate:bool -> Fmt.t -> Fmt.t
 
@@ -18,6 +19,9 @@ val parens : Conf.t -> ?disambiguate:bool -> Fmt.t -> Fmt.t
 module Exp : sig
   module Infix_op_arg : sig
     val wrap : Conf.t -> ?parens_nested:bool -> parens:bool -> Fmt.t -> Fmt.t
+
+    val dock : Conf.t -> expression Ast.xt -> bool
+    (** Whether the RHS of an infix operator should be docked. *)
   end
 
   val wrap :
@@ -33,6 +37,18 @@ module Exp : sig
     -> Fmt.t
 end
 
+module Mod : sig
+  type args =
+    { dock: bool  (** Whether each argument's [pro] should be docked. *)
+    ; arg_psp: Fmt.t  (** Break before every arguments. *)
+    ; indent: int
+    ; arg_align: bool
+          (** Whether arguments should be aligned on opening parentheses *)
+    }
+
+  val get_args : Conf.t -> functor_parameter loc list -> args
+end
+
 val get_or_pattern_sep :
   ?cmts_before:bool -> ?space:bool -> Conf.t -> ctx:Ast.t -> Fmt.t
 
@@ -45,18 +61,21 @@ type cases =
   ; break_after_arrow: Fmt.t
   ; open_paren_branch: Fmt.t
   ; break_after_opening_paren: Fmt.t
+  ; expr_parens: bool option
   ; close_paren_branch: Fmt.t }
 
 val get_cases :
      Conf.t
+  -> ctx:Ast.t
   -> first:bool
-  -> indent:int
-  -> parens_branch:bool
+  -> last:bool
   -> xbch:expression Ast.xt
   -> cases
 
 val wrap_tuple :
   Conf.t -> parens:bool -> no_parens_if_break:bool -> Fmt.t -> Fmt.t
+
+val tuple_sep : Conf.t -> Fmt.t
 
 type record_type =
   { docked_before: Fmt.t
@@ -127,32 +146,39 @@ val get_if_then_else :
   -> fmt_cond:(expression Ast.xt -> Fmt.t)
   -> if_then_else
 
-val match_indent : ?default:int -> Conf.t -> ctx:Ast.t -> int
+val match_indent : ?default:int -> Conf.t -> parens:bool -> ctx:Ast.t -> int
 (** [match_indent c ~ctx ~default] returns the indentation used for the
     pattern-matching in context [ctx], depending on the `match-indent-nested`
     option, or using the [default] indentation (0 if not provided) if the
     option does not apply. *)
 
-val function_indent : ?default:int -> Conf.t -> ctx:Ast.t -> int
+val function_indent :
+  ?default:int -> Conf.t -> parens:bool -> xexp:expression Ast.xt -> int
 (** [function_indent c ~ctx ~default] returns the indentation used for the
     function in context [ctx], depending on the `function-indent-nested`
     option, or using the [default] indentation (0 if not provided) if the
     option does not apply. *)
 
+val fun_indent : ?eol:Fmt.t -> Conf.t -> int
+(** [fun_undent ?eol c] returns the indentation used for the function,
+    depending on the `function-indent-nested` option. *)
+
 val comma_sep : Conf.t -> Fmt.s
 (** [comma_sep c] returns the format string used to separate two elements
     with a comma, depending on the `break-separators` option. *)
-
-val semi_sep : Conf.t -> Fmt.s
-(** Like [comma_sep] but use a semicolon as separator. *)
 
 module Align : sig
   (** Implement the [align_symbol_open_paren] option. *)
 
   val infix_op : Conf.t -> Fmt.t -> Fmt.t
 
-  val match_ : Conf.t -> Fmt.t -> Fmt.t
+  val match_ : Conf.t -> xexp:expression Ast.xt -> Fmt.t -> Fmt.t
 
   val function_ :
     Conf.t -> parens:bool -> ctx0:Ast.t -> self:expression -> Fmt.t -> Fmt.t
+
+  val fun_decl : Conf.t -> decl:Fmt.t -> pattern:Fmt.t -> args:Fmt.t -> Fmt.t
+
+  val module_pack : Conf.t -> me:module_expr -> bool
+  (** Not implemented as a wrapper to work with the blk system. *)
 end

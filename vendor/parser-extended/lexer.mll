@@ -293,17 +293,18 @@ let warn_latin1 lexbuf =
     (Location.curr lexbuf)
     "ISO-Latin1 characters in identifiers"
 
-let handle_docstrings = ref true
-let comment_list = ref []
+type comment = [ `Comment of string | `Docstring of string ]
 
-let add_comment com =
-  comment_list := com :: !comment_list
+let handle_docstrings = ref true
+let comment_list : (comment * _) list ref = ref []
+
+let add_comment (txt, loc) =
+  comment_list := (`Comment txt, loc) :: !comment_list
 
 let add_docstring_comment ds =
-  let com =
-    ("*" ^ Docstrings.docstring_body ds, Docstrings.docstring_loc ds)
-  in
-    add_comment com
+  let txt = Docstrings.docstring_body ds
+  and loc = Docstrings.docstring_loc ds in
+  comment_list := (`Docstring txt, loc) :: !comment_list
 
 let comments () = List.rev !comment_list
 
@@ -486,17 +487,17 @@ rule token = parse
   | "\'" newline "\'"
       { update_loc lexbuf None 1 false 1;
         (* newline is ('\013'* '\010') *)
-        CHAR '\n' }
+        CHAR ('\n', "\\n") }
   | "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
-      { CHAR c }
-  | "\'\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) "\'"
-      { CHAR (char_for_backslash c) }
-  | "\'\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] "\'"
-      { CHAR(char_for_decimal_code lexbuf 2) }
-  | "\'\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] "\'"
-      { CHAR(char_for_octal_code lexbuf 3) }
-  | "\'\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "\'"
-      { CHAR(char_for_hexadecimal_code lexbuf 3) }
+      { CHAR (c, String.make 1 c) }
+  | "\'" ("\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) as s) "\'"
+      { CHAR (char_for_backslash c, s) }
+  | "\'" ("\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] as s) "\'"
+      { CHAR (char_for_decimal_code lexbuf 2, s) }
+  | "\'" ("\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] as s) "\'"
+      { CHAR (char_for_octal_code lexbuf 3, s) }
+  | "\'" ("\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] as s) "\'"
+      { CHAR (char_for_hexadecimal_code lexbuf 3, s) }
   | "\'" ("\\" _ as esc)
       { error lexbuf (Illegal_escape (esc, None)) }
   | "\'\'"

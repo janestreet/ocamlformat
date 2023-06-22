@@ -103,6 +103,9 @@ let mkcf ~loc ?attrs ?docs d =
 
 let mkrhs rhs loc = mkloc rhs (make_loc loc)
 
+let mk_optional lbl loc = Optional (mkrhs lbl loc)
+let mk_labelled lbl loc = Labelled (mkrhs lbl loc)
+
 let push_loc x acc =
   if x.Location.loc_ghost
   then acc
@@ -437,10 +440,6 @@ let mkpat_attrs ~loc d attrs =
 
 let wrap_class_attrs ~loc:_ body attrs =
   {body with pcl_attributes = attrs @ body.pcl_attributes}
-let wrap_mod_attrs ~loc:_ attrs body =
-  {body with pmod_attributes = attrs @ body.pmod_attributes}
-let wrap_mty_attrs ~loc:_ attrs body =
-  {body with pmty_attributes = attrs @ body.pmty_attributes}
 
 let wrap_str_ext ~loc body ext =
   match ext with
@@ -612,7 +611,7 @@ let check_layout loc id =
 %token BARBAR                 "||"
 %token BARRBRACKET            "|]"
 %token BEGIN                  "begin"
-%token <char> CHAR            "'a'" (* just an example *)
+%token <char * string> CHAR   "'a'" (* just an example *)
 %token CLASS                  "class"
 %token COLON                  ":"
 %token COLONCOLON             "::"
@@ -1239,19 +1238,22 @@ parse_any_longident:
 (* Functor arguments appear in module expressions and module types. *)
 
 %inline functor_args:
-  reversed_nonempty_llist(functor_arg)
+  llist(functor_arg)
     { $1 }
-    (* Produce a reversed list on purpose;
-       later processed using [fold_left]. *)
+;
+
+%inline nonempty_functor_args:
+  nonempty_llist(functor_arg)
+    { $1 }
 ;
 
 functor_arg:
     (* An anonymous and untyped argument. *)
     LPAREN RPAREN
-      { $startpos, Unit }
+      { mkloc Unit (make_loc $sloc) }
   | (* An argument accompanied with an explicit type. *)
     LPAREN x = mkrhs(module_name) COLON mty = module_type RPAREN
-      { $startpos, Named (x, mty) }
+      { mkloc (Named (x, mty)) (make_loc $sloc) }
 ;
 
 module_name:
@@ -1279,12 +1281,14 @@ module_expr:
       { unclosed "struct" $loc($1) "end" $loc($4) }
   | SIG error
       { expecting $loc($1) "struct" }
-  | FUNCTOR attrs = attributes args = functor_args MINUSGREATER me = module_expr
-      { wrap_mod_attrs ~loc:$sloc attrs (
-          List.fold_left (fun acc (startpos, arg) ->
-            mkmod ~loc:(startpos, $endpos) (Pmod_functor (arg, acc))
-          ) me args
-        ) }
+  | FUNCTOR attrs = attributes args = nonempty_functor_args MINUSGREATER me = module_expr
+      { let me =
+          match attrs, me with
+          | [], {pmod_desc= Pmod_functor (args', me'); pmod_attributes= []; _} ->
+              Pmod_functor (args @ args', me')
+          | _ -> Pmod_functor (args, me)
+        in
+        mkmod ~loc:$sloc ~attrs me }
   | me = paren_module_expr
       { me }
   | me = module_expr attr = attribute
@@ -1427,12 +1431,13 @@ structure_item:
   MODULE
   ext = ext attrs1 = attributes
   name = mkrhs(module_name)
+  args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
     { let docs = symbol_docs $sloc in
       let loc = make_loc $sloc in
       let attrs = attrs1 @ attrs2 in
-      let body = Mb.mk name body ~attrs ~loc ~docs in
+      let body = Mb.mk name args body ~attrs ~loc ~docs in
       Pstr_module body, ext }
 ;
 
@@ -1445,9 +1450,6 @@ module_binding_body:
   | mkmod(
       COLON mty = module_type EQUAL me = module_expr
         { Pmod_constraint(me, mty) }
-    | arg_and_pos = functor_arg body = module_binding_body
-        { let (_, arg) = arg_and_pos in
-          Pmod_functor(arg, body) }
   ) { $1 }
 ;
 
@@ -1464,6 +1466,7 @@ module_binding_body:
   attrs1 = attributes
   REC
   name = mkrhs(module_name)
+  args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
   {
@@ -1471,7 +1474,7 @@ module_binding_body:
     let attrs = attrs1 @ attrs2 in
     let docs = symbol_docs $sloc in
     ext,
-    Mb.mk name body ~attrs ~loc ~docs
+    Mb.mk name args body ~attrs ~loc ~docs
   }
 ;
 
@@ -1480,6 +1483,7 @@ module_binding_body:
   AND
   attrs1 = attributes
   name = mkrhs(module_name)
+  args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
   {
@@ -1487,7 +1491,7 @@ module_binding_body:
     let attrs = attrs1 @ attrs2 in
     let docs = symbol_docs $sloc in
     let text = symbol_text $symbolstartpos in
-    Mb.mk name body ~attrs ~loc ~text ~docs
+    Mb.mk name args body ~attrs ~loc ~text ~docs
   }
 ;
 
@@ -1583,14 +1587,18 @@ module_type:
       { unclosed "sig" $loc($1) "end" $loc($4) }
   | STRUCT error
       { expecting $loc($1) "sig" }
-  | FUNCTOR attrs = attributes args = functor_args
+  | FUNCTOR attrs = attributes args = nonempty_functor_args
     MINUSGREATER mty = module_type
       %prec below_WITH
-      { wrap_mty_attrs ~loc:$sloc attrs (
-          List.fold_left (fun acc (startpos, arg) ->
-            mkmty ~loc:(startpos, $endpos) (Pmty_functor (arg, acc))
-          ) mty args
-        ) }
+      { let mty =
+          match attrs, mty with
+          | [], {pmty_desc= Pmty_functor (args', mty'); pmty_attributes= []; _} ->
+              Pmty_functor (args @ args', mty')
+          | [], {pmty_desc= Pmty_gen (loc, mty'); pmty_attributes= []; _} ->
+              Pmty_functor (args @ [mkloc Unit loc], mty')
+          | _ -> Pmty_functor (args, mty)
+        in
+        mkmty ~loc:$sloc ~attrs mty }
   | MODULE TYPE OF attributes module_expr %prec below_LBRACKETAT
       { mkmty ~loc:$sloc ~attrs:$4 (Pmty_typeof $5) }
   | LPAREN module_type RPAREN
@@ -1603,10 +1611,12 @@ module_type:
       mkrhs(mty_longident)
         { Pmty_ident $1 }
     | LPAREN RPAREN MINUSGREATER module_type
-        { Pmty_functor(Unit, $4) }
+        { let arg_loc = make_loc ($startpos($1), $endpos($2)) in
+          Pmty_gen(arg_loc, $4) }
     | module_type MINUSGREATER module_type
         %prec below_WITH
-        { Pmty_functor(Named (mknoloc None, $1), $3) }
+        { let arg_loc = make_loc $loc($1) in
+          Pmty_functor([mkloc (Named (mknoloc None, $1)) arg_loc], $3) }
     | module_type WITH separated_nonempty_llist(AND, with_constraint)
         { Pmty_with($1, $3) }
 /*  | LPAREN MODULE mkrhs(mod_longident) RPAREN
@@ -1683,28 +1693,16 @@ signature_item:
   MODULE
   ext = ext attrs1 = attributes
   name = mkrhs(module_name)
-  body = module_declaration_body
+  args = functor_args
+  COLON
+  body = module_type
   attrs2 = post_item_attributes
   {
     let attrs = attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name body ~attrs ~loc ~docs, ext
+    Md.mk name args body ~attrs ~loc ~docs, ext
   }
-;
-
-(* The body (right-hand side) of a module declaration. *)
-module_declaration_body:
-    COLON mty = module_type
-      { mty }
-  | EQUAL error
-      { expecting $loc($1) ":" }
-  | mkmty(
-      arg_and_pos = functor_arg body = module_declaration_body
-        { let (_, arg) = arg_and_pos in
-          Pmty_functor(arg, body) }
-    )
-    { $1 }
 ;
 
 (* A module alias declaration (in a signature). *)
@@ -1719,7 +1717,7 @@ module_declaration_body:
     let attrs = attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name body ~attrs ~loc ~docs, ext
+    Md.mk name [] body ~attrs ~loc ~docs, ext
   }
 ;
 %inline module_expr_alias:
@@ -1762,7 +1760,7 @@ module_subst:
     let attrs = attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    ext, Md.mk name mty ~attrs ~loc ~docs
+    ext, Md.mk name [] mty ~attrs ~loc ~docs
   }
 ;
 %inline and_module_declaration:
@@ -1777,7 +1775,7 @@ module_subst:
     let docs = symbol_docs $sloc in
     let loc = make_loc $sloc in
     let text = symbol_text $symbolstartpos in
-    Md.mk name mty ~attrs ~loc ~text ~docs
+    Md.mk name [] mty ~attrs ~loc ~text ~docs
   }
 ;
 
@@ -2192,31 +2190,31 @@ seq_expr:
 ;
 labeled_simple_pattern:
     QUESTION LPAREN optional_local label_let_pattern opt_default RPAREN
-      { (Optional (fst $4), $5, mkpat_local_if $3 (snd $4)) }
+      { mk_optional (fst $4) $sloc, $5, mkpat_local_if $3 (snd $4) }
   | QUESTION label_var
-      { (Optional (fst $2), None, snd $2) }
+      { mk_optional (fst $2) $sloc, None, snd $2 }
   | OPTLABEL LPAREN optional_local let_pattern opt_default RPAREN
-      { (Optional $1, $5, mkpat_local_if $3 $4) }
+      { mk_optional $1 $sloc, $5, mkpat_local_if $3 $4 }
   | OPTLABEL pattern_var
-      { (Optional $1, None, $2) }
+      { mk_optional $1 $sloc, None, $2 }
   | TILDE LPAREN optional_local label_let_pattern RPAREN
-      { (Labelled (fst $4), None, mkpat_local_if $3 (snd $4)) }
+      { mk_labelled (fst $4) $sloc, None, mkpat_local_if $3 (snd $4) }
   | TILDE label_var
-      { (Labelled (fst $2), None, snd $2) }
+      { mk_labelled (fst $2) $sloc, None, snd $2 }
   | LABEL simple_pattern
-      { (Labelled $1, None, $2) }
+      { mk_labelled $1 $sloc, None, $2 }
   | LABEL LPAREN LOCAL pattern RPAREN
-      { (Labelled $1, None, mkpat_stack $4) }
+      { mk_labelled $1 $sloc, None, mkpat_stack $4 }
   | simple_pattern
-      { (Nolabel, None, $1) }
+      { Nolabel, None, $1 }
   | LPAREN LOCAL let_pattern RPAREN
-      { (Nolabel, None, mkpat_stack $3) }
+      { Nolabel, None, mkpat_stack $3 }
   | LABEL LPAREN poly_pattern RPAREN
-      { (Labelled $1, None, $3) }
+      { mk_labelled $1 $sloc, None, $3 }
   | LABEL LPAREN LOCAL poly_pattern RPAREN
-      { (Labelled $1, None, mkpat_stack $4) }
+      { mk_labelled $1 $sloc, None, mkpat_stack $4 }
   | LPAREN poly_pattern RPAREN
-      { (Nolabel, None, $2) }
+      { Nolabel, None, $2 }
 ;
 
 pattern_var:
@@ -2328,8 +2326,8 @@ expr:
      { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
 ;
 %inline expr_attrs:
-  | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
-      { Pexp_letmodule($4, $5, $7), $3 }
+  | LET MODULE ext_attributes mkrhs(module_name) functor_args module_binding_body IN seq_expr
+      { Pexp_letmodule($4, $5, $6, $8), $3 }
   | LET EXCEPTION ext_attributes let_exception_declaration IN seq_expr
       { Pexp_letexception($4, $6), $3 }
   | LET OPEN override_flag ext_attributes module_expr IN seq_expr
@@ -2610,20 +2608,21 @@ comprehension_clause:
 ;
 labeled_simple_expr:
     simple_expr %prec below_HASH
-      { (Nolabel, $1) }
+      { Nolabel, $1 }
   | LABEL simple_expr %prec below_HASH
-      { (Labelled $1, $2) }
+      { mk_labelled $1 $sloc, $2 }
   | TILDE label = LIDENT
       { let loc = $loc(label) in
-        (Labelled label, mkexpvar ~loc label) }
+        mk_labelled label $sloc, mkexpvar ~loc label }
   | TILDE LPAREN label = LIDENT ty = type_constraint RPAREN
-      { (Labelled label, mkexp_constraint ~loc:($startpos($2), $endpos)
-                           (mkexpvar ~loc:$loc(label) label) ty) }
+      { mk_labelled label $sloc,
+        mkexp_constraint ~loc:($startpos($2), $endpos)
+          (mkexpvar ~loc:$loc(label) label) ty }
   | QUESTION label = LIDENT
       { let loc = $loc(label) in
-        (Optional label, mkexpvar ~loc label) }
+        mk_optional label $sloc, mkexpvar ~loc label }
   | OPTLABEL simple_expr %prec below_HASH
-      { (Optional $1, $2) }
+      { mk_optional $1 $sloc, $2 }
 ;
 %inline lident_list:
   xs = mkrhs(LIDENT)+
@@ -3572,9 +3571,9 @@ strict_function_type:
 ;
 %inline arg_label:
   | label = optlabel
-      { Optional label }
+      { mk_optional label $sloc }
   | label = LIDENT COLON
-      { Labelled label }
+      { mk_labelled label $sloc }
   | /* empty */
       { Nolabel }
 ;
@@ -3756,7 +3755,8 @@ meth_list:
 constant:
   | INT          { let (n, m) = $1 in
                    mkconst ~loc:$sloc (Pconst_integer (n, m)) }
-  | CHAR         { mkconst ~loc:$sloc (Pconst_char $1) }
+  | CHAR         { let (c, s) = $1 in
+                   mkconst ~loc:$sloc (Pconst_char (c, s)) }
   | STRING       { let (s, strloc, d) = $1 in
                    mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
   | FLOAT        { let (f, m) = $1 in

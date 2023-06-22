@@ -13,6 +13,22 @@ module Location = Migrate_ast.Location
 open Extended_ast
 open Asttypes
 open Fmt
+open Ast
+
+(** Whether [exp] occurs in [args] as a labelled argument. *)
+let is_labelled_arg args exp =
+  List.exists
+    ~f:(function
+      | Nolabel, _ -> false
+      | Labelled _, x | Optional _, x -> phys_equal x exp )
+    args
+
+let is_labelled_arg' xexp =
+  match xexp.Ast.ctx with
+  | Exp {pexp_desc= Pexp_apply (_, args); _} -> is_labelled_arg args xexp.ast
+  | _ -> false
+
+let ocp c = c.Conf.fmt_opts.ocp_indent_compat.v
 
 let parens_if parens (c : Conf.t) ?(disambiguate = false) k =
   if disambiguate && c.fmt_opts.disambiguate_non_breaking_match.v then
@@ -44,6 +60,20 @@ module Exp = struct
           (Fmt.fits_breaks ")" ?hint cls)
           k
       else k
+
+    let dock (c : Conf.t) xarg =
+      if not c.fmt_opts.ocp_indent_compat.v then false
+      else
+        match xarg.ast.pexp_desc with
+        | Pexp_apply (_, args) -> (
+          (* Rhs is an apply and it ends with a [fun]. *)
+          match List.last_exn args with
+          | _, {pexp_desc= Pexp_fun _ | Pexp_newtype _ | Pexp_function _; _}
+            ->
+              true
+          | _ -> false )
+        | Pexp_match _ | Pexp_try _ -> true
+        | _ -> false
   end
 
   let wrap (c : Conf.t) ?(disambiguate = false) ?(fits_breaks = true)
@@ -60,6 +90,32 @@ module Exp = struct
           Fmt.fits_breaks "(" "(" $ k
           $ Fmt.fits_breaks ")" ~hint:(1000, offset_closing_paren) ")"
       | `No -> wrap "(" ")" k
+end
+
+module Mod = struct
+  type args = {dock: bool; arg_psp: Fmt.t; indent: int; arg_align: bool}
+
+  let arg_is_sig arg =
+    match arg.txt with
+    | Named
+        ( _
+        , { pmty_desc=
+              Pmty_signature _ | Pmty_typeof {pmod_desc= Pmod_structure _; _}
+          ; _ } ) ->
+        true
+    | _ -> false
+
+  let get_args (c : Conf.t) args =
+    let indent, psp_indent = if ocp c then (2, 2) else (0, 4) in
+    let dock =
+      (* ocp-indent-compat: Dock only one argument to avoid alignment of
+         subsequent arguments. *)
+      if ocp c then match args with [arg] -> arg_is_sig arg | _ -> false
+      else List.for_all ~f:arg_is_sig args
+    in
+    let arg_psp = if dock then str " " else break 1 psp_indent in
+    let arg_align = (not dock) && ocp c in
+    {dock; arg_psp; indent; arg_align}
 end
 
 let get_or_pattern_sep ?(cmts_before = false) ?(space = false) (c : Conf.t)
@@ -91,13 +147,39 @@ type cases =
   ; break_after_arrow: Fmt.t
   ; open_paren_branch: Fmt.t
   ; break_after_opening_paren: Fmt.t
+  ; expr_parens: bool option
   ; close_paren_branch: Fmt.t }
 
-let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
-  let beginend =
-    match xbch.Ast.ast with
-    | {pexp_desc= Pexp_beginend _; _} -> true
+let get_cases (c : Conf.t) ~ctx ~first ~last ~xbch:({ast; _} as xast) =
+  let indent =
+    match (c.fmt_opts.cases_matching_exp_indent.v, (ctx, ast.pexp_desc)) with
+    | ( `Compact
+      , ( Exp {pexp_desc= Pexp_function _ | Pexp_match _ | Pexp_try _; _}
+        , (Pexp_match _ | Pexp_try _ | Pexp_beginend _) ) ) ->
+        2
+    | _, _ -> c.fmt_opts.cases_exp_indent.v
+  in
+  let align_nested_match =
+    match (ast.pexp_desc, c.fmt_opts.nested_match.v) with
+    | (Pexp_match _ | Pexp_try _), `Align -> last
     | _ -> false
+  in
+  let body_has_parens =
+    match ast.pexp_desc with
+    | Pexp_tuple _ when Poly.(c.fmt_opts.parens_tuple.v = `Always) ->
+        (* [fmt_expression] doesn't respect [~parens] for tuples when this
+           option is set to [always]. *)
+        true
+    | _ -> Ast.Exp.is_symbol ast
+  in
+  let parens_branch, expr_parens =
+    if align_nested_match then (false, Some false)
+    else if c.fmt_opts.leading_nested_match_parens.v then (false, None)
+    else (parenze_exp xast && not body_has_parens, Some false)
+  in
+  let indent = if align_nested_match then 0 else indent in
+  let beginend =
+    match ast with {pexp_desc= Pexp_beginend _; _} -> true | _ -> false
   in
   let open_paren_branch =
     if beginend then fmt "@;<1 0>begin" else fmt_if parens_branch " ("
@@ -125,6 +207,7 @@ let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
       ; break_after_arrow= noop
       ; open_paren_branch
       ; break_after_opening_paren= fmt "@ "
+      ; expr_parens
       ; close_paren_branch }
   | `Nested ->
       { leading_space= fmt_if (not first) "@ "
@@ -135,6 +218,7 @@ let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
       ; break_after_arrow= fmt_if (not parens_branch) "@;<0 3>"
       ; open_paren_branch
       ; break_after_opening_paren= fmt_or (indent > 2) "@;<1 4>" "@;<1 2>"
+      ; expr_parens
       ; close_paren_branch }
   | `Fit_or_vertical ->
       { leading_space= break_unless_newline 1000 0
@@ -145,6 +229,7 @@ let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
       ; break_after_arrow= fmt_if (not parens_branch) "@;<0 3>"
       ; open_paren_branch
       ; break_after_opening_paren= fmt "@ "
+      ; expr_parens
       ; close_paren_branch }
   | `Toplevel | `All ->
       { leading_space= break_unless_newline 1000 0
@@ -155,6 +240,7 @@ let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
       ; break_after_arrow= fmt_if (not parens_branch) "@;<0 3>"
       ; open_paren_branch
       ; break_after_opening_paren= fmt "@ "
+      ; expr_parens
       ; close_paren_branch }
   | `Vertical ->
       { leading_space= break_unless_newline 1000 0
@@ -165,6 +251,7 @@ let get_cases (c : Conf.t) ~first ~indent ~parens_branch ~xbch =
       ; break_after_arrow= fmt_if (not parens_branch) "@;<0 3>"
       ; open_paren_branch
       ; break_after_opening_paren= break 1000 0
+      ; expr_parens
       ; close_paren_branch }
 
 let wrap_collec c ~space_around opn cls =
@@ -174,10 +261,15 @@ let wrap_collec c ~space_around opn cls =
 let wrap_record (c : Conf.t) =
   wrap_collec c ~space_around:c.fmt_opts.space_around_records.v "{" "}"
 
-let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break =
-  if parens then wrap_fits_breaks c "(" ")"
-  else if no_parens_if_break then Fn.id
-  else wrap_k (fits_breaks "" "( ") (fits_breaks "" ~hint:(1, 0) ")")
+let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break k =
+  if parens then wrap_fits_breaks c "(" ")" (hvbox 0 k)
+  else if no_parens_if_break then k
+  else fits_breaks "" "( " $ hvbox 0 k $ fits_breaks "" ~hint:(1, 0) ")"
+
+let tuple_sep (c : Conf.t) =
+  match c.fmt_opts.break_separators.v with
+  | `Before -> fits_breaks ", " ~hint:(1000, -2) ", "
+  | `After -> fmt ",@ "
 
 type record_type =
   { docked_before: Fmt.t
@@ -370,15 +462,15 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
     else if parens_bch then wrap "(" ")" (wrap_breaks k)
     else k
   in
-  let get_parens_breaks ~opn_hint:(oh_space, oh_other)
-      ~cls_hint:(ch_sp, ch_sl) =
+  let get_parens_breaks ~opn_hint_indent ~cls_hint:(ch_sp, ch_sl) =
     let brk hint = fits_breaks "" ~hint "" in
+    let oh_other = ((if beginend then 1 else 0), opn_hint_indent) in
     if beginend then
       let _, offset = ch_sl in
       wrap_k (brk oh_other) (break 1000 offset)
     else
       match imd with
-      | `Space -> wrap_k (brk oh_space) (brk ch_sp)
+      | `Space -> wrap_k (brk (1, opn_hint_indent)) (brk ch_sp)
       | `No -> wrap_k (brk oh_other) noop
       | `Closing_on_separate_line -> wrap_k (brk oh_other) (brk ch_sl)
   in
@@ -404,8 +496,7 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
       ; wrap_parens=
           wrap_parens
             ~wrap_breaks:
-              (get_parens_breaks
-                 ~opn_hint:((1, 0), (0, 0))
+              (get_parens_breaks ~opn_hint_indent:0
                  ~cls_hint:((1, 0), (1000, -2)) )
       ; box_expr= Some false
       ; expr_pro= None
@@ -436,8 +527,7 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
       ; wrap_parens=
           wrap_parens
             ~wrap_breaks:
-              (get_parens_breaks
-                 ~opn_hint:((1, 2), (0, 2))
+              (get_parens_breaks ~opn_hint_indent:2
                  ~cls_hint:((1, 0), (1000, 0)) )
       ; box_expr= Some false
       ; expr_pro=
@@ -460,8 +550,7 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
       ; wrap_parens=
           wrap_parens
             ~wrap_breaks:
-              (get_parens_breaks
-                 ~opn_hint:((1, 2), (0, 2))
+              (get_parens_breaks ~opn_hint_indent:2
                  ~cls_hint:((1, 0), (1000, 0)) )
       ; box_expr= None
       ; expr_pro= Some (break_unless_newline 1000 2)
@@ -490,8 +579,7 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
       ; wrap_parens=
           wrap_parens
             ~wrap_breaks:
-              (get_parens_breaks
-                 ~opn_hint:((1, 0), (0, 0))
+              (get_parens_breaks ~opn_hint_indent:0
                  ~cls_hint:((1, 0), (1000, -2)) )
       ; box_expr= Some false
       ; expr_pro= None
@@ -499,41 +587,52 @@ let get_if_then_else (c : Conf.t) ~first ~last ~parens_bch ~parens_prev_bch
       ; break_end_branch= noop
       ; space_between_branches= fmt "@ " }
 
-let match_indent ?(default = 0) (c : Conf.t) ~(ctx : Ast.t) =
+let match_indent ?(default = 0) (c : Conf.t) ~parens ~(ctx : Ast.t) =
   match (c.fmt_opts.match_indent_nested.v, ctx) with
   | `Always, _ | _, (Top | Sig _ | Str _) -> c.fmt_opts.match_indent.v
+  | _, Exp {pexp_desc= Pexp_infix _; _}
+    when c.fmt_opts.ocp_indent_compat.v && parens ->
+      2 (* Match is docked *)
   | _ -> default
 
-let function_indent ?(default = 0) (c : Conf.t) ~(ctx : Ast.t) =
-  match (c.fmt_opts.function_indent_nested.v, ctx) with
-  | `Always, _ | _, (Top | Sig _ | Str _) -> c.fmt_opts.function_indent.v
+let function_indent ?(default = 0) (c : Conf.t) ~parens ~xexp =
+  match c.fmt_opts.function_indent_nested.v with
+  | `Always -> c.fmt_opts.function_indent.v
+  | _
+    when c.fmt_opts.ocp_indent_compat.v && parens
+         && not (is_labelled_arg' xexp) ->
+      default + 1
   | _ -> default
+
+let fun_indent ?eol (c : Conf.t) =
+  match c.fmt_opts.function_indent_nested.v with
+  | `Always -> c.fmt_opts.function_indent.v
+  | _ ->
+      if Option.is_none eol then 2
+      else if c.fmt_opts.let_binding_deindent_fun.v then 1
+      else 0
 
 let comma_sep (c : Conf.t) : Fmt.s =
   match c.fmt_opts.break_separators.v with
   | `Before -> "@,, "
   | `After -> ",@;<1 2>"
 
-let semi_sep (c : Conf.t) : Fmt.s =
-  match c.fmt_opts.break_separators.v with
-  | `Before -> "@,; "
-  | `After -> ";@;<1 2>"
-
 module Align = struct
-  (** Whether [exp] occurs in [args] as a labelled argument. *)
-  let is_labelled_arg args exp =
-    List.exists
-      ~f:(function
-        | Nolabel, _ -> false
-        | Labelled _, x | Optional _, x -> phys_equal x exp )
-      args
-
   let general (c : Conf.t) t =
     hvbox_if (not c.fmt_opts.align_symbol_open_paren.v) 0 t
 
   let infix_op = general
 
-  let match_ = general
+  let match_ (c : Conf.t) ~xexp:{ast; ctx} t =
+    (* Matches on the RHS of an infix are docked in ocp-indent-compat. *)
+    let docked =
+      match ctx with
+      | Exp {pexp_desc= Pexp_infix (_, _, rhs); _} when phys_equal rhs ast ->
+          c.fmt_opts.ocp_indent_compat.v
+      | _ -> false
+    in
+    let align = (not c.fmt_opts.align_symbol_open_paren.v) && not docked in
+    hvbox_if align 0 t
 
   let function_ (c : Conf.t) ~parens ~(ctx0 : Ast.t) ~self t =
     let align =
@@ -547,4 +646,17 @@ module Align = struct
       | _ -> parens && not c.fmt_opts.align_symbol_open_paren.v
     in
     hvbox_if align 0 t
+
+  let fun_decl (c : Conf.t) ~decl ~pattern ~args =
+    if c.fmt_opts.ocp_indent_compat.v then
+      hovbox 4 (decl $ hvbox 2 (pattern $ args))
+    else hovbox 4 (decl $ pattern) $ args
+
+  let module_pack (c : Conf.t) ~me =
+    if not c.fmt_opts.ocp_indent_compat.v then false
+    else
+      (* Align when the constraint is not desugared. *)
+      match me.pmod_desc with
+      | Pmod_structure _ | Pmod_ident _ -> false
+      | _ -> true
 end

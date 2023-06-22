@@ -47,7 +47,7 @@ val relocate_wrongfully_attached_cmts :
 val fmt_before :
      t
   -> Conf.t
-  -> fmt_code:(Conf.t -> Fmt.code_formatter)
+  -> fmt_code:Fmt_odoc.fmt_code
   -> ?pro:Fmt.t
   -> ?epi:Fmt.t
   -> ?eol:Fmt.t
@@ -60,7 +60,7 @@ val fmt_before :
 val fmt_after :
      t
   -> Conf.t
-  -> fmt_code:(Conf.t -> Fmt.code_formatter)
+  -> fmt_code:Fmt_odoc.fmt_code
   -> ?pro:Fmt.t
   -> ?epi:Fmt.t
   -> ?filter:(Cmt.t -> bool)
@@ -72,7 +72,7 @@ val fmt_after :
 val fmt_within :
      t
   -> Conf.t
-  -> fmt_code:(Conf.t -> Fmt.code_formatter)
+  -> fmt_code:Fmt_odoc.fmt_code
   -> ?pro:Fmt.t
   -> ?epi:Fmt.t
   -> Location.t
@@ -82,20 +82,12 @@ val fmt_within :
 
 module Toplevel : sig
   val fmt_before :
-       t
-    -> Conf.t
-    -> fmt_code:(Conf.t -> Fmt.code_formatter)
-    -> Location.t
-    -> Fmt.t
+    t -> Conf.t -> fmt_code:Fmt_odoc.fmt_code -> Location.t -> Fmt.t
   (** [fmt_before loc] formats the comments associated with [loc] that appear
       before [loc]. *)
 
   val fmt_after :
-       t
-    -> Conf.t
-    -> fmt_code:(Conf.t -> Fmt.code_formatter)
-    -> Location.t
-    -> Fmt.t
+    t -> Conf.t -> fmt_code:Fmt_odoc.fmt_code -> Location.t -> Fmt.t
   (** [fmt_after loc] formats the comments associated with [loc] that appear
       after [loc]. *)
 end
@@ -129,10 +121,3 @@ type layout_cache_key =
 val preserve : cache_key:layout_cache_key -> (unit -> Fmt.t) -> t -> string
 (** [preserve f t] formats like [f ()] but returns a string and does not
     consume comments from [t]. *)
-
-val is_docstring : Conf.t -> Cmt.t -> (Cmt.t, Cmt.t) Either.t
-(** [is_docstring conf cmt] returns:
-
-    - [First  c] when [cmt] is a docstring, where [c] is its content stripped
-      of the leading [*];
-    - [Second c] when [cmt] is a regular comment, where [c] is its content. *)

@@ -165,6 +165,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to asterisk_prefixed_cmts.ml.stdout
+   (with-stderr-to asterisk_prefixed_cmts.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/asterisk_prefixed_cmts.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/asterisk_prefixed_cmts.ml.ref asterisk_prefixed_cmts.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/asterisk_prefixed_cmts.ml.err asterisk_prefixed_cmts.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to attr_parens.ml.stdout
    (with-stderr-to attr_parens.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/attr_parens.ml})))))
@@ -2082,60 +2100,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to format_invalid_files-0.ml.stdout
-   (with-stderr-to format_invalid_files-0.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --numeric --range=11-13 %{dep:tests/format_invalid_files.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files-0.ml.ref format_invalid_files-0.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files-0.ml.err format_invalid_files-0.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to format_invalid_files.ml.stdout
-   (with-stderr-to format_invalid_files.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --numeric --range=7-8 %{dep:tests/format_invalid_files.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files.ml.ref format_invalid_files.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files.ml.err format_invalid_files.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to format_invalid_files_with_locations.ml.stdout
-   (with-stderr-to format_invalid_files_with_locations.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --numeric --range=1-11 %{dep:tests/format_invalid_files_with_locations.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files_with_locations.ml.ref format_invalid_files_with_locations.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/format_invalid_files_with_locations.ml.err format_invalid_files_with_locations.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to fun_decl.ml.stdout
    (with-stderr-to fun_decl.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/fun_decl.ml})))))
@@ -2264,12 +2228,12 @@
  (action
   (with-stdout-to generative.ml.stdout
    (with-stderr-to generative.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/generative.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/generative.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/generative.ml generative.ml.stdout)))
+ (action (diff tests/generative.ml.ref generative.ml.stdout)))
 
 (rule
  (alias runtest)
@@ -3256,7 +3220,7 @@
  (package ocamlformat)
  (action
    (with-outputs-to js_source.ml.ocp.output
-     (run %{bin:ocp-indent} --config JaneStreet %{dep:tests/js_source.ml.ref}))))
+     (run %{bin:ocp-indent} --config JaneStreet %{dep:js_source.ml.stdout}))))
 
 (rule
  (alias runtest)
@@ -4352,42 +4316,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to partial.ml.stdout
-   (with-stderr-to partial.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --numeric --range=2-14 %{dep:tests/partial.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/partial.ml.ref partial.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/partial.ml.err partial.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to partial_double_quotes.ml.stdout
-   (with-stderr-to partial_double_quotes.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --numeric --range=1-1 %{dep:tests/partial_double_quotes.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/partial_double_quotes.ml.ref partial_double_quotes.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/partial_double_quotes.ml.err partial_double_quotes.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to polyparams.ml.stdout
    (with-stderr-to polyparams.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/polyparams.ml})))))
@@ -4882,7 +4810,7 @@
  (action
   (with-stdout-to sequence.ml.stdout
    (with-stderr-to sequence.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --sequence-blank-line=compact --max-iter=3 %{dep:tests/sequence.ml})))))
+     (run %{bin:ocamlformat} --margin-check --sequence-blank-line=compact %{dep:tests/sequence.ml})))))
 
 (rule
  (alias runtest)

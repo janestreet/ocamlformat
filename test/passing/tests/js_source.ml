@@ -7625,6 +7625,34 @@ let x =
     ^ "Yet another string _________")
 ;;
 
+let x =
+  some_fun________________________________
+    some_arg______________________________ (fun param ->
+    do_something ();
+    do_something_else ();
+    return_this_value)
+
+let x =
+  some_fun________________________________
+    some_arg______________________________ ~f:(fun param ->
+    do_something ();
+    do_something_else ();
+    return_this_value)
+
+let x =
+  some_value
+  |> some_fun (fun x ->
+       do_something ();
+       do_something_else ();
+       return_this_value)
+
+let x =
+  some_value
+  ^ some_fun (fun x ->
+      do_something ();
+      do_something_else ();
+      return_this_value)
+
 let bind t ~f =
   unfold_step
     ~f:(function
@@ -7663,3 +7691,475 @@ let _ =
                                          eeee) -> FFFFFFFFF gg)
     ~h
 ;;
+
+type t
+[@@deriving
+  some_deriver_name
+, another_deriver_name
+, another_deriver_name
+, another_deriver_name
+, yet_another_such_name
+, such_that_they_line_wrap]
+
+type t
+[@@deriving
+  some_deriver_name another_deriver_name another_deriver_name
+    another_deriver_name yet_another_such_name such_that_they_line_wrap]
+
+let pat =
+  String.Search_pattern.create
+    (String.init len ~f:(function
+        | 0 -> '\n'
+        | n when n < len - 1 -> ' '
+        | _ -> '*'))
+;;
+
+type t =
+  { break_separators: [`Before | `After]
+  ; break_sequences: bool
+  ; break_string_literals: [`Auto | `Never]
+        (** How to potentially break string literals into new lines. *)
+  ; break_struct: bool
+  ; cases_exp_indent: int
+  ; cases_matching_exp_indent: [`Normal | `Compact] }
+
+let rec collect_files ~enable_outside_detected_project ~root ~segs ~ignores
+    ~enables ~files =
+  match segs with [] | [""] -> (ignores, enables, files, None)
+
+let _ =
+  fooooooooooooooooooooooooooooooooooooooo
+    fooooooooooooooooooooooooooooooooooooooo
+    fooooooooooooooooooooooooooooooooooooooo
+    ~f:(fun (type a) foooooooooooooooooooooooooooooooooo : 'a ->
+      match fooooooooooooooooooooooooooooooooooooooo with
+      | Fooooooooooooooooooooooooooooooooooooooo -> x
+      | Fooooooooooooooooooooooooooooooooooooooo -> x )
+
+let _ =
+  foo
+  |> List.map ~f:(fun x ->
+    do_something ();
+    do_something ();
+    do_something ();
+    do_something ();
+    do_something_else ())
+
+let _ =
+  foo
+  |> List.map ~f:(fun x ->
+    do_something ();
+    do_something ();
+    do_something ();
+    do_something ();
+    do_something_else ())
+  |> bar
+
+let _ =
+  foo
+  |> List.map
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+    fooooooooooo
+
+let _ =
+  foo
+  |> List.map (function A -> do_something ())
+
+let _ =
+  foo
+  |> List.map (function
+      | A -> do_something ();
+      | A -> do_something ();
+      | A -> do_something ();
+      | A -> do_something ();
+      | A -> do_something_else ())
+  |> bar
+
+let _ =
+  foo
+  |> List.double_map ~f1:(fun x ->
+      do_something ();
+      do_something ();
+      do_something ();
+      do_something ();
+      do_something_else ())
+      ~f2:(fun x ->
+          do_something ();
+          do_something ();
+          do_something ();
+          do_something ();
+          do_something_else ())
+  |> bar
+
+module Stritem_attributes_indent : sig
+  val f : int -> int -> int -> int -> int
+  [@@cold] [@@inline never] [@@local never] [@@specialise never]
+
+  external unsafe_memset : t -> pos:int -> len:int -> char -> unit
+    = "bigstring_memset_stub"
+  [@@noalloc]
+
+end = struct
+  let raise_length_mismatch name n1 n2 =
+    invalid_argf "length mismatch in %s: %d <> %d" name n1 n2 ()
+  [@@cold] [@@inline never] [@@local never] [@@specialise never]
+
+  external unsafe_memset : t -> pos:int -> len:int -> char -> unit = "bigstring_memset_stub"
+  [@@noalloc]
+end
+
+let _ =
+  foo
+  $$ ( match group with [] -> impossible "previous match"
+    | [cmt] -> fmt_cmt t conf cmt ~fmt_code $ maybe_newline ~next cmt )
+  $$ bar
+
+let _ =
+  foo
+  $$ ( try group with [] -> impossible "previous match"
+    | [cmt] -> fmt_cmt t conf cmt ~fmt_code $ maybe_newline ~next cmt )
+  $$ bar
+
+let _ =
+  x == exp
+  ||
+  match x with
+  | {pexp_desc= Pexp_constraint (e, _); _} -> loop e
+  | _ -> false
+
+let _ =
+  let module M = struct
+    include ( val foooooooooooooooooooooooooooooooooooooooo
+                : fooooooooooooooooooooooooooooooooooooooooo )
+  end in
+  ()
+
+type action =
+  | In_out of [ `Impl | `Intf ] input * string option
+  (** Format input file (or [-] for stdin) of given kind to output file,
+      or stdout if None. *)
+  (* foo *)
+  | Inplace of [ `Impl | `Intf ] input list
+  (** Format in-place, overwriting input file(s). *)
+
+let%test_module "semantics" =
+  (module (
+   struct
+     open Core
+     open Appendable_list
+     module Stable = Stable
+   end :
+     S))
+;;
+
+let _ =
+  Error
+    (`Foooooooooooooooooo
+       (name, Format.sprintf "expecting %S but got %S" Version.version value))
+;;
+
+let _ =
+  `Foooooooooooooooooo
+    (name, Format.sprintf "expecting %S but got %S" Version.version value)
+;;
+
+let _ =
+  Foooooooooooooooooo
+    (name, Format.sprintf "expecting %S but got %S" Version.version value)
+;;
+
+let (`Foooooooooooooooooo
+      (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo) )
+    =
+  x
+
+let (Foooooooooooooooooo
+      (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo) )
+    =
+  x
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    (fun x ->
+       function
+       | Foooooooooooooooooooo -> foooooooooooooooooooo
+       | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    ~x:(fun x ->
+      function
+      | Foooooooooooooooooooo -> foooooooooooooooooooo
+      | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    (fun x ->
+       match foo with
+       | Foooooooooooooooooooo -> foooooooooooooooooooo
+       | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    ~x:(fun x ->
+      match foo with
+      | Foooooooooooooooooooo -> foooooooooooooooooooo
+      | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  let x = x in
+  fun foooooooooooooooooo foooooooooooooooooo foooooooooooooooooo foooooooooooooooooo
+      foooooooooooooooooo foooooooooooooooooo ->
+    ()
+;;
+
+module type For_let_syntax_local =
+  For_let_syntax_gen
+    with type ('a, 'b) fn := ('a[@local]) -> 'b
+     and type ('a, 'b) f_labeled_fn := f:('a[@local]) -> 'b
+
+type fooooooooooooooooooooooooooooooo =
+  ( fooooooooooooooooooooooooooooooo
+  , fooooooooooooooooooooooooooooooo )
+    fooooooooooooooooooooooooooooooo
+
+val fooooooooooooooooooooooooooooooo
+  : ( fooooooooooooooooooooooooooooooo
+    , fooooooooooooooooooooooooooooooo )
+      fooooooooooooooooooooooooooooooo
+
+(*
+   *)
+
+(**
+   xxx
+*)
+include S1
+(** @inline *)
+
+type input =
+  { name: string
+  ; action: [`Format | `Numeric of range] }
+
+let x =
+  fun [@foo] x ->
+    fun [@foo] y ->
+      object
+        method x = y
+      end
+
+class x =
+  fun [@foo] x ->
+    fun [@foo] y ->
+      object
+        method x = y
+      end
+
+module M =
+  [%demo
+    module Foo = Bar
+
+    type t]
+;;
+
+let _ =
+  Some
+    (fun fooooooooooooooooooooooooooooooo
+        fooooooooooooooooooooooooooooooo
+        fooooooooooooooooooooooooooooooo ->
+        foo)
+;;
+
+type t =
+  { xxxxxx :
+      t
+        (* _________________________________________________________________________
+           ____________________________________________________________________
+           ___________ *)
+        XXXXXXX.t
+  }
+
+module Test_gen
+  (For_tests : For_tests_gen)
+  (Tested : S_gen
+            with type 'a src := 'a For_tests.Src.t
+            with type 'a dst := 'a For_tests.Dst.t)
+  (Tested : S_gen
+            with type 'a src := 'a For_tests.Src.t
+            with type 'a dst := 'a For_tests.Dst.t
+            and type 'a dst := 'a For_tests.Dst.t
+            and type 'a dst := 'a For_tests.Dst.t) =
+struct
+  open Tested
+  open For_tests
+end
+
+type t =
+  { xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx : YYYYYYYYYYYYYYYYYYYYY.t
+    (* ____________________________________ *)
+  }
+
+(*{v
+
+      foo
+
+v}*)
+
+(*$
+    {|
+         f|}
+*)
+
+type t =
+  { xxxxxxxxxxxxxxxxxxx : yyy
+                          [@zzzzzzzzzzzzzzzzzzz
+                             (* ________________________________
+                                ___ *)
+                            _______]
+  }
+
+let _ =
+  match () with
+  (*$
+    Printf.(
+      printf "\n  | _ -> .\n;;\n")
+  *)
+  | _ -> .
+;;
+(*$*)
+
+(*$
+  "________________________"
+
+             $*)
+
+(*$
+  let open! Core in
+  ()
+*)
+(*$*)
+
+(*$
+    [%string
+      {| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zzzzzzzzzzzzzzzzzzzzzzzzzzzz
+    |}]
+*)
+(*$*)
+
+(*$
+    {|
+         f|}
+*)
+
+let () =
+  match () with
+  | _ ->
+    fun _ : _ ->
+    (match () with
+     | _ -> ())
+  | _ -> ()
+;;
+
+(* ocp-indent-compat: Docked fun after apply only if on the same line. *)
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo:(fun foo -> bar)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo:(fun foo -> bar)
+       ~fooooooooooooooooooooooooooooooo
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo:(fun foo ->
+         match bar with
+         | Some _ -> foo
+         | None -> baz)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo ~fooooooooooooooooooooooooooooooo (fun foo -> bar)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo ~fooooooooooooooooooooooooooooooo (fun foo ->
+    match bar with
+    | Some _ -> foo
+    | None -> baz)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+       ~fooooooooooooooooooooooooooooooo
+       (fun foo ->
+          match bar with
+          | Some _ -> foo
+          | None -> baz)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooofooooooooooooooooooooooooooooooofoooooooooo
+       (fun foo ->
+          match bar with
+          | Some _ -> foo
+          | None -> baz)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> foooooooooooooooooooooooooooo ~fooooooooooooooooooooooooooooooo (function foo -> bar)
+;;
+
+let _ =
+  fooooooooooooooooooooooooooooooo
+  |> fooooooooooooooooooooooooooooooo ~fooooooooooooooooooooooooooooooo (function
+    | Some _ -> foo
+    | None -> baz)
+;;
+
+(* *)
+
+(*$
+  (* 
+     *)
+  *)

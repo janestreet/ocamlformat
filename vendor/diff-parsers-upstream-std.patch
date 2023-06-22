@@ -185,6 +185,13 @@
 --- parser-upstream/lexer.mll
 +++ parser-standard/lexer.mll
 @@@@
+     "done", DONE;
+     "downto", DOWNTO;
+     "else", ELSE;
+     "end", END;
+     "exception", EXCEPTION;
++    "exclave_", EXCLAVE;
+     "external", EXTERNAL;
      "false", FALSE;
      "for", FOR;
      "fun", FUN;
@@ -459,6 +466,15 @@
 +let wrap_exp_local_if p exp =
 +  if p then wrap_exp_stack exp else exp
 +
++let exclave_ext_loc loc = mkloc "extension.exclave" loc
++
++let exclave_extension loc =
++  Exp.mk ~loc:Location.none
++    (Pexp_extension(exclave_ext_loc loc, PStr []))
++
++let mkexp_exclave ~loc ~kwd_loc exp =
++  ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
++
 +let curry_attr =
 +  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 +
@@ -612,15 +628,6 @@
 +  let loc = make_loc loc in
 +  Attr.mk ~loc (mkloc id loc) (PStr [])
 +
-+let check_layout loc id =
-+  begin
-+    match id with
-+    | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
-+    | _ -> expecting loc "layout"
-+  end;
-+  let loc = make_loc loc in
-+  Attr.mk ~loc (mkloc id loc) (PStr [])
-+
  %}
  
  /* Tokens */
@@ -639,6 +646,14 @@
  %token DONE                   "done"
  %token DOT                    "."
 @@@@
+ %token ELSE                   "else"
+ %token END                    "end"
+ %token EOF                    ""
+ %token EQUAL                  "="
+ %token EXCEPTION              "exception"
++%token EXCLAVE                "exclave_"
+ %token EXTERNAL               "external"
+ %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
  %token FOR                    "for"
  %token FUN                    "fun"
@@ -899,6 +914,8 @@
  /* END AVOID */
 +  | LOCAL seq_expr
 +     { mkexp_stack ~loc:$sloc $2 }
++  | EXCLAVE seq_expr
++     { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
  ;
  %inline expr_attrs:
    | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
@@ -1296,41 +1313,41 @@
 +;
 +
 +strict_function_type:
-   | mktyp(
-       label = arg_label
--      domain = extra_rhs(tuple_type)
++  | mktyp(
++      label = arg_label
 +      local = optional_local
 +      domain = extra_rhs(param_type)
-       MINUSGREATER
--      codomain = function_type
--        { Ptyp_arrow(label, domain, codomain) }
++      MINUSGREATER
 +      codomain = strict_function_type
 +        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
 +    )
 +    { $1 }
-+  | mktyp(
-+      label = arg_label
+   | mktyp(
+       label = arg_label
+-      domain = extra_rhs(tuple_type)
 +      arg_local = optional_local
 +      domain = extra_rhs(param_type)
-+      MINUSGREATER
+       MINUSGREATER
+-      codomain = function_type
+-        { Ptyp_arrow(label, domain, codomain) }
 +      ret_local = optional_local
 +      codomain = tuple_type
 +      %prec MINUSGREATER
 +        { Ptyp_arrow(label,
 +            mktyp_local_if arg_local domain,
 +            mktyp_local_if ret_local (maybe_curry_typ codomain)) }
-     )
-     { $1 }
- ;
++    )
++    { $1 }
++;
 +%inline param_type:
 +  | mktyp(
 +    LPAREN vars = typevar_list DOT ty = core_type RPAREN
 +      { Ptyp_poly(vars, ty) }
-+    )
-+    { $1 }
+     )
+     { $1 }
 +  | ty = tuple_type
 +    { ty }
-+;
+ ;
  %inline arg_label:
    | label = optlabel
        { Optional label }

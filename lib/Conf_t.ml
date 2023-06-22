@@ -117,6 +117,7 @@ type fmt_opts =
   ; type_decl: [`Compact | `Sparse] elt
   ; type_decl_indent: int elt
   ; wrap_comments: bool elt
+  ; wrap_docstrings: bool elt
   ; wrap_fun_args: bool elt }
 
 type opr_opts =
@@ -127,7 +128,6 @@ type opr_opts =
   ; max_iters: int elt
   ; ocaml_version: Ocaml_version.t elt
   ; quiet: bool elt
-  ; range: (string -> Range.t) elt
   ; disable_conf_attrs: bool elt
   ; version_check: bool elt }
 

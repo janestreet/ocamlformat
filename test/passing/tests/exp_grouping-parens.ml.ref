@@ -208,6 +208,8 @@ let _ =
   [: (let a = b in
       c ) :]
 
+let () = if a then b (* asd *)
+
 [@@@ocamlformat "if-then-else=compact"]
 
 let _ =
@@ -218,6 +220,8 @@ let _ =
   else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo ;
     Fooo fooo )
+
+let () = if a then b (* asd *)
 
 [@@@ocamlformat "if-then-else=fit-or-vertical"]
 
@@ -231,6 +235,10 @@ let _ =
     foo.fooooo <- Fooo.foo fooo foo.fooooo ;
     Fooo fooo )
 
+let () =
+  if a then
+    b (* asd *)
+
 [@@@ocamlformat "if-then-else=keyword-first"]
 
 let _ =
@@ -243,6 +251,8 @@ let _ =
   else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo ;
     Fooo fooo )
+
+let () = if a then b (* asd *)
 
 [@@@ocamlformat "if-then-else=k-r"]
 
@@ -299,3 +309,5 @@ let _ =
     market_data_items := ()
   end
   [@landmark "parse_constant_dividends"]
+
+let () = if a then b (* asd *)

@@ -36,8 +36,8 @@ type obj =
 type var = [`Foo  (** foo *) | `Bar of int * string  (** bar *)]
 
 [%%foo
-let x = 1 in
-x]
+  let x = 1 in
+  x]
 
 let ([%foo 2 + 1] : [%foo bar.baz]) = [%foo "foo"]
 
@@ -59,9 +59,9 @@ let ([%foo? Bar x | Baz x] : [%foo? #bar]) = [%foo? {x}]
 
 let ([%foo: include S with type t = t] :
       [%foo:
-        val x : t
+      val x : t
 
-        val y : t] ) =
+      val y : t] ) =
   [%foo: type t = t]
 
 let int_with_custom_modifier =
@@ -134,25 +134,25 @@ let () =
 (* Class expressions *)
 class x =
   fun [@foo] x ->
-    let[@foo] x = 3 in
-    object
-      inherit x [@@foo]
+  let[@foo] x = 3 in
+  object
+    inherit x [@@foo]
 
-      val x = 3 [@@foo]
+    val x = 3 [@@foo]
 
-      val virtual x : t [@@foo]
+    val virtual x : t [@@foo]
 
-      val! mutable x = 3 [@@foo]
+    val! mutable x = 3 [@@foo]
 
-      method x = 3 [@@foo]
+    method x = 3 [@@foo]
 
-      method virtual x : t [@@foo]
+    method virtual x : t [@@foo]
 
-      method! private x = 3 [@@foo]
+    method! private x = 3 [@@foo]
 
-      initializer x [@@foo]
-    end
-    [@foo]
+    initializer x [@@foo]
+  end
+  [@foo]
 
 (* Class type expressions *)
 class type t = object
@@ -1471,15 +1471,22 @@ let ty_list : type a e. (a, e) ty -> (a vlist, e) ty =
             function Thd, Noarg -> `Nil | Ttl Thd, v -> `Cons v
        end ) )
 
-(* type (_,_) ty_assoc = | Anil : (unit,'e) ty_assoc | Acons : string *
-   ('a,'e) ty * ('b,'e) ty_assoc -> ('a -> 'b, 'e) ty_assoc
+(*
+type (_,_) ty_assoc =
+  | Anil : (unit,'e) ty_assoc
+  | Acons : string * ('a,'e) ty * ('b,'e) ty_assoc -> ('a -> 'b, 'e) ty_assoc
 
-   and (_,_) ty_pvar = | Pnil : ('a,'e) ty_pvar | Pconst : 't * ('b,'e)
-   ty_pvar -> ('t -> 'b, 'e) ty_pvar | Parg : 't * ('a,'e) ty * ('b,'e)
-   ty_pvar -> ('t * 'a -> 'b, 'e) ty_pvar *)
-(* An attempt at encoding omega examples from the 2nd Central European
-   Functional Programming School: Generic Programming in Omega, by Tim Sheard
-   and Nathan Linger http://web.cecs.pdx.edu/~sheard/ *)
+and (_,_) ty_pvar =
+  | Pnil : ('a,'e) ty_pvar
+  | Pconst : 't * ('b,'e) ty_pvar -> ('t -> 'b, 'e) ty_pvar
+  | Parg : 't * ('a,'e) ty * ('b,'e) ty_pvar -> ('t * 'a -> 'b, 'e) ty_pvar
+*)
+(*
+   An attempt at encoding omega examples from the 2nd Central European
+   Functional Programming School:
+     Generic Programming in Omega, by Tim Sheard and Nathan Linger
+          http://web.cecs.pdx.edu/~sheard/
+*)
 
 (* Basic types *)
 
@@ -1501,8 +1508,8 @@ let l1 = Scons (3, Scons (5, Snil))
 
 (* We do not have type level functions, so we need to use witnesses. *)
 (* We copy here the definitions from section 3.9 *)
-(* Note the addition of the ['a nat] argument to PlusZ, since we do not have
-   kinds *)
+(* Note the addition of the ['a nat] argument to PlusZ, since we do not
+   have kinds *)
 type (_, _, _) plus =
   | PlusZ : 'a nat -> (zero, 'a, 'a) plus
   | PlusS : ('a, 'b, 'c) plus -> ('a succ, 'b, 'c succ) plus
@@ -1790,12 +1797,12 @@ let rec del_min : type n. n succ avl -> int * (n avl, n succ avl) sum =
   | Node (bal, (Node _ as l), x, r) -> (
     match del_min l with
     | y, Inr l -> (y, Inr (Node (bal, l, x, r)))
-    | y, Inl l -> (
+    | y, Inl l ->
         ( y
         , match bal with
           | Same -> Inr (Node (Less, l, x, r))
           | More -> Inl (Node (Same, l, x, r))
-          | Less -> rotl l x r ) ) )
+          | Less -> rotl l x r ) )
 
 type _ avl_del =
   | Dsame : 'n avl -> 'n avl_del
@@ -2942,7 +2949,7 @@ end
 module F (M : S) : S = M
 
 [%%expect
-{|
+  {|
 module type S = sig type t [@@immediate] end
 module F : functor (M : S) -> S
 |}]
@@ -2966,7 +2973,7 @@ module A = struct
 end
 
 [%%expect
-{|
+  {|
 module A :
   sig
     type t [@@immediate]
@@ -2991,7 +2998,7 @@ module Z : sig
 end = (Y : X with type t = int )
 
 [%%expect
-{|
+  {|
 module type X = sig type t end
 module Y : sig type t = int end
 module Z : sig type t [@@immediate] end
@@ -3079,7 +3086,7 @@ module B = struct
 end
 
 [%%expect
-{|
+  {|
 Line _, characters 2-31:
 Error: Types marked with the immediate attribute must be
        non-pointer types like int or bool
@@ -3093,7 +3100,7 @@ module C = struct
 end
 
 [%%expect
-{|
+  {|
 Line _, characters 2-26:
 Error: Types marked with the immediate attribute must be
        non-pointer types like int or bool
@@ -3107,7 +3114,7 @@ end = struct
 end
 
 [%%expect
-{|
+  {|
 Line _, characters 42-70:
 Error: Signature mismatch:
        Modules do not match:
@@ -3131,7 +3138,7 @@ module FM_invalid = F (struct
 end)
 
 [%%expect
-{|
+  {|
 Line _, characters 23-49:
 Error: Signature mismatch:
        Modules do not match: sig type t = string end is not included in S
@@ -3150,20 +3157,22 @@ module E = struct
 end
 
 [%%expect
-{|
+  {|
 Line _, characters 2-26:
 Error: Types marked with the immediate attribute must be
        non-pointer types like int or bool
 |}]
 
-(* Implicit unpack allows to omit the signature in (val ...) expressions.
+(*
+   Implicit unpack allows to omit the signature in (val ...) expressions.
 
-   It also adds (module M : S) and (module M) patterns, relying on implicit
-   (val ...) for the implementation. Such patterns can only be used in
-   function definition, match clauses, and let ... in.
+   It also adds (module M : S) and (module M) patterns, relying on
+   implicit (val ...) for the implementation. Such patterns can only
+   be used in function definition, match clauses, and let ... in.
 
-   New: implicit pack is also supported, and you only need to be able to
-   infer the the module type path from the context. *)
+   New: implicit pack is also supported, and you only need to be able
+   to infer the the module type path from the context.
+ *)
 (* ocaml -principal *)
 
 (* Use a module pattern *)
@@ -3401,7 +3410,7 @@ module SSMap = struct
 end
 
 let ssmap =
-  (module SSMap : MapT
+  ( module SSMap : MapT
     with type key = string
      and type data = string
      and type map = SSMap.map )
@@ -4501,11 +4510,12 @@ let f (module M : S with type t = int) = {M.a= 0}
 
 let flag = ref false
 
-module F (S : sig
-  module type T
-end)
-(A : S.T)
-(B : S.T) =
+module F
+    (S : sig
+      module type T
+    end)
+    (A : S.T)
+    (B : S.T) =
 struct
   module X = (val if !flag then (module A) else (module B) : S.T)
 end
@@ -4993,15 +5003,23 @@ end
 module type S' = S with module M := String
 
 (* with module type *)
-(* module type S = sig module type T module F(X:T) : T end;; module type T0 =
-   sig type t end;; module type S1 = S with module type T = T0;; module type
-   S2 = S with module type T := T0;; module type S3 = S with module type T :=
-   sig type t = int end;; module H = struct include (Hashtbl : module type of
-   Hashtbl with type statistics := Hashtbl.statistics and module type S :=
-   Hashtbl.S and module Make := Hashtbl.Make and module MakeSeeded :=
-   Hashtbl.MakeSeeded and module type SeededS := Hashtbl.SeededS and module
-   type HashedType := Hashtbl.HashedType and module type SeededHashedType :=
-   Hashtbl.SeededHashedType) end;; *)
+(*
+module type S = sig module type T module F(X:T) : T end;;
+module type T0 = sig type t end;;
+module type S1 = S with module type T = T0;;
+module type S2 = S with module type T := T0;;
+module type S3 = S with module type T := sig type t = int end;;
+module H = struct
+  include (Hashtbl : module type of Hashtbl with
+           type statistics := Hashtbl.statistics
+           and module type S := Hashtbl.S
+           and module Make := Hashtbl.Make
+           and module MakeSeeded := Hashtbl.MakeSeeded
+           and module type SeededS := Hashtbl.SeededS
+           and module type HashedType := Hashtbl.HashedType
+           and module type SeededHashedType := Hashtbl.SeededHashedType)
+end;;
+*)
 
 (* A subtle problem appearing with -principal *)
 type -'a t
@@ -5834,12 +5852,16 @@ class ['entity] entity_container =
 
 let f (x : entity entity_container) = ()
 
-(* class world = object val entity_container : entity entity_container = new
-   entity_container
+(*
+class world =
+  object
+    val entity_container : entity entity_container = new entity_container
 
-   method add_entity (s : entity) = entity_container#add_entity (s :> entity)
+    method add_entity (s : entity) =
+      entity_container#add_entity (s :> entity)
 
-   end *)
+  end
+*)
 (* Two v's in the same class *)
 class c v =
   object
@@ -5858,9 +5880,9 @@ class c (v : int) =
 
     inherit
       (fun v ->
-        object
-          method v : string = v
-        end )
+         object
+           method v : string = v
+         end )
         "42"
   end
 ;;
@@ -6914,9 +6936,11 @@ end
 
 type 'a tree = E | N of 'a tree * 'a * 'a tree
 
-module Bootstrap2 (MakeDiet : functor (X : ORD) ->
-  SET with type t = X.t tree and type elt = X.t) : SET with type elt = int =
-struct
+module Bootstrap2
+    (MakeDiet : functor
+      (X : ORD)
+      -> SET with type t = X.t tree and type elt = X.t) :
+  SET with type elt = int = struct
   type elt = int
 
   module rec Elt : sig
@@ -7337,9 +7361,9 @@ module type HEAP = sig
   val deleteMin : heap -> heap
 end
 
-module Bootstrap (MakeH : functor (Element : ORDERED) ->
-  HEAP with module Elem = Element)
-(Element : ORDERED) : HEAP with module Elem = Element = struct
+module Bootstrap
+    (MakeH : functor (Element : ORDERED) -> HEAP with module Elem = Element)
+    (Element : ORDERED) : HEAP with module Elem = Element = struct
   module Elem = Element
 
   module rec BE : sig
@@ -9183,3 +9207,6 @@ let eradicate_meta_class_is_nullsafe =
     ~hum:"Class is marked @Nullsafe and has 0 issues"
       (* Should be enabled for special integrations *)
     ~enabled:false Info
+
+let () =
+  match () with _ -> ( fun _ : _ -> match () with _ -> () ) | _ -> ()
