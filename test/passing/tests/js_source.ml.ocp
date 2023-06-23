@@ -10155,8 +10155,7 @@ let _ =
   Foooooooooooooooooooo.foooooooooooooooooooo
     foooooooooooooooooooo
     foooooooooooooooooooo
-    (fun x ->
-       function
+    (fun x -> function
        | Foooooooooooooooooooo -> foooooooooooooooooooo
        | Foooooooooooooooooooo -> foooooooooooooooooooo)
 ;;
@@ -10165,8 +10164,7 @@ let _ =
   Foooooooooooooooooooo.foooooooooooooooooooo
     foooooooooooooooooooo
     foooooooooooooooooooo
-    ~x:(fun x ->
-      function
+    ~x:(fun x -> function
       | Foooooooooooooooooooo -> foooooooooooooooooooo
       | Foooooooooooooooooooo -> foooooooooooooooooooo)
 ;;
