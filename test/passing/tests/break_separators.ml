@@ -441,8 +441,7 @@ let g () =
      ; hhhhhhhhhh :] ->
       fooooooooo
 
-let () = match x with _, (* line 1 line 2 *)
-                         Some _ -> x
+let () = match x with _, (* line 1 line 2 *) Some _ -> x
 
 let () =
   match x with
