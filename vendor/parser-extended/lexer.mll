@@ -71,7 +71,6 @@ let keyword_table =
     "module", MODULE;
     "mutable", MUTABLE;
     "new", NEW;
-    "nonlocal_", NONLOCAL;
     "nonrec", NONREC;
     "object", OBJECT;
     "of", OF;
