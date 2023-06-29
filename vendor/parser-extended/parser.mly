@@ -160,10 +160,10 @@ let neg_string f =
 
 let mkuminus ~oploc name arg =
   match name, arg.pexp_desc with
-  | "-", Pexp_constant({pconst_desc= Pconst_integer (n,m); _} as c) ->
-      Pexp_constant({c with pconst_desc= Pconst_integer(neg_string n,m)})
-  | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (f, m); _} as c) ->
-      Pexp_constant({c with pconst_desc= Pconst_float(neg_string f, m)})
+  | "-", Pexp_constant({pconst_desc= Pconst_integer (ub,n,m); _} as c) ->
+      Pexp_constant({c with pconst_desc= Pconst_integer(ub,neg_string n,m)})
+  | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (ub,f, m); _} as c) ->
+      Pexp_constant({c with pconst_desc= Pconst_float(ub,neg_string f, m)})
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
@@ -575,6 +575,23 @@ let check_layout loc id =
   let loc = make_loc loc in
   Attr.mk ~loc (mkloc id loc) (PStr [])
 
+(* Unboxed literals *)
+
+type sign = Positive | Negative
+
+let with_sign sign num =
+  match sign with
+  | Positive -> num
+  | Negative -> "-" ^ num
+
+let unboxed_int sloc sign (n, m) =
+  match m with
+  | Some _ -> Pconst_integer (true, with_sign sign n, m)
+  | None ->
+    not_expecting sloc
+      "line number directive (an unboxed literal would have a suffix)"
+
+let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %}
 
 /* Tokens */
@@ -622,6 +639,7 @@ let check_layout loc id =
 %token EXTERNAL               "external"
 %token FALSE                  "false"
 %token <string * char option> FLOAT "42.0" (* just an example *)
+%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 %token FOR                    "for"
 %token FUN                    "fun"
 %token FUNCTION               "function"
@@ -644,6 +662,7 @@ let check_layout loc id =
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
 %token <string * char option> INT "42"  (* just an example *)
+%token <string * char option> HASH_INT "#42l" (* just an example *)
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
 %token LBRACE                 "{"
@@ -786,7 +805,7 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
           LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -3741,23 +3760,29 @@ meth_list:
 
 constant:
   | INT          { let (n, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_integer (n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer (false, n, m)) }
   | CHAR         { mkconst ~loc:$sloc (Pconst_char $1) }
   | STRING       { let (s, strloc, d) = $1 in
                    mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
   | FLOAT        { let (f, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_float (f, m)) }
+                   mkconst ~loc:$sloc (Pconst_float (false, f, m)) }
+  | HASH_INT     { mkconst ~loc:$sloc (unboxed_int $sloc Positive $1) }
+  | HASH_FLOAT   { mkconst ~loc:$sloc (unboxed_float Positive $1) }
 ;
 signed_constant:
     constant     { $1 }
   | MINUS INT    { let (n, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_integer("-" ^ n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer(false, "-" ^ n, m)) }
   | MINUS FLOAT  { let (f, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_float("-" ^ f, m)) }
+                   mkconst ~loc:$sloc (Pconst_float(false, "-" ^ f, m)) }
+  | MINUS HASH_INT    { mkconst ~loc:$sloc (unboxed_int $sloc Negative $2) }
+  | MINUS HASH_FLOAT  { mkconst ~loc:$sloc (unboxed_float Negative $2) }
   | PLUS INT     { let (n, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_integer (n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer (false, n, m)) }
   | PLUS FLOAT   { let (f, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_float(f, m)) }
+                   mkconst ~loc:$sloc (Pconst_float(false, f, m)) }
+  | PLUS HASH_INT     { mkconst ~loc:$sloc (unboxed_int $sloc Positive $2) }
+  | PLUS HASH_FLOAT   { mkconst ~loc:$sloc (unboxed_float Positive $2) }
 ;
 
 /* Identifiers and long identifiers */

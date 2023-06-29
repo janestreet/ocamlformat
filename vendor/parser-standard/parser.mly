@@ -3933,7 +3933,7 @@ signed_constant:
   | PLUS INT     { let (n, m) = $2 in Pconst_integer (false, n, m) }
   | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(false, f, m) }
   | PLUS HASH_INT     { unboxed_int $sloc Positive $2 }
-  | PLUS HASH_FLOAT   { unboxed_float Negative $2 }
+  | PLUS HASH_FLOAT   { unboxed_float Positive $2 }
 ;
 
 /* Identifiers and long identifiers */

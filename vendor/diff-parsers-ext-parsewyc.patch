@@ -1,6 +1,54 @@
 --- parser-extended/lexer.mll
 +++ parser-recovery/lib/lexer.mll
 @@@@
+ let in_comment () = !comment_start_loc <> []
+ let is_in_string = ref false
+ let in_string () = !is_in_string
+ let print_warnings = ref true
+ 
+-let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
+-
+-(* See the comment on the [directive] lexer. *)
+-type directive_lexing_already_consumed =
+-   | Hash
+-   | Hash_and_line_num of { line_num : string }
+-
+ (* Escaped chars are interpreted in strings unless they are in comments. *)
+ let store_escaped_char lexbuf c =
+   if in_comment () then store_lexeme lexbuf else store_string_char c
+ 
+ let store_escaped_uchar lexbuf u =
+@@@@
+   { start_loc with Location.loc_end = end_loc.Location.loc_end }
+ 
+ let error lexbuf e = raise (Error(e, Location.curr lexbuf))
+ let error_loc loc e = raise (Error(e, loc))
+ 
+-let directive_error
+-    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
+-  =
+-  let directive_prefix =
+-    match already_consumed with
+-    | Hash -> "#"
+-    | Hash_and_line_num { line_num } -> "#" ^ line_num
+-  in
+-  (* Set the lexbuf's current window to extend to the start of
+-     the directive so the error message's location is more accurate.
+-  *)
+-  lexbuf.lex_start_p <-
+-    { lexbuf.lex_start_p with
+-      pos_cnum =
+-        lexbuf.lex_start_p.pos_cnum - String.length directive_prefix
+-    };
+-  error lexbuf
+-    (Invalid_directive (directive_prefix ^ directive, Some explanation))
+-
+ (* to translate escape sequences *)
+ 
+ let digit_value c =
+   match c with
+   | 'a' .. 'f' -> 10 + Char.code c - Char.code 'a'
+@@@@
  let is_keyword name = Hashtbl.mem keyword_table name
  
  let check_label_name lexbuf name =
@@ -66,6 +114,18 @@
  
  let comments () = List.rev !comment_list
  
+-let float ~maybe_hash lit modifier =
+-  match maybe_hash with
+-  | "#" -> HASH_FLOAT (lit, modifier)
+-  | "" -> FLOAT (lit, modifier)
+-  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+-
+-let int ~maybe_hash lit modifier =
+-  match maybe_hash with
+-  | "#" -> HASH_INT (lit, modifier)
+-  | "" -> INT (lit, modifier)
+-  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+-
 +(*
  (* Error report *)
  
@@ -84,6 +144,47 @@
  
  let newline = ('\013'* '\010')
  let blank = [' ' '\009' '\012']
+@@@@
+       { warn_latin1 lexbuf; LIDENT name }
+   | uppercase identchar * as name
+       { UIDENT name } (* No capitalized keywords *)
+   | uppercase_latin1 identchar_latin1 * as name
+       { warn_latin1 lexbuf; UIDENT name }
+-  (* This matches either an integer literal or a directive. If the text "#2"
+-     appears at the beginning of a line that lexes as a directive, then it
+-     should be treated as a directive and not an unboxed int. This is acceptable
+-     because "#2" isn't a valid unboxed int anyway because it lacks a suffix;
+-     the parser rejects unboxed-ints-lacking-suffixes with a more descriptive
+-     error message.
+-  *)
+-  | ('#'? as maybe_hash) (int_literal as lit)
+-      { if at_beginning_of_line lexbuf.lex_start_p && maybe_hash = "#" then
+-          try directive (Hash_and_line_num { line_num = lit }) lexbuf
+-          with Failure _ -> int ~maybe_hash lit None
+-        else int ~maybe_hash lit None
+-      }
+-  | ('#'? as maybe_hash) (int_literal as lit) (literal_modifier as modif)
+-      { int ~maybe_hash lit (Some modif) }
+-  | ('#'? as maybe_hash)
+-    (float_literal | hex_float_literal as lit)
+-      { float ~maybe_hash lit None }
+-  | ('#'? as maybe_hash)
+-    (float_literal | hex_float_literal as lit) (literal_modifier as modif)
+-      { float ~maybe_hash lit (Some modif) }
+-  | '#'? (float_literal | hex_float_literal | int_literal) identchar+ as invalid
++  | int_literal as lit { INT (lit, None) }
++  | (int_literal as lit) (literal_modifier as modif)
++      { INT (lit, Some modif) }
++  | float_literal | hex_float_literal as lit
++      { FLOAT (lit, None) }
++  | (float_literal | hex_float_literal as lit) (literal_modifier as modif)
++      { FLOAT (lit, Some modif) }
++  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
+       { error lexbuf (Invalid_literal invalid) }
+   | "\""
+       { let s, loc = wrap_string_lexer string lexbuf in
+         STRING (s, loc, None) }
+   | "{" (lowercase* as delim) "|"
 @@@@
                 comment lexbuf)
              lexbuf
@@ -112,6 +213,18 @@
          lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
          STAR
        }
+   | "#"
+-      { if not (at_beginning_of_line lexbuf.lex_start_p)
++      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
++        if not (at_beginning_of_line lexbuf.lex_start_p)
+         then HASH
+-        else try directive Hash lexbuf with Failure _ -> HASH
++        else try directive lexbuf with Failure _ -> HASH
+       }
+   | "&"  { AMPERSAND }
+   | "&&" { AMPERAMPER }
+   | "`"  { BACKQUOTE }
+   | "\'" { QUOTE }
 @@@@
    | ['+' '-'] symbolchar * as op
              { INFIXOP2 op }
@@ -124,6 +237,46 @@
    | '#' symbolchar_or_hash + as op
              { HASHOP op }
    | "let" kwdopchar dotsymbolchar * as op
+@@@@
+             { ANDOP op }
+   | eof { EOF }
+   | (_ as illegal_char)
+       { error lexbuf (Illegal_character illegal_char) }
+ 
+-(* An example of a directive is:
+-
+-#4 "filename.ml"
+-
+-   Here, 4 is the line number and filename.ml is the file name. The '#' must
+-   appear in column 0.
+-
+-   The [directive] lexer is called when some portion of the start of
+-   the line was already consumed, either just the '#' or the '#4'. That's
+-   indicated by the [already_consumed] argument. The caller is responsible
+-   for checking that the '#' appears in column 0.
+-
+-   The [directive] lexer always attempts to read the line number from the
+-   lexbuf. It expects to receive a line number from exactly one source (either
+-   the lexbuf or the [already_consumed] argument, but not both) and will fail if
+-   this isn't the case.
+-*)
+-and directive already_consumed = parse
+-  | ([' ' '\t']* (['0'-'9']+? as _line_num_opt) [' ' '\t']*
+-     ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
++and directive = parse
++  | ([' ' '\t']* (['0'-'9']+ as _num) [' ' '\t']*
++        ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
+         [^ '\010' '\013'] *
+       {
+         (* Line directives are not preserved by the lexer so we error out. *)
+         let explanation = "line directives are not supported" in
+-        directive_error lexbuf explanation ~already_consumed ~directive
++        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
+       }
+ and comment = parse
+     "(*"
+       { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
+         store_lexeme lexbuf;
 @@@@
    | '\\' _
        { if not (in_comment ()) then begin
@@ -333,7 +486,27 @@
    let loc = make_loc loc in
    Attr.mk ~loc (mkloc id loc) (PStr [])
  
+ (* Unboxed literals *)
+@@@@
+ let with_sign sign num =
+   match sign with
+   | Positive -> num
+   | Negative -> "-" ^ num
+ 
+-let unboxed_int sloc sign (n, m) =
+-  match m with
+-  | Some _ -> Pconst_integer (true, with_sign sign n, m)
+-  | None ->
+-    not_expecting sloc
+-      "line number directive (an unboxed literal would have a suffix)"
++let unboxed_int _sloc sign (n, m) =
++  (* skip check for a valid suffix in recovery mode *)
++  Pconst_integer (true, with_sign sign n, m)
+ 
+ let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
  %}
+ 
+ /* Tokens */
 @@@@
  %token BAR                    "|"
  %token BARBAR                 "||"
@@ -353,6 +526,8 @@
  %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
 +  [@recover.expr ("<invalid-float>", None)]
+ %token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
++  [@recover.expr ("<invalid-unboxed-float>", None)]
  %token FOR                    "for"
  %token FUN                    "fun"
  %token FUNCTION               "function"
@@ -365,6 +540,8 @@
  %token INITIALIZER            "initializer"
  %token <string * char option> INT "42"  (* just an example *)
 +  [@recover.expr ("<invalid-int>", None)]
+ %token <string * char option> HASH_INT "#42l" (* just an example *)
++  [@recover.expr ("<invalid-unboxed-int>", None)]
  %token <string> LABEL         "~label:" (* just an example *)
 +  [@recover.expr "<invalid-label>"]
  %token LAZY                   "lazy"

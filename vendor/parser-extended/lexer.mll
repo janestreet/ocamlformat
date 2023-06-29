@@ -120,6 +120,13 @@ let is_in_string = ref false
 let in_string () = !is_in_string
 let print_warnings = ref true
 
+let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
+
+(* See the comment on the [directive] lexer. *)
+type directive_lexing_already_consumed =
+   | Hash
+   | Hash_and_line_num of { line_num : string }
+
 (* Escaped chars are interpreted in strings unless they are in comments. *)
 let store_escaped_char lexbuf c =
   if in_comment () then store_lexeme lexbuf else store_string_char c
@@ -161,6 +168,25 @@ let wrap_comment_lexer comment lexbuf =
 
 let error lexbuf e = raise (Error(e, Location.curr lexbuf))
 let error_loc loc e = raise (Error(e, loc))
+
+let directive_error
+    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
+  =
+  let directive_prefix =
+    match already_consumed with
+    | Hash -> "#"
+    | Hash_and_line_num { line_num } -> "#" ^ line_num
+  in
+  (* Set the lexbuf's current window to extend to the start of
+     the directive so the error message's location is more accurate.
+  *)
+  lexbuf.lex_start_p <-
+    { lexbuf.lex_start_p with
+      pos_cnum =
+        lexbuf.lex_start_p.pos_cnum - String.length directive_prefix
+    };
+  error lexbuf
+    (Invalid_directive (directive_prefix ^ directive, Some explanation))
 
 (* to translate escape sequences *)
 
@@ -306,6 +332,18 @@ let add_docstring_comment ds =
 
 let comments () = List.rev !comment_list
 
+let float ~maybe_hash lit modifier =
+  match maybe_hash with
+  | "#" -> HASH_FLOAT (lit, modifier)
+  | "" -> FLOAT (lit, modifier)
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+
+let int ~maybe_hash lit modifier =
+  match maybe_hash with
+  | "#" -> HASH_INT (lit, modifier)
+  | "" -> INT (lit, modifier)
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+
 (* Error report *)
 
 open Format
@@ -447,14 +485,28 @@ rule token = parse
       { UIDENT name } (* No capitalized keywords *)
   | uppercase_latin1 identchar_latin1 * as name
       { warn_latin1 lexbuf; UIDENT name }
-  | int_literal as lit { INT (lit, None) }
-  | (int_literal as lit) (literal_modifier as modif)
-      { INT (lit, Some modif) }
-  | float_literal | hex_float_literal as lit
-      { FLOAT (lit, None) }
-  | (float_literal | hex_float_literal as lit) (literal_modifier as modif)
-      { FLOAT (lit, Some modif) }
-  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
+  (* This matches either an integer literal or a directive. If the text "#2"
+     appears at the beginning of a line that lexes as a directive, then it
+     should be treated as a directive and not an unboxed int. This is acceptable
+     because "#2" isn't a valid unboxed int anyway because it lacks a suffix;
+     the parser rejects unboxed-ints-lacking-suffixes with a more descriptive
+     error message.
+  *)
+  | ('#'? as maybe_hash) (int_literal as lit)
+      { if at_beginning_of_line lexbuf.lex_start_p && maybe_hash = "#" then
+          try directive (Hash_and_line_num { line_num = lit }) lexbuf
+          with Failure _ -> int ~maybe_hash lit None
+        else int ~maybe_hash lit None
+      }
+  | ('#'? as maybe_hash) (int_literal as lit) (literal_modifier as modif)
+      { int ~maybe_hash lit (Some modif) }
+  | ('#'? as maybe_hash)
+    (float_literal | hex_float_literal as lit)
+      { float ~maybe_hash lit None }
+  | ('#'? as maybe_hash)
+    (float_literal | hex_float_literal as lit) (literal_modifier as modif)
+      { float ~maybe_hash lit (Some modif) }
+  | '#'? (float_literal | hex_float_literal | int_literal) identchar+ as invalid
       { error lexbuf (Invalid_literal invalid) }
   | "\""
       { let s, loc = wrap_string_lexer string lexbuf in
@@ -539,10 +591,9 @@ rule token = parse
         STAR
       }
   | "#"
-      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
-        if not (at_beginning_of_line lexbuf.lex_start_p)
+      { if not (at_beginning_of_line lexbuf.lex_start_p)
         then HASH
-        else try directive lexbuf with Failure _ -> HASH
+        else try directive Hash lexbuf with Failure _ -> HASH
       }
   | "&"  { AMPERSAND }
   | "&&" { AMPERAMPER }
@@ -620,14 +671,31 @@ rule token = parse
   | (_ as illegal_char)
       { error lexbuf (Illegal_character illegal_char) }
 
-and directive = parse
-  | ([' ' '\t']* (['0'-'9']+ as _num) [' ' '\t']*
-        ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
+(* An example of a directive is:
+
+#4 "filename.ml"
+
+   Here, 4 is the line number and filename.ml is the file name. The '#' must
+   appear in column 0.
+
+   The [directive] lexer is called when some portion of the start of
+   the line was already consumed, either just the '#' or the '#4'. That's
+   indicated by the [already_consumed] argument. The caller is responsible
+   for checking that the '#' appears in column 0.
+
+   The [directive] lexer always attempts to read the line number from the
+   lexbuf. It expects to receive a line number from exactly one source (either
+   the lexbuf or the [already_consumed] argument, but not both) and will fail if
+   this isn't the case.
+*)
+and directive already_consumed = parse
+  | ([' ' '\t']* (['0'-'9']+? as _line_num_opt) [' ' '\t']*
+     ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
         [^ '\010' '\013'] *
       {
         (* Line directives are not preserved by the lexer so we error out. *)
         let explanation = "line directives are not supported" in
-        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
+        directive_error lexbuf explanation ~already_consumed ~directive
       }
 and comment = parse
     "(*"

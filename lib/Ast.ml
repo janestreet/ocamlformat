@@ -1801,7 +1801,7 @@ end = struct
       | Pexp_cons _ -> Some ColonColon
       | Pexp_construct (_, Some _) -> Some Apply
       | Pexp_constant
-          {pconst_desc= Pconst_integer (i, _) | Pconst_float (i, _); _} -> (
+          {pconst_desc= Pconst_integer (_, i, _) | Pconst_float (_, i, _); _} -> (
         match i.[0] with '-' | '+' -> Some UMinus | _ -> Some Atomic )
       | Pexp_indexop_access {pia_rhs= rhs; _} -> (
         match rhs with Some _ -> Some LessMinus | _ -> Some Dot )
@@ -2399,7 +2399,7 @@ end = struct
     (* Integers without suffixes must be parenthesised on the lhs of an
        indexing operator *)
     | ( Exp {pexp_desc= Pexp_indexop_access {pia_lhs= lhs; _}; _}
-      , { pexp_desc= Pexp_constant {pconst_desc= Pconst_integer (_, None); _}
+      , { pexp_desc= Pexp_constant {pconst_desc= Pconst_integer (_, _, None); _}
         ; _ } )
       when exp == lhs ->
         true

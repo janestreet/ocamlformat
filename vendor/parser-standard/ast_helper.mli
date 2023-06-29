@@ -44,6 +44,7 @@ val with_default_loc: loc -> (unit -> 'a) -> 'a
 (** {1 Constants} *)
 
 module Const : sig
+  (* only [string] is used within ocamlformat *)
   val string :
     ?quotation_delimiter:string -> ?loc:Location.t -> string -> constant
 end
