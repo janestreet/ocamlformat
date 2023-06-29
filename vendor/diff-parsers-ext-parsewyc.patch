@@ -186,21 +186,17 @@
    {pat with ppat_attributes = local_attr :: pat.ppat_attributes}
 @@@@
  
- let nonlocal_attr loc =
-   Attr.mk ~loc:Location.none (nonlocal_loc loc) (PStr [])
+ let global_attr loc =
+   Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
  
  let mkld_global ld loc =
 -  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
 +  { ld with pld_attributes = (global_attr loc) :: ld.pld_attributes }
  
- let mkld_nonlocal ld loc =
--  { ld with pld_attributes = nonlocal_attr loc :: ld.pld_attributes }
-+  { ld with pld_attributes = (nonlocal_attr loc) :: ld.pld_attributes }
- 
  let mkld_global_maybe gbl ld loc =
    match gbl with
    | Global -> mkld_global ld loc
-   | Nonlocal -> mkld_nonlocal ld loc
+   | Nothing -> ld
 @@@@
    match t1, t2 with
    | Some t, None -> mkexp ~loc (Pexp_constraint(e, t))
@@ -326,25 +322,18 @@
    let lbs = {
      lbs_bindings = [];
 @@@@
-       pdir_name = name;
-       pdir_arg = arg;
-       pdir_loc = make_loc loc;
-     }
  
--let check_layout loc id =
--  begin
--    match id with
--    | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
+ let check_layout loc id =
+   begin
+     match id with
+     | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
 -    | _ -> expecting loc "layout"
--  end;
--  let loc = make_loc loc in
--  Attr.mk ~loc (mkloc id loc) (PStr [])
--
++    | _ -> raise Syntaxerr.(Error(Expecting(make_loc loc, "layout")))
+   end;
+   let loc = make_loc loc in
+   Attr.mk ~loc (mkloc id loc) (PStr [])
+ 
  %}
- 
- /* Tokens */
- 
- /* The alias that follows each token is used by Menhir when it needs to
 @@@@
  %token BAR                    "|"
  %token BARBAR                 "||"
@@ -358,8 +347,8 @@
  %token COLONEQUAL             ":="
  %token COLONGREATER           ":>"
 @@@@
- %token EQUAL                  "="
  %token EXCEPTION              "exception"
+ %token EXCLAVE                "exclave_"
  %token EXTERNAL               "external"
  %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
@@ -999,19 +988,6 @@
    ps = separated_or_terminated_nonempty_list(SEMI, pattern)
      { ps }
  ;
-@@@@
- type_parameters:
-     /* empty */
-       { [] }
-   | p = type_parameter
-       { [p] }
--  | LPAREN ps = separated_nonempty_llist(COMMA, type_parameter) RPAREN
-+  | LPAREN
-     ps = separated_nonempty_llist(COMMA, parenthesized_type_parameter)
-     RPAREN
-       { ps }
- ;
- 
 @@@@
    | BANG                                    { [ mkvarinj "!" $sloc ] }
    | PLUS BANG   { [ mkvarinj "+" $loc($1); mkvarinj "!" $loc($2) ] }

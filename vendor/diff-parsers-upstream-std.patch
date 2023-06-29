@@ -1,6 +1,25 @@
 --- parser-upstream/ast_helper.ml
 +++ parser-standard/ast_helper.ml
 @@@@
+ 
+ let with_default_loc l f =
+   Misc.protect_refs [Misc.R (default_loc, l)] f
+ 
+ module Const = struct
+-  let integer ?suffix i = Pconst_integer (i, suffix)
+-  let int ?suffix i = integer ?suffix (Int.to_string i)
+-  let int32 ?(suffix='l') i = integer ~suffix (Int32.to_string i)
+-  let int64 ?(suffix='L') i = integer ~suffix (Int64.to_string i)
+-  let nativeint ?(suffix='n') i = integer ~suffix (Nativeint.to_string i)
+-  let float ?suffix f = Pconst_float (f, suffix)
+-  let char c = Pconst_char c
++  (* only [string] is used within ocamlformat *)
+   let string ?quotation_delimiter ?(loc= !default_loc) s =
+     Pconst_string (s, loc, quotation_delimiter)
+ end
+ 
+ module Attr = struct
+@@@@
    let open_ ?loc ?attrs a b = mk ?loc ?attrs (Pexp_open (a, b))
    let letop ?loc ?attrs let_ ands body =
      mk ?loc ?attrs (Pexp_letop {let_; ands; body})
@@ -26,6 +45,26 @@
  
 --- parser-upstream/ast_helper.mli
 +++ parser-standard/ast_helper.mli
+@@@@
+         of the provided function. *)
+ 
+ (** {1 Constants} *)
+ 
+ module Const : sig
+-  val char : char -> constant
+   val string :
+     ?quotation_delimiter:string -> ?loc:Location.t -> string -> constant
+-  val integer : ?suffix:char -> string -> constant
+-  val int : ?suffix:char -> int -> constant
+-  val int32 : ?suffix:char -> int32 -> constant
+-  val int64 : ?suffix:char -> int64 -> constant
+-  val nativeint : ?suffix:char -> nativeint -> constant
+-  val float : ?suffix:char -> string -> constant
+ end
+ 
+ (** {1 Attributes} *)
+ module Attr : sig
+   val mk: ?loc:loc -> str -> payload -> attribute
 @@@@
      val extension: ?loc:loc -> ?attrs:attrs -> extension -> expression
      val unreachable: ?loc:loc -> ?attrs:attrs -> unit -> expression
@@ -165,7 +204,6 @@
  
 +type global_flag =
 +  | Global
-+  | Nonlocal
 +  | Nothing
 +
 +(* constant layouts are parsed as layout annotations, and also used
@@ -185,6 +223,13 @@
 --- parser-upstream/lexer.mll
 +++ parser-standard/lexer.mll
 @@@@
+     "done", DONE;
+     "downto", DOWNTO;
+     "else", ELSE;
+     "end", END;
+     "exception", EXCEPTION;
++    "exclave_", EXCLAVE;
+     "external", EXTERNAL;
      "false", FALSE;
      "for", FOR;
      "fun", FUN;
@@ -204,12 +249,54 @@
      "module", MODULE;
      "mutable", MUTABLE;
      "new", NEW;
-+    "nonlocal_", NONLOCAL;
-     "nonrec", NONREC;
-     "object", OBJECT;
-     "of", OF;
-     "open", OPEN;
-     "or", OR;
+@@@@
+ let in_comment () = !comment_start_loc <> []
+ let is_in_string = ref false
+ let in_string () = !is_in_string
+ let print_warnings = ref true
+ 
++let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
++
++(* See the comment on the [directive] lexer. *)
++type directive_lexing_already_consumed =
++   | Hash
++   | Hash_and_line_num of { line_num : string }
++
+ (* Escaped chars are interpreted in strings unless they are in comments. *)
+ let store_escaped_char lexbuf c =
+   if in_comment () then store_lexeme lexbuf else store_string_char c
+ 
+ let store_escaped_uchar lexbuf u =
+@@@@
+   { start_loc with Location.loc_end = end_loc.Location.loc_end }
+ 
+ let error lexbuf e = raise (Error(e, Location.curr lexbuf))
+ let error_loc loc e = raise (Error(e, loc))
+ 
++let directive_error
++    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
++  =
++  let directive_prefix =
++    match already_consumed with
++    | Hash -> "#"
++    | Hash_and_line_num { line_num } -> "#" ^ line_num
++  in
++  (* Set the lexbuf's current window to extend to the start of
++     the directive so the error message's location is more accurate.
++  *)
++  lexbuf.lex_start_p <-
++    { lexbuf.lex_start_p with
++      pos_cnum =
++        lexbuf.lex_start_p.pos_cnum - String.length directive_prefix
++    };
++  error lexbuf
++    (Invalid_directive (directive_prefix ^ directive, Some explanation))
++
+ (* to translate escape sequences *)
+ 
+ let digit_value c =
+   match c with
+   | 'a' .. 'f' -> 10 + Char.code c - Char.code 'a'
 @@@@
  let is_keyword name = Hashtbl.mem keyword_table name
  
@@ -253,6 +340,87 @@
    let pos = lexbuf.lex_curr_p in
    let new_file = match file with
 @@@@
+   in
+     add_comment com
+ 
+ let comments () = List.rev !comment_list
+ 
++let float ~maybe_hash lit modifier =
++  match maybe_hash with
++  | "#" -> HASH_FLOAT (lit, modifier)
++  | "" -> FLOAT (lit, modifier)
++  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
++
++let int ~maybe_hash lit modifier =
++  match maybe_hash with
++  | "#" -> HASH_INT (lit, modifier)
++  | "" -> INT (lit, modifier)
++  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
++
+ (* Error report *)
+ 
+ open Format
+ 
+ let prepare_error loc = function
+@@@@
+       { warn_latin1 lexbuf; LIDENT name }
+   | uppercase identchar * as name
+       { UIDENT name } (* No capitalized keywords *)
+   | uppercase_latin1 identchar_latin1 * as name
+       { warn_latin1 lexbuf; UIDENT name }
+-  | int_literal as lit { INT (lit, None) }
+-  | (int_literal as lit) (literal_modifier as modif)
+-      { INT (lit, Some modif) }
+-  | float_literal | hex_float_literal as lit
+-      { FLOAT (lit, None) }
+-  | (float_literal | hex_float_literal as lit) (literal_modifier as modif)
+-      { FLOAT (lit, Some modif) }
+-  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
++  (* This matches either an integer literal or a directive. If the text "#2"
++     appears at the beginning of a line that lexes as a directive, then it
++     should be treated as a directive and not an unboxed int. This is acceptable
++     because "#2" isn't a valid unboxed int anyway because it lacks a suffix;
++     the parser rejects unboxed-ints-lacking-suffixes with a more descriptive
++     error message.
++  *)
++  | ('#'? as maybe_hash) (int_literal as lit)
++      { if at_beginning_of_line lexbuf.lex_start_p && maybe_hash = "#" then
++          try directive (Hash_and_line_num { line_num = lit }) lexbuf
++          with Failure _ -> int ~maybe_hash lit None
++        else int ~maybe_hash lit None
++      }
++  | ('#'? as maybe_hash) (int_literal as lit) (literal_modifier as modif)
++      { int ~maybe_hash lit (Some modif) }
++  | ('#'? as maybe_hash)
++    (float_literal | hex_float_literal as lit)
++      { float ~maybe_hash lit None }
++  | ('#'? as maybe_hash)
++    (float_literal | hex_float_literal as lit) (literal_modifier as modif)
++      { float ~maybe_hash lit (Some modif) }
++  | '#'? (float_literal | hex_float_literal | int_literal) identchar+ as invalid
+       { error lexbuf (Invalid_literal invalid) }
+   | "\""
+       { let s, loc = wrap_string_lexer string lexbuf in
+         STRING (s, loc, None) }
+   | "{" (lowercase* as delim) "|"
+@@@@
+         let curpos = lexbuf.lex_curr_p in
+         lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
+         STAR
+       }
+   | "#"
+-      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
+-        if not (at_beginning_of_line lexbuf.lex_start_p)
++      { if not (at_beginning_of_line lexbuf.lex_start_p)
+         then HASH
+-        else try directive lexbuf with Failure _ -> HASH
++        else try directive Hash lexbuf with Failure _ -> HASH
+       }
+   | "&"  { AMPERSAND }
+   | "&&" { AMPERAMPER }
+   | "`"  { BACKQUOTE }
+   | "\'" { QUOTE }
+@@@@
    | "<"  { LESS }
    | "<-" { LESSMINUS }
    | "="  { EQUAL }
@@ -286,15 +454,34 @@
              { HASHOP op }
    | "let" kwdopchar dotsymbolchar * as op
 @@@@
+             { ANDOP op }
    | eof { EOF }
    | (_ as illegal_char)
        { error lexbuf (Illegal_character illegal_char) }
  
- and directive = parse
+-and directive = parse
 -  | ([' ' '\t']* (['0'-'9']+ as num) [' ' '\t']*
 -        ("\"" ([^ '\010' '\013' '\"' ] * as name) "\"") as directive)
-+  | ([' ' '\t']* (['0'-'9']+ as _num) [' ' '\t']*
-+        ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
++(* An example of a directive is:
++
++#4 "filename.ml"
++
++   Here, 4 is the line number and filename.ml is the file name. The '#' must
++   appear in column 0.
++
++   The [directive] lexer is called when some portion of the start of
++   the line was already consumed, either just the '#' or the '#4'. That's
++   indicated by the [already_consumed] argument. The caller is responsible
++   for checking that the '#' appears in column 0.
++
++   The [directive] lexer always attempts to read the line number from the
++   lexbuf. It expects to receive a line number from exactly one source (either
++   the lexbuf or the [already_consumed] argument, but not both) and will fail if
++   this isn't the case.
++*)
++and directive already_consumed = parse
++  | ([' ' '\t']* (['0'-'9']+? as _line_num_opt) [' ' '\t']*
++     ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
          [^ '\010' '\013'] *
        {
 -        match int_of_string num with
@@ -310,7 +497,7 @@
 -            token lexbuf
 +        (* Line directives are not preserved by the lexer so we error out. *)
 +        let explanation = "line directives are not supported" in
-+        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
++        directive_error lexbuf explanation ~already_consumed ~directive
        }
  and comment = parse
      "(*"
@@ -416,6 +603,25 @@
 --- parser-upstream/parser.mly
 +++ parser-standard/parser.mly
 @@@@
+   then String.sub f 1 (String.length f - 1)
+   else "-" ^ f
+ 
+ let mkuminus ~oploc name arg =
+   match name, arg.pexp_desc with
+-  | "-", Pexp_constant(Pconst_integer (n,m)) ->
+-      Pexp_constant(Pconst_integer(neg_string n,m))
+-  | ("-" | "-."), Pexp_constant(Pconst_float (f, m)) ->
+-      Pexp_constant(Pconst_float(neg_string f, m))
++  | "-", Pexp_constant(Pconst_integer (ub,n,m)) ->
++      Pexp_constant(Pconst_integer(ub,neg_string n,m))
++  | ("-" | "-."), Pexp_constant(Pconst_float (ub,f, m)) ->
++      Pexp_constant(Pconst_float(ub,neg_string f, m))
+   | _ ->
+       Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
+ 
+ let mkuplus ~oploc name arg =
+   let desc = arg.pexp_desc in
+@@@@
    | "+", Pexp_constant(Pconst_integer _)
    | ("+" | "+."), Pexp_constant(Pconst_float _) -> desc
    | _ ->
@@ -459,6 +665,15 @@
 +let wrap_exp_local_if p exp =
 +  if p then wrap_exp_stack exp else exp
 +
++let exclave_ext_loc loc = mkloc "extension.exclave" loc
++
++let exclave_extension loc =
++  Exp.mk ~loc:Location.none
++    (Pexp_extension(exclave_ext_loc loc, PStr []))
++
++let mkexp_exclave ~loc ~kwd_loc exp =
++  ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
++
 +let curry_attr =
 +  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 +
@@ -480,33 +695,20 @@
 +let global_attr loc =
 +  Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
 +
-+let nonlocal_loc loc = mkloc "extension.nonlocal" loc
-+
-+let nonlocal_attr loc =
-+  Attr.mk ~loc:Location.none (nonlocal_loc loc) (PStr [])
-+
 +let mkld_global ld loc =
 +  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
-+
-+let mkld_nonlocal ld loc =
-+  { ld with pld_attributes = nonlocal_attr loc :: ld.pld_attributes }
 +
 +let mkld_global_maybe gbl ld loc =
 +  match gbl with
 +  | Global -> mkld_global ld loc
-+  | Nonlocal -> mkld_nonlocal ld loc
 +  | Nothing -> ld
 +
 +let mkcty_global cty loc =
 +  { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
 +
-+let mkcty_nonlocal cty loc =
-+  { cty with ptyp_attributes = nonlocal_attr loc :: cty.ptyp_attributes }
-+
 +let mkcty_global_maybe gbl cty loc =
 +  match gbl with
 +  | Global -> mkcty_global cty loc
-+  | Nonlocal -> mkcty_nonlocal cty loc
 +  | Nothing -> cty
 +
  (* TODO define an abstraction boundary between locations-as-pairs
@@ -612,15 +814,23 @@
 +  let loc = make_loc loc in
 +  Attr.mk ~loc (mkloc id loc) (PStr [])
 +
-+let check_layout loc id =
-+  begin
-+    match id with
-+    | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
-+    | _ -> expecting loc "layout"
-+  end;
-+  let loc = make_loc loc in
-+  Attr.mk ~loc (mkloc id loc) (PStr [])
++(* Unboxed literals *)
 +
++type sign = Positive | Negative
++
++let with_sign sign num =
++  match sign with
++  | Positive -> num
++  | Negative -> "-" ^ num
++
++let unboxed_int sloc sign (n, m) =
++  match m with
++  | Some _ -> Pconst_integer (true, with_sign sign n, m)
++  | None ->
++    not_expecting sloc
++      "line number directive (an unboxed literal would have a suffix)"
++
++let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
  %}
  
  /* Tokens */
@@ -639,7 +849,17 @@
  %token DONE                   "done"
  %token DOT                    "."
 @@@@
- %token <string * char option> FLOAT "42.0" (* just an example *)
+ %token ELSE                   "else"
+ %token END                    "end"
+ %token EOF                    ""
+ %token EQUAL                  "="
+ %token EXCEPTION              "exception"
++%token EXCLAVE                "exclave_"
+ %token EXTERNAL               "external"
+ %token FALSE                  "false"
+-%token <string * char option> FLOAT "42.0" (* just an example *)
++%token <string * char option> FLOAT      "42.0"  (* just an example *)
++%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
  %token FOR                    "for"
  %token FUN                    "fun"
  %token FUNCTION               "function"
@@ -651,6 +871,15 @@
  %token IF                     "if"
  %token IN                     "in"
 @@@@
+ %token <string> DOTOP         ".+"
+ %token <string> LETOP         "let*" (* just an example *)
+ %token <string> ANDOP         "and*" (* just an example *)
+ %token INHERIT                "inherit"
+ %token INITIALIZER            "initializer"
+-%token <string * char option> INT "42"  (* just an example *)
++%token <string * char option> INT      "42"   (* just an example *)
++%token <string * char option> HASH_INT "#42l" (* just an example *)
+ %token <string> LABEL         "~label:" (* just an example *)
  %token LAZY                   "lazy"
  %token LBRACE                 "{"
  %token LBRACELESS             "{<"
@@ -671,18 +900,6 @@
  %token LBRACKETATAT           "[@@"
  %token LBRACKETATATAT         "[@@@"
  %token MATCH                  "match"
-@@@@
- %token MINUSDOT               "-."
- %token MINUSGREATER           "->"
- %token MODULE                 "module"
- %token MUTABLE                "mutable"
- %token NEW                    "new"
-+%token NONLOCAL               "nonlocal_"
- %token NONREC                 "nonrec"
- %token OBJECT                 "object"
- %token OF                     "of"
- %token OPEN                   "open"
- %token <string> OPTLABEL      "?label:" (* just an example *)
 @@@@
  %token SEMI                   ";"
  %token SEMISEMI               ";;"
@@ -746,14 +963,15 @@
  %nonassoc prec_constant_constructor     /* cf. simple_expr (C versus C x) */
  %nonassoc prec_constr_appl              /* above AS BAR COLONCOLON COMMA */
  %nonassoc below_HASH
-@@@@
+ %nonassoc HASH                         /* simple_expr/toplevel_directive */
  %left     HASHOP
  %nonassoc below_DOT
  %nonassoc DOT DOTOP
  /* Finally, the first tokens of simple_expr are above everything else. */
- %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
 -          LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
 -          NEW PREFIXOP STRING TRUE UIDENT
++%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
 +          LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
 +          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
            LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -899,6 +1117,8 @@
  /* END AVOID */
 +  | LOCAL seq_expr
 +     { mkexp_stack ~loc:$sloc $2 }
++  | EXCLAVE seq_expr
++     { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
  ;
  %inline expr_attrs:
    | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
@@ -1351,6 +1571,40 @@
     A proper tuple type is a star-separated list of at least two atomic types.
   *)
 @@@@
+ ;
+ 
+ /* Constants */
+ 
+ constant:
+-  | INT          { let (n, m) = $1 in Pconst_integer (n, m) }
++  | INT          { let (n, m) = $1 in Pconst_integer (false, n, m) }
+   | CHAR         { Pconst_char $1 }
+   | STRING       { let (s, strloc, d) = $1 in Pconst_string (s, strloc, d) }
+-  | FLOAT        { let (f, m) = $1 in Pconst_float (f, m) }
++  | FLOAT        { let (f, m) = $1 in Pconst_float (false, f, m) }
++  | HASH_INT          { unboxed_int $sloc Positive $1 }
++  | HASH_FLOAT        { unboxed_float Positive $1 }
+ ;
+ signed_constant:
+     constant     { $1 }
+-  | MINUS INT    { let (n, m) = $2 in Pconst_integer("-" ^ n, m) }
+-  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float("-" ^ f, m) }
+-  | PLUS INT     { let (n, m) = $2 in Pconst_integer (n, m) }
+-  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(f, m) }
++  | MINUS INT    { let (n, m) = $2 in Pconst_integer(false, "-" ^ n, m) }
++  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float(false, "-" ^ f, m) }
++  | MINUS HASH_INT    { unboxed_int $sloc Negative $2 }
++  | MINUS HASH_FLOAT  { unboxed_float Negative $2 }
++  | PLUS INT     { let (n, m) = $2 in Pconst_integer (false, n, m) }
++  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(false, f, m) }
++  | PLUS HASH_INT     { unboxed_int $sloc Positive $2 }
++  | PLUS HASH_FLOAT   { unboxed_float Negative $2 }
+ ;
+ 
+ /* Identifiers and long identifiers */
+ 
+ ident:
+@@@@
    | PLUS           {"+"}
    | PLUSDOT       {"+."}
    | PLUSEQ        {"+="}
@@ -1396,12 +1650,10 @@
 +    /* empty */                                 { Immutable, Nothing }
 +  | MUTABLE                                     { Mutable, Nothing }
 +  | GLOBAL                                      { Immutable, Global }
-+  | NONLOCAL                                    { Immutable, Nonlocal }
 +;
 +%inline global_flag:
 +          { Nothing }
 +  | GLOBAL { Global }
-+  | NONLOCAL { Nonlocal }
 +;
  virtual_flag:
      /* empty */                                 { Concrete }
@@ -1409,14 +1661,6 @@
  ;
  mutable_virtual_flags:
 @@@@
-   | FALSE { "false" }
-   | FOR { "for" }
-   | FUN { "fun" }
-   | FUNCTION { "function" }
-   | FUNCTOR { "functor" }
-+  | NONLOCAL { "nonlocal_" }
-   | IF { "if" }
-   | IN { "in" }
    | INCLUDE { "include" }
    | INHERIT { "inherit" }
    | INITIALIZER { "initializer" }
@@ -1430,6 +1674,38 @@
    | NEW { "new" }
 --- parser-upstream/parsetree.mli
 +++ parser-standard/parsetree.mli
+@@@@
+ *)
+ 
+ open Asttypes
+ 
+ type constant =
+-  | Pconst_integer of string * char option
+-      (** Integer constants such as [3] [3l] [3L] [3n].
++  | Pconst_integer of bool * string * char option
++      (** Integer constants such as [3] [3l] [#3L] [3n].
++          The [bool] is true iff there was a # mark.
+ 
+      Suffixes [[g-z][G-Z]] are accepted by the parser.
+      Suffixes except ['l'], ['L'] and ['n'] are rejected by the typechecker
+   *)
+   | Pconst_char of char  (** Character such as ['c']. *)
+@@@@
+       (** Constant string such as ["constant"] or
+           [{delim|other constant|delim}].
+ 
+      The location span the content of the string, without the delimiters.
+   *)
+-  | Pconst_float of string * char option
+-      (** Float constant such as [3.4], [2e5] or [1.4e-4].
++  | Pconst_float of bool * string * char option
++      (** Float constant such as [3.4], [2e5] or [#1.4e-4].
++          The [bool] is true iff there was a # mark.
+ 
+      Suffixes [g-z][G-Z] are accepted by the parser.
+      Suffixes are rejected by the typechecker.
+   *)
+ 
 @@@@
    | Pexp_letop of letop
        (** - [let* P = E0 in E1]
@@ -1456,6 +1732,28 @@
      {
 --- parser-upstream/printast.ml
 +++ parser-standard/printast.ml
+@@@@
+   | None -> fprintf f "None"
+   | Some c -> fprintf f "Some %c" c
+ 
+ let fmt_constant f x =
+   match x with
+-  | Pconst_integer (i,m) -> fprintf f "PConst_int (%s,%a)" i fmt_char_option m
++  | Pconst_integer (b,i,m) -> fprintf f "PConst_int (%s,%s,%a)"
++                                (Bool.to_string b) i fmt_char_option m
+   | Pconst_char (c) -> fprintf f "PConst_char %02x" (Char.code c)
+   | Pconst_string (s, strloc, None) ->
+       fprintf f "PConst_string(%S,%a,None)" s fmt_location strloc
+   | Pconst_string (s, strloc, Some delim) ->
+       fprintf f "PConst_string (%S,%a,Some %S)" s fmt_location strloc delim
+-  | Pconst_float (s,m) -> fprintf f "PConst_float (%s,%a)" s fmt_char_option m
++  | Pconst_float (b,s,m) ->
++      fprintf f "PConst_float (%s,%s,%a)" (Bool.to_string b) s fmt_char_option m
+ 
+ let fmt_mutable_flag f x =
+   match x with
+   | Immutable -> fprintf f "Immutable"
+   | Mutable -> fprintf f "Mutable"
 @@@@
    | Pexp_extension (s, arg) ->
        line i ppf "Pexp_extension \"%s\"\n" s.txt;
