@@ -149,10 +149,10 @@ let neg_string f =
 
 let mkuminus ~oploc name arg =
   match name, arg.pexp_desc with
-  | "-", Pexp_constant(Pconst_integer (n,m)) ->
-      Pexp_constant(Pconst_integer(neg_string n,m))
-  | ("-" | "-."), Pexp_constant(Pconst_float (f, m)) ->
-      Pexp_constant(Pconst_float(neg_string f, m))
+  | "-", Pexp_constant(Pconst_integer (ub,n,m)) ->
+      Pexp_constant(Pconst_integer(ub,neg_string n,m))
+  | ("-" | "-."), Pexp_constant(Pconst_float (ub,f, m)) ->
+      Pexp_constant(Pconst_float(ub,neg_string f, m))
   | _ ->
       Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
 
@@ -762,6 +762,23 @@ let check_layout loc id =
   let loc = make_loc loc in
   Attr.mk ~loc (mkloc id loc) (PStr [])
 
+(* Unboxed literals *)
+
+type sign = Positive | Negative
+
+let with_sign sign num =
+  match sign with
+  | Positive -> num
+  | Negative -> "-" ^ num
+
+let unboxed_int sloc sign (n, m) =
+  match m with
+  | Some _ -> Pconst_integer (true, with_sign sign n, m)
+  | None ->
+    not_expecting sloc
+      "line number directive (an unboxed literal would have a suffix)"
+
+let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %}
 
 /* Tokens */
@@ -808,7 +825,8 @@ let check_layout loc id =
 %token EXCLAVE                "exclave_"
 %token EXTERNAL               "external"
 %token FALSE                  "false"
-%token <string * char option> FLOAT "42.0" (* just an example *)
+%token <string * char option> FLOAT      "42.0"  (* just an example *)
+%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 %token FOR                    "for"
 %token FUN                    "fun"
 %token FUNCTION               "function"
@@ -830,7 +848,8 @@ let check_layout loc id =
 %token <string> ANDOP         "and*" (* just an example *)
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
-%token <string * char option> INT "42"  (* just an example *)
+%token <string * char option> INT      "42"   (* just an example *)
+%token <string * char option> HASH_INT "#42l" (* just an example *)
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
 %token LBRACE                 "{"
@@ -973,7 +992,7 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
           LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -3898,17 +3917,23 @@ meth_list:
 /* Constants */
 
 constant:
-  | INT          { let (n, m) = $1 in Pconst_integer (n, m) }
+  | INT          { let (n, m) = $1 in Pconst_integer (false, n, m) }
   | CHAR         { Pconst_char $1 }
   | STRING       { let (s, strloc, d) = $1 in Pconst_string (s, strloc, d) }
-  | FLOAT        { let (f, m) = $1 in Pconst_float (f, m) }
+  | FLOAT        { let (f, m) = $1 in Pconst_float (false, f, m) }
+  | HASH_INT          { unboxed_int $sloc Positive $1 }
+  | HASH_FLOAT        { unboxed_float Positive $1 }
 ;
 signed_constant:
     constant     { $1 }
-  | MINUS INT    { let (n, m) = $2 in Pconst_integer("-" ^ n, m) }
-  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float("-" ^ f, m) }
-  | PLUS INT     { let (n, m) = $2 in Pconst_integer (n, m) }
-  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(f, m) }
+  | MINUS INT    { let (n, m) = $2 in Pconst_integer(false, "-" ^ n, m) }
+  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float(false, "-" ^ f, m) }
+  | MINUS HASH_INT    { unboxed_int $sloc Negative $2 }
+  | MINUS HASH_FLOAT  { unboxed_float Negative $2 }
+  | PLUS INT     { let (n, m) = $2 in Pconst_integer (false, n, m) }
+  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(false, f, m) }
+  | PLUS HASH_INT     { unboxed_int $sloc Positive $2 }
+  | PLUS HASH_FLOAT   { unboxed_float Negative $2 }
 ;
 
 /* Identifiers and long identifiers */

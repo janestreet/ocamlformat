@@ -44,15 +44,8 @@ val with_default_loc: loc -> (unit -> 'a) -> 'a
 (** {1 Constants} *)
 
 module Const : sig
-  val char : char -> constant
   val string :
     ?quotation_delimiter:string -> ?loc:Location.t -> string -> constant
-  val integer : ?suffix:char -> string -> constant
-  val int : ?suffix:char -> int -> constant
-  val int32 : ?suffix:char -> int32 -> constant
-  val int64 : ?suffix:char -> int64 -> constant
-  val nativeint : ?suffix:char -> nativeint -> constant
-  val float : ?suffix:char -> string -> constant
 end
 
 (** {1 Attributes} *)

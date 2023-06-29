@@ -23,8 +23,9 @@
 open Asttypes
 
 type constant =
-  | Pconst_integer of string * char option
-      (** Integer constants such as [3] [3l] [3L] [3n].
+  | Pconst_integer of bool * string * char option
+      (** Integer constants such as [3] [3l] [#3L] [3n].
+          The [bool] is true iff there was a # mark.
 
      Suffixes [[g-z][G-Z]] are accepted by the parser.
      Suffixes except ['l'], ['L'] and ['n'] are rejected by the typechecker
@@ -36,8 +37,9 @@ type constant =
 
      The location span the content of the string, without the delimiters.
   *)
-  | Pconst_float of string * char option
-      (** Float constant such as [3.4], [2e5] or [1.4e-4].
+  | Pconst_float of bool * string * char option
+      (** Float constant such as [3.4], [2e5] or [#1.4e-4].
+          The [bool] is true iff there was a # mark.
 
      Suffixes [g-z][G-Z] are accepted by the parser.
      Suffixes are rejected by the typechecker.
