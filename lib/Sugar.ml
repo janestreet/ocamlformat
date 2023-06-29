@@ -319,6 +319,27 @@ module Let_binding = struct
     ; lb_local: bool
     ; lb_loc: Location.t }
 
+  (** The sugaring is only valid for some patterns. We have to distinguish
+      between these cases:
+
+      {[
+        let local_ x : string = "hi" (* Annotation on the expression *)
+
+        let local_ x : 'a. 'a -> 'a -> 'a = "hi" (* Annotation on the pattern *)
+
+        let (x : string) = local_ "hi" (* Annotation on the pattern *)
+      ]} *)
+  let pattern_can_be_sugared ~body_loc lb_pat =
+    match lb_pat.ppat_desc with
+    | Ppat_var _ -> true
+    | Ppat_constraint
+        ({ppat_desc= Ppat_var _; _}, {ptyp_desc= Ptyp_poly _; _}) ->
+        true
+    | Ppat_constraint ({ppat_desc= Ppat_var _; ppat_loc= constr_loc; _}, _)
+      ->
+        Location.compare_start body_loc constr_loc < 0
+    | _ -> false
+
   let type_cstr cmts ~ctx lb_pat lb_exp lb_is_pun =
     let islocal, ctx, lb_pat, lb_exp =
       match lb_exp.pexp_desc with
@@ -327,15 +348,13 @@ module Let_binding = struct
             ; _ }
           , [(Nolabel, sbody)] ) ->
           let islocal, sbody =
-            (* The desugaring is only valid for some patterns. The pattern
-               part must still be rewritten as the parser duplicated the type
-               annotations and extensions into the pattern and the
-               expression. *)
-            match lb_pat.ppat_desc with
-            | Ppat_var _ | Ppat_constraint ({ppat_desc = Ppat_var _;_}, _) ->
-                let sattrs, _ = check_local_attr sbody.pexp_attributes in
-                (true, {sbody with pexp_attributes= sattrs})
-            | _ -> (false, lb_exp)
+            (* The pattern part must still be rewritten as the parser
+               duplicated the type annotations and extensions into the
+               pattern and the expression. *)
+            if pattern_can_be_sugared ~body_loc:sbody.pexp_loc lb_pat then
+              let sattrs, _ = check_local_attr sbody.pexp_attributes in
+              (true, {sbody with pexp_attributes= sattrs})
+            else (false, lb_exp)
           in
           let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
           let pat = {lb_pat with ppat_attributes= pattrs} in

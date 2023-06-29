@@ -42,3 +42,7 @@ let () = local_ x
 let {b} = local_ ()
 
 let () = local_ r
+
+let local_ x : string = "hi"
+
+let (x : string) = local_ "hi"
