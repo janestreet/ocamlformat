@@ -153,6 +153,12 @@ let ghsig ~loc d = Sig.mk ~loc:(ghost_loc loc) d
 let mkinfix arg1 op arg2 =
   Pexp_infix(op, arg1, arg2)
 
+(* Jane Street extension *)
+let flip_sign = function
+  | Positive -> Negative
+  | Negative -> Positive
+(* End Jane Street extension *)
+
 let neg_string f =
   if String.length f > 0 && f.[0] = '-'
   then String.sub f 1 (String.length f - 1)
@@ -160,12 +166,24 @@ let neg_string f =
 
 let mkuminus ~oploc name arg =
   match name, arg.pexp_desc with
-  | "-", Pexp_constant({pconst_desc= Pconst_integer (ub,n,m); _} as c) ->
-      Pexp_constant({c with pconst_desc= Pconst_integer(ub,neg_string n,m)})
-  | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (ub,f, m); _} as c) ->
-      Pexp_constant({c with pconst_desc= Pconst_float(ub,neg_string f, m)})
+  | "-", Pexp_constant({pconst_desc= Pconst_integer (n,m); _} as c) ->
+      Pexp_constant({c with pconst_desc= Pconst_integer(neg_string n,m)})
+  | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (f, m); _} as c) ->
+      Pexp_constant({c with pconst_desc= Pconst_float(neg_string f, m)})
+
+  (* Jane Street extension *)
+  | "-", Pexp_constant({pconst_desc= Pconst_unboxed_integer (s,n,m); _} as c) ->
+      Pexp_constant({c with
+                     pconst_desc= Pconst_unboxed_integer(flip_sign s,n,m)})
+  | ("-" | "-."), Pexp_constant({pconst_desc=
+                                   Pconst_unboxed_float (s, f, m); _} as c) ->
+      Pexp_constant({c with
+                     pconst_desc= Pconst_unboxed_float(flip_sign s, f, m)})
+  (* End Jane Street extension *)
+
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
+
 
 let mkuplus ~oploc name arg =
   let desc = arg.pexp_desc in
@@ -574,24 +592,6 @@ let check_layout loc id =
   end;
   let loc = make_loc loc in
   Attr.mk ~loc (mkloc id loc) (PStr [])
-
-(* Unboxed literals *)
-
-type sign = Positive | Negative
-
-let with_sign sign num =
-  match sign with
-  | Positive -> num
-  | Negative -> "-" ^ num
-
-let unboxed_int sloc sign (n, m) =
-  match m with
-  | Some _ -> Pconst_integer (true, with_sign sign n, m)
-  | None ->
-    not_expecting sloc
-      "line number directive (an unboxed literal would have a suffix)"
-
-let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %}
 
 /* Tokens */
@@ -3760,29 +3760,45 @@ meth_list:
 
 constant:
   | INT          { let (n, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_integer (false, n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer (n, m)) }
   | CHAR         { mkconst ~loc:$sloc (Pconst_char $1) }
   | STRING       { let (s, strloc, d) = $1 in
                    mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
   | FLOAT        { let (f, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_float (false, f, m)) }
-  | HASH_INT     { mkconst ~loc:$sloc (unboxed_int $sloc Positive $1) }
-  | HASH_FLOAT   { mkconst ~loc:$sloc (unboxed_float Positive $1) }
+                   mkconst ~loc:$sloc (Pconst_float (f, m)) }
+
+  (* Jane Street extension *)
+  | HASH_INT     { let (n, m) = $1 in
+                   mkconst ~loc:$sloc (Pconst_unboxed_integer(Positive, n, m)) }
+  | HASH_FLOAT   { let (f, m) = $1 in
+                   mkconst ~loc:$sloc (Pconst_unboxed_float (Positive, f, m)) }
+  (* End Jane Street extension *)
 ;
 signed_constant:
     constant     { $1 }
   | MINUS INT    { let (n, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_integer(false, "-" ^ n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer("-" ^ n, m)) }
   | MINUS FLOAT  { let (f, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_float(false, "-" ^ f, m)) }
-  | MINUS HASH_INT    { mkconst ~loc:$sloc (unboxed_int $sloc Negative $2) }
-  | MINUS HASH_FLOAT  { mkconst ~loc:$sloc (unboxed_float Negative $2) }
+                   mkconst ~loc:$sloc (Pconst_float("-" ^ f, m)) }
   | PLUS INT     { let (n, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_integer (false, n, m)) }
+                   mkconst ~loc:$sloc (Pconst_integer (n, m)) }
   | PLUS FLOAT   { let (f, m) = $2 in
-                   mkconst ~loc:$sloc (Pconst_float(false, f, m)) }
-  | PLUS HASH_INT     { mkconst ~loc:$sloc (unboxed_int $sloc Positive $2) }
-  | PLUS HASH_FLOAT   { mkconst ~loc:$sloc (unboxed_float Positive $2) }
+                   mkconst ~loc:$sloc (Pconst_float(f, m)) }
+
+  (* Jane Street extension *)
+  | MINUS HASH_INT    { let (n, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_integer(Negative,n,m)) }
+  | MINUS HASH_FLOAT  { let (f, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_float(Negative,f,m)) }
+  | PLUS HASH_INT     { let (n, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_integer (Positive,n,m)) }
+  | PLUS HASH_FLOAT   { let (f, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_float (Positive,f,m)) }
+  (* End Jane Street extension *)
 ;
 
 /* Identifiers and long identifiers */

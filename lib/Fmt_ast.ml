@@ -262,12 +262,15 @@ let fmt_constant c ?epi {pconst_desc; pconst_loc= loc} =
   Cmts.fmt c loc
   @@
   match pconst_desc with
-  | Pconst_integer (true, lit, suf) | Pconst_float (true, lit, suf) -> (
-      match String.chop_prefix ~prefix:"-" lit with
-      | None -> char '#' $ str lit $ opt suf char
-      | Some lit -> str "-#" $ str lit $ opt suf char
-    )
-  | Pconst_integer (false, lit, suf) | Pconst_float (false, lit, suf) ->
+
+  (* Jane Street extension *)
+  | Pconst_unboxed_integer (sign, lit, suf)
+  | Pconst_unboxed_float (sign, lit, suf) ->
+      (match sign with Positive -> noop | Negative -> char '-') $
+      char '#' $ str lit $ opt suf char
+  (* End Jane Street extension *)
+
+  | Pconst_integer (lit, suf) | Pconst_float (lit, suf) ->
       str lit $ opt suf char
   | Pconst_char _ -> wrap "'" "'" @@ str (Source.char_literal c.source loc)
   | Pconst_string (s, loc', Some delim) ->
@@ -1148,7 +1151,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
       let space p =
         match p.ppat_desc with
         | Ppat_constant
-            {pconst_desc= Pconst_integer (_, i, _) | Pconst_float (_, i, _); _}
+            {pconst_desc= Pconst_integer (i, _) | Pconst_float (i, _); _}
           -> (
           match i.[0] with '-' | '+' -> true | _ -> false )
         | _ -> false

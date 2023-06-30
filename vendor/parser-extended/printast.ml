@@ -93,19 +93,30 @@ let fmt_char_option f = function
   | None -> fprintf f "None"
   | Some c -> fprintf f "Some %c" c
 
+(* Jane Street extension *)
+let fmt_sign f = function
+  | Positive -> fprintf f "Positive"
+  | Negative -> fprintf f "Negative"
+(* End Jane Street extension *)
+
 let fmt_constant i f x =
   line i f "constant %a\n" fmt_location x.pconst_loc;
   let i = i+1 in
   match x.pconst_desc with
-  | Pconst_integer (b,j,m) -> line i f "PConst_int (%s,%s,%a)\n"
-                                (Bool.to_string b) j fmt_char_option m
+  | Pconst_integer (j,m) -> line i f "PConst_int (%s,%a)\n" j fmt_char_option m
   | Pconst_char (c) -> line i f "PConst_char %02x\n" (Char.code c)
   | Pconst_string (s, strloc, None) ->
       line i f "PConst_string(%S,%a,None)\n" s fmt_location strloc
   | Pconst_string (s, strloc, Some delim) ->
       line i f "PConst_string (%S,%a,Some %S)\n" s fmt_location strloc delim
-  | Pconst_float (b,s,m) -> line i f "PConst_float (%s,%s,%a)\n"
-                              (Bool.to_string b) s fmt_char_option m
+  | Pconst_float (s,m) -> line i f "PConst_float (%s,%a)\n" s fmt_char_option m
+
+  (* Jane Street extension *)
+  | Pconst_unboxed_integer (s,j,m) ->
+      line i f "PConst_unboxed_integer (%a,%s,%a)" fmt_sign s j fmt_char_option m
+  | Pconst_unboxed_float (s,j,m) ->
+      line i f "PConst_unboxed_float (%a,%s,%a)" fmt_sign s j fmt_char_option m
+  (* End Jane Street extension *)
 
 let fmt_mutable_flag f x =
   match x with

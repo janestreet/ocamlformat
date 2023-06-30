@@ -36,6 +36,17 @@ module Const = struct
   let mk ?(loc = !default_loc) d =
     {pconst_desc = d;
      pconst_loc = loc}
+
+  let integer ?loc ?suffix i = mk ?loc (Pconst_integer (i, suffix))
+  let int ?loc ?suffix i = integer ?loc ?suffix (Int.to_string i)
+  let int32 ?loc ?(suffix='l') i = integer ?loc ~suffix (Int32.to_string i)
+  let int64 ?loc ?(suffix='L') i = integer ?loc ~suffix (Int64.to_string i)
+  let nativeint ?loc ?(suffix='n') i =
+    integer ?loc ~suffix (Nativeint.to_string i)
+  let float ?loc ?suffix f = mk ?loc (Pconst_float (f, suffix))
+  let char ?loc c = mk ?loc (Pconst_char c)
+  let string ?quotation_delimiter ?(loc= !default_loc) s =
+    mk ~loc (Pconst_string (s, loc, quotation_delimiter))
 end
 
 module Attr = struct

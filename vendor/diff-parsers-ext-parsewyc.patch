@@ -322,6 +322,49 @@
  open Longident
  open Parsetree
 @@@@
+ let ghsig ~loc d = Sig.mk ~loc:(ghost_loc loc) d
+ 
+ let mkinfix arg1 op arg2 =
+   Pexp_infix(op, arg1, arg2)
+ 
+-(* Jane Street extension *)
+-let flip_sign = function
+-  | Positive -> Negative
+-  | Negative -> Positive
+-(* End Jane Street extension *)
+-
+ let neg_string f =
+   if String.length f > 0 && f.[0] = '-'
+   then String.sub f 1 (String.length f - 1)
+   else "-" ^ f
+ 
+@@@@
+   match name, arg.pexp_desc with
+   | "-", Pexp_constant({pconst_desc= Pconst_integer (n,m); _} as c) ->
+       Pexp_constant({c with pconst_desc= Pconst_integer(neg_string n,m)})
+   | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (f, m); _} as c) ->
+       Pexp_constant({c with pconst_desc= Pconst_float(neg_string f, m)})
+-
+-  (* Jane Street extension *)
+-  | "-", Pexp_constant({pconst_desc= Pconst_unboxed_integer (s,n,m); _} as c) ->
+-      Pexp_constant({c with
+-                     pconst_desc= Pconst_unboxed_integer(flip_sign s,n,m)})
+-  | ("-" | "-."), Pexp_constant({pconst_desc=
+-                                   Pconst_unboxed_float (s, f, m); _} as c) ->
+-      Pexp_constant({c with
+-                     pconst_desc= Pconst_unboxed_float(flip_sign s, f, m)})
+-  (* End Jane Street extension *)
+-
+   | _ ->
+       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
+ 
+-
+ let mkuplus ~oploc name arg =
+   let desc = arg.pexp_desc in
+   match name, desc with
+   | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
+   | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
+@@@@
    Attr.mk ~loc:Location.none local_ext_loc (PStr [])
  
  let local_extension =
@@ -485,28 +528,12 @@
    end;
    let loc = make_loc loc in
    Attr.mk ~loc (mkloc id loc) (PStr [])
- 
- (* Unboxed literals *)
-@@@@
- let with_sign sign num =
-   match sign with
-   | Positive -> num
-   | Negative -> "-" ^ num
- 
--let unboxed_int sloc sign (n, m) =
--  match m with
--  | Some _ -> Pconst_integer (true, with_sign sign n, m)
--  | None ->
--    not_expecting sloc
--      "line number directive (an unboxed literal would have a suffix)"
-+let unboxed_int _sloc sign (n, m) =
-+  (* skip check for a valid suffix in recovery mode *)
-+  Pconst_integer (true, with_sign sign n, m)
- 
- let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
++
  %}
  
  /* Tokens */
+ 
+ /* The alias that follows each token is used by Menhir when it needs to
 @@@@
  %token BAR                    "|"
  %token BARBAR                 "||"
@@ -525,9 +552,8 @@
  %token EXTERNAL               "external"
  %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
+-%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 +  [@recover.expr ("<invalid-float>", None)]
- %token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
-+  [@recover.expr ("<invalid-unboxed-float>", None)]
  %token FOR                    "for"
  %token FUN                    "fun"
  %token FUNCTION               "function"
@@ -539,9 +565,8 @@
  %token INHERIT                "inherit"
  %token INITIALIZER            "initializer"
  %token <string * char option> INT "42"  (* just an example *)
+-%token <string * char option> HASH_INT "#42l" (* just an example *)
 +  [@recover.expr ("<invalid-int>", None)]
- %token <string * char option> HASH_INT "#42l" (* just an example *)
-+  [@recover.expr ("<invalid-unboxed-int>", None)]
  %token <string> LABEL         "~label:" (* just an example *)
 +  [@recover.expr "<invalid-label>"]
  %token LAZY                   "lazy"
@@ -610,6 +635,19 @@
  %right    AMPERSAND AMPERAMPER          /* expr (e && e && e) */
  %nonassoc below_EQUAL
  %left     INFIXOP0 EQUAL LESS GREATER   /* expr (e OP e OP e) */
+@@@@
+ %nonassoc HASH                         /* simple_expr/toplevel_directive */
+ %left     HASHOP
+ %nonassoc below_DOT
+ %nonassoc DOT DOTOP
+ /* Finally, the first tokens of simple_expr are above everything else. */
+-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
++%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
+           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
+           LBRACKETPERCENT QUOTED_STRING_EXPR
+ 
+ 
 @@@@
  (* The syntax of module expressions is not properly stratified. The cases of
     functors, functor applications, and attributes interact and cause conflicts,
@@ -1199,6 +1237,49 @@
        label = arg_label
        local = optional_local
 @@@@
+   | CHAR         { mkconst ~loc:$sloc (Pconst_char $1) }
+   | STRING       { let (s, strloc, d) = $1 in
+                    mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
+   | FLOAT        { let (f, m) = $1 in
+                    mkconst ~loc:$sloc (Pconst_float (f, m)) }
+-
+-  (* Jane Street extension *)
+-  | HASH_INT     { let (n, m) = $1 in
+-                   mkconst ~loc:$sloc (Pconst_unboxed_integer(Positive, n, m)) }
+-  | HASH_FLOAT   { let (f, m) = $1 in
+-                   mkconst ~loc:$sloc (Pconst_unboxed_float (Positive, f, m)) }
+-  (* End Jane Street extension *)
+ ;
+ signed_constant:
+     constant     { $1 }
+   | MINUS INT    { let (n, m) = $2 in
+                    mkconst ~loc:$sloc (Pconst_integer("-" ^ n, m)) }
+@@@@
+                    mkconst ~loc:$sloc (Pconst_float("-" ^ f, m)) }
+   | PLUS INT     { let (n, m) = $2 in
+                    mkconst ~loc:$sloc (Pconst_integer (n, m)) }
+   | PLUS FLOAT   { let (f, m) = $2 in
+                    mkconst ~loc:$sloc (Pconst_float(f, m)) }
+-
+-  (* Jane Street extension *)
+-  | MINUS HASH_INT    { let (n, m) = $2 in
+-                        mkconst ~loc:$sloc
+-                          (Pconst_unboxed_integer(Negative,n,m)) }
+-  | MINUS HASH_FLOAT  { let (f, m) = $2 in
+-                        mkconst ~loc:$sloc
+-                          (Pconst_unboxed_float(Negative,f,m)) }
+-  | PLUS HASH_INT     { let (n, m) = $2 in
+-                        mkconst ~loc:$sloc
+-                          (Pconst_unboxed_integer (Positive,n,m)) }
+-  | PLUS HASH_FLOAT   { let (f, m) = $2 in
+-                        mkconst ~loc:$sloc
+-                          (Pconst_unboxed_float (Positive,f,m)) }
+-  (* End Jane Street extension *)
+ ;
+ 
+ /* Identifiers and long identifiers */
+ 
+ ident:
      UIDENT                    { $1 }
    | LIDENT                    { $1 }
  ;

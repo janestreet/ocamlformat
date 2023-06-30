@@ -22,10 +22,13 @@
 
 open Asttypes
 
+(* Jane Street extension *)
+type sign = Positive | Negative
+(* End Jane Street extension *)
+
 type constant_desc =
-  | Pconst_integer of bool * string * char option
-      (** Integer constants such as [3] [3l] [#3L] [3n].
-          The [bool] is true iff there was a # mark.
+  | Pconst_integer of string * char option
+      (** Integer constants such as [3] [3l] [3L] [3n].
 
      Suffixes [[g-z][G-Z]] are accepted by the parser.
      Suffixes except ['l'], ['L'] and ['n'] are rejected by the typechecker
@@ -37,13 +40,23 @@ type constant_desc =
 
      The location span the content of the string, without the delimiters.
   *)
-  | Pconst_float of bool * string * char option
-      (** Float constant such as [3.4], [2e5] or [#1.4e-4].
-          The [bool] is true iff there was a # mark.
+  | Pconst_float of string * char option
+      (** Float constant such as [3.4], [2e5] or [1.4e-4].
 
      Suffixes [g-z][G-Z] are accepted by the parser.
      Suffixes are rejected by the typechecker.
   *)
+
+  (* Jane street extension *)
+  (* Unboxed literals *)
+  | Pconst_unboxed_integer of sign * string * char option
+  (* [#3l], [-#42n] *)
+  (* The suffix is required, but ocamlformat need not enforce this, and
+     it's easier not to *)
+
+  | Pconst_unboxed_float of sign * string * char option
+  (* [#3.0], [-#4.] *)
+  (* End Jane Street extension *)
 
 type constant = {
   pconst_desc : constant_desc;
