@@ -5402,6 +5402,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to unboxed_types.ml.stdout
+   (with-stderr-to unboxed_types.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types.ml unboxed_types.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types.ml.err unboxed_types.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to unicode.ml.stdout
    (with-stderr-to unicode.ml.stderr
      (run %{bin:ocamlformat} --margin-check --margin=80 --wrap-comments %{dep:tests/unicode.ml})))))
@@ -5583,21 +5601,3 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/wrapping_functor_args.ml.err wrapping_functor_args.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to unboxed_types.ml.stdout
-   (with-stderr-to unboxed_types.ml.stderr
-    (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/unboxed_types.ml unboxed_types.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/unboxed_types.ml.err unboxed_types.ml.stderr)))

@@ -31,6 +31,9 @@ module Misc : sig
     val default_setting : setting
     (** @since ocaml-4.09 *)
   end
+
+  (** Propositional equality *)
+  type (_, _) eq = Refl : ('a, 'a) eq
 end
 
 module Clflags : sig

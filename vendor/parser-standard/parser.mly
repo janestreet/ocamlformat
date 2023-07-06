@@ -149,10 +149,10 @@ let neg_string f =
 
 let mkuminus ~oploc name arg =
   match name, arg.pexp_desc with
-  | "-", Pexp_constant(Pconst_integer (ub,n,m)) ->
-      Pexp_constant(Pconst_integer(ub,neg_string n,m))
-  | ("-" | "-."), Pexp_constant(Pconst_float (ub,f, m)) ->
-      Pexp_constant(Pconst_float(ub,neg_string f, m))
+  | "-", Pexp_constant(Pconst_integer (n,m)) ->
+      Pexp_constant(Pconst_integer(neg_string n,m))
+  | ("-" | "-."), Pexp_constant(Pconst_float (f, m)) ->
+      Pexp_constant(Pconst_float(neg_string f, m))
   | _ ->
       Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
 
@@ -351,7 +351,8 @@ module Generic_array = struct
 end
 
 let ppat_iarray loc elts =
-  (Extensions.Immutable_arrays.pat_of
+  (Jane_syntax.Immutable_arrays.pat_of
+     ~attrs:[]
      ~loc:(make_loc loc)
      (Iapat_immutable_array elts)).ppat_desc
 
@@ -762,23 +763,6 @@ let check_layout loc id =
   let loc = make_loc loc in
   Attr.mk ~loc (mkloc id loc) (PStr [])
 
-(* Unboxed literals *)
-
-type sign = Positive | Negative
-
-let with_sign sign num =
-  match sign with
-  | Positive -> num
-  | Negative -> "-" ^ num
-
-let unboxed_int sloc sign (n, m) =
-  match m with
-  | Some _ -> Pconst_integer (true, with_sign sign n, m)
-  | None ->
-    not_expecting sloc
-      "line number directive (an unboxed literal would have a suffix)"
-
-let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %}
 
 /* Tokens */
@@ -825,8 +809,7 @@ let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %token EXCLAVE                "exclave_"
 %token EXTERNAL               "external"
 %token FALSE                  "false"
-%token <string * char option> FLOAT      "42.0"  (* just an example *)
-%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
+%token <string * char option> FLOAT "42.0" (* just an example *)
 %token FOR                    "for"
 %token FUN                    "fun"
 %token FUNCTION               "function"
@@ -848,8 +831,7 @@ let unboxed_float sign (f, m) = Pconst_float (true, with_sign sign f, m)
 %token <string> ANDOP         "and*" (* just an example *)
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
-%token <string * char option> INT      "42"   (* just an example *)
-%token <string * char option> HASH_INT "#42l" (* just an example *)
+%token <string * char option> INT "42"  (* just an example *)
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
 %token LBRACE                 "{"
@@ -992,7 +974,7 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
           LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -2618,21 +2600,21 @@ simple_expr:
 
 comprehension_iterator:
   | EQUAL expr direction_flag expr
-      { Extensions.Comprehensions.Range { start = $2 ; stop = $4 ; direction = $3 } }
+      { Jane_syntax.Comprehensions.Range { start = $2 ; stop = $4 ; direction = $3 } }
   | IN expr
-      { Extensions.Comprehensions.In $2 }
+      { Jane_syntax.Comprehensions.In $2 }
 ;
 
 comprehension_clause_binding:
   | attributes pattern comprehension_iterator
-      { Extensions.Comprehensions.{ pattern = $2 ; iterator = $3 ; attributes = $1 } }
+      { Jane_syntax.Comprehensions.{ pattern = $2 ; iterator = $3 ; attributes = $1 } }
   (* We can't write [[e for local_ x = 1 to 10]], because the [local_] has to
      move to the RHS and there's nowhere for it to move to; besides, you never
      want that [int] to be [local_].  But we can parse [[e for local_ x in xs]].
      We have to have that as a separate rule here because it moves the [local_]
      over to the RHS of the binding, so we need everything to be visible. *)
   | attributes LOCAL pattern IN expr
-      { Extensions.Comprehensions.
+      { Jane_syntax.Comprehensions.
           { pattern    = $3
           ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
           ; attributes = $1
@@ -2642,27 +2624,28 @@ comprehension_clause_binding:
 
 comprehension_clause:
   | FOR separated_nonempty_llist(AND, comprehension_clause_binding)
-      { Extensions.Comprehensions.For $2 }
+      { Jane_syntax.Comprehensions.For $2 }
   | WHEN expr
-      { Extensions.Comprehensions.When $2 }
+      { Jane_syntax.Comprehensions.When $2 }
 
 %inline comprehension(lbracket, rbracket):
   lbracket expr nonempty_llist(comprehension_clause) rbracket
-    { Extensions.Comprehensions.{ body = $2; clauses = $3 } }
+    { Jane_syntax.Comprehensions.{ body = $2; clauses = $3 } }
 ;
 
 %inline comprehension_ext_expr:
   | comprehension(LBRACKET,RBRACKET)
-      { Extensions.Comprehensions.Cexp_list_comprehension  $1 }
+      { Jane_syntax.Comprehensions.Cexp_list_comprehension  $1 }
   | comprehension(LBRACKETBAR,BARRBRACKET)
-      { Extensions.Comprehensions.Cexp_array_comprehension (Mutable, $1) }
+      { Jane_syntax.Comprehensions.Cexp_array_comprehension (Mutable, $1) }
   | comprehension(LBRACKETCOLON,COLONRBRACKET)
-      { Extensions.Comprehensions.Cexp_array_comprehension (Immutable, $1) }
+      { Jane_syntax.Comprehensions.Cexp_array_comprehension (Immutable, $1) }
 ;
 
 %inline comprehension_expr:
   comprehension_ext_expr
-    { (Extensions.Comprehensions.expr_of ~loc:(make_loc $sloc) $1).pexp_desc }
+    { (Jane_syntax.Comprehensions.expr_of
+         ~attrs:[] ~loc:(make_loc $sloc) $1).pexp_desc }
 ;
 
 %inline array_simple(ARR_OPEN, ARR_CLOSE, contents_semi_list):
@@ -2752,7 +2735,8 @@ comprehension_clause:
       { Generic_array.expression
           "[:" ":]"
           (fun elts ->
-            (Extensions.Immutable_arrays.expr_of
+            (Jane_syntax.Immutable_arrays.expr_of
+               ~attrs:[]
                ~loc:(make_loc $sloc)
                (Iaexp_immutable_array elts)).pexp_desc)
           $1 }
@@ -3917,23 +3901,17 @@ meth_list:
 /* Constants */
 
 constant:
-  | INT          { let (n, m) = $1 in Pconst_integer (false, n, m) }
+  | INT          { let (n, m) = $1 in Pconst_integer (n, m) }
   | CHAR         { Pconst_char $1 }
   | STRING       { let (s, strloc, d) = $1 in Pconst_string (s, strloc, d) }
-  | FLOAT        { let (f, m) = $1 in Pconst_float (false, f, m) }
-  | HASH_INT          { unboxed_int $sloc Positive $1 }
-  | HASH_FLOAT        { unboxed_float Positive $1 }
+  | FLOAT        { let (f, m) = $1 in Pconst_float (f, m) }
 ;
 signed_constant:
     constant     { $1 }
-  | MINUS INT    { let (n, m) = $2 in Pconst_integer(false, "-" ^ n, m) }
-  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float(false, "-" ^ f, m) }
-  | MINUS HASH_INT    { unboxed_int $sloc Negative $2 }
-  | MINUS HASH_FLOAT  { unboxed_float Negative $2 }
-  | PLUS INT     { let (n, m) = $2 in Pconst_integer (false, n, m) }
-  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(false, f, m) }
-  | PLUS HASH_INT     { unboxed_int $sloc Positive $2 }
-  | PLUS HASH_FLOAT   { unboxed_float Positive $2 }
+  | MINUS INT    { let (n, m) = $2 in Pconst_integer("-" ^ n, m) }
+  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float("-" ^ f, m) }
+  | PLUS INT     { let (n, m) = $2 in Pconst_integer (n, m) }
+  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(f, m) }
 ;
 
 /* Identifiers and long identifiers */
