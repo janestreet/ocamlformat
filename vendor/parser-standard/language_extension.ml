@@ -1,3 +1,6 @@
+[@@@warning "-32"] (* ocamlformat removes extension-checking, so there
+                      might be unused values here *)
+
 (* operations we want on every extension level *)
 module type Extension_level = sig
   type t
@@ -319,6 +322,8 @@ let disallow_extensions () =
 (********************************************)
 (* checking an extension *)
 
+
+(* changed for ocamlformat
 let is_at_least (type a) (extn : a t) (value : a) =
   let rec check : extn_pair list -> bool = function
     | [] -> false
@@ -337,7 +342,11 @@ let is_enabled extn =
     | (_ :: es) -> check es
   in
   check !extensions
+*)
 
+(* reimplementations for ocamlformat *)
+let is_at_least (type a) (_extn : a t) (_value : a) = true
+let is_enabled _extn = true
 
 module Exist = struct
   type 'a extn = 'a t

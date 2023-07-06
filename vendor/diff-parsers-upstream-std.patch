@@ -540,7 +540,7 @@
 -let extended_module_path = wrap Parser.parse_mod_ext_longident
 -let simple_module_path = wrap Parser.parse_mod_longident
 -let type_ident = wrap Parser.parse_mty_longident
-+let implementation = wrap Parser.Incremental.implementation
++let implementation x = let ast = wrap Parser.Incremental.implementation x in Format.printf "%a" Printast.implementation ast; ast
 +and interface = wrap Parser.Incremental.interface
 +and toplevel_phrase = wrap Parser.Incremental.toplevel_phrase
 +and use_file = wrap Parser.Incremental.use_file
