@@ -120,12 +120,14 @@ let is_in_string = ref false
 let in_string () = !is_in_string
 let print_warnings = ref true
 
+(* Jane Street extension *)
 let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
 
 (* See the comment on the [directive] lexer. *)
 type directive_lexing_already_consumed =
    | Hash
    | Hash_and_line_num of { line_num : string }
+(* End Jane Street extension *)
 
 (* Escaped chars are interpreted in strings unless they are in comments. *)
 let store_escaped_char lexbuf c =
@@ -169,6 +171,7 @@ let wrap_comment_lexer comment lexbuf =
 let error lexbuf e = raise (Error(e, Location.curr lexbuf))
 let error_loc loc e = raise (Error(e, loc))
 
+(* Jane Street extension *)
 let directive_error
     (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
   =
@@ -187,6 +190,7 @@ let directive_error
     };
   error lexbuf
     (Invalid_directive (directive_prefix ^ directive, Some explanation))
+(* End Jane Street extension *)
 
 (* to translate escape sequences *)
 
@@ -332,6 +336,7 @@ let add_docstring_comment ds =
 
 let comments () = List.rev !comment_list
 
+(* Jane Street extension *)
 let float ~maybe_hash lit modifier =
   match maybe_hash with
   | "#" -> HASH_FLOAT (lit, modifier)
@@ -343,6 +348,7 @@ let int ~maybe_hash lit modifier =
   | "#" -> HASH_INT (lit, modifier)
   | "" -> INT (lit, modifier)
   | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+(* End Jane Street extension *)
 
 (* Error report *)
 
@@ -485,6 +491,8 @@ rule token = parse
       { UIDENT name } (* No capitalized keywords *)
   | uppercase_latin1 identchar_latin1 * as name
       { warn_latin1 lexbuf; UIDENT name }
+
+  (* Jane Street modification *)
   (* This matches either an integer literal or a directive. If the text "#2"
      appears at the beginning of a line that lexes as a directive, then it
      should be treated as a directive and not an unboxed int. This is acceptable
@@ -508,6 +516,8 @@ rule token = parse
       { float ~maybe_hash lit (Some modif) }
   | '#'? (float_literal | hex_float_literal | int_literal) identchar+ as invalid
       { error lexbuf (Invalid_literal invalid) }
+  (* End Jane Street modification *)
+
   | "\""
       { let s, loc = wrap_string_lexer string lexbuf in
         STRING (s, loc, None) }
@@ -590,11 +600,15 @@ rule token = parse
         lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
         STAR
       }
+
+  (* Jane Street modification *)
   | "#"
       { if not (at_beginning_of_line lexbuf.lex_start_p)
         then HASH
         else try directive Hash lexbuf with Failure _ -> HASH
       }
+  (* End Jane Street modification *)
+
   | "&"  { AMPERSAND }
   | "&&" { AMPERAMPER }
   | "`"  { BACKQUOTE }
@@ -671,6 +685,7 @@ rule token = parse
   | (_ as illegal_char)
       { error lexbuf (Illegal_character illegal_char) }
 
+(* Jane Street modification *)
 (* An example of a directive is:
 
 #4 "filename.ml"
@@ -697,6 +712,8 @@ and directive already_consumed = parse
         let explanation = "line directives are not supported" in
         directive_error lexbuf explanation ~already_consumed ~directive
       }
+(* End Jane Street modification *)
+
 and comment = parse
     "(*"
       { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;

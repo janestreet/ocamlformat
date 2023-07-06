@@ -184,7 +184,6 @@ let mkuminus ~oploc name arg =
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
-
 let mkuplus ~oploc name arg =
   let desc = arg.pexp_desc in
   match name, desc with
@@ -639,7 +638,6 @@ let check_layout loc id =
 %token EXTERNAL               "external"
 %token FALSE                  "false"
 %token <string * char option> FLOAT "42.0" (* just an example *)
-%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 %token FOR                    "for"
 %token FUN                    "fun"
 %token FUNCTION               "function"
@@ -662,7 +660,6 @@ let check_layout loc id =
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
 %token <string * char option> INT "42"  (* just an example *)
-%token <string * char option> HASH_INT "#42l" (* just an example *)
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
 %token LBRACE                 "{"
@@ -743,6 +740,11 @@ let check_layout loc id =
 %token EOL                    "\\n"      (* not great, but EOL is unused *)
 
 %token <string> TYPE_DISAMBIGUATOR "2" (* just an example *)
+
+(* Jane Street extension *)
+%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
+%token <string * char option> HASH_INT "#42l" (* just an example *)
+(* End Jane Street extension *)
 
 /* Precedences and associativities.
 
