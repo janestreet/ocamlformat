@@ -45,3 +45,7 @@ let () = local_ r
 
 let local_ x : string = "hi"
 let (x : string) = local_ "hi"
+let x = local_ ("hi" : string)
+
+let x : 'a . 'a -> 'a = local_ "hi"
+let local_ f : 'a. 'a -> 'a = "hi"
