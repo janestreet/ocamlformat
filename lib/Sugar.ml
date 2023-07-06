@@ -285,15 +285,56 @@ module Let_binding = struct
     ; lb_local: bool
     ; lb_loc: Location.t }
 
+  (** The [let local_ ...] sugar is only valid for some patterns.
+
+      When the pattern is annotated with a Ptyp_poly, it's placed on the
+      pattern only. The position of the [local_] keyword must be preserved to
+      avoid changing the AST.
+
+      {[
+        let x : 'a. 'a -> 'a -> 'a = local_ "hi"
+
+        let local_ x : 'a. 'a -> 'a -> 'a = "hi"
+      ]}
+
+      When the expression is constrained, the AST for the type will be
+      duplicated in the pattern. We can compare the location of the type
+      constraint and the expression to distinguish between these cases:
+
+      {[
+        let local_ x : string = "hi" (* Sugar *)
+
+        let local_ x = ("hi" : string) (* Sugar *)
+
+        let (x : string) = local_ "hi" (* Don't surgar *)
+      ]} *)
+  let local_pattern_can_be_sugared ~body_loc lb_pat =
+    match lb_pat.ppat_desc with
+    | Ppat_var _ -> true
+    | Ppat_constraint (_, {ptyp_desc= Ptyp_poly (_ :: _, _); _}) ->
+        snd (check_local_attr lb_pat.ppat_attributes)
+    | Ppat_constraint ({ppat_desc= Ppat_var _; ppat_loc= constr_loc; _}, _)
+      ->
+        Location.compare_start body_loc constr_loc < 0
+    | _ -> false
+
   let type_cstr cmts ~ctx lb_pat lb_exp lb_is_pun =
-    let islocal, ctx, lb_pat, lb_exp =
+    let is_local_pattern, ctx, lb_pat, lb_exp =
       match lb_exp.pexp_desc with
       | Pexp_apply
           ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
             ; _ }
           , [(Nolabel, sbody)] ) ->
-          let sattrs, _ = check_local_attr sbody.pexp_attributes in
-          let sbody = {sbody with pexp_attributes= sattrs} in
+          let is_local_pattern, sbody =
+            (* The pattern part must still be rewritten as the parser
+               duplicated the type annotations and extensions into the
+               pattern and the expression. *)
+            if local_pattern_can_be_sugared ~body_loc:sbody.pexp_loc lb_pat
+            then
+              let sattrs, _ = check_local_attr sbody.pexp_attributes in
+              (true, {sbody with pexp_attributes= sattrs})
+            else (false, lb_exp)
+          in
           let pattrs, _ = check_local_attr lb_pat.ppat_attributes in
           let pat = {lb_pat with ppat_attributes= pattrs} in
           let fake_ctx =
@@ -304,7 +345,7 @@ module Let_binding = struct
               ; lb_attributes= []
               ; lb_loc= Location.none }
           in
-          ( true
+          ( is_local_pattern
           , fake_ctx
           , sub_pat ~ctx:fake_ctx pat
           , sub_exp ~ctx:fake_ctx sbody )
@@ -392,7 +433,7 @@ module Let_binding = struct
                 , sub_exp ~ctx exp )
             | _ -> (xpat, xargs, `None, xbody) )
     in
-    (islocal, pat, args, typ, exp)
+    (is_local_pattern, pat, args, typ, exp)
 
   let of_let_binding cmts ~ctx ~first lb =
     let islocal, lb_pat, lb_args, lb_typ, lb_exp =
