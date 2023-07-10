@@ -6,12 +6,14 @@
  let in_string () = !is_in_string
  let print_warnings = ref true
  
+-(* Jane Street extension *)
 -let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
 -
 -(* See the comment on the [directive] lexer. *)
 -type directive_lexing_already_consumed =
 -   | Hash
 -   | Hash_and_line_num of { line_num : string }
+-(* End Jane Street extension *)
 -
  (* Escaped chars are interpreted in strings unless they are in comments. *)
  let store_escaped_char lexbuf c =
@@ -24,6 +26,7 @@
  let error lexbuf e = raise (Error(e, Location.curr lexbuf))
  let error_loc loc e = raise (Error(e, loc))
  
+-(* Jane Street extension *)
 -let directive_error
 -    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
 -  =
@@ -42,6 +45,7 @@
 -    };
 -  error lexbuf
 -    (Invalid_directive (directive_prefix ^ directive, Some explanation))
+-(* End Jane Street extension *)
 -
  (* to translate escape sequences *)
  
@@ -114,6 +118,7 @@
  
  let comments () = List.rev !comment_list
  
+-(* Jane Street extension *)
 -let float ~maybe_hash lit modifier =
 -  match maybe_hash with
 -  | "#" -> HASH_FLOAT (lit, modifier)
@@ -125,6 +130,7 @@
 -  | "#" -> HASH_INT (lit, modifier)
 -  | "" -> INT (lit, modifier)
 -  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+-(* End Jane Street extension *)
 -
 +(*
  (* Error report *)
@@ -150,6 +156,8 @@
        { UIDENT name } (* No capitalized keywords *)
    | uppercase_latin1 identchar_latin1 * as name
        { warn_latin1 lexbuf; UIDENT name }
+-
+-  (* Jane Street modification *)
 -  (* This matches either an integer literal or a directive. If the text "#2"
 -     appears at the beginning of a line that lexes as a directive, then it
 -     should be treated as a directive and not an unboxed int. This is acceptable
@@ -181,10 +189,13 @@
 +      { FLOAT (lit, Some modif) }
 +  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
        { error lexbuf (Invalid_literal invalid) }
+-  (* End Jane Street modification *)
+-
    | "\""
        { let s, loc = wrap_string_lexer string lexbuf in
          STRING (s, loc, None) }
    | "{" (lowercase* as delim) "|"
+       { let s, loc = wrap_string_lexer (quoted_string delim) lexbuf in
 @@@@
                 comment lexbuf)
              lexbuf
@@ -213,6 +224,8 @@
          lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
          STAR
        }
+-
+-  (* Jane Street modification *)
    | "#"
 -      { if not (at_beginning_of_line lexbuf.lex_start_p)
 +      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
@@ -221,10 +234,13 @@
 -        else try directive Hash lexbuf with Failure _ -> HASH
 +        else try directive lexbuf with Failure _ -> HASH
        }
+-  (* End Jane Street modification *)
+-
    | "&"  { AMPERSAND }
    | "&&" { AMPERAMPER }
    | "`"  { BACKQUOTE }
    | "\'" { QUOTE }
+   | "("  { LPAREN }
 @@@@
    | ['+' '-'] symbolchar * as op
              { INFIXOP2 op }
@@ -243,6 +259,7 @@
    | (_ as illegal_char)
        { error lexbuf (Illegal_character illegal_char) }
  
+-(* Jane Street modification *)
 -(* An example of a directive is:
 -
 -#4 "filename.ml"
@@ -273,10 +290,13 @@
 -        directive_error lexbuf explanation ~already_consumed ~directive
 +        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
        }
+-(* End Jane Street modification *)
+-
  and comment = parse
      "(*"
        { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
          store_lexeme lexbuf;
+         comment lexbuf
 @@@@
    | '\\' _
        { if not (in_comment ()) then begin
@@ -358,12 +378,8 @@
    | _ ->
        Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
  
--
  let mkuplus ~oploc name arg =
    let desc = arg.pexp_desc in
-   match name, desc with
-   | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
-   | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
 @@@@
    Attr.mk ~loc:Location.none local_ext_loc (PStr [])
  
@@ -552,7 +568,6 @@
  %token EXTERNAL               "external"
  %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
--%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 +  [@recover.expr ("<invalid-float>", None)]
  %token FOR                    "for"
  %token FUN                    "fun"
@@ -565,7 +580,6 @@
  %token INHERIT                "inherit"
  %token INITIALIZER            "initializer"
  %token <string * char option> INT "42"  (* just an example *)
--%token <string * char option> HASH_INT "#42l" (* just an example *)
 +  [@recover.expr ("<invalid-int>", None)]
  %token <string> LABEL         "~label:" (* just an example *)
 +  [@recover.expr "<invalid-label>"]
@@ -622,6 +636,22 @@
  %token VIRTUAL                "virtual"
  %token WHEN                   "when"
  %token WHILE                  "while"
+@@@@
+ 
+ %token EOL                    "\\n"      (* not great, but EOL is unused *)
+ 
+ %token <string> TYPE_DISAMBIGUATOR "2" (* just an example *)
+ 
+-(* Jane Street extension *)
+-%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
+-%token <string * char option> HASH_INT "#42l" (* just an example *)
+-(* End Jane Street extension *)
+-
+ /* Precedences and associativities.
+ 
+ Tokens and rules have precedences.  A reduce/reduce conflict is resolved
+ in favor of the first rule (in source file order).  A shift/reduce conflict
+ is resolved by comparing the precedence and associativity of the token to
 @@@@
  %right    COLONEQUAL                    /* expr (e := e := e) */
  %nonassoc AS
