@@ -6,6 +6,8 @@ let f ~(local_ x) ~(local_ y : string) ?(local_ z : string) = ()
 
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> local_ 1)]
 
+let xs = [(fun (local_ a) (type b) ~(local_ c) -> exclave_ 1)]
+
 let f () = local_
   let a = [local_ 1] in
   let local_ r = 1 in
@@ -14,14 +16,13 @@ let f () = local_
   let () = g (local_ fun () -> ()) in
   local_ "asdfasdfasdfasdfasdfasdfasdf"
 
-let f () =
-  exclave_
-  (let a = [exclave_ 1] in
-   let local_ r = 1 in
-   let local_ f : 'a. 'a -> 'a = fun x -> exclave_ x in
-   let local_ g a b c : int = 1 in
-   let () = g (exclave_ (fun () -> ())) in
-   exclave_ "asdfasdfasdfasdfasdfasdfasdf" )
+let f () = exclave_
+  let a = [exclave_ 1] in
+  let local_ r = 1 in
+  let local_ f : 'a. 'a -> 'a = fun x -> exclave_ x in
+  let local_ g a b c : int = 1 in
+  let () = g (exclave_ (fun () -> ())) in
+  exclave_ "asdfasdfasdfasdfasdfasdfasdf"
 
 type 'a r = {mutable a: 'a; b: 'a; global_ c: 'a}
 
@@ -37,15 +38,28 @@ type loc_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
 
 let _ = local_ ()
 
+let _ = exclave_ ()
+
 let () = local_ x
+
+let () = exclave_ x
 
 let {b} = local_ ()
 
+let {b} = exclave_ ()
+
 let () = local_ r
+
+let () = exclave_ r
 
 let local_ x : string = "hi"
 let (x : string) = local_ "hi"
+
+let (x : string) = exclave_ "hi"
+
 let x = local_ ("hi" : string)
 
+let x = exclave_ ("hi" : string)
 let x : 'a . 'a -> 'a = local_ "hi"
+let x : 'a . 'a -> 'a = exclave_ "hi"
 let local_ f : 'a. 'a -> 'a = "hi"
