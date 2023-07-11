@@ -1442,6 +1442,15 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
     ; _ } ->
       ( fmt " local_"
       , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
+  | { pexp_desc=
+        Pexp_apply
+          ( { pexp_desc=
+                Pexp_extension ({txt= "extension.exclave"; _}, PStr [])
+            ; _ }
+          , [(Nolabel, sbody)] )
+    ; _ } ->
+      ( fmt " exclave_"
+      , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | _ -> (noop, fmt_expression c ~eol:(fmt "@;<1000 0>") xbody)
 
 and fmt_indexop_access c ctx ~fmt_atrs ~has_attr ~parens x =
