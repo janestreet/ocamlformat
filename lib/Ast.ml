@@ -2322,6 +2322,16 @@ end = struct
           ; _ }
       , _ ) ->
         false
+    | ( Exp
+          { pexp_desc=
+              Pexp_apply
+                ( { pexp_desc=
+                      Pexp_extension ({txt= "extension.exclave"; _}, PStr [])
+                  ; _ }
+                , [(Nolabel, _)] )
+          ; _ }
+      , _ ) ->
+        false
     | _, {pexp_desc= Pexp_infix _; pexp_attributes= _ :: _; _} -> true
     | ( Str
           { pstr_desc=
