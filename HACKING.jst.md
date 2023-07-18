@@ -181,7 +181,7 @@ The ocamlformat repo has (at least) two validity checks for repo health:
 
 * The ocamlformat sources themselves must be formatted. You can run this check
 with `make fmt`.  To reformat files that are incorrect, run `dune build @fmt
---auto-promote`.
+--auto-promote`. Running `make test` runs and `dune test` together.
 
 * All commits must be signed off. This is easy. When you're done with your
 sequence of commits and it's all ready to merge, just run
