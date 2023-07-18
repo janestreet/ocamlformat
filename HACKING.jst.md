@@ -65,10 +65,8 @@ of interest in `lib/`:
   and `parser-recovery` is generated. Just accept any changes that accrue there.
   
 The directory `vendor/ocaml-common` contains files that are shared between
-`parser-standard` and `parser-extended`, like `location.ml`.
-  
-Testing is done in the `test` directory. TODO: Write more about the testing
-setup.
+`parser-standard` and `parser-extended`, like `location.ml`.  The `test`
+directory contains tests (see the Testing section below).
 
 Design considerations
 ---------------------
@@ -130,4 +128,73 @@ The base branch to work from is called `jane`. Create a branch off of `jane`.
    removed when merging with upstream), and so we're just keeping it on life
    support. Expend no extra effort here!
 
-6. Add tests. Get them to pass. TODO: Write more about the testing setup.
+6. Add tests. Get them to pass. See the "Testing" section below.
+
+Testing
+-------
+
+Run the tests with `make test`.
+
+First, this will will check is whether the `ocamlformat` sources themselves are
+correctly formatted.  You can also check that explicitly by running `make fmt`.
+To reformat files that are incorrect, run `dune build @fmt --auto-promote`.
+
+Next it will run the tests.  There are two kinds of tests
+
+1) Correctly formatted files, which ocamlformat is run on to check that there
+   are no changes.  We have historically mainly added these, but not for any
+   particularly good reason.
+2) Incorrectly formatted files, for which the output of ocamlformat is checked
+   against a reference.
+
+To add a test, you add one, two or three files depending on what kind of test it
+is:
+
+- (Always) Add `tests/passing/tests/foo.ml` (where foo is the name of your new
+  test).  This is the file ocamlformat will be run on.
+- (Optional) If your file is incorrectly formatted, write the correctly
+  formatted version in `tests/passing/tests/foo.ml.ref`.
+- (Optional) If it is expected `ocamlformat` will print information to stderr
+  when running your test (uncommon) write that output to
+  `tests/passing/tests/foo.ml.err`.
+
+Then update the file `tests/passing/dune.inc` to run your test.  Your best bet
+is to just find some existing test for which the same collection of optional
+files was used, and cargo cult the dune rules from that test.  There will be
+three rules (one which runs ocamlformat, one which checks its output, and one
+which checks what was printed to stderr).  For example, when supported was added
+for `include functor` tests (which use neither optional file), these rules were
+added:
+
+```
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to include_functor.ml.stdout
+   (with-stderr-to include_functor.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml include_functor.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml.err include_functor.ml.stderr)))
+```
+
+Note there is a rule mentioning `include_functor.ml.err` even though no such
+file exists.  This checks that there is no stderr output.
+
+If the test involved reformatting an incorrectly formatted file, the second rule
+would use the ref file in the diff, like this:
+
+```
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_functor.ml.ref include_functor.ml.stdout)))
+```
