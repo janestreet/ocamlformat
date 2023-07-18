@@ -93,6 +93,11 @@ exact structural subterms. If you, for example, print an attribute specially
 and then try to recur on a term without that attribute, you're in for a bad
 time.
 
+Building
+--------
+
+To build, run `dune build`.
+
 How to update `ocamlformat`
 ---------------------------
 
@@ -133,13 +138,10 @@ The base branch to work from is called `jane`. Create a branch off of `jane`.
 Testing
 -------
 
-Run the tests with `make test`.
+To just run your built ocamlformat against a file manually, run
+`dune exec ocamlformat -- path/to/your/file`.
 
-First, this will check whether the `ocamlformat` sources themselves are
-correctly formatted.  You can also check that explicitly by running `make fmt`.
-To reformat files that are incorrect, run `dune build @fmt --auto-promote`.
-
-Next it will run the tests.  There are two kinds of tests
+Run the tests with `dune test`. There are two kinds of tests:
 
 1) Correctly formatted files, which ocamlformat is run on to check that there
    are no changes.  We have historically mainly added these, but not for any
@@ -158,43 +160,26 @@ is:
   when running your test (uncommon) write that output to
   `tests/passing/tests/foo.ml.err`.
 
-Then update the file `tests/passing/dune.inc` to run your test.  Your best bet
-is to just find some existing test for which the same collection of optional
-files was used, and cargo cult the dune rules from that test.  There will be
-three rules (one which runs ocamlformat, one which checks its output, and one
-which checks what was printed to stderr).  For example, when supported was added
-for `include functor` tests (which use neither optional file), these rules were
-added:
+Now, run `dune test`. It will discover your new file and suggest edits to
+the generated `tests/passing/dune.inc` file to run your new tests. Run
+`dune promote` to update `dune.inc`. This will *not* accept your new tests -- it
+just allows you to run your new tests.
 
-```
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to include_functor.ml.stdout
-   (with-stderr-to include_functor.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
+Then, run `dune test` again to actually run your tests. You will see any changes
+necessary to make the tests pass. You can run `dune promote` to accept those
+changes.
 
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/include_functor.ml include_functor.ml.stdout)))
+Validity checking
+-----------------
 
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/include_functor.ml.err include_functor.ml.stderr)))
-```
+The ocamlformat repo has (at least) two validity checks for repo health:
 
-Note there is a rule mentioning `include_functor.ml.err` even though no such
-file exists.  This checks that there is no stderr output.
+* The ocamlformat sources themselves must be formatted. You can run this check
+with `make fmt`.  To reformat files that are incorrect, run `dune build @fmt
+--auto-promote`.
 
-If the test involved reformatting an incorrectly formatted file, the second rule
-would use the ref file in the diff, like this:
-
-```
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/include_functor.ml.ref include_functor.ml.stdout)))
-```
+* All commits must be signed off. This is easy. When you're done with your
+sequence of commits and it's all ready to merge, just run
+`git rebase <starting commit> --signoff`, where `<starting commit>` is the
+commit before any of your edits. You can often say something like `origin/jane`
+or `HEAD~4` or similar.
