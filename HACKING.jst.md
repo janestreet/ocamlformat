@@ -12,7 +12,22 @@ The main implementation of `ocamlformat` lives in the `lib` directory.
 This is where the `ocamlformat` executable is driven.
 
 The most important file for our purposes here is `lib/Fmt_ast.ml`, which
-defines the functions that actually print the formatted AST.
+defines the functions that actually print the formatted AST. Other modules
+of interest in `lib/`:
+
+* `Fmt.ml` has combinators useful for printing. You're likely to use this
+  module but not super likely to change it.
+  
+* `Ast.ml` has various helpers, mainly for (a) constructing contexts, and (b)
+  analyzing whether terms need parentheses. It's common to need to change the
+  latter for new syntax.
+
+* `Cmts.ml` deals with comments (not the `cmt` file format!). Comments are not
+  places in the extended AST, but rather maintained in a table that is checked
+  at various points using the helpers in this module.
+  
+* `Sugar.ml` has various bits of support code for sugaring/desugaring syntax
+  (e.g., "multi-argument" functions).
 
 `ocamlformat` also includes *four* copies of the OCaml parser, all in
 `vendor`:
@@ -72,6 +87,14 @@ marked off with comments like `(* Jane Street extension *)` and `(* End Jane
 Street extension *)`. Because of the ability to extend the parsetree here, we do
 *not* use jane-syntax in `parser-extended`.
 
+`ocamlformat` routinely checks, at various places in `Fmt_ast`, that the thing
+it's about to print is an exact subterm of a "context" we're within (some larger
+term that we're in the middle of printing). Make sure you've designed your
+additions to `parser-extended` so that, while printing, you'll always recur on
+exact structural subterms. If you, for example, print an attribute specially
+and then try to recur on a term without that attribute, you're in for a bad
+time.
+
 How to update `ocamlformat`
 ---------------------------
 
@@ -82,15 +105,25 @@ The base branch to work from is called `jane`. Create a branch off of `jane`.
    `vendor/parser-standard`. Remember: this "standard" parser should be as
    close as possible to the compiler's.
    
+    Note that some files used by both parsers are stored in
+   `vendor/ocaml-common` and may need to be updated.  Further, when
+   incorporating new support files from the compiler, consider whether than can
+   be shared in that directory rather than copied into each of the parser
+   directories.  This is typically the case if the support module doesn't depend
+   on the parsetree.
+   
 2. Get `ocamlformat` compiled and passing the tests. If the patch to
    `flambda-backend` was backward compatible, then this should be
-   straightforward.
+   straightforward. (If your changes affect files in `vendor/ocaml-common`, this
+   might not be so easy. That's OK. Just move on to the next step.)
    
 3. Edit the parsetree in `vendor/parser-extended/parsetree.mli` to support your
    new syntax. Copy over any changes to the parser and lexer from the
    `flambda-backend` patch, updating the parser's semantic actions as necessary.
 
 4. Edit the pretty-printer in `lib/Fmt_ast.ml` to format your new syntax nicely.
+   This may require changes to other `lib/` modules, such as `Ast.ml` and
+   `Sugar.ml`.
 
 5. Make the minimal changes to `parser-recovery` in order to get `ocamlformat`
    to compile. We do not use this feature within Jane Street (and it will be
