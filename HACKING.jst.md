@@ -135,7 +135,7 @@ Testing
 
 Run the tests with `make test`.
 
-First, this will will check is whether the `ocamlformat` sources themselves are
+First, this will check whether the `ocamlformat` sources themselves are
 correctly formatted.  You can also check that explicitly by running `make fmt`.
 To reformat files that are incorrect, run `dune build @fmt --auto-promote`.
 
