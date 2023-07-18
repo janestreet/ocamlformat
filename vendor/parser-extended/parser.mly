@@ -189,6 +189,13 @@ let mkuplus ~oploc name arg =
   match name, desc with
   | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
   | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
+
+  (* Jane Street extension *)
+  | "+", Pexp_constant({pconst_desc= Pconst_unboxed_integer _; _})
+  | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_unboxed_float _; _})
+    -> desc
+  (* End Jane Street extension *)
+
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
