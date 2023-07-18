@@ -169,6 +169,11 @@ Then, run `dune test` again to actually run your tests. You will see any changes
 necessary to make the tests pass. You can run `dune promote` to accept those
 changes.
 
+If you get some cryptic error output with a few lines of the `dune.inc` file, it
+is likely that ocamlformat has crashed (e.g. with a parser error) while looking
+at your test. The cryptic error output will mention the name of the test. Run
+ocamlformat manually on your test file to see the actual error.
+
 Validity checking
 -----------------
 
