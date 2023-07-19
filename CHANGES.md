@@ -15,7 +15,8 @@ profile. This started with version 0.26.0.
 ### Bug fixes
 
 - Fix crash caused by `let f (type a) :> a M.u = ..` (#2399, @Julow)
-- Fix crash caused by `module T = (val (x : (module S)))` (#2370, @Julow)
+- Consistent formatting of comments (#2371, #2372, @Julow)
+- Fix crash due to `module T = (val (x : (module S)))` (#2370, @Julow)
 - Fix invalid formatting of `then begin end` (#2369, @Julow)
 - Protect match after `fun _ : _ ->` (#2352, @Julow)
 - Fix invalid formatting of `(::)` (#2347, @Julow)

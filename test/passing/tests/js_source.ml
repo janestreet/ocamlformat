@@ -7954,6 +7954,7 @@ let _ =
 
 (* *)
 
+
 (** xxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx
     xxxx] xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx] *)
 
@@ -7964,3 +7965,8 @@ let _ =
 (*    First line is indented more
     .
       . *)
+
+(*$
+  (*
+     *)
+  *)

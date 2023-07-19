@@ -10040,8 +10040,7 @@ let _ =
   | _ -> false
 ;;
 
-(*
-*)
+(* *)
 
 (** xxx *)
 include S1
@@ -10088,15 +10087,16 @@ let _ =
 (*$*)
 
 (*$
-  [%string {| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  zzzzzzzzzzzzzzzzzzzzzzzzzzzz
-      |}]
+  [%string
+    {| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zzzzzzzzzzzzzzzzzzzzzzzzzzzz
+    |}]
 *)
 (*$*)
 
 (*$
   {|
-        f|}
+       f|}
 *)
 
 let () =
@@ -10188,6 +10188,7 @@ let _ =
 
 (* *)
 
+
 (** xxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx
     xxxx] xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx] *)
 
@@ -10198,3 +10199,5 @@ let _ =
 (*    First line is indented more
       .
       . *)
+
+(*$ (* *) *)
