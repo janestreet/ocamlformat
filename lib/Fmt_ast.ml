@@ -88,6 +88,99 @@ let compose_module ?box ?pro ?epi blk ~f =
   let bdy, epi' = compose_module' ?box ?pro blk in
   f (bdy $ epi') $ fmt_opt epi
 
+module Indent = struct
+  let _ocp a b c = if c.conf.fmt_opts.ocp_indent_compat.v then a else b
+
+  let fun_type_annot = _ocp 2 4
+
+  let fun_args = _ocp 6 4
+
+  let docked_function ~parens ~xexp c =
+    if c.conf.fmt_opts.ocp_indent_compat.v then if parens then 3 else 2
+    else
+      let default = if c.conf.fmt_opts.wrap_fun_args.v then 2 else 4 in
+      Params.function_indent c.conf ~parens:false ~xexp ~default
+
+  let docked_function_after_fun ~parens ~lbl c =
+    if c.conf.fmt_opts.ocp_indent_compat.v then
+      if parens && Poly.equal lbl Nolabel then 3 else 2
+    else 0
+
+  let fun_args_group lbl ast c =
+    if not c.conf.fmt_opts.ocp_indent_compat.v then 2
+    else
+      match ast.pexp_desc with
+      | Pexp_function _ -> 2
+      | _ -> ( match lbl with Nolabel -> 3 | _ -> 2 )
+
+  let record_docstring c =
+    let ocp =
+      match c.conf.fmt_opts.break_separators.v with
+      | `Before -> -2
+      | `After -> 0
+    in
+    _ocp ocp 4 c
+
+  let constructor_docstring = _ocp 0 4
+
+  let exp_constraint = _ocp 1 2
+
+  let mod_constraint ~me c =
+    if c.conf.fmt_opts.ocp_indent_compat.v then
+      match me.pmod_desc with Pmod_structure _ -> 0 | _ -> 2
+    else 2
+
+  let mty = _ocp 2 3
+
+  let mty_with = _ocp 0 2
+
+  let variant ~parens c =
+    if c.conf.fmt_opts.ocp_indent_compat.v && parens then 3 else 2
+
+  let variant_type_arg c = _ocp 2 0 c
+
+  let type_constr c = _ocp 2 0 c
+
+  let docked_fun c ~loc ~lbl =
+    if not c.conf.fmt_opts.ocp_indent_compat.v then 2
+    else
+      let loc, if_breaks =
+        match lbl with
+        | Nolabel -> (loc, 3)
+        | Optional x | Labelled x -> (x.loc, 2)
+      in
+      if Source.begins_line ~ignore_spaces:true c.source loc then if_breaks
+      else 0
+end
+
+module Break = struct
+  let _ocp a b c = fmt (if c.conf.fmt_opts.ocp_indent_compat.v then a else b)
+
+  let unpack_annot = _ocp "@ " "@;<1 2>"
+
+  (** Valid for [assignment-operator = begin-line]. *)
+  let assignment_operator = _ocp "@ " "@;<1 2>"
+
+  let mod_constraint ~mt c =
+    if c.conf.fmt_opts.ocp_indent_compat.v then
+      match mt.pmty_desc with
+      | Pmty_signature _ -> break 1 0
+      | _ -> break 1 2
+    else break 1 2
+end
+
+module Box = struct
+  let _ocp a b c k = if c.conf.fmt_opts.ocp_indent_compat.v then a k else b k
+
+  let fun_decl ~parens = _ocp (hvbox (if parens then 1 else 2)) (hovbox 4)
+
+  let fun_args c k =
+    hvbox_if
+      ( (not c.conf.fmt_opts.wrap_fun_args.v)
+      && not c.conf.fmt_opts.ocp_indent_compat.v )
+      0 k
+end
+
 (* Debug: catch and report failures at nearest enclosing Ast.t *)
 
 let protect =
@@ -472,7 +565,7 @@ let is_arrow_or_poly = function
 
 let fmt_assign_arrow c =
   match c.conf.fmt_opts.assignment_operator.v with
-  | `Begin_line -> fmt "@;<1 2><- "
+  | `Begin_line -> Break.assignment_operator c $ fmt "<- "
   | `End_line -> fmt " <-@;<1 2>"
 
 let arrow_sep c ~parens : Fmt.s =
@@ -554,11 +647,18 @@ let rec fmt_extension_aux c ctx ~key (ext, pld) =
     when Source.extension_using_sugar ~name:ext ~payload:ppat_loc ->
       fmt_pattern c ~ext (sub_pat ~ctx pat)
   | _ ->
-      wrap "[" "]"
-        ( str (Ext.Key.to_string key)
-        $ fmt_str_loc c ext
-        $ fmt_payload c (Pld pld) pld
-        $ fmt_if (Exposed.Right.payload pld) " " )
+      let indent =
+        match pld with
+        | PStr [{pstr_desc= Pstr_eval _; _}] | PTyp _ | PPat _ ->
+            c.conf.fmt_opts.extension_indent.v
+        | PSig _ | PStr _ -> c.conf.fmt_opts.stritem_extension_indent.v
+      in
+      hvbox indent
+        (wrap "[" "]"
+           ( str (Ext.Key.to_string key)
+           $ fmt_str_loc c ext
+           $ fmt_payload c (Pld pld) pld
+           $ fmt_if (Exposed.Right.payload pld) " " ) )
 
 and fmt_extension = fmt_extension_aux ~key:Ext.Key.Regular
 
@@ -598,11 +698,7 @@ and fmt_attribute c ~key {attr_name; attr_payload; attr_loc} =
 and fmt_attributes_aux c ?pre ?suf ~key attrs =
   let num = List.length attrs in
   fmt_if_k (num > 0)
-    ( opt pre (function
-        (* Breaking before an attribute can confuse ocp-indent that will
-           produce a suboptimal indentation. *)
-        | Space when c.conf.fmt_opts.ocp_indent_compat.v -> sp Blank
-        | pre -> sp pre )
+    ( opt pre sp
     $ hvbox_if (num > 1) 0
         (hvbox 0 (list attrs "@ " (fmt_attribute c ~key)) $ opt suf str) )
 
@@ -788,12 +884,16 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
           (list xt1N (arrow_sep c ~parens) (fmt_arrow_param c ctx))
   | Ptyp_constr (lid, []) -> fmt_longident_loc c lid
   | Ptyp_constr (lid, [t1]) ->
-      fmt_core_type c (sub_typ ~ctx t1) $ fmt "@ " $ fmt_longident_loc c lid
+      hvbox (Indent.type_constr c)
+        ( fmt_core_type c (sub_typ ~ctx t1)
+        $ fmt "@ " $ fmt_longident_loc c lid )
   | Ptyp_constr (lid, t1N) ->
-      wrap_fits_breaks c.conf "(" ")"
-        (list t1N (Params.comma_sep c.conf)
-           (sub_typ ~ctx >> fmt_core_type c) )
-      $ fmt "@ " $ fmt_longident_loc c lid
+      hvbox (Indent.type_constr c)
+        ( hvbox 0
+            (wrap_fits_breaks c.conf "(" ")"
+               (list t1N (Params.comma_sep c.conf)
+                  (sub_typ ~ctx >> fmt_core_type c) ) )
+        $ fmt "@ " $ fmt_longident_loc c lid )
   | Ptyp_extension ext ->
       hvbox c.conf.fmt_opts.extension_indent.v (fmt_extension c ctx ext)
   | Ptyp_package (id, cnstrs) ->
@@ -921,7 +1021,7 @@ and fmt_row_field c ctx {prf_desc; prf_attributes; prf_loc} =
     | Rinherit typ -> fmt_core_type c (sub_typ ~ctx typ)
   in
   hvbox 0
-    ( hvbox 0 (Cmts.fmt c prf_loc row)
+    ( hvbox (Indent.variant_type_arg c) (Cmts.fmt c prf_loc row)
     $ fmt_attributes_and_docstrings c prf_attributes )
 
 and fmt_pattern_attributes c xpat k =
@@ -990,7 +1090,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
       in
       hvbox 0
         (Params.wrap_tuple ~parens ~no_parens_if_break:false c.conf
-           (list pats (Params.comma_sep c.conf)
+           (list_k pats (Params.tuple_sep c.conf)
               (sub_pat ~ctx >> fmt_pattern c) ) )
   | Ppat_construct ({txt= Lident (("()" | "[]") as txt); loc}, None) ->
       let opn = txt.[0] and cls = txt.[1] in
@@ -1003,7 +1103,8 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
       Cmts.fmt c ppat_loc
         (hvbox 0 (fmt_pat_cons c ~parens (List.map lp ~f:(sub_pat ~ctx))))
   | Ppat_construct (lid, Some (exists, pat)) ->
-      cbox 2
+      cbox
+        (Indent.variant ~parens c)
         (Params.parens_if parens c.conf
            ( fmt_longident_loc c lid $ fmt "@ "
            $ ( match exists with
@@ -1016,7 +1117,8 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
            $ fmt_pattern c (sub_pat ~ctx pat) ) )
   | Ppat_variant (lbl, None) -> variant_var c lbl
   | Ppat_variant (lbl, Some pat) ->
-      cbox 2
+      cbox
+        (Indent.variant ~parens c)
         (Params.parens_if parens c.conf
            (variant_var c lbl $ fmt "@ " $ fmt_pattern c (sub_pat ~ctx pat)) )
   | Ppat_record (flds, closed_flag) ->
@@ -1343,7 +1445,9 @@ and fmt_fun ?force_closing_paren
   let body =
     let box =
       match xbody.ast.pexp_desc with
-      | Pexp_fun _ | Pexp_newtype _ | Pexp_function _ -> Some false
+      | Pexp_fun _ | Pexp_newtype _ -> Some false
+      | Pexp_function _ when not c.conf.fmt_opts.ocp_indent_compat.v ->
+          Some false
       | _ -> None
     in
     fmt_expression c ?box xbody
@@ -1428,7 +1532,9 @@ and fmt_args_grouped ?epi:(global_epi = noop) c ctx args =
       | Nolabel, _ -> Some (fits_breaks "" ~hint:(1000, -1) "")
       | _ -> Some (fits_breaks "" ~hint:(1000, -3) "")
     in
-    hovbox 2 (fmt_label_arg c ?box ?epi (lbl, xarg))
+    hovbox
+      (Indent.fun_args_group lbl ast c)
+      (fmt_label_arg c ?box ?epi (lbl, xarg))
     $ fmt_if_k (not last) (break_unless_newline 1 0)
   in
   let fmt_args ~first ~last args =
@@ -1723,12 +1829,14 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   | Pexp_infix ({txt= ":="; loc}, r, v)
     when is_simple c.conf (expression_width c) (sub_exp ~ctx r) ->
       let cmts_before =
-        let adj =
-          fmt_if
-            Poly.(c.conf.fmt_opts.assignment_operator.v = `End_line)
-            "@,"
+        let pro, adj =
+          (* Use the same break for comment and operator. Comments are placed
+             according to indentation. *)
+          match c.conf.fmt_opts.assignment_operator.v with
+          | `Begin_line -> (Break.assignment_operator c, noop)
+          | `End_line -> (break 1 2, fmt "@,")
         in
-        Cmts.fmt_before c loc ~pro:(break 1 2) ~epi:adj ~adj
+        Cmts.fmt_before c loc ~pro ~epi:adj ~adj
       in
       let cmts_after = Cmts.fmt_after c loc ~pro:noop ~epi:noop in
       Params.parens_if parens c.conf
@@ -1736,7 +1844,8 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
            ( match c.conf.fmt_opts.assignment_operator.v with
            | `Begin_line ->
                hvbox 0 (fmt_expression c (sub_exp ~ctx r) $ cmts_before)
-               $ fmt "@;<1 2>:= " $ cmts_after
+               $ Break.assignment_operator c
+               $ fmt ":= " $ cmts_after
                $ hvbox 2 (fmt_expression c (sub_exp ~ctx v))
            | `End_line ->
                hvbox 0
@@ -1809,7 +1918,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
       let cmts_after = Cmts.fmt_after c pexp_loc in
       let xr = sub_exp ~ctx r in
       let parens_r = parenze_exp xr in
-      let indent = Params.function_indent c.conf ~ctx in
+      let indent = Params.function_indent c.conf ~parens ~xexp:xr in
       Params.parens_if parens c.conf
         (hvbox indent
            ( hvbox 0
@@ -1912,25 +2021,12 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
           (* Last argument is a [fun _ ->]. *)
           let xlast_arg = sub_exp ~ctx last_arg in
           let args =
-            let begin_arg_loc =
-              match lbl with
-              | Nolabel -> last_arg.pexp_loc
-              | Optional x | Labelled x -> x.loc
-            in
             let break_body =
               match eN1_body.pexp_desc with
-              | Pexp_function _ -> fmt "@ "
-              | _ -> (
-                (* Avoid the "double indentation" of the application and the
-                   function matching when the [max-indent] option is set. *)
-                match c.conf.fmt_opts.max_indent.v with
-                | Some indent when indent <= 2 ->
-                    if
-                      Source.begins_line ~ignore_spaces:true c.source
-                        begin_arg_loc
-                    then break 1 indent
-                    else fmt "@ "
-                | _ -> break 1 2 )
+              | Pexp_function _ ->
+                  break 1
+                    (Indent.docked_function_after_fun ~parens:true ~lbl c)
+              | _ -> break 1 (Indent.docked_fun c ~loc:last_arg.pexp_loc ~lbl)
             in
             let wrap_intro x =
               wrap
@@ -1991,14 +2087,10 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
           let wrap =
             if c.conf.fmt_opts.wrap_fun_args.v then hovbox 2 else hvbox 2
           in
+          let xlast_arg = sub_exp ~ctx last_arg in
           let ctx'' = Exp last_arg in
-          let default_indent =
-            if c.conf.fmt_opts.wrap_fun_args.v then 2 else 4
-          in
-          let indent =
-            Params.function_indent c.conf ~ctx ~default:default_indent
-          in
-          hvbox indent
+          hvbox
+            (Indent.docked_function ~parens ~xexp:xlast_arg c)
             ( expr_epi
             $ Params.parens_if parens c.conf
                 ( wrap
@@ -2075,7 +2167,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
         c.conf
         (fmt_constant c ?epi const $ fmt_atrs)
   | Pexp_constraint (e, t) ->
-      hvbox 2
+      hvbox (Indent.exp_constraint c)
         ( wrap_fits_breaks ~space:false c.conf "(" ")"
             ( fmt_expression c (sub_exp ~ctx e)
             $ fmt "@ : "
@@ -2105,7 +2197,8 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
             $ fmt_expression c (sub_exp ~ctx arg) )
         $ fmt_atrs )
   | Pexp_variant (s, arg) ->
-      hvbox 2
+      hvbox
+        (Indent.variant ~parens c)
         (Params.parens_if parens c.conf
            ( variant_var c s
            $ opt arg (fmt "@ " >$ (sub_exp ~ctx >> fmt_expression c))
@@ -2122,31 +2215,31 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
         match xbody.ast.pexp_desc with Pexp_function _ -> true | _ -> false
       in
       let pre_body, body = fmt_body c ?ext xbody in
-      let default_indent =
-        if Option.is_none eol then 2
-        else if c.conf.fmt_opts.let_binding_deindent_fun.v then 1
-        else 0
-      in
       let indent =
-        Params.function_indent c.conf ~ctx ~default:default_indent
+        if body_is_function then
+          let default_indent =
+            if Option.is_none eol then 2
+            else if c.conf.fmt_opts.let_binding_deindent_fun.v then 1
+            else 0
+          in
+          Params.function_indent c.conf ~parens ~xexp ~default:default_indent
+        else Params.fun_indent c.conf ?eol
       in
       hvbox_if (box || body_is_function) indent
         (Params.Exp.wrap c.conf ~parens ~disambiguate:true ~fits_breaks:false
            ~offset_closing_paren:(-2)
            ( hovbox 2
-               ( hovbox 4
+               ( Box.fun_decl ~parens c
                    ( str "fun"
                    $ fmt_extension_suffix c ext
                    $ str " "
                    $ fmt_attributes c pexp_attributes ~suf:" "
-                   $ hvbox_if
-                       (not c.conf.fmt_opts.wrap_fun_args.v)
-                       0 (fmt_fun_args c xargs)
-                   $ fmt_opt fmt_cstr $ fmt "@ " )
-               $ str "->" $ pre_body )
+                   $ Box.fun_args c (fmt_fun_args c xargs)
+                   $ fmt_opt fmt_cstr )
+               $ fmt "@ " $ str "->" $ pre_body )
            $ fmt "@ " $ body ) )
   | Pexp_function cs ->
-      let indent = Params.function_indent c.conf ~ctx in
+      let indent = Params.function_indent c.conf ~parens ~xexp in
       Params.Exp.wrap c.conf ~parens ~disambiguate:true ~fits_breaks:false
       @@ Params.Align.function_ c.conf ~parens ~ctx0 ~self:exp
       @@ ( hvbox 2
@@ -2197,7 +2290,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
                                fmt_extension_suffix c ext ) )
                         ~fmt_attributes:
                           (fmt_attributes c ~pre:Blank pexp_attributes)
-                        ~fmt_cond:(fmt_expression c)
+                        ~fmt_cond:(fmt_expression ~box:false c)
                     in
                     parens_prev_bch := parens_bch ;
                     p.box_branch
@@ -2367,8 +2460,8 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
   | Pexp_try (e0, cs) -> fmt_match c ?epi ~parens ?ext ctx xexp cs e0 "try"
   | Pexp_pack (me, pt) ->
       let outer_parens = parens && has_attr in
-      let inner_parens = true in
       let blk = fmt_module_expr c (sub_mod ~ctx me) in
+      let align = Params.Align.module_pack c.conf ~me in
       let opn_paren =
         match c.conf.fmt_opts.indicate_multiline_delimiters.v with
         | `No | `Closing_on_separate_line -> str "("
@@ -2381,11 +2474,11 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
             fits_breaks ~level "(" "( "
       and cls_paren = closing_paren c ~offset:(-2) in
       let pro =
-        fmt_if_k inner_parens opn_paren
+        fmt_if_k (not align) opn_paren
         $ str "module"
         $ fmt_extension_suffix c ext
         $ char ' '
-      and epi = fmt_if_k inner_parens cls_paren in
+      and epi = cls_paren in
       let fmt_mod m =
         match pt with
         | Some (id, cnstrs) ->
@@ -2396,7 +2489,9 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
       in
       hvbox 0
         (Params.parens_if outer_parens c.conf
-           (compose_module ~pro ~epi blk ~f:fmt_mod $ fmt_atrs) )
+           ( fmt_if_k align opn_paren
+           $ compose_module ~pro ~epi blk ~f:fmt_mod
+           $ fmt_atrs ) )
   | Pexp_record (flds, default) ->
       let fmt_field (lid, (typ1, typ2), exp) =
         let typ1 = Option.map typ1 ~f:(sub_typ ~ctx) in
@@ -2475,7 +2570,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
            ( hvbox 0
                (Params.wrap_tuple ~parens:inner_wrap ~no_parens_if_break
                   c.conf
-                  (list es (Params.comma_sep c.conf)
+                  (list_k es (Params.tuple_sep c.conf)
                      (sub_exp ~ctx >> fmt_expression c) ) )
            $ fmt_atrs ) )
   | Pexp_lazy e ->
@@ -2953,8 +3048,8 @@ and fmt_class_field c {ast= cf; _} =
       hvbox 2
         ( hovbox 2
             ( hovbox 4
-                (box_fun_decl_args c 4
-                   ( box_fun_sig_args c 4
+                (box_fun_decl_args c (Indent.fun_args c)
+                   ( box_fun_sig_args c (Indent.fun_type_annot c)
                        ( str "method" $ virtual_or_override kind
                        $ fmt_private_virtual_flag c pv
                        $ str " " $ fmt_str_loc c name $ typ )
@@ -3243,9 +3338,10 @@ and fmt_label_declaration c ctx ?(last = false) decl =
              (fits_breaks ~level:5 "" ";") )
           (str ";")
   in
-  hovbox 0
+  hvbox 0
     ( Cmts.fmt_before c pld_loc
-    $ hvbox 4
+    $ hvbox
+        (Indent.record_docstring c)
         ( hvbox 3
             ( hvbox 4
                 ( hvbox 2
@@ -3259,8 +3355,8 @@ and fmt_label_declaration c ctx ?(last = false) decl =
                     $ fmt_semicolon )
                 $ cmt_after_type )
             $ fmt_attributes c ~pre:(Break (1, 1)) atrs )
-        $ fmt_docstring_padded c doc
-        $ Cmts.fmt_after c pld_loc ) )
+        $ fmt_docstring_padded c doc )
+    $ Cmts.fmt_after c pld_loc )
 
 and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
   let { pcd_name= {txt; loc}
@@ -3279,11 +3375,12 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
      eventual comment placed after the previous constructor *)
   fmt_if_k (not first) (fmt_or (sparse || has_cmt_before) "@;<1000 0>" "@ ")
   $ Cmts.fmt_before ~epi:(break 1000 0) c pcd_loc
-  $ fmt_or_k first (if_newline "| ") (str "| ")
-  $ hvbox ~name:"constructor_decl" 0
-      ( hovbox 2
-          ( hvbox 2
-              ( hovbox ~name:"constructor_decl_name" 0
+  $ hvbox ~name:"constructor_decl" 2
+      ( hvbox
+          (Indent.constructor_docstring c)
+          ( hvbox 4
+              ( fmt_or_k first (if_newline "| ") (str "| ")
+              $ hovbox ~name:"constructor_decl_name" 0
                   (Cmts.fmt c loc
                      (wrap_if
                         (Std_longident.String_id.is_symbol txt)
@@ -3490,7 +3587,8 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
               open_hvbox 0 $ fmt_if parens "(" $ pro )
       ; psp
       ; bdy=
-          fmt_if_k (Option.is_none pro) (open_hvbox 2 $ fmt_if parens "(")
+          fmt_if_k (Option.is_none pro)
+            (open_hvbox (Indent.mty_with c) $ fmt_if parens "(")
           $ hvbox 0 bdy
           $ fmt_if_k (Option.is_some epi) esp
           $ fmt_opt epi $ list_fl wcs fmt_cstrs $ fmt_if parens ")"
@@ -3694,16 +3792,20 @@ and fmt_module c ctx ?rec_ ?ext ?epi ?(can_sparse = false) keyword
         ; psp= fmt_if (Option.is_none blk.pro) "@;<1 2>" $ blk.psp } )
   in
   let blk_b = Option.value_map xbody ~default:empty ~f:(fmt_module_expr c) in
+  let args_p = Params.Mod.get_args c.conf xargs in
   let fmt_name_and_mt ~pro ~loc name mt =
     let xmt = sub_mty ~ctx mt in
     let blk = fmt_module_type c ?rec_ xmt in
+    let align_opn, align_cls =
+      if args_p.arg_align then (open_hvbox 0, close_box) else (noop, noop)
+    in
     let pro =
-      pro $ Cmts.fmt_before c loc $ str "(" $ fmt_str_loc_opt c name
-      $ str " : "
-    and epi = str ")" $ Cmts.fmt_after c loc in
+      pro $ Cmts.fmt_before c loc $ str "(" $ align_opn
+      $ fmt_str_loc_opt c name $ str " :"
+      $ fmt_or_k (Option.is_some blk.pro) (str " ") (break 1 (Indent.mty c))
+    and epi = str ")" $ Cmts.fmt_after c loc $ align_cls in
     compose_module' ~box:false ~pro ~epi blk
   in
-  let args_p = Params.Mod.get_args c.conf xargs in
   (* Carry the [epi] to be placed in the next argument's box. *)
   let fmt_arg ~pro {loc; txt} =
     let pro = pro $ args_p.arg_psp in
@@ -3717,7 +3819,7 @@ and fmt_module c ctx ?rec_ ?ext ?epi ?(can_sparse = false) keyword
           fmt_name_and_mt ~pro ~loc name mt
         else
           let bdy, epi = fmt_name_and_mt ~pro:noop ~loc name mt in
-          let bdy_indent = if args_p.align then 1 else 0 in
+          let bdy_indent = if args_p.arg_align then 1 else 0 in
           (pro $ hvbox bdy_indent bdy $ epi, noop)
   in
   let rec fmt_args ~pro = function
@@ -3984,13 +4086,17 @@ and fmt_module_expr ?(dock_struct = true) c ({ast= m; _} as xmod) =
       let has_epi =
         Cmts.has_after c.cmts pmod_loc || not (List.is_empty pmod_attributes)
       in
-      { opn= Some (fmt_opt blk_t.opn $ fmt_opt blk_e.opn $ open_hovbox 2)
+      { opn=
+          Some
+            ( fmt_opt blk_t.opn $ fmt_opt blk_e.opn
+            $ open_hovbox (Indent.mod_constraint ~me c) )
       ; pro= Some (Cmts.fmt_before c pmod_loc $ str "(")
       ; psp= fmt "@,"
       ; bdy=
           hvbox 0
             ( fmt_opt blk_e.pro $ blk_e.psp $ blk_e.bdy $ blk_e.esp
-            $ fmt_opt blk_e.epi $ fmt " :@;<1 2>"
+            $ fmt_opt blk_e.epi $ fmt " :"
+            $ Break.mod_constraint ~mt c
             $ hvbox 0
                 ( fmt_opt blk_t.pro $ blk_t.psp $ blk_t.bdy $ blk_t.esp
                 $ fmt_opt blk_t.epi ) )
@@ -4049,9 +4155,10 @@ and fmt_module_expr ?(dock_struct = true) c ({ast= m; _} as xmod) =
             $ after ) }
   | Pmod_unpack (e, ty1, ty2) ->
       let package_type sep (lid, cstrs) =
-        hvbox 0
-          ( hovbox 0 (str sep $ fmt_longident_loc c lid)
-          $ fmt_package_type c ctx cstrs )
+        Break.unpack_annot c
+        $ hvbox 0
+            ( hovbox 0 (str sep $ fmt_longident_loc c lid)
+            $ fmt_package_type c ctx cstrs )
       in
       { empty with
         opn= Some (open_hvbox 2)
@@ -4062,8 +4169,8 @@ and fmt_module_expr ?(dock_struct = true) c ({ast= m; _} as xmod) =
                 (wrap_fits_breaks ~space:false c.conf "(" ")"
                    ( str "val "
                    $ fmt_expression c (sub_exp ~ctx e)
-                   $ opt ty1 (fun x -> break 1 2 $ package_type ": " x)
-                   $ opt ty2 (fun x -> break 1 2 $ package_type ":> " x) ) )
+                   $ opt ty1 (package_type ": ")
+                   $ opt ty2 (package_type ":> ") ) )
             $ fmt_attributes_and_docstrings c pmod_attributes ) }
   | Pmod_extension x1 ->
       { empty with
@@ -4232,8 +4339,8 @@ and fmt_let c ctx ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr
        $ hvbox 0 fmt_expr ) )
   $ fmt_atrs
 
-and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
-    {lb_op; lb_pat; lb_args; lb_typ; lb_exp; lb_attrs; lb_loc; lb_pun} =
+and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi _ctx
+      {lb_op; lb_pat; lb_args; lb_typ; lb_exp; lb_attrs; lb_loc; lb_pun} =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let lb_pun =
@@ -4264,9 +4371,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
   in
   let indent =
     match lb_exp.ast.pexp_desc with
-    | Pexp_function _ ->
-        Params.function_indent c.conf ~ctx
-          ~default:c.conf.fmt_opts.let_binding_indent.v
+    | Pexp_function _ -> c.conf.fmt_opts.function_indent.v
     | (Pexp_fun _ | Pexp_newtype _)
       when c.conf.fmt_opts.let_binding_deindent_fun.v ->
         max (c.conf.fmt_opts.let_binding_indent.v - 1) 0
@@ -4296,6 +4401,20 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
         , Cmts.Toplevel.fmt_before c lb_loc
         , Cmts.Toplevel.fmt_after c lb_loc )
   in
+  let decl_args =
+    let decl =
+      fmt_str_loc c lb_op
+      $ fmt_extension_suffix c ext
+      $ fmt_attributes c at_attrs $ fmt_if rec_flag " rec"
+      $ fmt_or pat_has_cmt "@ " " "
+    and pattern = fmt_pattern c lb_pat
+    and args =
+      fmt_if_k
+        (not (List.is_empty lb_args))
+        (fmt "@ " $ wrap_fun_decl_args c (fmt_fun_args c lb_args))
+    in
+    box_fun_decl_args c 4 (Params.Align.fun_decl c.conf ~decl ~pattern ~args)
+  in
   fmt_docstring c ~epi:(fmt "@\n") doc1
   $ cmts_before
   $ hvbox 0
@@ -4303,21 +4422,8 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ctx
           ( hvbox_if toplevel 0
               ( hvbox_if toplevel indent
                   ( hovbox 2
-                      ( hovbox 4
-                          ( box_fun_decl_args c 4
-                              ( hovbox 4
-                                  ( fmt_str_loc c lb_op
-                                  $ fmt_extension_suffix c ext
-                                  $ fmt_attributes c at_attrs
-                                  $ fmt_if rec_flag " rec"
-                                  $ fmt_or pat_has_cmt "@ " " "
-                                  $ fmt_pattern c lb_pat )
-                              $ fmt_if_k
-                                  (not (List.is_empty lb_args))
-                                  ( fmt "@ "
-                                  $ wrap_fun_decl_args c
-                                      (fmt_fun_args c lb_args) ) )
-                          $ fmt_cstr )
+                      ( hovbox (Indent.fun_type_annot c)
+                          (decl_args $ fmt_cstr)
                       $ fmt_if_k (not lb_pun)
                           (fmt_or_k c.conf.fmt_opts.ocp_indent_compat.v
                              (fits_breaks " =" ~hint:(1000, 0) "=")

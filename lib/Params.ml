@@ -15,6 +15,19 @@ open Asttypes
 open Fmt
 open Ast
 
+(** Whether [exp] occurs in [args] as a labelled argument. *)
+let is_labelled_arg args exp =
+  List.exists
+    ~f:(function
+      | Nolabel, _ -> false
+      | Labelled _, x | Optional _, x -> phys_equal x exp )
+    args
+
+let is_labelled_arg' xexp =
+  match xexp.Ast.ctx with
+  | Exp {pexp_desc= Pexp_apply (_, args); _} -> is_labelled_arg args xexp.ast
+  | _ -> false
+
 let ocp c = c.Conf.fmt_opts.ocp_indent_compat.v
 
 let parens_if parens (c : Conf.t) ?(disambiguate = false) k =
@@ -80,7 +93,7 @@ module Exp = struct
 end
 
 module Mod = struct
-  type args = {dock: bool; arg_psp: Fmt.t; indent: int; align: bool}
+  type args = {dock: bool; arg_psp: Fmt.t; indent: int; arg_align: bool}
 
   let arg_is_sig arg =
     match arg.txt with
@@ -101,8 +114,8 @@ module Mod = struct
       else List.for_all ~f:arg_is_sig args
     in
     let arg_psp = if dock then str " " else break 1 psp_indent in
-    let align = ocp c in
-    {dock; arg_psp; indent; align}
+    let arg_align = (not dock) && ocp c in
+    {dock; arg_psp; indent; arg_align}
 end
 
 let get_or_pattern_sep ?(cmts_before = false) ?(space = false) (c : Conf.t)
@@ -248,10 +261,15 @@ let wrap_collec c ~space_around opn cls =
 let wrap_record (c : Conf.t) =
   wrap_collec c ~space_around:c.fmt_opts.space_around_records.v "{" "}"
 
-let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break =
-  if parens then wrap_fits_breaks c "(" ")"
-  else if no_parens_if_break then Fn.id
-  else wrap_k (fits_breaks "" "( ") (fits_breaks "" ~hint:(1, 0) ")")
+let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break k =
+  if parens then wrap_fits_breaks c "(" ")" (hvbox 0 k)
+  else if no_parens_if_break then k
+  else fits_breaks "" "( " $ hvbox 0 k $ fits_breaks "" ~hint:(1, 0) ")"
+
+let tuple_sep (c : Conf.t) =
+  match c.fmt_opts.break_separators.v with
+  | `Before -> fits_breaks ", " ~hint:(1000, -2) ", "
+  | `After -> fmt ",@ "
 
 type record_type =
   { docked_before: Fmt.t
@@ -559,10 +577,22 @@ let match_indent ?(default = 0) (c : Conf.t) ~parens ~(ctx : Ast.t) =
       2 (* Match is docked *)
   | _ -> default
 
-let function_indent ?(default = 0) (c : Conf.t) ~(ctx : Ast.t) =
-  match (c.fmt_opts.function_indent_nested.v, ctx) with
-  | `Always, _ | _, (Top | Sig _ | Str _) -> c.fmt_opts.function_indent.v
+let function_indent ?(default = 0) (c : Conf.t) ~parens ~xexp =
+  match c.fmt_opts.function_indent_nested.v with
+  | `Always -> c.fmt_opts.function_indent.v
+  | _
+    when c.fmt_opts.ocp_indent_compat.v && parens
+         && not (is_labelled_arg' xexp) ->
+      default + 1
   | _ -> default
+
+let fun_indent ?eol (c : Conf.t) =
+  match c.fmt_opts.function_indent_nested.v with
+  | `Always -> c.fmt_opts.function_indent.v
+  | _ ->
+      if Option.is_none eol then 2
+      else if c.fmt_opts.let_binding_deindent_fun.v then 1
+      else 0
 
 let comma_sep (c : Conf.t) : Fmt.s =
   match c.fmt_opts.break_separators.v with
@@ -570,14 +600,6 @@ let comma_sep (c : Conf.t) : Fmt.s =
   | `After -> ",@;<1 2>"
 
 module Align = struct
-  (** Whether [exp] occurs in [args] as a labelled argument. *)
-  let is_labelled_arg args exp =
-    List.exists
-      ~f:(function
-        | Nolabel, _ -> false
-        | Labelled _, x | Optional _, x -> phys_equal x exp )
-      args
-
   let general (c : Conf.t) t =
     hvbox_if (not c.fmt_opts.align_symbol_open_paren.v) 0 t
 
@@ -606,4 +628,17 @@ module Align = struct
       | _ -> parens && not c.fmt_opts.align_symbol_open_paren.v
     in
     hvbox_if align 0 t
+
+  let fun_decl (c : Conf.t) ~decl ~pattern ~args =
+    if c.fmt_opts.ocp_indent_compat.v then
+      hovbox 4 (decl $ hvbox 2 (pattern $ args))
+    else hovbox 4 (decl $ pattern) $ args
+
+  let module_pack (c : Conf.t) ~me =
+    if not c.fmt_opts.ocp_indent_compat.v then false
+    else
+      (* Align when the constraint is not desugared. *)
+      match me.pmod_desc with
+      | Pmod_structure _ | Pmod_ident _ -> false
+      | _ -> true
 end

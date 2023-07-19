@@ -42,8 +42,9 @@ module Mod : sig
     { dock: bool  (** Whether each argument's [pro] should be docked. *)
     ; arg_psp: Fmt.t  (** Break before every arguments. *)
     ; indent: int
-    ; align: bool
-          (** Whether to align argument types inside their parenthesis. *) }
+    ; arg_align: bool
+          (** Whether arguments should be aligned on opening parentheses *)
+    }
 
   val get_args : Conf.t -> functor_parameter loc list -> args
 end
@@ -73,6 +74,8 @@ val get_cases :
 
 val wrap_tuple :
   Conf.t -> parens:bool -> no_parens_if_break:bool -> Fmt.t -> Fmt.t
+
+val tuple_sep : Conf.t -> Fmt.t
 
 type record_type =
   { docked_before: Fmt.t
@@ -142,11 +145,16 @@ val match_indent : ?default:int -> Conf.t -> parens:bool -> ctx:Ast.t -> int
     option, or using the [default] indentation (0 if not provided) if the
     option does not apply. *)
 
-val function_indent : ?default:int -> Conf.t -> ctx:Ast.t -> int
+val function_indent :
+  ?default:int -> Conf.t -> parens:bool -> xexp:expression Ast.xt -> int
 (** [function_indent c ~ctx ~default] returns the indentation used for the
     function in context [ctx], depending on the `function-indent-nested`
     option, or using the [default] indentation (0 if not provided) if the
     option does not apply. *)
+
+val fun_indent : ?eol:Fmt.t -> Conf.t -> int
+(** [fun_undent ?eol c] returns the indentation used for the function,
+    depending on the `function-indent-nested` option. *)
 
 val comma_sep : Conf.t -> Fmt.s
 (** [comma_sep c] returns the format string used to separate two elements
@@ -161,4 +169,9 @@ module Align : sig
 
   val function_ :
     Conf.t -> parens:bool -> ctx0:Ast.t -> self:expression -> Fmt.t -> Fmt.t
+
+  val fun_decl : Conf.t -> decl:Fmt.t -> pattern:Fmt.t -> args:Fmt.t -> Fmt.t
+
+  val module_pack : Conf.t -> me:module_expr -> bool
+  (** Not implemented as a wrapper to work with the blk system. *)
 end

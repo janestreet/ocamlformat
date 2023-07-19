@@ -83,7 +83,8 @@ let () =
   and[@foo] y = 4 in
   [%foo
     (let module M = M in
-     ()) [@foo]];
+     ())
+    [@foo]];
   [%foo
     (let open M in
      ()) [@foo]];
@@ -98,18 +99,21 @@ let () =
   [%foo
     while () do
       ()
-    done [@foo]];
+    done
+    [@foo]];
   [%foo
     for x = () to () do
       ()
-    done [@foo]];
+    done
+               [@foo]];
   [%foo assert true [@foo]];
   [%foo lazy x [@foo]];
   [%foo object end [@foo]];
   [%foo
     begin
       3
-    end [@foo]];
+    end
+    [@foo]];
   [%foo new x [@foo]];
   [%foo
     match[@foo] () with
@@ -131,7 +135,8 @@ class x =
     method virtual x : t [@@foo]
     method! private x = 3 [@@foo]
     initializer x [@@foo]
-  end [@foo]
+  end
+  [@foo]
 
 (* Class type expressions *)
 class type t = object
@@ -9464,7 +9469,8 @@ fun contents -> { contents = contents [@foo] };;
 
 ();
 (();
- ()) [@foo]
+ ())
+[@foo]
 
 (* https://github.com/LexiFi/gen_js_api/issues/61 *)
 
@@ -9699,7 +9705,7 @@ type t =
   (* Here is some verbatim formatted text:
      {v
        starting at column 7
-         v}*)
+       v}*)
   }
 
 module Intro_sort = struct
@@ -9789,7 +9795,8 @@ let[@a
              and y = b in
              x + y]
              | _ -> .) ->
-    y [@attr
+    y
+    [@attr
        (* ... *)
       (* ... *)
       attr (* ... *)]
@@ -9911,6 +9918,54 @@ let _ =
       (fun
         (_ : (ccccccccccccc * ddddddddddddddddddddddddddddd) eeee) -> FFFFFFFFF gg)
     ~h
+;;
+
+type t
+[@@deriving
+  some_deriver_name
+, another_deriver_name
+, another_deriver_name
+, another_deriver_name
+, yet_another_such_name
+, such_that_they_line_wrap]
+
+type t
+[@@deriving
+  some_deriver_name
+    another_deriver_name
+    another_deriver_name
+    another_deriver_name
+    yet_another_such_name
+    such_that_they_line_wrap]
+
+let pat =
+  String.Search_pattern.create
+    (String.init len ~f:(function
+       | 0 -> '\n'
+       | n when n < len - 1 -> ' '
+       | _ -> '*'))
+;;
+
+type t =
+  { break_separators : [ `Before | `After ]
+  ; break_sequences : bool
+  ; break_string_literals : [ `Auto | `Never ]
+  (** How to potentially break string literals into new lines. *)
+  ; break_struct : bool
+  ; cases_exp_indent : int
+  ; cases_matching_exp_indent : [ `Normal | `Compact ]
+  }
+
+let rec collect_files
+          ~enable_outside_detected_project
+          ~root
+          ~segs
+          ~ignores
+          ~enables
+          ~files
+  =
+  match segs with
+  | [] | [ "" ] -> ignores, enables, files, None
 ;;
 
 let _ =
@@ -10040,6 +10095,126 @@ let _ =
   | _ -> false
 ;;
 
+let _ =
+  let module M = struct
+    include
+      (val foooooooooooooooooooooooooooooooooooooooo
+        : fooooooooooooooooooooooooooooooooooooooooo)
+  end
+  in
+  ()
+;;
+
+type action =
+  | In_out of [ `Impl | `Intf ] input * string option
+  (** Format input file (or [-] for stdin) of given kind to output file,
+      or stdout if None. *)
+  (* foo *)
+  | Inplace of [ `Impl | `Intf ] input list
+  (** Format in-place, overwriting input file(s). *)
+
+let%test_module "semantics" =
+  (module (
+   struct
+     open Core
+     open Appendable_list
+     module Stable = Stable
+   end :
+     S))
+;;
+
+let _ =
+  Error
+    (`Foooooooooooooooooo
+       (name, Format.sprintf "expecting %S but got %S" Version.version value))
+;;
+
+let _ =
+  `Foooooooooooooooooo
+    (name, Format.sprintf "expecting %S but got %S" Version.version value)
+;;
+
+let _ =
+  Foooooooooooooooooo
+    (name, Format.sprintf "expecting %S but got %S" Version.version value)
+;;
+
+let (`Foooooooooooooooooo
+       (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
+  =
+  x
+;;
+
+let (Foooooooooooooooooo
+       (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
+  =
+  x
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    (fun x ->
+       function
+       | Foooooooooooooooooooo -> foooooooooooooooooooo
+       | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    ~x:(fun x ->
+      function
+      | Foooooooooooooooooooo -> foooooooooooooooooooo
+      | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    (fun x ->
+       match foo with
+       | Foooooooooooooooooooo -> foooooooooooooooooooo
+       | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  Foooooooooooooooooooo.foooooooooooooooooooo
+    foooooooooooooooooooo
+    foooooooooooooooooooo
+    ~x:(fun x ->
+      match foo with
+      | Foooooooooooooooooooo -> foooooooooooooooooooo
+      | Foooooooooooooooooooo -> foooooooooooooooooooo)
+;;
+
+let _ =
+  let x = x in
+  fun foooooooooooooooooo
+    foooooooooooooooooo
+    foooooooooooooooooo
+    foooooooooooooooooo
+    foooooooooooooooooo
+    foooooooooooooooooo ->
+    ()
+;;
+
+module type For_let_syntax_local =
+  For_let_syntax_gen
+  with type ('a, 'b) fn := ('a[@local]) -> 'b
+   and type ('a, 'b) f_labeled_fn := f:('a[@local]) -> 'b
+
+type fooooooooooooooooooooooooooooooo =
+  (fooooooooooooooooooooooooooooooo, fooooooooooooooooooooooooooooooo)
+    fooooooooooooooooooooooooooooooo
+
+val fooooooooooooooooooooooooooooooo
+  : (fooooooooooooooooooooooooooooooo, fooooooooooooooooooooooooooooooo)
+      fooooooooooooooooooooooooooooooo
+
 (* *)
 
 (** xxx *)
@@ -10066,9 +10241,66 @@ class x =
     method x = y
   end
 
+module M =
+  [%demo
+    module Foo = Bar
+
+    type t]
+
+let _ =
+  Some
+    (fun fooooooooooooooooooooooooooooooo
+      fooooooooooooooooooooooooooooooo
+      fooooooooooooooooooooooooooooooo ->
+      foo)
+;;
+
+type t =
+  { xxxxxx :
+      t
+        (* _________________________________________________________________________
+           ____________________________________________________________________
+           ___________ *)
+        XXXXXXX.t
+  }
+
+module Test_gen
+    (For_tests : For_tests_gen)
+    (Tested :
+       S_gen with type 'a src := 'a For_tests.Src.t with type 'a dst := 'a For_tests.Dst.t)
+    (Tested :
+       S_gen
+     with type 'a src := 'a For_tests.Src.t
+     with type 'a dst := 'a For_tests.Dst.t
+      and type 'a dst := 'a For_tests.Dst.t
+      and type 'a dst := 'a For_tests.Dst.t) =
+struct
+  open Tested
+  open For_tests
+end
+
+type t =
+  { xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx :
+      YYYYYYYYYYYYYYYYYYYYY.t
+      (* ____________________________________ *)
+  }
+
 (*{v
       foo
   v}*)
+
+(*$
+  {|
+       f|}
+*)
+
+type t =
+  { xxxxxxxxxxxxxxxxxxx : yyy
+                          [@zzzzzzzzzzzzzzzzzzz
+                             (* ________________________________
+                                ___ *)
+                            _______]
+  }
 
 let _ =
   match () with
