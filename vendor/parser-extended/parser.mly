@@ -153,6 +153,12 @@ let ghsig ~loc d = Sig.mk ~loc:(ghost_loc loc) d
 let mkinfix arg1 op arg2 =
   Pexp_infix(op, arg1, arg2)
 
+(* Jane Street extension *)
+let flip_sign = function
+  | Positive -> Negative
+  | Negative -> Positive
+(* End Jane Street extension *)
+
 let neg_string f =
   if String.length f > 0 && f.[0] = '-'
   then String.sub f 1 (String.length f - 1)
@@ -164,6 +170,17 @@ let mkuminus ~oploc name arg =
       Pexp_constant({c with pconst_desc= Pconst_integer(neg_string n,m)})
   | ("-" | "-."), Pexp_constant({pconst_desc= Pconst_float (f, m); _} as c) ->
       Pexp_constant({c with pconst_desc= Pconst_float(neg_string f, m)})
+
+  (* Jane Street extension *)
+  | "-", Pexp_constant({pconst_desc= Pconst_unboxed_integer (s,n,m); _} as c) ->
+      Pexp_constant({c with
+                     pconst_desc= Pconst_unboxed_integer(flip_sign s,n,m)})
+  | ("-" | "-."), Pexp_constant({pconst_desc=
+                                   Pconst_unboxed_float (s, f, m); _} as c) ->
+      Pexp_constant({c with
+                     pconst_desc= Pconst_unboxed_float(flip_sign s, f, m)})
+  (* End Jane Street extension *)
+
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
@@ -172,6 +189,13 @@ let mkuplus ~oploc name arg =
   match name, desc with
   | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
   | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
+
+  (* Jane Street extension *)
+  | "+", Pexp_constant({pconst_desc= Pconst_unboxed_integer _; _})
+  | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_unboxed_float _; _})
+    -> desc
+  (* End Jane Street extension *)
+
   | _ ->
       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
 
@@ -574,7 +598,6 @@ let check_layout loc id =
   end;
   let loc = make_loc loc in
   Attr.mk ~loc (mkloc id loc) (PStr [])
-
 %}
 
 /* Tokens */
@@ -725,6 +748,11 @@ let check_layout loc id =
 
 %token <string> TYPE_DISAMBIGUATOR "2" (* just an example *)
 
+(* Jane Street extension *)
+%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
+%token <string * char option> HASH_INT "#42l" (* just an example *)
+(* End Jane Street extension *)
+
 /* Precedences and associativities.
 
 Tokens and rules have precedences.  A reduce/reduce conflict is resolved
@@ -786,7 +814,7 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
           LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -3747,6 +3775,13 @@ constant:
                    mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
   | FLOAT        { let (f, m) = $1 in
                    mkconst ~loc:$sloc (Pconst_float (f, m)) }
+
+  (* Jane Street extension *)
+  | HASH_INT     { let (n, m) = $1 in
+                   mkconst ~loc:$sloc (Pconst_unboxed_integer(Positive, n, m)) }
+  | HASH_FLOAT   { let (f, m) = $1 in
+                   mkconst ~loc:$sloc (Pconst_unboxed_float (Positive, f, m)) }
+  (* End Jane Street extension *)
 ;
 signed_constant:
     constant     { $1 }
@@ -3758,6 +3793,21 @@ signed_constant:
                    mkconst ~loc:$sloc (Pconst_integer (n, m)) }
   | PLUS FLOAT   { let (f, m) = $2 in
                    mkconst ~loc:$sloc (Pconst_float(f, m)) }
+
+  (* Jane Street extension *)
+  | MINUS HASH_INT    { let (n, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_integer(Negative,n,m)) }
+  | MINUS HASH_FLOAT  { let (f, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_float(Negative,f,m)) }
+  | PLUS HASH_INT     { let (n, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_integer (Positive,n,m)) }
+  | PLUS HASH_FLOAT   { let (f, m) = $2 in
+                        mkconst ~loc:$sloc
+                          (Pconst_unboxed_float (Positive,f,m)) }
+  (* End Jane Street extension *)
 ;
 
 /* Identifiers and long identifiers */

@@ -165,7 +165,6 @@
  
 +type global_flag =
 +  | Global
-+  | Nonlocal
 +  | Nothing
 +
 +(* constant layouts are parsed as layout annotations, and also used
@@ -185,6 +184,13 @@
 --- parser-upstream/lexer.mll
 +++ parser-standard/lexer.mll
 @@@@
+     "done", DONE;
+     "downto", DOWNTO;
+     "else", ELSE;
+     "end", END;
+     "exception", EXCEPTION;
++    "exclave_", EXCLAVE;
+     "external", EXTERNAL;
      "false", FALSE;
      "for", FOR;
      "fun", FUN;
@@ -204,12 +210,54 @@
      "module", MODULE;
      "mutable", MUTABLE;
      "new", NEW;
-+    "nonlocal_", NONLOCAL;
-     "nonrec", NONREC;
-     "object", OBJECT;
-     "of", OF;
-     "open", OPEN;
-     "or", OR;
+@@@@
+ let in_comment () = !comment_start_loc <> []
+ let is_in_string = ref false
+ let in_string () = !is_in_string
+ let print_warnings = ref true
+ 
++let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
++
++(* See the comment on the [directive] lexer. *)
++type directive_lexing_already_consumed =
++   | Hash
++   | Hash_and_line_num of { line_num : string }
++
+ (* Escaped chars are interpreted in strings unless they are in comments. *)
+ let store_escaped_char lexbuf c =
+   if in_comment () then store_lexeme lexbuf else store_string_char c
+ 
+ let store_escaped_uchar lexbuf u =
+@@@@
+   { start_loc with Location.loc_end = end_loc.Location.loc_end }
+ 
+ let error lexbuf e = raise (Error(e, Location.curr lexbuf))
+ let error_loc loc e = raise (Error(e, loc))
+ 
++let directive_error
++    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
++  =
++  let directive_prefix =
++    match already_consumed with
++    | Hash -> "#"
++    | Hash_and_line_num { line_num } -> "#" ^ line_num
++  in
++  (* Set the lexbuf's current window to extend to the start of
++     the directive so the error message's location is more accurate.
++  *)
++  lexbuf.lex_start_p <-
++    { lexbuf.lex_start_p with
++      pos_cnum =
++        lexbuf.lex_start_p.pos_cnum - String.length directive_prefix
++    };
++  error lexbuf
++    (Invalid_directive (directive_prefix ^ directive, Some explanation))
++
+ (* to translate escape sequences *)
+ 
+ let digit_value c =
+   match c with
+   | 'a' .. 'f' -> 10 + Char.code c - Char.code 'a'
 @@@@
  let is_keyword name = Hashtbl.mem keyword_table name
  
@@ -253,6 +301,87 @@
    let pos = lexbuf.lex_curr_p in
    let new_file = match file with
 @@@@
+   in
+     add_comment com
+ 
+ let comments () = List.rev !comment_list
+ 
++let float ~maybe_hash lit modifier =
++  match maybe_hash with
++  | "#" -> HASH_FLOAT (lit, modifier)
++  | "" -> FLOAT (lit, modifier)
++  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
++
++let int ~maybe_hash lit modifier =
++  match maybe_hash with
++  | "#" -> HASH_INT (lit, modifier)
++  | "" -> INT (lit, modifier)
++  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
++
+ (* Error report *)
+ 
+ open Format
+ 
+ let prepare_error loc = function
+@@@@
+       { warn_latin1 lexbuf; LIDENT name }
+   | uppercase identchar * as name
+       { UIDENT name } (* No capitalized keywords *)
+   | uppercase_latin1 identchar_latin1 * as name
+       { warn_latin1 lexbuf; UIDENT name }
+-  | int_literal as lit { INT (lit, None) }
+-  | (int_literal as lit) (literal_modifier as modif)
+-      { INT (lit, Some modif) }
+-  | float_literal | hex_float_literal as lit
+-      { FLOAT (lit, None) }
+-  | (float_literal | hex_float_literal as lit) (literal_modifier as modif)
+-      { FLOAT (lit, Some modif) }
+-  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
++  (* This matches either an integer literal or a directive. If the text "#2"
++     appears at the beginning of a line that lexes as a directive, then it
++     should be treated as a directive and not an unboxed int. This is acceptable
++     because "#2" isn't a valid unboxed int anyway because it lacks a suffix;
++     the parser rejects unboxed-ints-lacking-suffixes with a more descriptive
++     error message.
++  *)
++  | ('#'? as maybe_hash) (int_literal as lit)
++      { if at_beginning_of_line lexbuf.lex_start_p && maybe_hash = "#" then
++          try directive (Hash_and_line_num { line_num = lit }) lexbuf
++          with Failure _ -> int ~maybe_hash lit None
++        else int ~maybe_hash lit None
++      }
++  | ('#'? as maybe_hash) (int_literal as lit) (literal_modifier as modif)
++      { int ~maybe_hash lit (Some modif) }
++  | ('#'? as maybe_hash)
++    (float_literal | hex_float_literal as lit)
++      { float ~maybe_hash lit None }
++  | ('#'? as maybe_hash)
++    (float_literal | hex_float_literal as lit) (literal_modifier as modif)
++      { float ~maybe_hash lit (Some modif) }
++  | '#'? (float_literal | hex_float_literal | int_literal) identchar+ as invalid
+       { error lexbuf (Invalid_literal invalid) }
+   | "\""
+       { let s, loc = wrap_string_lexer string lexbuf in
+         STRING (s, loc, None) }
+   | "{" (lowercase* as delim) "|"
+@@@@
+         let curpos = lexbuf.lex_curr_p in
+         lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
+         STAR
+       }
+   | "#"
+-      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
+-        if not (at_beginning_of_line lexbuf.lex_start_p)
++      { if not (at_beginning_of_line lexbuf.lex_start_p)
+         then HASH
+-        else try directive lexbuf with Failure _ -> HASH
++        else try directive Hash lexbuf with Failure _ -> HASH
+       }
+   | "&"  { AMPERSAND }
+   | "&&" { AMPERAMPER }
+   | "`"  { BACKQUOTE }
+   | "\'" { QUOTE }
+@@@@
    | "<"  { LESS }
    | "<-" { LESSMINUS }
    | "="  { EQUAL }
@@ -286,15 +415,34 @@
              { HASHOP op }
    | "let" kwdopchar dotsymbolchar * as op
 @@@@
+             { ANDOP op }
    | eof { EOF }
    | (_ as illegal_char)
        { error lexbuf (Illegal_character illegal_char) }
  
- and directive = parse
+-and directive = parse
 -  | ([' ' '\t']* (['0'-'9']+ as num) [' ' '\t']*
 -        ("\"" ([^ '\010' '\013' '\"' ] * as name) "\"") as directive)
-+  | ([' ' '\t']* (['0'-'9']+ as _num) [' ' '\t']*
-+        ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
++(* An example of a directive is:
++
++#4 "filename.ml"
++
++   Here, 4 is the line number and filename.ml is the file name. The '#' must
++   appear in column 0.
++
++   The [directive] lexer is called when some portion of the start of
++   the line was already consumed, either just the '#' or the '#4'. That's
++   indicated by the [already_consumed] argument. The caller is responsible
++   for checking that the '#' appears in column 0.
++
++   The [directive] lexer always attempts to read the line number from the
++   lexbuf. It expects to receive a line number from exactly one source (either
++   the lexbuf or the [already_consumed] argument, but not both) and will fail if
++   this isn't the case.
++*)
++and directive already_consumed = parse
++  | ([' ' '\t']* (['0'-'9']+? as _line_num_opt) [' ' '\t']*
++     ("\"" ([^ '\010' '\013' '\"' ] * as _name) "\"") as directive)
          [^ '\010' '\013'] *
        {
 -        match int_of_string num with
@@ -310,7 +458,7 @@
 -            token lexbuf
 +        (* Line directives are not preserved by the lexer so we error out. *)
 +        let explanation = "line directives are not supported" in
-+        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
++        directive_error lexbuf explanation ~already_consumed ~directive
        }
  and comment = parse
      "(*"
@@ -392,7 +540,7 @@
 -let extended_module_path = wrap Parser.parse_mod_ext_longident
 -let simple_module_path = wrap Parser.parse_mod_longident
 -let type_ident = wrap Parser.parse_mty_longident
-+let implementation = wrap Parser.Incremental.implementation
++let implementation x = let ast = wrap Parser.Incremental.implementation x in Format.printf "%a" Printast.implementation ast; ast
 +and interface = wrap Parser.Incremental.interface
 +and toplevel_phrase = wrap Parser.Incremental.toplevel_phrase
 +and use_file = wrap Parser.Incremental.use_file
@@ -459,6 +607,15 @@
 +let wrap_exp_local_if p exp =
 +  if p then wrap_exp_stack exp else exp
 +
++let exclave_ext_loc loc = mkloc "extension.exclave" loc
++
++let exclave_extension loc =
++  Exp.mk ~loc:Location.none
++    (Pexp_extension(exclave_ext_loc loc, PStr []))
++
++let mkexp_exclave ~loc ~kwd_loc exp =
++  ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
++
 +let curry_attr =
 +  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
 +
@@ -480,33 +637,20 @@
 +let global_attr loc =
 +  Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
 +
-+let nonlocal_loc loc = mkloc "extension.nonlocal" loc
-+
-+let nonlocal_attr loc =
-+  Attr.mk ~loc:Location.none (nonlocal_loc loc) (PStr [])
-+
 +let mkld_global ld loc =
 +  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
-+
-+let mkld_nonlocal ld loc =
-+  { ld with pld_attributes = nonlocal_attr loc :: ld.pld_attributes }
 +
 +let mkld_global_maybe gbl ld loc =
 +  match gbl with
 +  | Global -> mkld_global ld loc
-+  | Nonlocal -> mkld_nonlocal ld loc
 +  | Nothing -> ld
 +
 +let mkcty_global cty loc =
 +  { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
 +
-+let mkcty_nonlocal cty loc =
-+  { cty with ptyp_attributes = nonlocal_attr loc :: cty.ptyp_attributes }
-+
 +let mkcty_global_maybe gbl cty loc =
 +  match gbl with
 +  | Global -> mkcty_global cty loc
-+  | Nonlocal -> mkcty_nonlocal cty loc
 +  | Nothing -> cty
 +
  (* TODO define an abstraction boundary between locations-as-pairs
@@ -560,7 +704,8 @@
 +end
 +
 +let ppat_iarray loc elts =
-+  (Extensions.Immutable_arrays.pat_of
++  (Jane_syntax.Immutable_arrays.pat_of
++     ~attrs:[]
 +     ~loc:(make_loc loc)
 +     (Iapat_immutable_array elts)).ppat_desc
 +
@@ -612,15 +757,79 @@
 +  let loc = make_loc loc in
 +  Attr.mk ~loc (mkloc id loc) (PStr [])
 +
-+let check_layout loc id =
-+  begin
-+    match id with
-+    | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
-+    | _ -> expecting loc "layout"
-+  end;
-+  let loc = make_loc loc in
-+  Attr.mk ~loc (mkloc id loc) (PStr [])
++(* Unboxed literals *)
 +
++(* CR layouts v2: The [unboxed_*] functions will both be improved and lose
++   their explicit assert once we have real unboxed literals in Jane syntax; they
++   may also get re-inlined at that point *)
++let unboxed_literals_extension = Language_extension.Layouts
++
++module Constant : sig
++  type t = private
++    | Value of constant
++    | Unboxed of Jane_syntax.Unboxed_constants.t
++
++  type loc := Lexing.position * Lexing.position
++
++  val value : Parsetree.constant -> t
++  val unboxed : loc:loc -> Jane_syntax.Unboxed_constants.t -> t
++  val to_expression : loc:loc -> t -> expression
++  val to_pattern : loc:loc -> t -> pattern
++  val assert_is_value : loc:loc -> where:string -> t -> constant
++end = struct
++  type t =
++    | Value of constant
++    | Unboxed of Jane_syntax.Unboxed_constants.t
++
++  let value x = Value x
++
++  let assert_unboxed_literals ~loc =
++    Language_extension.(
++      Jane_syntax_parsing.assert_extension_enabled ~loc Layouts Alpha)
++
++  let unboxed ~loc x =
++    assert_unboxed_literals ~loc:(make_loc loc);
++    Unboxed x
++
++  let to_expression ~loc : t -> expression = function
++    | Value const_value ->
++        mkexp ~loc (Pexp_constant const_value)
++    | Unboxed const_unboxed ->
++      Jane_syntax.Unboxed_constants.expr_of
++        ~loc:(make_loc loc) ~attrs:[] const_unboxed
++
++  let to_pattern ~loc : t -> pattern = function
++    | Value const_value ->
++        mkpat ~loc (Ppat_constant const_value)
++    | Unboxed const_unboxed ->
++      Jane_syntax.Unboxed_constants.pat_of
++        ~loc:(make_loc loc) ~attrs:[] const_unboxed
++
++  let assert_is_value ~loc ~where : t -> Parsetree.constant = function
++    | Value x -> x
++    | Unboxed _ ->
++        not_expecting loc (Printf.sprintf "unboxed literal %s" where)
++end
++
++type sign = Positive | Negative
++
++let with_sign sign num =
++  match sign with
++  | Positive -> num
++  | Negative -> "-" ^ num
++
++let unboxed_int sloc int_loc sign (n, m) =
++  match m with
++  | Some m ->
++      Constant.unboxed ~loc:int_loc (Integer (with_sign sign n, m))
++  | None ->
++      if Language_extension.is_enabled unboxed_literals_extension then
++        expecting int_loc "unboxed integer literal with type-specifying suffix"
++      else
++        not_expecting sloc "line number directive"
++
++let unboxed_float sloc sign (f, m) =
++  Constant.unboxed ~loc:sloc (Float (with_sign sign f, m))
  %}
  
  /* Tokens */
@@ -639,7 +848,17 @@
  %token DONE                   "done"
  %token DOT                    "."
 @@@@
- %token <string * char option> FLOAT "42.0" (* just an example *)
+ %token ELSE                   "else"
+ %token END                    "end"
+ %token EOF                    ""
+ %token EQUAL                  "="
+ %token EXCEPTION              "exception"
++%token EXCLAVE                "exclave_"
+ %token EXTERNAL               "external"
+ %token FALSE                  "false"
+-%token <string * char option> FLOAT "42.0" (* just an example *)
++%token <string * char option> FLOAT      "42.0"  (* just an example *)
++%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
  %token FOR                    "for"
  %token FUN                    "fun"
  %token FUNCTION               "function"
@@ -651,6 +870,15 @@
  %token IF                     "if"
  %token IN                     "in"
 @@@@
+ %token <string> DOTOP         ".+"
+ %token <string> LETOP         "let*" (* just an example *)
+ %token <string> ANDOP         "and*" (* just an example *)
+ %token INHERIT                "inherit"
+ %token INITIALIZER            "initializer"
+-%token <string * char option> INT "42"  (* just an example *)
++%token <string * char option> INT      "42"   (* just an example *)
++%token <string * char option> HASH_INT "#42l" (* just an example *)
+ %token <string> LABEL         "~label:" (* just an example *)
  %token LAZY                   "lazy"
  %token LBRACE                 "{"
  %token LBRACELESS             "{<"
@@ -671,18 +899,6 @@
  %token LBRACKETATAT           "[@@"
  %token LBRACKETATATAT         "[@@@"
  %token MATCH                  "match"
-@@@@
- %token MINUSDOT               "-."
- %token MINUSGREATER           "->"
- %token MODULE                 "module"
- %token MUTABLE                "mutable"
- %token NEW                    "new"
-+%token NONLOCAL               "nonlocal_"
- %token NONREC                 "nonrec"
- %token OBJECT                 "object"
- %token OF                     "of"
- %token OPEN                   "open"
- %token <string> OPTLABEL      "?label:" (* just an example *)
 @@@@
  %token SEMI                   ";"
  %token SEMISEMI               ";;"
@@ -746,14 +962,15 @@
  %nonassoc prec_constant_constructor     /* cf. simple_expr (C versus C x) */
  %nonassoc prec_constr_appl              /* above AS BAR COLONCOLON COMMA */
  %nonassoc below_HASH
-@@@@
+ %nonassoc HASH                         /* simple_expr/toplevel_directive */
  %left     HASHOP
  %nonassoc below_DOT
  %nonassoc DOT DOTOP
  /* Finally, the first tokens of simple_expr are above everything else. */
- %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
+-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT INT OBJECT
 -          LBRACE LBRACELESS LBRACKET LBRACKETBAR LIDENT LPAREN
 -          NEW PREFIXOP STRING TRUE UIDENT
++%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
 +          LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
 +          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
            LBRACKETPERCENT QUOTED_STRING_EXPR
@@ -899,6 +1116,8 @@
  /* END AVOID */
 +  | LOCAL seq_expr
 +     { mkexp_stack ~loc:$sloc $2 }
++  | EXCLAVE seq_expr
++     { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
  ;
  %inline expr_attrs:
    | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
@@ -937,6 +1156,16 @@
    | indexop_error (DOT, seq_expr) { $1 }
    | indexop_error (qualified_dotop, expr_semi_list) { $1 }
    | simple_expr_attrs
+     { let desc, attrs = $1 in
+       mkexp_attrs ~loc:$sloc desc attrs }
+   | mkexp(simple_expr_)
+       { $1 }
++  | constant { Constant.to_expression ~loc:$sloc $1 }
+ ;
+ %inline simple_expr_attrs:
+   | BEGIN ext = ext attrs = attributes e = seq_expr END
+       { e.pexp_desc, (ext, attrs @ e.pexp_attributes) }
+   | BEGIN ext_attributes END
 @@@@
    | OBJECT ext_attributes class_structure END
        { Pexp_object $3, $2 }
@@ -946,21 +1175,21 @@
 +
 +comprehension_iterator:
 +  | EQUAL expr direction_flag expr
-+      { Extensions.Comprehensions.Range { start = $2 ; stop = $4 ; direction = $3 } }
++      { Jane_syntax.Comprehensions.Range { start = $2 ; stop = $4 ; direction = $3 } }
 +  | IN expr
-+      { Extensions.Comprehensions.In $2 }
++      { Jane_syntax.Comprehensions.In $2 }
 +;
 +
 +comprehension_clause_binding:
 +  | attributes pattern comprehension_iterator
-+      { Extensions.Comprehensions.{ pattern = $2 ; iterator = $3 ; attributes = $1 } }
++      { Jane_syntax.Comprehensions.{ pattern = $2 ; iterator = $3 ; attributes = $1 } }
 +  (* We can't write [[e for local_ x = 1 to 10]], because the [local_] has to
 +     move to the RHS and there's nowhere for it to move to; besides, you never
 +     want that [int] to be [local_].  But we can parse [[e for local_ x in xs]].
 +     We have to have that as a separate rule here because it moves the [local_]
 +     over to the RHS of the binding, so we need everything to be visible. *)
 +  | attributes LOCAL pattern IN expr
-+      { Extensions.Comprehensions.
++      { Jane_syntax.Comprehensions.
 +          { pattern    = $3
 +          ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
 +          ; attributes = $1
@@ -970,27 +1199,28 @@
 +
 +comprehension_clause:
 +  | FOR separated_nonempty_llist(AND, comprehension_clause_binding)
-+      { Extensions.Comprehensions.For $2 }
++      { Jane_syntax.Comprehensions.For $2 }
 +  | WHEN expr
-+      { Extensions.Comprehensions.When $2 }
++      { Jane_syntax.Comprehensions.When $2 }
 +
 +%inline comprehension(lbracket, rbracket):
 +  lbracket expr nonempty_llist(comprehension_clause) rbracket
-+    { Extensions.Comprehensions.{ body = $2; clauses = $3 } }
++    { Jane_syntax.Comprehensions.{ body = $2; clauses = $3 } }
 +;
 +
 +%inline comprehension_ext_expr:
 +  | comprehension(LBRACKET,RBRACKET)
-+      { Extensions.Comprehensions.Cexp_list_comprehension  $1 }
++      { Jane_syntax.Comprehensions.Cexp_list_comprehension  $1 }
 +  | comprehension(LBRACKETBAR,BARRBRACKET)
-+      { Extensions.Comprehensions.Cexp_array_comprehension (Mutable, $1) }
++      { Jane_syntax.Comprehensions.Cexp_array_comprehension (Mutable, $1) }
 +  | comprehension(LBRACKETCOLON,COLONRBRACKET)
-+      { Extensions.Comprehensions.Cexp_array_comprehension (Immutable, $1) }
++      { Jane_syntax.Comprehensions.Cexp_array_comprehension (Immutable, $1) }
 +;
 +
 +%inline comprehension_expr:
 +  comprehension_ext_expr
-+    { (Extensions.Comprehensions.expr_of ~loc:(make_loc $sloc) $1).pexp_desc }
++    { (Jane_syntax.Comprehensions.expr_of
++         ~attrs:[] ~loc:(make_loc $sloc) $1).pexp_desc }
 +;
 +
 +%inline array_simple(ARR_OPEN, ARR_CLOSE, contents_semi_list):
@@ -1023,8 +1253,13 @@
  %inline simple_expr_:
    | mkrhs(val_longident)
        { Pexp_ident ($1) }
-   | constant
-       { Pexp_constant $1 }
+-  | constant
+-      { Pexp_constant $1 }
+   | mkrhs(constr_longident) %prec prec_constant_constructor
+       { Pexp_construct($1, None) }
+   | name_tag %prec prec_constant_constructor
+       { Pexp_variant($1, None) }
+   | op(PREFIXOP) simple_expr
 @@@@
        { Pexp_send($1, $3) }
    | simple_expr op(HASHOP) simple_expr
@@ -1067,7 +1302,8 @@
 +      { Generic_array.expression
 +          "[:" ":]"
 +          (fun elts ->
-+            (Extensions.Immutable_arrays.expr_of
++            (Jane_syntax.Immutable_arrays.expr_of
++               ~attrs:[]
 +               ~loc:(make_loc $sloc)
 +               (Iaexp_immutable_array elts)).pexp_desc)
 +          $1 }
@@ -1170,6 +1406,30 @@
      { xs }
  ;
  match_case:
+@@@@
+       { mkpat_attrs ~loc:$sloc
+           (Ppat_constraint(mkpat ~loc:$loc($4) (Ppat_unpack $4), $6))
+           $3 }
+   | mkpat(simple_pattern_not_ident_)
+       { $1 }
++  | signed_constant { Constant.to_pattern $1 ~loc:$sloc }
+ ;
+ %inline simple_pattern_not_ident_:
+   | UNDERSCORE
+       { Ppat_any }
+-  | signed_constant
+-      { Ppat_constant $1 }
+   | signed_constant DOTDOT signed_constant
+-      { Ppat_interval ($1, $3) }
++      { let where = "in a pattern interval" in
++        Ppat_interval
++          (Constant.assert_is_value $1 ~loc:$loc($1) ~where,
++           Constant.assert_is_value $3 ~loc:$loc($3) ~where) }
+   | mkrhs(constr_longident)
+       { Ppat_construct($1, None) }
+   | name_tag
+       { Ppat_variant($1, None) }
+   | HASH mkrhs(type_longident)
 @@@@
        { unclosed "{" $loc($1) "}" $loc($3) }
      | LBRACKET pattern_semi_list RBRACKET
@@ -1296,41 +1556,41 @@
 +;
 +
 +strict_function_type:
-   | mktyp(
-       label = arg_label
--      domain = extra_rhs(tuple_type)
++  | mktyp(
++      label = arg_label
 +      local = optional_local
 +      domain = extra_rhs(param_type)
-       MINUSGREATER
--      codomain = function_type
--        { Ptyp_arrow(label, domain, codomain) }
++      MINUSGREATER
 +      codomain = strict_function_type
 +        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
 +    )
 +    { $1 }
-+  | mktyp(
-+      label = arg_label
+   | mktyp(
+       label = arg_label
+-      domain = extra_rhs(tuple_type)
 +      arg_local = optional_local
 +      domain = extra_rhs(param_type)
-+      MINUSGREATER
+       MINUSGREATER
+-      codomain = function_type
+-        { Ptyp_arrow(label, domain, codomain) }
 +      ret_local = optional_local
 +      codomain = tuple_type
 +      %prec MINUSGREATER
 +        { Ptyp_arrow(label,
 +            mktyp_local_if arg_local domain,
 +            mktyp_local_if ret_local (maybe_curry_typ codomain)) }
-     )
-     { $1 }
- ;
++    )
++    { $1 }
++;
 +%inline param_type:
 +  | mktyp(
 +    LPAREN vars = typevar_list DOT ty = core_type RPAREN
 +      { Ptyp_poly(vars, ty) }
-+    )
-+    { $1 }
+     )
+     { $1 }
 +  | ty = tuple_type
 +    { ty }
-+;
+ ;
  %inline arg_label:
    | label = optlabel
        { Optional label }
@@ -1350,6 +1610,50 @@
     - proper tuple types:                  int * int * int list
     A proper tuple type is a star-separated list of at least two atomic types.
   *)
+@@@@
+ ;
+ 
+ /* Constants */
+ 
+ constant:
+-  | INT          { let (n, m) = $1 in Pconst_integer (n, m) }
+-  | CHAR         { Pconst_char $1 }
+-  | STRING       { let (s, strloc, d) = $1 in Pconst_string (s, strloc, d) }
+-  | FLOAT        { let (f, m) = $1 in Pconst_float (f, m) }
++  | INT               { let (n, m) = $1 in
++                        Constant.value (Pconst_integer (n, m)) }
++  | CHAR              { Constant.value (Pconst_char $1) }
++  | STRING            { let (s, strloc, d) = $1 in
++                        Constant.value (Pconst_string (s, strloc, d)) }
++  | FLOAT             { let (f, m) = $1 in
++                        Constant.value (Pconst_float (f, m)) }
++  | HASH_INT          { unboxed_int $sloc $sloc Positive $1 }
++  | HASH_FLOAT        { unboxed_float $sloc Positive $1 }
+ ;
+ signed_constant:
+-    constant     { $1 }
+-  | MINUS INT    { let (n, m) = $2 in Pconst_integer("-" ^ n, m) }
+-  | MINUS FLOAT  { let (f, m) = $2 in Pconst_float("-" ^ f, m) }
+-  | PLUS INT     { let (n, m) = $2 in Pconst_integer (n, m) }
+-  | PLUS FLOAT   { let (f, m) = $2 in Pconst_float(f, m) }
++    constant          { $1 }
++  | MINUS INT         { let (n, m) = $2 in
++                        Constant.value (Pconst_integer("-" ^ n, m)) }
++  | MINUS FLOAT       { let (f, m) = $2 in
++                        Constant.value (Pconst_float("-" ^ f, m)) }
++  | MINUS HASH_INT    { unboxed_int $sloc $loc($2) Negative $2 }
++  | MINUS HASH_FLOAT  { unboxed_float $sloc Negative $2 }
++  | PLUS INT          { let (n, m) = $2 in
++                        Constant.value (Pconst_integer (n, m)) }
++  | PLUS FLOAT        { let (f, m) = $2 in
++                        Constant.value (Pconst_float(f, m)) }
++  | PLUS HASH_INT     { unboxed_int $sloc $loc($2) Positive $2 }
++  | PLUS HASH_FLOAT   { unboxed_float $sloc Positive $2 }
+ ;
+ 
+ /* Identifiers and long identifiers */
+ 
+ ident:
 @@@@
    | PLUS           {"+"}
    | PLUSDOT       {"+."}
@@ -1396,12 +1700,10 @@
 +    /* empty */                                 { Immutable, Nothing }
 +  | MUTABLE                                     { Mutable, Nothing }
 +  | GLOBAL                                      { Immutable, Global }
-+  | NONLOCAL                                    { Immutable, Nonlocal }
 +;
 +%inline global_flag:
 +          { Nothing }
 +  | GLOBAL { Global }
-+  | NONLOCAL { Nonlocal }
 +;
  virtual_flag:
      /* empty */                                 { Concrete }
@@ -1409,14 +1711,6 @@
  ;
  mutable_virtual_flags:
 @@@@
-   | FALSE { "false" }
-   | FOR { "for" }
-   | FUN { "fun" }
-   | FUNCTION { "function" }
-   | FUNCTOR { "functor" }
-+  | NONLOCAL { "nonlocal_" }
-   | IF { "if" }
-   | IN { "in" }
    | INCLUDE { "include" }
    | INHERIT { "inherit" }
    | INITIALIZER { "initializer" }
