@@ -1685,6 +1685,7 @@ end = struct
           None
 
       (* Jane Street extension *)
+      | Ptyp_constr_unboxed (_, _ :: _ :: _) -> Some (Comma, Non)
       | Ptyp_constr_unboxed _ -> Some (Apply, Non)
       (* End Jane Street extension *)
     )
