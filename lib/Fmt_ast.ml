@@ -262,6 +262,14 @@ let fmt_constant c ?epi {pconst_desc; pconst_loc= loc} =
   Cmts.fmt c loc
   @@
   match pconst_desc with
+
+  (* Jane Street extension *)
+  | Pconst_unboxed_integer (sign, lit, suf)
+  | Pconst_unboxed_float (sign, lit, suf) ->
+      (match sign with Positive -> noop | Negative -> char '-') $
+      char '#' $ str lit $ opt suf char
+  (* End Jane Street extension *)
+
   | Pconst_integer (lit, suf) | Pconst_float (lit, suf) ->
       str lit $ opt suf char
   | Pconst_char _ -> wrap "'" "'" @@ str (Source.char_literal c.source loc)
