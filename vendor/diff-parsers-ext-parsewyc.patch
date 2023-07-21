@@ -545,6 +545,21 @@
  
  let mkuplus ~oploc name arg =
    let desc = arg.pexp_desc in
+   match name, desc with
+   | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
+   | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
+-
+-  (* Jane Street extension *)
+-  | "+", Pexp_constant({pconst_desc= Pconst_unboxed_integer _; _})
+-  | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_unboxed_float _; _})
+-    -> desc
+-  (* End Jane Street extension *)
+-
+   | _ ->
+       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
+ 
+ 
+ let local_ext_loc = mknoloc "extension.local"
 @@@@
    Attr.mk ~loc:Location.none local_ext_loc (PStr [])
  
