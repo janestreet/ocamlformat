@@ -5384,6 +5384,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to unboxed_types.ml.stdout
+   (with-stderr-to unboxed_types.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types.ml unboxed_types.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types.ml.err unboxed_types.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_types2.ml.stdout
+   (with-stderr-to unboxed_types2.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types2.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types2.ml.ref unboxed_types2.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types2.ml.err unboxed_types2.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to unicode.ml.stdout
    (with-stderr-to unicode.ml.stderr
      (run %{bin:ocamlformat} --margin-check --margin=80 --wrap-comments %{dep:tests/unicode.ml})))))

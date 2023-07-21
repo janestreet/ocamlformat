@@ -146,6 +146,12 @@ module C = struct
           pconst_desc
       | Pconst_string (s, loc, quotation_delimiter) ->
           Pconst_string (s, sub.location sub loc, quotation_delimiter)
+
+    (* Jane Street extension *)
+      | Pconst_unboxed_integer _
+      | Pconst_unboxed_float _
+          -> pconst_desc
+    (* End Jane Street extension *)
     in
     Const.mk ~loc desc
 end
