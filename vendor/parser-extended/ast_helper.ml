@@ -77,6 +77,10 @@ module Typ = struct
   let poly ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_poly (a, b))
   let package ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_package (a, b))
   let extension ?loc ?attrs a = mk ?loc ?attrs (Ptyp_extension a)
+
+  (* Jane Street extension *)
+  let constr_unboxed ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_constr_unboxed (a, b))
+  (* End Jane Street extension *)
 end
 
 module Pat = struct

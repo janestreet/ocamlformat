@@ -86,6 +86,10 @@ module Typ :
     val package: ?loc:loc -> ?attrs:attrs -> lid -> (lid * core_type) list
                  -> core_type
     val extension: ?loc:loc -> ?attrs:attrs -> extension -> core_type
+
+    (* Jane Street extension *)
+    val constr_unboxed: ?loc:loc -> ?attrs:attrs -> lid -> core_type list -> core_type
+    (* End Jane Street extension *)
   end
 
 (** Patterns *)

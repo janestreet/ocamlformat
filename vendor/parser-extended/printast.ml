@@ -248,6 +248,12 @@ let rec core_type i ppf x =
       line i ppf "Ptyp_extension %a\n" fmt_string_loc s;
       payload i ppf arg
 
+  (* Jane Street extension *)
+  | Ptyp_constr_unboxed (li, l) ->
+      line i ppf "Ptyp_constr_unboxed %a\n" fmt_longident_loc li;
+      list i core_type ppf l
+  (* End Jane Street extension *)
+
 and arrow_param i ppf {pap_label; pap_loc; pap_type} =
   line i ppf "arrow_param %a\n" fmt_location pap_loc;
   arg_label i ppf pap_label;

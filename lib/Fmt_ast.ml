@@ -994,6 +994,17 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
       $ fmt "@ "
       $ fmt_longident_loc c ~pre:"#" lid
 
+  (* Jane Street extension *)
+  | Ptyp_constr_unboxed (lid, []) -> fmt_longident_loc c lid $ char '#'
+  | Ptyp_constr_unboxed (lid, [t1]) ->
+      fmt_core_type c (sub_typ ~ctx t1) $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
+  | Ptyp_constr_unboxed (lid, t1N) ->
+      wrap_fits_breaks c.conf "(" ")"
+        (list t1N (Params.comma_sep c.conf)
+           (sub_typ ~ctx >> fmt_core_type c) )
+      $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
+  (* End Jane Street extension *)
+
 and fmt_package_type c ctx cnstrs =
   let fmt_cstr ~first ~last:_ (lid, typ) =
     fmt_or first "@;<1 0>" "@;<1 1>"

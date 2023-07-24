@@ -220,6 +220,11 @@ module T = struct
         package ~loc ~attrs lid l
     | Ptyp_extension x -> extension ~loc ~attrs (sub.extension sub x)
 
+    (* Jane Street extension *)
+    | Ptyp_constr_unboxed (lid, tl) ->
+        constr_unboxed ~loc ~attrs (map_loc sub lid) (List.map (sub.typ sub) tl)
+    (* End Jane Street extension *)
+
   let map_type_declaration sub
       {ptype_name; ptype_params; ptype_cstrs;
        ptype_kind;
