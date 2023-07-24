@@ -31,7 +31,8 @@ type t =
   ; disable_conf_files: bool
   ; ignore_invalid_options: bool
   ; ocp_indent_config: bool
-  ; config: (string * string) list }
+  ; config: (string * string) list
+  ; erase_jane_syntax: bool }
 
 let default =
   { lib_conf= Conf.default
@@ -48,7 +49,8 @@ let default =
   ; disable_conf_files= false
   ; ignore_invalid_options= false
   ; ocp_indent_config= false
-  ; config= [] }
+  ; config= []
+  ; erase_jane_syntax= false }
 
 let global_conf = ref default
 
@@ -325,6 +327,15 @@ let ocp_indent_config =
     ~set:(fun ocp_indent_config conf -> {conf with ocp_indent_config})
     Arg.(value & flag & info ["ocp-indent-config"] ~doc ~docs)
 
+let erase_jane_syntax =
+  let doc =
+    "Erase all erasable Jane Street syntax extensions.  THIS OPTION WILL \
+     CHANGE THE RESULTING AST."
+  in
+  declare_option
+    ~set:(fun erase_jane_syntax conf -> {conf with erase_jane_syntax})
+    Arg.(value & flag & info ["erase-jane-syntax"] ~doc ~docs)
+
 let terms =
   [ Term.(
       const (fun lib_conf_modif conf ->
@@ -343,7 +354,8 @@ let terms =
   ; disable_conf_files
   ; ignore_invalid_options
   ; ocp_indent_config
-  ; config ]
+  ; config
+  ; erase_jane_syntax ]
 
 let global_term =
   let compose (t1 : ('a -> 'b) Term.t) (t2 : ('b -> 'c) Term.t) :
@@ -752,6 +764,7 @@ let validate_action () =
       Error (Printf.sprintf "Cannot specify %s with %s" a1 a2)
 
 let validate () =
+  Erase_jane_syntax.set_should_erase !global_conf.erase_jane_syntax ;
   let root =
     Option.map !global_conf.root
       ~f:Fpath.(fun x -> v x |> to_absolute |> normalize)
