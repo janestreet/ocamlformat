@@ -751,6 +751,7 @@ let check_layout loc id =
 (* Jane Street extension *)
 %token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 %token <string * char option> HASH_INT "#42l" (* just an example *)
+%token                        HASH_SUFFIX "# "
 (* End Jane Street extension *)
 
 /* Precedences and associativities.
@@ -809,7 +810,7 @@ The precedences must be listed from low to high.
 %nonassoc prec_constant_constructor     /* cf. simple_expr (C versus C x) */
 %nonassoc prec_constr_appl              /* above AS BAR COLONCOLON COMMA */
 %nonassoc below_HASH
-%nonassoc HASH                         /* simple_expr/toplevel_directive */
+%nonassoc HASH HASH_SUFFIX              /* simple_expr/toplevel_directive */
 %left     HASHOP
 %nonassoc below_DOT
 %nonassoc DOT DOTOP
@@ -2533,6 +2534,13 @@ comprehension_clause:
       { $1 }
 ;
 
+(* Jane Street extension *)
+%inline hash:
+    | HASH { () }
+    | HASH_SUFFIX { () }
+;
+(* End Jane Street extension *)
+
 %inline simple_expr_:
   | mkrhs(val_longident)
       { Pexp_ident ($1) }
@@ -2561,7 +2569,7 @@ comprehension_clause:
         Pexp_open(od, mkexp ~loc:$sloc (Pexp_override $4)) }
   | mod_longident DOT LBRACELESS object_expr_content error
       { unclosed "{<" $loc($3) ">}" $loc($5) }
-  | simple_expr HASH mkrhs(label)
+  | simple_expr hash mkrhs(label)
       { Pexp_send($1, $3) }
   | simple_expr op(HASHOP) simple_expr
       { mkinfix $1 $2 $3 }
@@ -2961,7 +2969,7 @@ simple_pattern_not_ident:
       { Ppat_construct($1, None) }
   | name_tag
       { Ppat_variant($1, None) }
-  | HASH mkrhs(type_longident)
+  | hash mkrhs(type_longident)
       { Ppat_type ($2) }
   | mkrhs(mod_longident) DOT simple_delimited_pattern
       { Ppat_open($1, $3) }
@@ -3634,7 +3642,11 @@ atomic_type:
         { Ptyp_any }
     | tys = actual_type_parameters
       tid = mkrhs(type_longident)
-        { Ptyp_constr(tid, tys) }
+      HASH_SUFFIX
+        { Ptyp_constr_unboxed(tid, tys) }
+    | tys = actual_type_parameters
+      tid = mkrhs(type_longident)
+        { Ptyp_constr(tid, tys) } %prec below_HASH
     | LESS meth_list GREATER
         { let (f, c) = $2 in Ptyp_object (f, c) }
     | LESS GREATER
@@ -3942,7 +3954,7 @@ any_longident:
 /* Toplevel directives */
 
 toplevel_directive:
-  HASH dir = mkrhs(ident)
+  hash dir = mkrhs(ident)
   arg = ioption(mk_directive_arg(toplevel_directive_argument))
     { mk_directive ~loc:$sloc dir arg }
 ;

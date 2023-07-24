@@ -10,4 +10,14 @@ let x = #4n + -#5.0
 
 let x = f #3n #4l #5.0 - #6L +- #7.0z #3n
 
-let x = f #3n #4l #5.0 - #6L +- #7.0 z #3n
+let x = f #3n #4l #5.0 - #6L +- #7.0 z#m #3n
+
+type t = float# float
+
+type t = float #float
+
+type t = float# float
+
+type t = float# float#
+
+type t = #float float# #float

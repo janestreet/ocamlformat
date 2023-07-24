@@ -195,6 +195,10 @@ and core_type_desc =
   | Ptyp_package of package_type  (** [(module S)]. *)
   | Ptyp_extension of extension  (** [[%id]]. *)
 
+  (* Jane Street extension *)
+  | Ptyp_constr_unboxed of Longident.t loc * core_type list
+  (* End Jane Street extension *)
+
 and package_type = Longident.t loc * (Longident.t loc * core_type) list
 (** As {!package_type} typed values:
          - [(S, [])] represents [(module S)],

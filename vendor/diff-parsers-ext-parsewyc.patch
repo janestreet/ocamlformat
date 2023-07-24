@@ -6,12 +6,117 @@
  let in_string () = !is_in_string
  let print_warnings = ref true
  
+-(* Jane Street extension *)
 -let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
 -
 -(* See the comment on the [directive] lexer. *)
 -type directive_lexing_already_consumed =
 -   | Hash
 -   | Hash_and_line_num of { line_num : string }
+-
+-type deferred_token =
+-  { token : token
+-  ; start_pos : Lexing.position
+-  ; end_pos : Lexing.position
+-  }
+-
+-(* This queue will only ever have 0 or 1 elements in it. We use it
+-   instead of an [option ref] for its convenient interface.
+-*)
+-let deferred_tokens : deferred_token Queue.t = Queue.create ()
+-
+-(* Effectively splits the text in the lexer's current "window" (defined below)
+-   into two halves. The current call to the lexer will return the first half of
+-   the text in the window, and the next call to the lexer will return the second
+-   half (of length [len]) of the text in the window.
+-
+-   "window" refers to the text matched by a production of the lexer. It spans
+-   from [lexer.lex_start_p] to [lexer.lex_curr_p].
+-
+-   The function accomplishes this splitting by doing two things:
+-    - It sets the current window of the lexbuf to only account for the
+-      first half of the text. (The first half is of length: |text|-len.)
+-    - It enqueues a token into [deferred_tokens] such that, the next time the
+-      lexer is called, it will return the specified [token] *and* set the window
+-      of the lexbuf to account for the second half of the text. (The second half
+-      is of length: |text|.)
+-
+-   This business with setting the window of the lexbuf is only so that error
+-   messages point at the right place in the program text.
+-*)
+-let enqueue_token_from_end_of_lexbuf_window (lexbuf : Lexing.lexbuf) token ~len =
+-  let suffix_end = lexbuf.lex_curr_p in
+-  let suffix_start =
+-    { suffix_end with pos_cnum = suffix_end.pos_cnum - len }
+-  in
+-  lexbuf.lex_curr_p <- suffix_start;
+-  Queue.add
+-    { token; start_pos = suffix_start; end_pos = suffix_end }
+-    deferred_tokens
+-
+-(* Note [Lexing hack for float#]
+-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-   This note describes a non-backward-compatible Jane Street--internal change to
+-   the lexer.
+-
+-   We want the lexer to lex [float#] differently than [float #]. [float#] is the
+-   new syntax for the unboxed float type. It veers close to the syntax for the
+-   type of all objects belonging to a class [c], which is [#c]. The way we
+-   navigate this veering is by producing the following tokens for these source
+-   program examples, where LIDENT(s) is an LIDENT with text [s].
+-
+-   float#c   ==> LIDENT(float) HASH_SUFFIX LIDENT(c)
+-   float# c  ==> LIDENT(float) HASH_SUFFIX LIDENT(c)
+-   float # c ==> LIDENT(float) HASH LIDENT(c)
+-   float #c  ==> LIDENT(float) HASH LIDENT(c)
+-
+-   (A) The parser interprets [LIDENT(float) HASH_SUFFIX LIDENT(c)] as
+-       "the type constructor [c] applied to the unboxed float type."
+-   (B) The parser interprets [LIDENT(float) HASH LIDENT(c)] as
+-       "the type constructor [#c] applied to the usual boxed float type."
+-
+-   This is not a backward-compatible change. In upstream ocaml, the lexer
+-   produces [LIDENT(float) HASH LIDENT(c)] for all the above source programs.
+-
+-   But, this isn't problematic: everybody puts a space before '#c' to mean (B).
+-   No existing code writes things like [float#c] or indeed [float# c].
+-
+-   We accomplish this hack by setting some global mutable state upon seeing
+-   an identifier immediately followed by a hash. When that state is set, we
+-   will produce [HASH_SUFFIX] the next time the lexer is called. This is
+-   done in [enqueue_hash_suffix_from_end_of_lexbuf_window].
+-
+-   Note [Lexing hack for hash operators]
+-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-   To complicate the above story, we don't want to treat the # in the
+-   below program as HASH_SUFFIX:
+-
+-   x#~#y
+-
+-   We instead want:
+-
+-   x#~#y ==> LIDENT(x) HASHOP(#~#) LIDENT(y)
+-
+-   This is to allow for infix hash operators. We add an additional hack, in
+-   the style of Note [Lexing hack for float#], where the lexer consumes [x#~#]
+-   all at once, but produces LIDENT(x) from the current call to the lexer and
+-   HASHOP(#~#) from the next call to the lexer. This is done in
+-   [enqueue_hashop_from_end_of_lexbuf_window].
+- *)
+-
+-let enqueue_hash_suffix_from_end_of_lexbuf_window lexbuf =
+-  enqueue_token_from_end_of_lexbuf_window lexbuf HASH_SUFFIX ~len:1
+-
+-let enqueue_hashop_from_end_of_lexbuf_window lexbuf ~hashop =
+-  enqueue_token_from_end_of_lexbuf_window lexbuf (HASHOP hashop)
+-    ~len:(String.length hashop)
+-
+-let lookup_keyword name =
+-  match Hashtbl.find keyword_table name with
+-  | kw -> kw
+-  | exception Not_found ->
+-     LIDENT name
+-(* End Jane Street extension *)
 -
  (* Escaped chars are interpreted in strings unless they are in comments. *)
  let store_escaped_char lexbuf c =
@@ -24,6 +129,7 @@
  let error lexbuf e = raise (Error(e, Location.curr lexbuf))
  let error_loc loc e = raise (Error(e, loc))
  
+-(* Jane Street extension *)
 -let directive_error
 -    (lexbuf : Lexing.lexbuf) explanation ~directive ~already_consumed
 -  =
@@ -42,6 +148,7 @@
 -    };
 -  error lexbuf
 -    (Invalid_directive (directive_prefix ^ directive, Some explanation))
+-(* End Jane Street extension *)
 -
  (* to translate escape sequences *)
  
@@ -114,6 +221,7 @@
  
  let comments () = List.rev !comment_list
  
+-(* Jane Street extension *)
 -let float ~maybe_hash lit modifier =
 -  match maybe_hash with
 -  | "#" -> HASH_FLOAT (lit, modifier)
@@ -125,6 +233,7 @@
 -  | "#" -> HASH_INT (lit, modifier)
 -  | "" -> INT (lit, modifier)
 -  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+-(* End Jane Street extension *)
 -
 +(*
  (* Error report *)
@@ -145,11 +254,55 @@
  let newline = ('\013'* '\010')
  let blank = [' ' '\009' '\012']
 @@@@
+       { check_label_name lexbuf name;
+         OPTLABEL name }
+   | "?" (lowercase_latin1 identchar_latin1 * as name) ':'
+       { warn_latin1 lexbuf;
+         OPTLABEL name }
+-
+-  (* Jane Street extension *)
+-  (* Lowercase identifiers are split into 3 cases, and the order matters
+-     (longest to shortest).
+-  *)
+-  | (lowercase identchar * as name) ('#' symbolchar_or_hash+ as hashop)
+-      (* See Note [Lexing hack for hash operators] *)
+-      { enqueue_hashop_from_end_of_lexbuf_window lexbuf ~hashop;
+-        lookup_keyword name }
+-  | (lowercase identchar * as name) '#'
+-      (* See Note [Lexing hack for float#] *)
+-      { enqueue_hash_suffix_from_end_of_lexbuf_window lexbuf;
+-        lookup_keyword name }
+-  (* End Jane Street extension *)
+-
+   | lowercase identchar * as name
+       { try Hashtbl.find keyword_table name
+         with Not_found -> LIDENT name }
+-
+-  (* Jane Street extension *)
+-  (* Lowercase latin1 identifiers are split into 3 cases, and the order matters
+-     (longest to shortest).
+-  *)
+-  | (lowercase_latin1 identchar_latin1 * as name)
+-      ('#' symbolchar_or_hash+ as hashop)
+-      (* See Note [Lexing hack for hash operators] *)
+-      { warn_latin1 lexbuf;
+-        enqueue_hashop_from_end_of_lexbuf_window lexbuf ~hashop;
+-        LIDENT name }
+-  | (lowercase_latin1 identchar_latin1 * as name) '#'
+-      (* See Note [Lexing hack for float#] *)
+-      { warn_latin1 lexbuf;
+-        enqueue_hash_suffix_from_end_of_lexbuf_window lexbuf;
+-        LIDENT name }
+-  (* End Jane Street extension *)
+-
+   | lowercase_latin1 identchar_latin1 * as name
        { warn_latin1 lexbuf; LIDENT name }
    | uppercase identchar * as name
        { UIDENT name } (* No capitalized keywords *)
    | uppercase_latin1 identchar_latin1 * as name
        { warn_latin1 lexbuf; UIDENT name }
+-
+-  (* Jane Street modification *)
 -  (* This matches either an integer literal or a directive. If the text "#2"
 -     appears at the beginning of a line that lexes as a directive, then it
 -     should be treated as a directive and not an unboxed int. This is acceptable
@@ -181,10 +334,13 @@
 +      { FLOAT (lit, Some modif) }
 +  | (float_literal | hex_float_literal | int_literal) identchar+ as invalid
        { error lexbuf (Invalid_literal invalid) }
+-  (* End Jane Street modification *)
+-
    | "\""
        { let s, loc = wrap_string_lexer string lexbuf in
          STRING (s, loc, None) }
    | "{" (lowercase* as delim) "|"
+       { let s, loc = wrap_string_lexer (quoted_string delim) lexbuf in
 @@@@
                 comment lexbuf)
              lexbuf
@@ -213,6 +369,8 @@
          lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
          STAR
        }
+-
+-  (* Jane Street modification *)
    | "#"
 -      { if not (at_beginning_of_line lexbuf.lex_start_p)
 +      { let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol) in
@@ -221,10 +379,13 @@
 -        else try directive Hash lexbuf with Failure _ -> HASH
 +        else try directive lexbuf with Failure _ -> HASH
        }
+-  (* End Jane Street modification *)
+-
    | "&"  { AMPERSAND }
    | "&&" { AMPERAMPER }
    | "`"  { BACKQUOTE }
    | "\'" { QUOTE }
+   | "("  { LPAREN }
 @@@@
    | ['+' '-'] symbolchar * as op
              { INFIXOP2 op }
@@ -243,6 +404,7 @@
    | (_ as illegal_char)
        { error lexbuf (Illegal_character illegal_char) }
  
+-(* Jane Street modification *)
 -(* An example of a directive is:
 -
 -#4 "filename.ml"
@@ -273,10 +435,13 @@
 -        directive_error lexbuf explanation ~already_consumed ~directive
 +        error lexbuf (Invalid_directive ("#" ^ directive, Some explanation))
        }
+-(* End Jane Street modification *)
+-
  and comment = parse
      "(*"
        { comment_start_loc := (Location.curr lexbuf) :: !comment_start_loc;
          store_lexeme lexbuf;
+         comment lexbuf
 @@@@
    | '\\' _
        { if not (in_comment ()) then begin
@@ -301,6 +466,26 @@
          string lexbuf
        }
    | eof
+@@@@
+   | "#!" [^ '\n']* '\n'
+       { update_loc lexbuf None 1 false 0 }
+   | "" { () }
+ 
+ {
+-  (* Jane Street extension *)
+-  let token lexbuf =
+-    match Queue.take_opt deferred_tokens with
+-    | None -> token lexbuf
+-    | Some { token; start_pos; end_pos } ->
+-        lexbuf.lex_start_p <- start_pos;
+-        lexbuf.lex_curr_p <- end_pos;
+-        token
+-  (* End Jane Street extension *)
+ 
+   let token_with_comments lexbuf =
+     match !preprocessor with
+     | None -> token lexbuf
+     | Some (_init, preprocess) -> preprocess token lexbuf
 --- parser-extended/parser.mly
 +++ parser-recovery/lib/parser.mly
 @@@@
@@ -358,12 +543,23 @@
    | _ ->
        Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
  
--
  let mkuplus ~oploc name arg =
    let desc = arg.pexp_desc in
    match name, desc with
    | "+", Pexp_constant({pconst_desc= Pconst_integer _; _})
    | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_float _; _}) -> desc
+-
+-  (* Jane Street extension *)
+-  | "+", Pexp_constant({pconst_desc= Pconst_unboxed_integer _; _})
+-  | ("+" | "+."), Pexp_constant({pconst_desc= Pconst_unboxed_float _; _})
+-    -> desc
+-  (* End Jane Street extension *)
+-
+   | _ ->
+       Pexp_prefix(mkoperator ~loc:oploc ("~" ^ name), arg)
+ 
+ 
+ let local_ext_loc = mknoloc "extension.local"
 @@@@
    Attr.mk ~loc:Location.none local_ext_loc (PStr [])
  
@@ -552,7 +748,6 @@
  %token EXTERNAL               "external"
  %token FALSE                  "false"
  %token <string * char option> FLOAT "42.0" (* just an example *)
--%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 +  [@recover.expr ("<invalid-float>", None)]
  %token FOR                    "for"
  %token FUN                    "fun"
@@ -565,7 +760,6 @@
  %token INHERIT                "inherit"
  %token INITIALIZER            "initializer"
  %token <string * char option> INT "42"  (* just an example *)
--%token <string * char option> HASH_INT "#42l" (* just an example *)
 +  [@recover.expr ("<invalid-int>", None)]
  %token <string> LABEL         "~label:" (* just an example *)
 +  [@recover.expr "<invalid-label>"]
@@ -623,6 +817,23 @@
  %token WHEN                   "when"
  %token WHILE                  "while"
 @@@@
+ 
+ %token EOL                    "\\n"      (* not great, but EOL is unused *)
+ 
+ %token <string> TYPE_DISAMBIGUATOR "2" (* just an example *)
+ 
+-(* Jane Street extension *)
+-%token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
+-%token <string * char option> HASH_INT "#42l" (* just an example *)
+-%token                        HASH_SUFFIX "# "
+-(* End Jane Street extension *)
+-
+ /* Precedences and associativities.
+ 
+ Tokens and rules have precedences.  A reduce/reduce conflict is resolved
+ in favor of the first rule (in source file order).  A shift/reduce conflict
+ is resolved by comparing the precedence and associativity of the token to
+@@@@
  %right    COLONEQUAL                    /* expr (e := e := e) */
  %nonassoc AS
  %left     BAR                           /* pattern (p|p|p) */
@@ -636,7 +847,13 @@
  %nonassoc below_EQUAL
  %left     INFIXOP0 EQUAL LESS GREATER   /* expr (e OP e OP e) */
 @@@@
- %nonassoc HASH                         /* simple_expr/toplevel_directive */
+ %right    INFIXOP4                      /* expr (e OP e OP e) */
+ %nonassoc prec_unary_minus prec_unary_plus /* unary - */
+ %nonassoc prec_constant_constructor     /* cf. simple_expr (C versus C x) */
+ %nonassoc prec_constr_appl              /* above AS BAR COLONCOLON COMMA */
+ %nonassoc below_HASH
+-%nonassoc HASH HASH_SUFFIX              /* simple_expr/toplevel_directive */
++%nonassoc HASH                         /* simple_expr/toplevel_directive */
  %left     HASHOP
  %nonassoc below_DOT
  %nonassoc DOT DOTOP
@@ -1005,6 +1222,20 @@
  %inline array_patterns(ARR_OPEN, ARR_CLOSE):
    | array_simple(ARR_OPEN, ARR_CLOSE, pattern_semi_list)
        { $1 }
+ ;
+ 
+-(* Jane Street extension *)
+-%inline hash:
+-    | HASH { () }
+-    | HASH_SUFFIX { () }
+-;
+-(* End Jane Street extension *)
+-
+ %inline simple_expr_:
+   | mkrhs(val_longident)
+       { Pexp_ident ($1) }
+   | constant
+       { Pexp_constant $1 }
 @@@@
        { Pexp_prefix($1, $2) }
    | op(BANG {"!"}) simple_expr
@@ -1024,7 +1255,8 @@
          Pexp_open(od, mkexp ~loc:$sloc (Pexp_override $4)) }
 -  | mod_longident DOT LBRACELESS object_expr_content error
 -      { unclosed "{<" $loc($3) ">}" $loc($5) }
-   | simple_expr HASH mkrhs(label)
+-  | simple_expr hash mkrhs(label)
++  | simple_expr HASH mkrhs(label)
        { Pexp_send($1, $3) }
    | simple_expr op(HASHOP) simple_expr
        { mkinfix $1 $2 $3 }
@@ -1151,6 +1383,17 @@
  pattern_gen:
      simple_pattern
 @@@@
+       { Ppat_interval ($1, $3) }
+   | mkrhs(constr_longident)
+       { Ppat_construct($1, None) }
+   | name_tag
+       { Ppat_variant($1, None) }
+-  | hash mkrhs(type_longident)
++  | HASH mkrhs(type_longident)
+       { Ppat_type ($2) }
+   | mkrhs(mod_longident) DOT simple_delimited_pattern
+       { Ppat_open($1, $3) }
+   | mkrhs(mod_longident) DOT mkrhs(LBRACKET RBRACKET {Lident "[]"})
      { Ppat_open($1, mkpat ~loc:$sloc (Ppat_construct($3, None))) }
    | mkrhs(mod_longident) DOT mkrhs(LPAREN RPAREN {Lident "()"})
      { Ppat_open($1, mkpat ~loc:$sloc (Ppat_construct($3, None))) }
@@ -1237,6 +1480,23 @@
        label = arg_label
        local = optional_local
 @@@@
+         { Ptyp_var $2 }
+     | UNDERSCORE
+         { Ptyp_any }
+     | tys = actual_type_parameters
+       tid = mkrhs(type_longident)
+-      HASH_SUFFIX
+-        { Ptyp_constr_unboxed(tid, tys) }
+-    | tys = actual_type_parameters
+-      tid = mkrhs(type_longident)
+-        { Ptyp_constr(tid, tys) } %prec below_HASH
++        { Ptyp_constr(tid, tys) }
+     | LESS meth_list GREATER
+         { let (f, c) = $2 in Ptyp_object (f, c) }
+     | LESS GREATER
+         { Ptyp_object ([], OClosed) }
+     | tys = actual_type_parameters
+@@@@
    | CHAR         { mkconst ~loc:$sloc (Pconst_char $1) }
    | STRING       { let (s, strloc, d) = $1 in
                     mkconst ~loc:$sloc (Pconst_string (s,strloc,d)) }
@@ -1306,6 +1566,19 @@
      mk_longident(mod_ext_longident,ident) { $1 }
  ;
  clty_longident:
+@@@@
+ /* END AVOID */
+ 
+ /* Toplevel directives */
+ 
+ toplevel_directive:
+-  hash dir = mkrhs(ident)
++  HASH dir = mkrhs(ident)
+   arg = ioption(mk_directive_arg(toplevel_directive_argument))
+     { mk_directive ~loc:$sloc dir arg }
+ ;
+ 
+ %inline toplevel_directive_argument:
 @@@@
    | NONREC                                      { Nonrecursive }
  ;
