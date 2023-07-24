@@ -956,12 +956,7 @@ end = struct
               | {pof_desc= Otag (_, t1); _} -> typ == t1
               | {pof_desc= Oinherit t1; _} -> typ == t1 ) )
       | Ptyp_class (_, l) -> assert (List.exists l ~f)
-
-      (* Jane Street extension *)
-      | Ptyp_constr_unboxed (_, t1N) -> assert (List.exists t1N ~f)
-      (* End Jane Street extension *)
-
-      )
+      | Ptyp_constr_unboxed (_, t1N) -> assert (List.exists t1N ~f) )
     | Td {ptype_manifest; _} -> (
       match ptype_manifest with
       | Some t -> assert (t == typ)
@@ -1683,12 +1678,8 @@ end = struct
       | Ptyp_any | Ptyp_var _ | Ptyp_object _ | Ptyp_class _
        |Ptyp_variant _ | Ptyp_poly _ | Ptyp_package _ | Ptyp_extension _ ->
           None
-
-      (* Jane Street extension *)
       | Ptyp_constr_unboxed (_, _ :: _ :: _) -> Some (Comma, Non)
-      | Ptyp_constr_unboxed _ -> Some (Apply, Non)
-      (* End Jane Street extension *)
-    )
+      | Ptyp_constr_unboxed _ -> Some (Apply, Non) )
     | {ctx= Cty {pcty_desc; _}; ast= Typ typ; _} -> (
       match pcty_desc with
       | Pcty_constr (_, _ :: _ :: _) -> Some (Comma, Non)
@@ -1804,11 +1795,7 @@ end = struct
       | Ptyp_any | Ptyp_var _ | Ptyp_constr _ | Ptyp_object _
        |Ptyp_class _ | Ptyp_variant _ | Ptyp_poly _ | Ptyp_extension _ ->
           None
-
-      (* Jane Street extension *)
-      | Ptyp_constr_unboxed _ -> None
-      (* End Jane Street extension *)
-    )
+      | Ptyp_constr_unboxed _ -> None )
     | Td _ -> None
     | Cty {pcty_desc; _} -> (
       match pcty_desc with Pcty_arrow _ -> Some MinusGreater | _ -> None )
