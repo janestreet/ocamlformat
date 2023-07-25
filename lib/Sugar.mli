@@ -14,7 +14,10 @@ open Asttypes
 open Extended_ast
 
 val decompose_arrow :
-  Ast.t -> arrow_param list -> core_type -> (arrow_param * bool) list * (arrow_param * bool) * Ast.t
+     Ast.t
+  -> arrow_param list
+  -> core_type
+  -> (arrow_param * bool) list * (arrow_param * bool) * Ast.t
 (** [decompose_arrow ctl ct2] returns a list of arrow params, where the last
     is a dummy param corresponding to ct2 (the return type) and a bool
     indicating the presence of a local attribute (which has been removed).

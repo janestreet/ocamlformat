@@ -365,25 +365,24 @@ module Let_binding = struct
       *)
   let local_pattern_can_be_sugared pvb_pat pvb_constraint =
     (* If the original code was sugared, preserve that always. *)
-    let (_, already_sugared) = check_local_attr pvb_pat.ppat_attributes in
-    already_sugared ||
+    let _, already_sugared = check_local_attr pvb_pat.ppat_attributes in
+    already_sugared
+    ||
     match pvb_pat.ppat_desc with
     | Ppat_var _ -> (
-        match pvb_constraint with
-        | None ->
+      match pvb_constraint with
+      | None ->
           (* [ let x = local_ "hi" ] *)
           true
-        | Some (Pvc_constraint _) ->
-          (* [ let x : string = local_ "hi" ]
-             [ let x : 'a. string = local_ "hi" ] *)
+      | Some (Pvc_constraint _) ->
+          (* [ let x : string = local_ "hi" ] [ let x : 'a. string = local_
+             "hi" ] *)
           false
-        | Some (Pvc_coercion _) ->
-          (* [ let x : string :> string = local_ "hi" ]
-             [ let x :> string = local_ "hi" ] *)
-          false
-      )
+      | Some (Pvc_coercion _) ->
+          (* [ let x : string :> string = local_ "hi" ] [ let x :> string =
+             local_ "hi" ] *)
+          false )
     | _ -> false
-
 
   let maybe_sugar_local ~ctx pvb_pat pvb_expr pvb_is_pun pvb_constraint =
     let is_local_pattern, ctx, pvb_pat, pvb_expr =
@@ -392,35 +391,33 @@ module Let_binding = struct
           ( { pexp_desc= Pexp_extension ({txt= "extension.local"; _}, PStr [])
             ; _ }
           , [(Nolabel, sbody)] ) ->
-        let is_local_pattern, pvb_expr, pvb_pat =
-          if local_pattern_can_be_sugared pvb_pat pvb_constraint
-          then
-            let pvb_expr =
-              let sattrs, _ = check_local_attr sbody.pexp_attributes in
-              {sbody with pexp_attributes= sattrs}
-            in
-            let pvb_pat =
-              let pattrs, _ = check_local_attr pvb_pat.ppat_attributes in
-              {pvb_pat with ppat_attributes = pattrs}
-            in
-            (true, pvb_expr, pvb_pat)
-          else (false, pvb_expr, pvb_pat)
-        in
-        let fake_ctx =
-          Lb
-            { pvb_pat
-            ; pvb_expr
-            ; pvb_constraint
-            ; pvb_is_pun
-            ; pvb_attributes= []
-            ; pvb_loc= Location.none }
-        in
-        (is_local_pattern, fake_ctx, pvb_pat, pvb_expr)
+          let is_local_pattern, pvb_expr, pvb_pat =
+            if local_pattern_can_be_sugared pvb_pat pvb_constraint then
+              let pvb_expr =
+                let sattrs, _ = check_local_attr sbody.pexp_attributes in
+                {sbody with pexp_attributes= sattrs}
+              in
+              let pvb_pat =
+                let pattrs, _ = check_local_attr pvb_pat.ppat_attributes in
+                {pvb_pat with ppat_attributes= pattrs}
+              in
+              (true, pvb_expr, pvb_pat)
+            else (false, pvb_expr, pvb_pat)
+          in
+          let fake_ctx =
+            Lb
+              { pvb_pat
+              ; pvb_expr
+              ; pvb_constraint
+              ; pvb_is_pun
+              ; pvb_attributes= []
+              ; pvb_loc= Location.none }
+          in
+          (is_local_pattern, fake_ctx, pvb_pat, pvb_expr)
       | _ -> (false, ctx, pvb_pat, pvb_expr)
     in
-    let lb_pat = sub_pat ~ctx pvb_pat
-    and lb_exp = sub_exp ~ctx pvb_expr in
-    is_local_pattern, lb_pat, lb_exp
+    let lb_pat = sub_pat ~ctx pvb_pat and lb_exp = sub_exp ~ctx pvb_expr in
+    (is_local_pattern, lb_pat, lb_exp)
 
   let type_cstr cmts ~ctx pvb_pat pvb_exp pvb_is_pun pvb_constraint =
     let is_local_pattern, lb_pat, lb_exp =
@@ -436,13 +433,13 @@ module Let_binding = struct
             , {ptyp_desc= Ptyp_poly ([], typ1); _} )
         , Pexp_constraint (_, typ2) )
         when equal_core_type typ1 typ2 ->
-        Cmts.relocate cmts ~src:lb_pat.ast.ppat_loc ~before:pat.ppat_loc
-          ~after:pat.ppat_loc ;
-        sub_pat ~ctx:(Pat lb_pat.ast) pat
+          Cmts.relocate cmts ~src:lb_pat.ast.ppat_loc ~before:pat.ppat_loc
+            ~after:pat.ppat_loc ;
+          sub_pat ~ctx:(Pat lb_pat.ast) pat
       | ( Ppat_constraint (_, {ptyp_desc= Ptyp_poly (_, typ1); _})
         , Pexp_coerce (_, _, typ2) )
         when equal_core_type typ1 typ2 ->
-        sub_pat ~ctx lb_pat.ast
+          sub_pat ~ctx lb_pat.ast
       | _ -> sub_pat ~ctx lb_pat.ast
     in
     let pat_is_extension {ppat_desc; _} =
@@ -455,16 +452,16 @@ module Let_binding = struct
     else
       match polynewtype cmts pat body with
       | Some (xpat, pvars, xtyp, xbody) ->
-        (is_local_pattern, xpat, [], `Polynewtype (pvars, xtyp), xbody)
+          (is_local_pattern, xpat, [], `Polynewtype (pvars, xtyp), xbody)
       | None ->
-        let xpat =
-          match xpat.ast.ppat_desc with
-          | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
-            sub_pat ~ctx:xpat.ctx p
-          | _ -> xpat
-        in
-        let xargs, typ, xbody = split_fun_args cmts xpat xbody in
-        (is_local_pattern, xpat, xargs, typ, xbody)
+          let xpat =
+            match xpat.ast.ppat_desc with
+            | Ppat_constraint (p, {ptyp_desc= Ptyp_poly ([], _); _}) ->
+                sub_pat ~ctx:xpat.ctx p
+            | _ -> xpat
+          in
+          let xargs, typ, xbody = split_fun_args cmts xpat xbody in
+          (is_local_pattern, xpat, xargs, typ, xbody)
 
   let typ_of_pvb_constraint ~ctx = function
     | Some (Pvc_constraint {locally_abstract_univars= []; typ}) ->

@@ -946,11 +946,7 @@ end = struct
               | {pof_desc= Otag (_, t1); _} -> typ == t1
               | {pof_desc= Oinherit t1; _} -> typ == t1 ) )
       | Ptyp_class (_, l) -> assert (List.exists l ~f)
-
-      (* Jane Street extension *)
-      | Ptyp_constr_unboxed (_, t1N) -> assert (List.exists t1N ~f)
-      (* End Jane Street extension *)
-    )
+      | Ptyp_constr_unboxed (_, t1N) -> assert (List.exists t1N ~f) )
     | Td {ptype_params; ptype_cstrs; ptype_kind; ptype_manifest; _} ->
         assert (
           List.exists ptype_params ~f:fst_f
@@ -1309,43 +1305,45 @@ end = struct
          |Ppat_variant (_, None) ->
             assert false )
     | Exp ctx -> (
-      (* Inlined because it's simpler *)
-      let check_extension : Extensions.Expression.t -> _ = function
-        | Eexp_comprehension
-            ( Cexp_list_comprehension comp
-            | Cexp_array_comprehension (_, comp) ) ->
-          assert (check_comprehension comp (Pattern pat))
-        | Eexp_immutable_array (Iaexp_immutable_array _) -> assert false
-      in
-      Exp.maybe_extension ctx check_extension
-      @@ fun () ->
-      match ctx.pexp_desc with
-      | Pexp_apply _ | Pexp_array _ | Pexp_list _ | Pexp_assert _
-       |Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
-       |Pexp_construct _ | Pexp_field _ | Pexp_ident _ | Pexp_ifthenelse _
-       |Pexp_lazy _ | Pexp_letexception _ | Pexp_letmodule _ | Pexp_new _
-       |Pexp_newtype _ | Pexp_open _ | Pexp_override _ | Pexp_pack _
-       |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_sequence _
-       |Pexp_setfield _ | Pexp_setinstvar _ | Pexp_tuple _
-       |Pexp_unreachable | Pexp_variant _ | Pexp_while _ | Pexp_hole
-       |Pexp_beginend _ | Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
-       |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ ->
-          assert false
-      | Pexp_extension (_, ext) -> assert (check_extensions ext)
-      | Pexp_object {pcstr_self; _} ->
-          assert (Option.exists ~f:(fun self_ -> self_ == pat) pcstr_self)
-      | Pexp_let ({pvbs_bindings; _}, _) ->
-          assert (check_bindings pvbs_bindings)
-      | Pexp_letop {let_; ands; _} ->
-          let f {pbop_pat; _} = check_subpat pbop_pat in
-          assert (f let_ || List.exists ~f ands)
-      | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases) ->
-          assert (
-            List.exists cases ~f:(function
-              | {pc_lhs; _} when pc_lhs == pat -> true
-              | _ -> false ) )
-      | Pexp_for (p, _, _, _, _) | Pexp_fun (_, _, p, _) -> assert (p == pat)
-      )
+        (* Inlined because it's simpler *)
+        let check_extension : Extensions.Expression.t -> _ = function
+          | Eexp_comprehension
+              ( Cexp_list_comprehension comp
+              | Cexp_array_comprehension (_, comp) ) ->
+              assert (check_comprehension comp (Pattern pat))
+          | Eexp_immutable_array (Iaexp_immutable_array _) -> assert false
+        in
+        Exp.maybe_extension ctx check_extension
+        @@ fun () ->
+        match ctx.pexp_desc with
+        | Pexp_apply _ | Pexp_array _ | Pexp_list _ | Pexp_assert _
+         |Pexp_coerce _ | Pexp_constant _ | Pexp_constraint _
+         |Pexp_construct _ | Pexp_field _ | Pexp_ident _
+         |Pexp_ifthenelse _ | Pexp_lazy _ | Pexp_letexception _
+         |Pexp_letmodule _ | Pexp_new _ | Pexp_newtype _ | Pexp_open _
+         |Pexp_override _ | Pexp_pack _ | Pexp_poly _ | Pexp_record _
+         |Pexp_send _ | Pexp_sequence _ | Pexp_setfield _
+         |Pexp_setinstvar _ | Pexp_tuple _ | Pexp_unreachable
+         |Pexp_variant _ | Pexp_while _ | Pexp_hole | Pexp_beginend _
+         |Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
+         |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ ->
+            assert false
+        | Pexp_extension (_, ext) -> assert (check_extensions ext)
+        | Pexp_object {pcstr_self; _} ->
+            assert (Option.exists ~f:(fun self_ -> self_ == pat) pcstr_self)
+        | Pexp_let ({pvbs_bindings; _}, _) ->
+            assert (check_bindings pvbs_bindings)
+        | Pexp_letop {let_; ands; _} ->
+            let f {pbop_pat; _} = check_subpat pbop_pat in
+            assert (f let_ || List.exists ~f ands)
+        | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
+          ->
+            assert (
+              List.exists cases ~f:(function
+                | {pc_lhs; _} when pc_lhs == pat -> true
+                | _ -> false ) )
+        | Pexp_for (p, _, _, _, _) | Pexp_fun (_, _, p, _) ->
+            assert (p == pat) )
     | Lb x -> assert (x.pvb_pat == pat)
     | Mb _ -> assert false
     | Md _ -> assert false
@@ -1669,13 +1667,9 @@ end = struct
       | Ptyp_constr _ -> Some (Apply, Non)
       | Ptyp_any | Ptyp_var _ | Ptyp_object _ | Ptyp_class _
        |Ptyp_variant _ | Ptyp_poly _ | Ptyp_package _ | Ptyp_extension _ ->
-         None
-
-      (* Jane Street extension *)
+          None
       | Ptyp_constr_unboxed (_, _ :: _ :: _) -> Some (Comma, Non)
-      | Ptyp_constr_unboxed _ -> Some (Apply, Non)
-      (* End Jane Street extension *)
-    )
+      | Ptyp_constr_unboxed _ -> Some (Apply, Non) )
     | {ctx= Cty {pcty_desc; _}; ast= Typ typ; _} -> (
       match pcty_desc with
       | Pcty_constr (_, _ :: _ :: _) -> Some (Comma, Non)
@@ -1790,12 +1784,8 @@ end = struct
       | Ptyp_alias _ -> Some As
       | Ptyp_any | Ptyp_var _ | Ptyp_constr _ | Ptyp_object _
        |Ptyp_class _ | Ptyp_variant _ | Ptyp_poly _ | Ptyp_extension _ ->
-         None
-
-      (* Jane Street extension *)
-      | Ptyp_constr_unboxed _ -> None
-      (* End Jane Street extension *)
-    )
+          None
+      | Ptyp_constr_unboxed _ -> None )
     | Td _ -> None
     | Cty {pcty_desc; _} -> (
       match pcty_desc with Pcty_arrow _ -> Some MinusGreater | _ -> None )
@@ -1981,7 +1971,7 @@ end = struct
     | Pat {ppat_desc= Ppat_construct _; _}, Ppat_cons _ -> true
     | ( Exp {pexp_desc= Pexp_fun _; _}
       , Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) ) ->
-      true
+        true
     | _, Ppat_constraint (_, {ptyp_desc= Ptyp_poly _; _}) -> false
     | ( Exp {pexp_desc= Pexp_letop _; _}
       , ( Ppat_construct (_, Some _)

@@ -42,6 +42,9 @@ jobs:
           opam exec -- dune subst
           opam exec -- dune build -p ocamlformat-lib,ocamlformat
 
+      - name: Self-formatting test
+        run: opam exec -- dune build @fmt
+
       - name: Runtest
         run: opam exec -- dune runtest
 

@@ -261,14 +261,10 @@ let fmt_constant c ?epi {pconst_desc; pconst_loc= loc} =
   Cmts.fmt c loc
   @@
   match pconst_desc with
-
-  (* Jane Street extension *)
   | Pconst_unboxed_integer (sign, lit, suf)
-  | Pconst_unboxed_float (sign, lit, suf) ->
-      (match sign with Positive -> noop | Negative -> char '-') $
-      char '#' $ str lit $ opt suf char
-  (* End Jane Street extension *)
-
+   |Pconst_unboxed_float (sign, lit, suf) ->
+      (match sign with Positive -> noop | Negative -> char '-')
+      $ char '#' $ str lit $ opt suf char
   | Pconst_integer (lit, suf) | Pconst_float (lit, suf) ->
       str lit $ opt suf char
   | Pconst_char (_, s) -> wrap "'" "'" @@ str s
@@ -993,17 +989,15 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            (sub_typ ~ctx >> fmt_core_type c) )
       $ fmt "@ "
       $ fmt_longident_loc c ~pre:"#" lid
-
-  (* Jane Street extension *)
   | Ptyp_constr_unboxed (lid, []) -> fmt_longident_loc c lid $ char '#'
   | Ptyp_constr_unboxed (lid, [t1]) ->
-      fmt_core_type c (sub_typ ~ctx t1) $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
+      fmt_core_type c (sub_typ ~ctx t1)
+      $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
   | Ptyp_constr_unboxed (lid, t1N) ->
       wrap_fits_breaks c.conf "(" ")"
         (list t1N (Params.comma_sep c.conf)
            (sub_typ ~ctx >> fmt_core_type c) )
       $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
-  (* End Jane Street extension *)
 
 and fmt_package_type c ctx cnstrs =
   let fmt_cstr ~first ~last:_ (lid, typ) =
@@ -2923,8 +2917,8 @@ and fmt_comprehension_iterator c ~ctx :
       $ fmt_expression c (sub_exp ~ctx stop)
   | In seq -> fmt "in@;<1 0>" $ fmt_expression c (sub_exp ~ctx seq)
 
-and fmt_let_bindings c ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr
-    rec_flag bindings body =
+and fmt_let_bindings c ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr rec_flag
+    bindings body =
   let indent_after_in =
     match body.pexp_desc with
     | Pexp_let _ | Pexp_letmodule _
@@ -3406,11 +3400,11 @@ and fmt_tydcl_params c ctx params =
   let empty, parenize =
     match params with
     | [] -> (true, false)
-    | [(p, _)] -> (
+    | [(p, _)] ->
         ( false
         , match p.ptyp_attributes with
           | [] | _ :: _ :: _ -> false
-          | [attr] -> is_layout attr ) )
+          | [attr] -> is_layout attr )
     | _ :: _ :: _ -> (false, true)
   in
   fmt_if_k (not empty)
@@ -4581,7 +4575,15 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
   $ fmt_atrs
 
 and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
-    {lb_op; lb_pat; lb_args; lb_typ; lb_exp; lb_attrs; lb_local; lb_loc; lb_pun} =
+    { lb_op
+    ; lb_pat
+    ; lb_args
+    ; lb_typ
+    ; lb_exp
+    ; lb_attrs
+    ; lb_local
+    ; lb_loc
+    ; lb_pun } =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let lb_pun =
