@@ -262,14 +262,10 @@ let fmt_constant c ?epi {pconst_desc; pconst_loc= loc} =
   Cmts.fmt c loc
   @@
   match pconst_desc with
-
-  (* Jane Street extension *)
   | Pconst_unboxed_integer (sign, lit, suf)
-  | Pconst_unboxed_float (sign, lit, suf) ->
-      (match sign with Positive -> noop | Negative -> char '-') $
-      char '#' $ str lit $ opt suf char
-  (* End Jane Street extension *)
-
+   |Pconst_unboxed_float (sign, lit, suf) ->
+      (match sign with Positive -> noop | Negative -> char '-')
+      $ char '#' $ str lit $ opt suf char
   | Pconst_integer (lit, suf) | Pconst_float (lit, suf) ->
       str lit $ opt suf char
   | Pconst_char _ -> wrap "'" "'" @@ str (Source.char_literal c.source loc)
@@ -965,17 +961,15 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            (sub_typ ~ctx >> fmt_core_type c) )
       $ fmt "@ "
       $ fmt_longident_loc c ~pre:"#" lid
-
-  (* Jane Street extension *)
   | Ptyp_constr_unboxed (lid, []) -> fmt_longident_loc c lid $ char '#'
   | Ptyp_constr_unboxed (lid, [t1]) ->
-      fmt_core_type c (sub_typ ~ctx t1) $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
+      fmt_core_type c (sub_typ ~ctx t1)
+      $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
   | Ptyp_constr_unboxed (lid, t1N) ->
       wrap_fits_breaks c.conf "(" ")"
         (list t1N (Params.comma_sep c.conf)
            (sub_typ ~ctx >> fmt_core_type c) )
       $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
-  (* End Jane Street extension *)
 
 and fmt_package_type c ctx cnstrs =
   let fmt_cstr ~first ~last:_ (lid, typ) =
