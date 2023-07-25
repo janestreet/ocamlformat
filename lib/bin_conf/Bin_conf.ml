@@ -764,6 +764,8 @@ let validate_action () =
       Error (Printf.sprintf "Cannot specify %s with %s" a1 a2)
 
 let validate () =
+  (* We have to store this globally so that we can access it in the parser,
+     which doesn't have a [Conf_t.t]. *)
   Erase_jane_syntax.set_should_erase !global_conf.erase_jane_syntax ;
   let root =
     Option.map !global_conf.root

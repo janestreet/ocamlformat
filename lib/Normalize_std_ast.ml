@@ -16,6 +16,9 @@ let is_doc = function
   | {attr_name= {Location.txt= "ocaml.doc" | "ocaml.text"; _}; _} -> true
   | _ -> false
 
+let is_erasable_jane_syntax attr =
+  String.is_prefix ~prefix:"jane.erasable." attr.attr_name.txt
+
 let dedup_cmts fragment ast comments =
   let of_ast ast =
     let docs = ref (Set.empty (module Cmt)) in
@@ -100,6 +103,11 @@ let make_mapper conf ~ignore_doc_comments =
   in
   (* sort attributes *)
   let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
+    let atrs =
+      if Erase_jane_syntax.should_erase () then
+        List.filter atrs ~f:(fun a -> not (is_erasable_jane_syntax a))
+      else atrs
+    in
     let atrs =
       if ignore_doc_comments then
         List.filter atrs ~f:(fun a -> not (is_doc a))
