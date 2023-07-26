@@ -212,12 +212,8 @@ module type AST = sig
       {[
         let of_expr =
           Expression.match_jane_syntax_piece feature @@ fun expr -> function
-          | ["local"] ->
-            Expression.match_dummy expr |>
-            Option.map (fun expr' -> Lexp_local expr')
-          | ["exclave"] ->
-            Expression.match_dummy expr |>
-            Option.map (fun expr' -> Lexp_exclave expr')
+          | ["local"] -> Some (Lexp_local expr)
+          | ["exclave"] -> Some (Lexp_exclave expr)
           | _ -> None
       ]}
   *)
@@ -267,20 +263,8 @@ end
 module type AST_without_attributes =
   AST with type 'ast with_attributes := 'ast
 
-module Expression : sig
-  include AST_with_attributes with type ast = Parsetree.expression
-
-  (** Wraps an expression in a dummy do-nothing expression, to get an extra spot
-      to hang a location.  By default, the locations are set to
-      [!Ast_helper.default_loc].  Currently encoded as [(); e]. *)
-  val make_dummy :
-    attrs:Parsetree.attributes -> Parsetree.expression -> Parsetree.expression
-
-  (** Removes the extra do-nothing expression node created with [make_dummy] if
-      it was present, ignoring attributes.  Currently turns [(); e] into
-      [Some e]. *)
-  val match_dummy : Parsetree.expression -> Parsetree.expression option
-end
+module Expression :
+  AST_with_attributes with type ast = Parsetree.expression
 
 module Pattern :
   AST_with_attributes with type ast = Parsetree.pattern
@@ -298,7 +282,7 @@ module Core_type :
   AST_with_attributes with type ast = Parsetree.core_type
 
 module Constructor_argument :
-  AST_with_attributes with type ast = Parsetree.core_type
+  AST_without_attributes with type ast = Parsetree.core_type
 
 module Extension_constructor :
   AST_with_attributes with type ast = Parsetree.extension_constructor

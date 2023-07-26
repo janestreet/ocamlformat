@@ -96,10 +96,13 @@ module Language_extension = struct
       : Language_extension_kernel.Language_extension_for_jane_syntax)
 end
 
-(** For the same reason, we don't want this file to depend on [Misc] or similar
-    utility libraries, so we define any generic utility functionality in this
-    module. *)
+(** For the same reason, we don't want this file to depend on new additions to
+    [Misc] or similar utility libraries, so we define any generic utility
+    functionality in this module. *)
 module Util : sig
+  val split_last_opt : 'a list -> ('a list * 'a) option
+          (* Like [Misc.split_last], but doesn't throw any exceptions. *)
+
   val find_map_last_and_split :
     f:('a -> 'b option) -> 'a list -> ('a list * 'b * 'a list) option
           (* [find_map_last_and_split ~f l] returns a triple [pre, y, post] such
@@ -107,6 +110,10 @@ module Util : sig
              [post], [f x' = None].  If, for all [z] in [l], [f z = None], then
              it returns [None]. *)
 end = struct
+  let split_last_opt = function
+    | [] -> None
+    | (_ :: _) as xs -> Some (Misc.split_last xs)
+
   let find_map_last_and_split =
     let rec go post ~f = function
       | [] -> None
@@ -249,6 +256,10 @@ module Erasability = struct
   type t =
     | Erasable
     | Non_erasable
+
+  let equal t1 t2 = match t1, t2 with
+    | Erasable, Erasable | Non_erasable, Non_erasable -> true
+    | (Erasable | Non_erasable), _ -> false
 
   let to_string = function
     | Erasable -> "erasable"
@@ -427,6 +438,7 @@ module Error = struct
     | Misnamed_embedding of
         Misnamed_embedding_error.t * string * Embedding_syntax.t
     | Bad_introduction of Embedding_syntax.t * Embedded_name.t
+    | Missing_location_attribute
 
   (** The exception type thrown when desugaring a piece of modular syntax from
       an OCaml AST *)
@@ -507,6 +519,11 @@ let report_error ~loc = function
         Embedded_name.pp_a_term (what, name)
         (Embedding_syntax.name what)
         Embedded_name.pp_a_term (what, { name with components = [ext] })
+  | Missing_location_attribute ->
+      Location.errorf
+        ~loc
+        "@[All attribute embeddings are expected to contain a location \
+           attribute,@ but one was missing here.@]"
 
 let () =
   Location.register_error_of_exn
@@ -666,23 +683,81 @@ module Make_with_attribute
 
     let embedding_syntax = Embedding_syntax.Attribute
 
-    let make_jane_syntax name ast =
-      let attr =
-        { attr_name =
-            { txt = Embedded_name.to_string name
-            ; loc = !Ast_helper.default_loc
-            }
-        ; attr_loc = !Ast_helper.default_loc
-        ; attr_payload = PStr []
-        }
-      in
-      add_attributes [attr] ast
+    let make_attr loc name =
+      let loc = Location.ghostify loc in
+      { attr_name = { txt = Embedded_name.to_string name; loc }
+      ; attr_loc = loc
+      ; attr_payload = PStr []
+      }
 
-   let match_jane_syntax ast =
+    let make_jane_syntax name ast =
+      let attr = make_attr !Ast_helper.default_loc name in
+      let attrs =
+        match Embedded_name.components name with
+        | [feature_component] ->
+            (* Outermost; save the location *)
+            let save_loc = location ast in
+            [ make_attr
+                save_loc
+                { name
+                  with components =
+                         [ feature_component
+                         ; "_location"
+                         ; if save_loc.loc_ghost then "_ghost" else "_nonghost"]
+                }
+            ; attr ]
+        | _ :: _ :: _ ->
+            [attr]
+      in
+      add_attributes attrs ast
+
+    let restore_location_from_attr (name : Embedded_name.t) ast =
+      match name with
+      | { erasability; components = [feature_component] } ->
+          let raise_error err = raise (Error(location ast, err)) in
+          begin match Util.split_last_opt (attributes ast) with
+          | Some ( attrs
+                 , { attr_name = { txt; loc }
+                   ; attr_loc
+                   ; attr_payload = PStr [] } ) -> begin
+              match Embedded_name.of_string txt with
+              | Some (Ok
+                  { erasability = loc_erasability
+                  ; components = [ loc_feature_component
+                                 ; "_location"
+                                 ; ghostiness ]
+                  })
+                when (* Checks about the outer match, deferred so that
+                        [Misnamed_embedding] is raised preferentially *)
+                     loc.loc_ghost &&
+                     Location.equal loc attr_loc &&
+                     (* Checks about the inner match *)
+                     String.equal feature_component loc_feature_component &&
+                     Erasability.equal erasability loc_erasability ->
+                let restored_loc =
+                  { loc with loc_ghost = match ghostiness with
+                      | "_ghost" -> true
+                      | "_nonghost" -> false
+                      | _ -> raise_error Missing_location_attribute }
+                in
+                with_location (set_attributes ast attrs) restored_loc
+              | Some (Error err) ->
+                  raise_error (Misnamed_embedding (err, txt, Attribute))
+              | _ -> raise_error Missing_location_attribute
+            end
+          | _ -> raise_error Missing_location_attribute
+          end
+      | { erasability = _; components = _ :: _ :: _ } ->
+          ast
+
+    let match_jane_syntax ast =
       match find_and_remove_jane_syntax_attribute (attributes ast) with
       | None -> None
       | Some (inner_attrs, name, outer_attrs) ->
-        Some (name, (set_attributes ast inner_attrs, outer_attrs))
+        Some (name,
+              (restore_location_from_attr name @@
+               set_attributes ast inner_attrs,
+               outer_attrs))
 end
 
 (** For a syntactic category, produce translations into and out of
@@ -954,7 +1029,7 @@ struct
   let make_entire_jane_syntax ~loc feature ast =
     AST.with_location
       (make_jane_syntax feature []
-         (Ast_helper.with_default_loc { loc with loc_ghost = true } ast))
+         (Ast_helper.with_default_loc (Location.ghostify loc) ast))
       loc
 
   (** Generically lift our custom ASTs for our novel syntax from OCaml ASTs. *)
@@ -1021,33 +1096,21 @@ struct
   let add_attributes = AST.add_attributes
 end
 
-module Expression = struct
-  include Make_attribute_ast(Expression0)
-
-  let make_dummy ~attrs expr =
-    let unit =
-      Ast_helper.Exp.construct
-        (Location.mkloc (Longident.Lident "()") !Ast_helper.default_loc)
-        None
-    in
-    Ast_helper.Exp.sequence ~attrs unit expr
-
-  let match_dummy expr =
-    match expr.pexp_desc with
-    | Pexp_sequence
-        ( { pexp_desc =
-              Pexp_construct ({ txt = Lident "()"; loc = _ }, None)
-          ; pexp_attributes = []
-          ; pexp_loc = _; pexp_loc_stack = _ }
-        , expr') ->
-      Some expr'
-    | _ -> None
-end
-
+module Expression = Make_attribute_ast(Expression0)
 module Pattern = Make_attribute_ast(Pattern0)
 module Module_type = Make_attribute_ast(Module_type0)
 module Signature_item = Make_extension_ast(Signature_item0)
 module Structure_item = Make_extension_ast(Structure_item0)
 module Core_type = Make_attribute_ast(Core_type0)
-module Constructor_argument = Make_attribute_ast(Constructor_argument0)
 module Extension_constructor = Make_attribute_ast(Extension_constructor0)
+
+module Constructor_argument = struct
+  include Make_attribute_ast(Constructor_argument0)
+
+  let make_of_ast ~of_ast_internal ast =
+    match make_of_ast ~of_ast_internal ast with
+    | Some (jast, []) -> Some jast
+    | None -> None
+    | Some (_, _ :: _) ->
+      Misc.fatal_errorf "Constructor arguments should not have attributes"
+end
