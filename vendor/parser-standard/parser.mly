@@ -48,7 +48,7 @@ let ghost_loc (startpos, endpos) = {
 
 let mktyp ~loc ?attrs d = Typ.mk ~loc:(make_loc loc) ?attrs d
 let mkpat ~loc d = Pat.mk ~loc:(make_loc loc) d
-let mkexp ~loc d = Exp.mk ~loc:(make_loc loc) d
+let mkexp ~loc ?attrs d = Exp.mk ~loc:(make_loc loc) ?attrs d
 let mkmty ~loc ?attrs d = Mty.mk ~loc:(make_loc loc) ?attrs d
 let mksig ~loc d = Sig.mk ~loc:(make_loc loc) d
 let mkmod ~loc ?attrs d = Mod.mk ~loc:(make_loc loc) ?attrs d
@@ -64,8 +64,6 @@ let pstr_type ((nr, ext), tys) =
   (Pstr_type (nr, tys), ext)
 let pstr_exception (te, ext) =
   (Pstr_exception te, ext)
-let pstr_include (body, ext) =
-  (Pstr_include body, ext)
 let pstr_recmodule (ext, bindings) =
   (Pstr_recmodule bindings, ext)
 
@@ -80,8 +78,6 @@ let psig_typesubst ((nr, ext), tys) =
   (Psig_typesubst tys, ext)
 let psig_exception (te, ext) =
   (Psig_exception te, ext)
-let psig_include (body, ext) =
-  (Psig_include body, ext)
 
 let mkctf ~loc ?attrs ?docs d =
   Ctf.mk ~loc:(make_loc loc) ?attrs ?docs d
@@ -150,103 +146,48 @@ let neg_string f =
 let mkuminus ~oploc name arg =
   match name, arg.pexp_desc with
   | "-", Pexp_constant(Pconst_integer (n,m)) ->
-      Pexp_constant(Pconst_integer(neg_string n,m))
+      Pexp_constant(Pconst_integer(neg_string n,m)), arg.pexp_attributes
   | ("-" | "-."), Pexp_constant(Pconst_float (f, m)) ->
-      Pexp_constant(Pconst_float(neg_string f, m))
+      Pexp_constant(Pconst_float(neg_string f, m)), arg.pexp_attributes
   | _ ->
-      Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
+      Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg]), []
 
 let mkuplus ~oploc name arg =
   let desc = arg.pexp_desc in
   match name, desc with
   | "+", Pexp_constant(Pconst_integer _)
-  | ("+" | "+."), Pexp_constant(Pconst_float _) -> desc
+  | ("+" | "+."), Pexp_constant(Pconst_float _) -> desc, arg.pexp_attributes
   | _ ->
-      Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg])
+      Pexp_apply(mkoperator ~loc:oploc ("~" ^ name), [Nolabel, arg]), []
+module Local_syntax_category = struct
+  type _ t =
+    | Type : core_type t
+    | Expression : expression t
+    | Pattern : pattern t
+    | Synthesized_constraint : expression t
+end
 
+let local_if : type ast. ast Local_syntax_category.t -> _ -> _ -> ast -> ast =
+  fun cat is_local sloc x ->
+  if is_local then
+    let make : loc:_ -> attrs:_ -> ast = match cat with
+      | Type       -> Jane_syntax.Local.type_of (Ltyp_local x)
+      | Expression -> Jane_syntax.Local.expr_of (Lexp_local x)
+      | Pattern    -> Jane_syntax.Local.pat_of  (Lpat_local x)
+      | Synthesized_constraint ->
+        Jane_syntax.Local.expr_of (Lexp_constrain_local x)
+    in
+    make ~loc:(make_loc sloc) ~attrs:[]
+  else
+    x
 
-let local_ext_loc = mknoloc "extension.local"
-
-let local_attr =
-  Attr.mk ~loc:Location.none local_ext_loc (PStr [])
-
-let local_extension =
-  Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
-
-let include_functor_ext_loc = mknoloc "extension.include_functor"
-
-let include_functor_attr =
-  Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
-
-let mkexp_stack ~loc exp =
-  ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
-
-let mkpat_stack pat =
-  {pat with ppat_attributes = local_attr :: pat.ppat_attributes}
-
-let mktyp_stack typ =
-  {typ with ptyp_attributes = local_attr :: typ.ptyp_attributes}
-
-let wrap_exp_stack exp =
-  {exp with pexp_attributes = local_attr :: exp.pexp_attributes}
-
-let mkexp_local_if p ~loc exp =
-  if p then mkexp_stack ~loc exp else exp
-
-let mkpat_local_if p pat =
-  if p then mkpat_stack pat else pat
-
-let mktyp_local_if p typ =
-  if p then mktyp_stack typ else typ
-
-let wrap_exp_local_if p exp =
-  if p then wrap_exp_stack exp else exp
-
-let exclave_ext_loc loc = mkloc "extension.exclave" loc
-
-let exclave_extension loc =
-  Exp.mk ~loc:Location.none
-    (Pexp_extension(exclave_ext_loc loc, PStr []))
-
-let mkexp_exclave ~loc ~kwd_loc exp =
-  ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
-
-let curry_attr =
-  Attr.mk ~loc:Location.none (mknoloc "extension.curry") (PStr [])
-
-let is_curry_attr attr =
-  attr.attr_name.txt = "extension.curry"
-
-let mktyp_curry typ =
-  {typ with ptyp_attributes = curry_attr :: typ.ptyp_attributes}
-
-let maybe_curry_typ typ =
-  match typ.ptyp_desc with
-  | Ptyp_arrow _ ->
-      if List.exists is_curry_attr typ.ptyp_attributes then typ
-      else mktyp_curry typ
-  | _ -> typ
-
-let global_loc loc = mkloc "extension.global" loc
-
-let global_attr loc =
-  Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
-
-let mkld_global ld loc =
-  { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
-
-let mkld_global_maybe gbl ld loc =
-  match gbl with
-  | Global -> mkld_global ld loc
-  | Nothing -> ld
-
-let mkcty_global cty loc =
-  { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
-
-let mkcty_global_maybe gbl cty loc =
-  match gbl with
-  | Global -> mkcty_global cty loc
-  | Nothing -> cty
+let global_if global_flag sloc carg =
+  match global_flag with
+  | Global ->
+      Jane_syntax.Local.constr_arg_of ~loc:(make_loc sloc) ~attrs:[]
+        (Lcarg_global carg)
+  | Nothing ->
+      carg
 
 (* TODO define an abstraction boundary between locations-as-pairs
    and locations-as-Location.t; it should be clear when we move from
@@ -1677,10 +1618,18 @@ structure_item:
         { let (ext, l) = $1 in (Pstr_class l, ext) }
     | class_type_declarations
         { let (ext, l) = $1 in (Pstr_class_type l, ext) }
-    | include_statement(module_expr)
-        { pstr_include $1 }
     )
     { $1 }
+  | include_statement(module_expr)
+      { let is_functor, incl, ext = $1 in
+        let item =
+          if is_functor
+          then Jane_syntax.Include_functor.str_item_of ~loc:(make_loc $sloc)
+                 (Ifstr_include_functor incl)
+          else mkstr ~loc:$sloc (Pstr_include incl)
+        in
+        wrap_str_ext ~loc:$sloc item ext
+      }
 ;
 
 (* A single module binding. *)
@@ -1756,26 +1705,27 @@ module_binding_body:
 
 (* Shared material between structures and signatures. *)
 
-include_and_functor_attr:
+include_maybe_functor:
   | INCLUDE %prec below_FUNCTOR
-      { [] }
+      { false }
   | INCLUDE FUNCTOR
-      { [include_functor_attr] }
+      { true }
 ;
 
 (* An [include] statement can appear in a structure or in a signature,
    which is why this definition is parameterized. *)
 %inline include_statement(thing):
-  attrs0 = include_and_functor_attr
+  is_functor = include_maybe_functor
   ext = ext
   attrs1 = attributes
   thing = thing
   attrs2 = post_item_attributes
   {
-    let attrs = attrs0 @ attrs1 @ attrs2 in
+    let attrs = attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Incl.mk thing ~attrs ~loc ~docs, ext
+    let incl = Incl.mk thing ~attrs ~loc ~docs in
+    is_functor, incl, ext
   }
 ;
 
@@ -1932,14 +1882,24 @@ signature_item:
         { let (body, ext) = $1 in (Psig_modtypesubst body, ext) }
     | open_description
         { let (body, ext) = $1 in (Psig_open body, ext) }
-    | include_statement(module_type)
-        { psig_include $1 }
     | class_descriptions
         { let (ext, l) = $1 in (Psig_class l, ext) }
     | class_type_declarations
         { let (ext, l) = $1 in (Psig_class_type l, ext) }
     )
     { $1 }
+  | include_statement(module_type)
+      { let is_functor, incl, ext = $1 in
+        let item =
+          if is_functor
+          then Jane_syntax.Include_functor.sig_item_of ~loc:(make_loc $sloc)
+                 (Ifsig_include_functor incl)
+          else mksig ~loc:$sloc (Psig_include incl)
+        in
+        wrap_sig_ext ~loc:$sloc item ext
+      }
+
+;
 
 (* A module declaration. *)
 %inline module_declaration:
@@ -2448,29 +2408,36 @@ seq_expr:
 ;
 labeled_simple_pattern:
     QUESTION LPAREN optional_local label_let_pattern opt_default RPAREN
-      { (Optional (fst $4), $5, mkpat_local_if $3 (snd $4)) }
+      { (Optional (fst $4), $5, local_if Pattern $3 $loc($3) (snd $4)) }
   | QUESTION label_var
       { (Optional (fst $2), None, snd $2) }
   | OPTLABEL LPAREN optional_local let_pattern opt_default RPAREN
-      { (Optional $1, $5, mkpat_local_if $3 $4) }
+      { (Optional $1, $5, local_if Pattern $3 $loc($3) $4) }
   | OPTLABEL pattern_var
       { (Optional $1, None, $2) }
   | TILDE LPAREN optional_local label_let_pattern RPAREN
-      { (Labelled (fst $4), None, mkpat_local_if $3 (snd $4)) }
+      { (Labelled (fst $4), None,
+         local_if Pattern $3 $loc($3) (snd $4)) }
   | TILDE label_var
       { (Labelled (fst $2), None, snd $2) }
   | LABEL simple_pattern
       { (Labelled $1, None, $2) }
   | LABEL LPAREN LOCAL pattern RPAREN
-      { (Labelled $1, None, mkpat_stack $4) }
+      { (Labelled $1, None,
+         Jane_syntax.Local.pat_of ~loc:(make_loc $loc($3)) ~attrs:[]
+           (Lpat_local $4) ) }
   | simple_pattern
       { (Nolabel, None, $1) }
   | LPAREN LOCAL let_pattern RPAREN
-      { (Nolabel, None, mkpat_stack $3) }
+      { (Nolabel, None,
+         Jane_syntax.Local.pat_of ~loc:(make_loc $loc($2)) ~attrs:[]
+           (Lpat_local $3)) }
   | LABEL LPAREN poly_pattern RPAREN
       { (Labelled $1, None, $3) }
   | LABEL LPAREN LOCAL poly_pattern RPAREN
-      { (Labelled $1, None, mkpat_stack $4) }
+      { (Labelled $1, None,
+         Jane_syntax.Local.pat_of ~loc:(make_loc $loc($3)) ~attrs:[]
+           (Lpat_local $4)) }
   | LPAREN poly_pattern RPAREN
       { (Nolabel, None, $2) }
 ;
@@ -2577,9 +2544,11 @@ expr:
   *)
 /* END AVOID */
   | LOCAL seq_expr
-     { mkexp_stack ~loc:$sloc $2 }
+      { Jane_syntax.Local.expr_of ~loc:(make_loc $sloc) ~attrs:[]
+          (Lexp_local $2) }
   | EXCLAVE seq_expr
-     { mkexp_exclave ~loc:$sloc ~kwd_loc:($loc($1)) $2 }
+     { Jane_syntax.Local.expr_of ~loc:(make_loc $sloc) ~attrs:[]
+          (Lexp_exclave $2) }
 ;
 %inline expr_attrs:
   | LET MODULE ext_attributes mkrhs(module_name) module_binding_body IN seq_expr
@@ -2618,6 +2587,12 @@ expr:
       { Pexp_assert $3, $2 }
   | LAZY ext_attributes simple_expr %prec below_HASH
       { Pexp_lazy $3, $2 }
+  | subtractive expr %prec prec_unary_minus
+      { let desc, attrs = mkuminus ~oploc:$loc($1) $1 $2 in
+        desc, (None, attrs) }
+  | additive expr %prec prec_unary_plus
+      { let desc, attrs = mkuplus ~oploc:$loc($1) $1 $2 in
+        desc, (None, attrs) }
 ;
 %inline do_done_expr:
   | DO e = seq_expr DONE
@@ -2636,10 +2611,6 @@ expr:
       { Pexp_variant($1, Some $2) }
   | e1 = expr op = op(infix_operator) e2 = expr
       { mkinfix e1 op e2 }
-  | subtractive expr %prec prec_unary_minus
-      { mkuminus ~oploc:$loc($1) $1 $2 }
-  | additive expr %prec prec_unary_plus
-      { mkuplus ~oploc:$loc($1) $1 $2 }
 ;
 
 simple_expr:
@@ -2703,7 +2674,9 @@ comprehension_clause_binding:
   | attributes LOCAL pattern IN expr
       { Jane_syntax.Comprehensions.
           { pattern    = $3
-          ; iterator   = In (mkexp_stack ~loc:$sloc (* ~kwd_loc:($loc($2)) *) $5)
+          ; iterator   = In (Jane_syntax.Local.expr_of
+                               ~loc:(make_loc $sloc) ~attrs:[]
+                               (Lexp_local $5))
           ; attributes = $1
           }
       }
@@ -2894,24 +2867,29 @@ let_binding_body_no_punning:
           | _ -> assert false
         in
         let loc = Location.(t.ptyp_loc.loc_start, t.ptyp_loc.loc_end) in
+        let local_loc = $loc($1) in
         let typ = ghtyp ~loc (Ptyp_poly([],t)) in
         let patloc = ($startpos($2), $endpos($3)) in
         let pat =
-          mkpat_local_if $1 (ghpat ~loc:patloc (Ppat_constraint(v, typ)))
+          local_if Pattern $1 local_loc
+            (ghpat ~loc:patloc (Ppat_constraint(v, typ)))
         in
         let exp =
-          mkexp_local_if $1 ~loc:$sloc
-            (wrap_exp_local_if $1 (mkexp_constraint ~loc:$sloc $5 $3))
+          local_if Expression $1 $sloc
+            (mkexp_constraint
+              ~loc:$sloc
+              (local_if Synthesized_constraint $1 $sloc $5)
+              $3)
         in
         (pat, exp) }
   | optional_local let_ident COLON poly(core_type) EQUAL seq_expr
       { let patloc = ($startpos($2), $endpos($4)) in
         let pat =
-          mkpat_local_if $1
+          local_if Pattern $1 $loc($1)
             (ghpat ~loc:patloc
                (Ppat_constraint($2, ghtyp ~loc:($loc($4)) $4)))
         in
-        let exp = mkexp_local_if $1 ~loc:$sloc $6 in
+        let exp = local_if Expression $1 $sloc $6 in
         (pat, exp) }
   | let_ident COLON TYPE lident_list DOT core_type EQUAL seq_expr
       { let exp, poly =
@@ -2924,7 +2902,8 @@ let_binding_body_no_punning:
       { let loc = ($startpos($1), $endpos($3)) in
         (ghpat ~loc (Ppat_constraint($1, $3)), $5) }
   | LOCAL let_ident local_strict_binding
-      { ($2, mkexp_stack ~loc:$sloc $3) }
+      { ($2, Jane_syntax.Local.expr_of ~loc:(make_loc $sloc) ~attrs:[]
+               (Lexp_local $3)) }
 ;
 let_binding_body:
   | let_binding_body_no_punning
@@ -3007,7 +2986,11 @@ local_fun_binding:
     local_strict_binding
       { $1 }
   | type_constraint EQUAL seq_expr
-      { wrap_exp_stack (mkexp_constraint ~loc:$sloc $3 $1) }
+      { mkexp_constraint
+          ~loc:$sloc
+          (Jane_syntax.Local.expr_of ~loc:(make_loc $sloc) ~attrs:[]
+             (Lexp_constrain_local $3))
+          $1 }
 ;
 local_strict_binding:
     EQUAL seq_expr
@@ -3576,7 +3559,7 @@ generalized_constructor_arguments:
 
 %inline atomic_type_gbl:
   gbl = global_flag cty = atomic_type {
-  mkcty_global_maybe gbl cty (make_loc $loc(gbl))
+  global_if gbl $loc(gbl) cty
 }
 ;
 
@@ -3596,9 +3579,13 @@ label_declaration:
     mutable_or_global_flag mkrhs(label) COLON poly_type_no_attr attributes
       { let info = symbol_info $endpos in
         let mut, gbl = $1 in
-        mkld_global_maybe gbl
-          (Type.field $2 $4 ~mut ~attrs:$5 ~loc:(make_loc $sloc) ~info)
-          (make_loc $loc($1)) }
+        Type.field
+          $2
+          (global_if gbl $loc($1) $4)
+          ~mut
+          ~attrs:$5
+          ~loc:(make_loc $sloc)
+          ~info }
 ;
 label_declaration_semi:
     mutable_or_global_flag mkrhs(label) COLON poly_type_no_attr attributes
@@ -3609,9 +3596,13 @@ label_declaration_semi:
           | None -> symbol_info $endpos
        in
        let mut, gbl = $1 in
-       mkld_global_maybe gbl
-         (Type.field $2 $4 ~mut ~attrs:($5 @ $7) ~loc:(make_loc $sloc) ~info)
-         (make_loc $loc($1)) }
+       Type.field
+         $2
+         (global_if gbl $loc($1) $4)
+         ~mut
+         ~attrs:($5 @ $7)
+         ~loc:(make_loc $sloc)
+         ~info }
 ;
 
 /* Type Extensions */
@@ -3787,7 +3778,7 @@ strict_function_type:
       domain = extra_rhs(param_type)
       MINUSGREATER
       codomain = strict_function_type
-        { Ptyp_arrow(label, mktyp_local_if local domain, codomain) }
+        { Ptyp_arrow(label, local_if Type local $loc(local) domain, codomain) }
     )
     { $1 }
   | mktyp(
@@ -3799,8 +3790,10 @@ strict_function_type:
       codomain = tuple_type
       %prec MINUSGREATER
         { Ptyp_arrow(label,
-            mktyp_local_if arg_local domain,
-            mktyp_local_if ret_local (maybe_curry_typ codomain)) }
+            local_if Type arg_local $loc(arg_local) domain,
+            local_if Type ret_local $loc(ret_local)
+              (Jane_syntax.Builtin.mark_curried
+                 ~loc:(make_loc $loc(codomain)) codomain)) }
     )
     { $1 }
 ;

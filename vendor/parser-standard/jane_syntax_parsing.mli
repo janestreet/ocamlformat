@@ -98,7 +98,7 @@ module Feature : sig
     | Builtin
 
   (** The component of an attribute or extension name that identifies the
-      feature. This is third component.
+      feature. This is the third component.
   *)
   val extension_component : t -> string
 end
@@ -110,7 +110,6 @@ end
     also why we don't expose any functions for rendering or parsing these names;
     that's all handled internally. *)
 module Embedded_name : sig
-
   (** A nonempty list of name components, without the first two components.
       (That is, without the leading root component that identifies it as part of
       the modular syntax mechanism, and without the next component that
@@ -130,7 +129,32 @@ module Embedded_name : sig
   *)
   val of_feature : Feature.t -> string list -> t
 
+  (** Extract the components from an embedded name; just includes the
+      user-specified components, not the leading or erasability components, as
+      with the [components] type. *)
   val components : t -> components
+
+  (** Create a new "marker attribute".  These are Jane-syntax-style attributes,
+      but exist outside of the full Jane syntax machinery; they can be added
+      directly to syntax nodes, aren't matched on and turned into ASTs, and so
+      on and so forth.  The format of the attribute name is not guaranteed to be
+      stable across compiler versions, but it will end with the specified
+      components as if they were the second part of a [components] value.
+
+      Given [let make, extract, has = marker_attribute_handler comps], then:
+
+      - [make ~loc] creates the specified marker attribute at the [ghost]
+        version of the provided location.
+      - [extract attrs] pulls out the specified marker attribute from [attrs],
+        and returns all the other attributes if it was present.  If the specified
+        marker attribute was not present, returns [None].
+      - [has attrs] returns [true] if the list of attributes contains the
+        specified marker attribute, and [false] otherwise.  It's equivalent to
+        [Option.is_some (extract attrs)]. *)
+  val marker_attribute_handler :
+    string list -> (loc:Location.t -> Parsetree.attribute)
+                 * (Parsetree.attributes -> Parsetree.attributes option)
+                 * (Parsetree.attributes -> bool)
 
   (** Print out the embedded form of a Jane-syntax name, in quotes; for use in
       error messages. *)
@@ -142,7 +166,11 @@ end
     need them. When you add another one, make sure also to add special handling
     in [Ast_iterator] and [Ast_mapper].
 
-*)
+    This module type comes in two varieties: [AST_with_attributes] and
+    [AST_without_attributes].  They reflect whether desugaring an OCaml AST into
+    our extended one should ([with]) or shouldn't ([without]) return the
+    attributes as well.  This choice is recorded in the [with_attributes]
+    type. *)
 module type AST = sig
   (** The AST type (e.g., [Parsetree.expression]) *)
   type ast
@@ -150,7 +178,8 @@ module type AST = sig
   (** Embed a term from one of our novel syntactic features in the AST using the
       given name (in the [Feature.t]) and body (the [ast]).  Any locations in
       the generated AST will be set to [!Ast_helper.default_loc], which should
-      be [ghost]. *)
+      be [ghost].  The list of components should be nonempty; if it's empty, you
+      probably want [make_entire_jane_syntax] instead. *)
   val make_jane_syntax
     :  Feature.t
     -> string list
@@ -159,15 +188,46 @@ module type AST = sig
 
   (** As [make_jane_syntax], but specifically for the AST node corresponding to
       the entire piece of novel syntax (e.g., for a list comprehension, the
-      whole [[x for x in xs]], and not a subcomponent like [for x in xs]).  This
-      sets [Ast_helper.default_loc] locally to the [ghost] version of the
-      provided location, which is why the [ast] is generated from a function
-      call; it is during this call that the location is so set. *)
+      whole [[x for x in xs]], and not a subcomponent like [for x in xs]).  The
+      provided location is used for the location of the resulting AST node.
+      Additionally, [Ast_helper.default_loc] is set locally to the [ghost]
+      version of that location, which is why the [ast] is generated from a
+      function call; it is during this call that the location is so set. *)
   val make_entire_jane_syntax
     :  loc:Location.t
     -> Feature.t
     -> (unit -> ast)
     -> ast
+
+  (** Given a *nested* term from one of our novel syntactic features that has
+      *already* been embedded in the AST by [make_jane_syntax], matches on the
+      name and AST of that embedding to lift it back to the Jane syntax AST.  By
+      "nested", this means the term ought to be a subcomponent of a
+      [make_entire_jane_syntax]-created term, created specifically by
+      [make_jane_syntax] with a nonempty list of components.
+
+      For example, to distinguish between the different terms in the
+      [-extension local] expression AST, we write:
+
+      {[
+        let of_expr =
+          Expression.match_jane_syntax_piece feature @@ fun expr -> function
+          | ["local"] ->
+            Expression.match_dummy expr |>
+            Option.map (fun expr' -> Lexp_local expr')
+          | ["exclave"] ->
+            Expression.match_dummy expr |>
+            Option.map (fun expr' -> Lexp_exclave expr')
+          | _ -> None
+      ]}
+  *)
+  val match_jane_syntax_piece
+    : Feature.t -> (ast -> string list -> 'a option) -> ast -> 'a
+
+  (** How to attach attributes to the result of [make_of_ast].  Will either
+      return a pair (see [AST_with_attributes]) or will simply be equal to ['a]
+      when there are no attributes ([AST_without_attributes]). *)
+  type 'a with_attributes
 
   (** Build an [of_ast] function. The return value of this function should be
       used to implement [of_ast] in modules satisfying the signature
@@ -190,32 +250,58 @@ module type AST = sig
         extended pattern AST, this function will return [None] if it spots an
         embedding that claims to be from [Language_extension Comprehensions].)
     *)
-    -> (ast -> 'a option)
+    -> (ast -> 'a with_attributes option)
 end
 
-module Expression :
-  AST with type ast = Parsetree.expression
+(** An [AST] that keeps track of attributes.  This also includes
+    attribute-manipulating functions. *)
+module type AST_with_attributes = sig
+  include AST with type 'ast with_attributes := 'ast * Parsetree.attributes
+
+  (** Add attributes to an AST term, appending them to the attributes already
+      present. *)
+  val add_attributes : Parsetree.attributes -> ast -> ast
+end
+
+(** An [AST] that does not keep track of attributes. *)
+module type AST_without_attributes =
+  AST with type 'ast with_attributes := 'ast
+
+module Expression : sig
+  include AST_with_attributes with type ast = Parsetree.expression
+
+  (** Wraps an expression in a dummy do-nothing expression, to get an extra spot
+      to hang a location.  By default, the locations are set to
+      [!Ast_helper.default_loc].  Currently encoded as [(); e]. *)
+  val make_dummy :
+    attrs:Parsetree.attributes -> Parsetree.expression -> Parsetree.expression
+
+  (** Removes the extra do-nothing expression node created with [make_dummy] if
+      it was present, ignoring attributes.  Currently turns [(); e] into
+      [Some e]. *)
+  val match_dummy : Parsetree.expression -> Parsetree.expression option
+end
 
 module Pattern :
-  AST with type ast = Parsetree.pattern
+  AST_with_attributes with type ast = Parsetree.pattern
 
 module Module_type :
-  AST with type ast = Parsetree.module_type
+  AST_with_attributes with type ast = Parsetree.module_type
 
 module Signature_item :
-  AST with type ast = Parsetree.signature_item
+  AST_without_attributes with type ast = Parsetree.signature_item
 
 module Structure_item :
-  AST with type ast = Parsetree.structure_item
+  AST_without_attributes with type ast = Parsetree.structure_item
 
 module Core_type :
-  AST with type ast = Parsetree.core_type
+  AST_with_attributes with type ast = Parsetree.core_type
 
 module Constructor_argument :
-  AST with type ast = Parsetree.core_type
+  AST_with_attributes with type ast = Parsetree.core_type
 
 module Extension_constructor :
-  AST with type ast = Parsetree.extension_constructor
+  AST_with_attributes with type ast = Parsetree.extension_constructor
 
 (** Require that an extension is enabled for at least the provided level, or
     else throw an exception (of an abstract type) at the provided location
@@ -225,28 +311,6 @@ module Extension_constructor :
     require both [Comprehensions] and [Immutable_arrays]). *)
 val assert_extension_enabled :
   loc:Location.t -> 'a Language_extension.t -> 'a -> unit
-
-(* CR-someday nroberts: An earlier version of this revealed less of its
-   implementation in its name: it was called [match_jane_syntax], and
-   was a function from ast to ast. This has some advantages (less revealing
-   of the Jane Syntax encoding) but I felt it important to document the caller's
-   responsibility to plumb through uninterpreted attributes.
-
-   Given that it only has one callsite currently, we decided to keep this
-   approach for now, but we could revisit this decision if we use it more
-   often.
-*)
-(** Extracts the first attribute (in list order) that was inserted by the
-    Jane Syntax framework, and returns the rest of the attributes in the
-    same relative order as was input.
-
-    This can be used by [Jane_syntax] to peel off individual attributes in
-    order to process a Jane Syntax element that consists of multiple
-    nested ASTs.
-*)
-val find_and_remove_jane_syntax_attribute
-  :  Parsetree.attributes
-  -> (Embedded_name.t * Parsetree.attributes) option
 
 (** Errors around the representation of our extended ASTs.  These should mostly
     just be fatal, but they're needed for one test case
