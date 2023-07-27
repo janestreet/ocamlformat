@@ -33,6 +33,7 @@ regtests:
 
 regtests-promote:
 	dune runtest --auto-promote
+	dune build @help --auto-promote
 
 coverage:
 	dune runtest --instrument-with bisect_ppx --force
