@@ -99,7 +99,7 @@ Before building
 You will need to install several libraries. This command may work:
 
 ```
-opam install fix ocp-indent bechamel-js alcotest campl-streams fpath either dune-build-info uuseg ocaml-version
+opam install menhir.20210419 fix ocp-indent bechamel-js alcotest campl-streams fpath either dune-build-info uuseg ocaml-version
 ```
 
 Building
@@ -151,7 +151,7 @@ To just run your built ocamlformat against a file manually, run
 `dune exec ocamlformat -- --enable-outside-detected-project path/to/your/file.ml`.
 
 If you want to see the parsed source ocamlformat produces internally, use
-`dune exec -- tools/printast/printasl.exe path/to/your/file.ml`.
+`dune exec -- tools/printast/printast.exe path/to/your/file.ml`.
 
 Run the tests with `dune test`. There are two kinds of tests:
 
