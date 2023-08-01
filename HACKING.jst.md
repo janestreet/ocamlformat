@@ -99,8 +99,12 @@ Before building
 You will need to install several libraries. This command may work:
 
 ```
-opam install menhir.20210419 fix ocp-indent bechamel-js alcotest campl-streams fpath either dune-build-info uuseg ocaml-version
+opam install menhir.20210419 fix ocp-indent bechamel-js alcotest campl-streams fpath either dune-build-info uuseg ocaml-version cmdliner
 ```
+
+The version of `cmdliner` in particular may affect the output format, and the
+GitHub CI will install the latest version; as of 2023-08-01, that's
+`cmdliner.1.2`.
 
 Building
 --------
@@ -172,14 +176,10 @@ is:
   when running your test (uncommon) write that output to
   `tests/passing/tests/foo.ml.err`.
 
-Now, run `dune test`. It will discover your new file and suggest edits to
-the generated `tests/passing/dune.inc` file to run your new tests. Run
-`dune promote` to update `dune.inc`. This will *not* accept your new tests -- it
-just allows you to run your new tests.
-
-Then, run `dune test` again to actually run your tests. You will see any changes
-necessary to make the tests pass. You can run `dune promote` to accept those
-changes.
+To test you can run `make test`, which will run the `dune` tests (via `make
+regtest`) and the formatting consistency check (via `make fmt`).  To promote the
+`dune` tests and the `ocamlformat --help` output, run `maketest
+regtests-promote`.
 
 If you get some cryptic error output with a few lines of the `dune.inc` file, it
 is likely that ocamlformat has crashed (e.g. with a parser error) while looking
