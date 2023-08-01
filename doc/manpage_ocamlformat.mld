@@ -549,6 +549,12 @@ OPTIONS
            (or in $HOME/.config/.ocamlformat if $XDG_CONFIG_HOME is
            undefined) is applied.
 
+       --erase-jane-syntax
+           Erase all erasable Jane Street syntax extensions. Jane Street uses
+           this to generate the upstream-compatible public release code for
+           our libraries (vs. the variant with Jane Street-specific syntax).
+           THIS OPTION WILL CHANGE THE RESULTING AST.
+
        -g, --debug
            Generate debugging output. The flag is unset by default.
 
