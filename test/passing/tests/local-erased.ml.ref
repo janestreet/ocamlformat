@@ -1,0 +1,65 @@
+let f a b c = 1
+
+let f a ~foo:b ?foo:(c = 1) ~d = ()
+
+let f ~x ~(y : string) ?(z : string) = ()
+
+let xs = [(fun a (type b) ~c -> 1)]
+
+let xs = [(fun a (type b) ~c -> 1)]
+
+let f () =
+  let a = [1] in
+  let r = 1 in
+  let f : 'a. 'a -> 'a = fun x -> x in
+  let g a b c : int = 1 in
+  let () = g (fun () -> ()) in
+  "asdfasdfasdfasdfasdfasdfasdf"
+
+let f () =
+  let a = [1] in
+  let r = 1 in
+  let f : 'a. 'a -> 'a = fun x -> x in
+  let g a b c : int = 1 in
+  let () = g (fun () -> ()) in
+  "asdfasdfasdfasdfasdfasdfasdf"
+
+type 'a r = {mutable a: 'a; b: 'a; c: 'a}
+
+type 'a r = Foo of 'a | Bar of 'a * 'a | Baz of int * string * 'a
+
+type ('a, 'b) cfn = a:'a -> ?b:b -> 'a -> int -> 'b
+
+type loc_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
+
+let _ = ()
+
+let _ = ()
+
+let () = x
+
+let () = x
+
+let {b} = ()
+
+let {b} = ()
+
+let () = r
+
+let () = r
+
+let x : string = "hi"
+
+let (x : string) = "hi"
+
+let (x : string) = "hi"
+
+let x = ("hi" : string)
+
+let x = ("hi" : string)
+
+let x : 'a. 'a -> 'a = "hi"
+
+let x : 'a. 'a -> 'a = "hi"
+
+let f : 'a. 'a -> 'a = "hi"
