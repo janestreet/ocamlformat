@@ -330,8 +330,8 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
       let erase_jane_syntax = Erase_jane_syntax.should_erase () in
       ( if
           (not
-             (Normalize_std_ast.equal std_fg conf ~old:std_t.ast ~new_:std_t_new.ast
-                ~erase_jane_syntax
+             (Normalize_std_ast.equal std_fg conf ~old:std_t.ast
+                ~new_:std_t_new.ast ~erase_jane_syntax
                 ~ignore_doc_comments:(not conf.opr_opts.comment_check.v) ) )
           && not
                (Normalize_extended_ast.equal fg conf t.ast t_new.ast
@@ -343,7 +343,8 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
           in
           let new_ast =
             dump_ast std_fg ~suffix:".new"
-              (Normalize_std_ast.ast std_fg ~erase_jane_syntax:false conf std_t_new.ast)
+              (Normalize_std_ast.ast std_fg ~erase_jane_syntax:false conf
+                 std_t_new.ast )
           in
           let args ~suffix =
             [ ("output file", dump_formatted ~suffix fmted)
@@ -353,14 +354,12 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
                    Option.map f_opt ~f:(fun f -> (s, String.sexp_of_t f)) )
           in
           if
-            Normalize_std_ast.equal
-              std_fg ~ignore_doc_comments:true ~erase_jane_syntax conf
-              ~old:std_t.ast ~new_:std_t_new.ast
+            Normalize_std_ast.equal std_fg ~ignore_doc_comments:true
+              ~erase_jane_syntax conf ~old:std_t.ast ~new_:std_t_new.ast
           then
             let docstrings =
-              Normalize_std_ast.moved_docstrings
-                std_fg ~erase_jane_syntax conf
-                ~old:std_t.ast ~new_:std_t_new.ast
+              Normalize_std_ast.moved_docstrings std_fg ~erase_jane_syntax
+                conf ~old:std_t.ast ~new_:std_t_new.ast
             in
             let args = args ~suffix:".unequal-docs" in
             internal_error

@@ -329,10 +329,10 @@ let ocp_indent_config =
 
 let erase_jane_syntax =
   let doc =
-    "Erase all erasable Jane Street syntax extensions.  Jane Street uses this to \
-     generate the upstream-compatible public release code for our libraries (vs. the \
-     variant with Jane Street-specific syntax).  THIS OPTION WILL CHANGE THE RESULTING \
-     AST."
+    "Erase all erasable Jane Street syntax extensions.  Jane Street uses \
+     this to generate the upstream-compatible public release code for our \
+     libraries (vs. the variant with Jane Street-specific syntax).  THIS \
+     OPTION WILL CHANGE THE RESULTING AST."
   in
   declare_option
     ~set:(fun erase_jane_syntax conf -> {conf with erase_jane_syntax})

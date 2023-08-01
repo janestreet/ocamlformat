@@ -171,9 +171,12 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
 
-let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1 ~new_:ast2 =
+let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
+    ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
-  equal fragment (map ~erase_jane_syntax ast1) (map ~erase_jane_syntax:false ast2)
+  equal fragment
+    (map ~erase_jane_syntax ast1)
+    (map ~erase_jane_syntax:false ast2)
 
 let ast = ast ~ignore_doc_comments:false
 
@@ -204,8 +207,10 @@ let docstrings (type a) (fragment : a t) s =
   let (_ : a) = map fragment (make_docstring_mapper docstrings) s in
   !docstrings
 
-let docstring conf ~erase_jane_syntax  =
-  let mapper = make_mapper conf ~ignore_doc_comments:false ~erase_jane_syntax in
+let docstring conf ~erase_jane_syntax =
+  let mapper =
+    make_mapper conf ~ignore_doc_comments:false ~erase_jane_syntax
+  in
   let normalize_code = normalize_code conf mapper in
   docstring conf ~normalize_code
 
@@ -227,14 +232,12 @@ let moved_docstrings fragment ~erase_jane_syntax c ~old:s1 ~new_:s2 =
       (* We only return the ones that are not in both lists. *)
       let l1 =
         List.filter d1 ~f:(fun old ->
-          List.for_all d2 ~f:(fun new_ ->
-            not (equal ~old ~new_)))
+            List.for_all d2 ~f:(fun new_ -> not (equal ~old ~new_)) )
       in
       let l1 = List.map ~f:dropped l1 in
       let l2 =
         List.filter d2 ~f:(fun new_ ->
-          List.for_all d1 ~f:(fun old ->
-            not (equal ~old ~new_)))
+            List.for_all d1 ~f:(fun old -> not (equal ~old ~new_)) )
       in
       let l2 = List.map ~f:added l2 in
       List.rev_append l1 l2
