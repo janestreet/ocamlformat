@@ -33,3 +33,9 @@ type t = (int, float#) either
 type t = (float#, int) either
 
 type t = (float#, float#) either
+
+type ('a : float64) t = 'a
+
+type ('b, 'a : float64) t
+
+type ('b : float64, 'a : immediate) t
