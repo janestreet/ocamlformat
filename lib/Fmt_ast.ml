@@ -549,6 +549,7 @@ let is_layout attr =
   | "void" -> true
   | "immediate" -> true
   | "immediate64" -> true
+  | "float64" -> true
   | _ -> false
 
 let rec fmt_extension_aux c ctx ~key (ext, pld) =

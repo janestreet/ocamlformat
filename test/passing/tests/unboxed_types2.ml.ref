@@ -21,3 +21,9 @@ type t = float# float
 type t = float# float#
 
 type t = #float float# #float
+
+type ('a : float64) t = 'a
+
+type ('b, 'a : float64) t
+
+type ('b : float64, 'a : immediate) t = 'a
