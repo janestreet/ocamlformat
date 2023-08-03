@@ -3703,24 +3703,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to local-erased.ml.stdout
-   (with-stderr-to local-erased.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax %{dep:tests/local.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local-erased.ml.ref local-erased.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local-erased.ml.err local-erased.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to local.ml.stdout
    (with-stderr-to local.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/local.ml})))))
