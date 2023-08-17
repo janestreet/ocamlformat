@@ -41,10 +41,106 @@ open Jane_syntax_parsing
    future syntax features to remember to do this wrapping.
 *)
 
+module Builtin = struct
+  let make_curry_attr, extract_curry_attr, has_curry_attr =
+    Embedded_name.marker_attribute_handler ["curry"]
+
+  let is_curried typ = has_curry_attr typ.ptyp_attributes
+
+  let mark_curried ~loc typ = match typ.ptyp_desc with
+    | Ptyp_arrow _ when not (is_curried typ) ->
+        Core_type.add_attributes [make_curry_attr ~loc] typ
+    | _ -> typ
+
+  let non_syntax_attributes attrs =
+    Option.value ~default:attrs (extract_curry_attr attrs)
+end
+
+(** Locality modes *)
+module Local = struct
+  let feature : Feature.t = Language_extension Local
+
+  type constructor_argument = Lcarg_global of core_type
+
+  type nonrec core_type = Ltyp_local of core_type
+
+  type nonrec expression =
+    | Lexp_local of expression
+    | Lexp_exclave of expression
+    | Lexp_constrain_local of expression
+      (* Invariant: [Lexp_constrain_local] is the direct child of a
+         [Pexp_constraint] or [Pexp_coerce] node.  For more, see the [.mli]
+         file. *)
+
+  type nonrec pattern = Lpat_local of pattern
+  (* Invariant: [Lpat_local] is always the outermost part of a pattern. *)
+
+  let type_of ~loc ~attrs = function
+    | Ltyp_local typ ->
+      (* See Note [Wrapping with make_entire_jane_syntax] *)
+      Core_type.make_entire_jane_syntax ~loc feature (fun () ->
+        (* Although there's only one constructor here, the use of
+           [constructor_argument] means we need to be able to tell the two uses
+           apart *)
+        Core_type.make_jane_syntax feature ["type"; "local"] @@
+        Core_type.add_attributes attrs typ)
+
+  let of_type = Core_type.match_jane_syntax_piece feature @@ fun typ -> function
+    | ["type"; "local"] -> Some (Ltyp_local typ)
+    | _ -> None
+
+  let constr_arg_of ~loc lcarg =
+    (* See Note [Wrapping with make_entire_jane_syntax] *)
+    Constructor_argument.make_entire_jane_syntax ~loc feature (fun () ->
+      match lcarg with
+      | Lcarg_global carg ->
+        (* Although there's only one constructor here, the use of [core_type]
+           means we need to be able to tell the two uses apart *)
+        Constructor_argument.make_jane_syntax
+          feature ["constructor_argument"; "global"]
+          carg)
+
+  let of_constr_arg =
+    Constructor_argument.match_jane_syntax_piece feature @@ fun carg -> function
+      | ["constructor_argument"; "global"] -> Some (Lcarg_global carg)
+      | _ -> None
+
+  let expr_of ~loc ~attrs = function
+    | Lexp_local expr ->
+      (* See Note [Wrapping with make_entire_jane_syntax] *)
+      Expression.make_entire_jane_syntax ~loc feature (fun () ->
+        Expression.make_jane_syntax feature ["local"] @@
+        Expression.add_attributes attrs expr)
+    | Lexp_exclave expr ->
+      (* See Note [Wrapping with make_entire_jane_syntax] *)
+      Expression.make_entire_jane_syntax ~loc feature (fun () ->
+        Expression.make_jane_syntax feature ["exclave"] @@
+        Expression.add_attributes attrs expr)
+    | Lexp_constrain_local expr ->
+      (* See Note [Wrapping with make_entire_jane_syntax] *)
+      Expression.make_entire_jane_syntax ~loc feature (fun () ->
+        Expression.make_jane_syntax feature ["constrain_local"] @@
+        Expression.add_attributes attrs expr)
+
+  let of_expr =
+    Expression.match_jane_syntax_piece feature @@ fun expr -> function
+      | ["local"] -> Some (Lexp_local expr)
+      | ["exclave"] -> Some (Lexp_exclave expr)
+      | ["constrain_local"] -> Some (Lexp_constrain_local expr)
+      | _ -> None
+
+  let pat_of ~loc ~attrs = function
+    | Lpat_local pat ->
+      (* See Note [Wrapping with make_entire_jane_syntax] *)
+      Pattern.make_entire_jane_syntax ~loc feature (fun () ->
+        Pattern.add_attributes attrs pat)
+
+  let of_pat pat = Lpat_local pat
+end
+
 (** List and array comprehensions *)
 module Comprehensions = struct
   let feature : Feature.t = Language_extension Comprehensions
-  let extension_string = Feature.extension_component feature
 
   type iterator =
     | Range of { start     : expression
@@ -92,11 +188,10 @@ module Comprehensions = struct
      v}
   *)
 
-  let comprehension_expr names x = Expression.make_jane_syntax feature names x
+  let comprehension_expr = Expression.make_jane_syntax feature
 
   (** First, we define how to go from the nice AST to the OCaml AST; this is
-      the [expr_of_...] family of expressions, culminating in
-      [expr_of_comprehension_expr]. *)
+      the [expr_of_...] family of expressions, culminating in [expr_of]. *)
 
   let expr_of_iterator = function
     | Range { start; stop; direction } ->
@@ -108,7 +203,8 @@ module Comprehensions = struct
             | Downto -> "downto" ]
           (Ast_helper.Exp.tuple [start; stop])
     | In seq ->
-        comprehension_expr ["for"; "in"] seq
+        comprehension_expr ["for"; "in"] (Ast_helper.Exp.lazy_ seq)
+        (* See Note [Wrapping with Pexp_lazy] *)
 
   let expr_of_clause_binding { pattern; iterator; attributes } =
     Ast_helper.Vb.mk ~attrs:attributes pattern (expr_of_iterator iterator)
@@ -123,28 +219,24 @@ module Comprehensions = struct
     | When cond ->
         comprehension_expr ["when"] (Ast_helper.Exp.sequence cond rest)
 
-  let expr_of_comprehension ~type_ { body; clauses } =
-    (* We elect to wrap the body in a new AST node (here, [Pexp_lazy])
-       because it makes it so there is no AST node that can carry multiple Jane
-       Syntax-related attributes in addition to user-written attributes. This
-       choice simplifies the definition of [comprehension_expr_of_expr], as
-       part of its contract is threading through the user-written attributes
-       on the outermost node.
-    *)
+  let expr_of_comprehension ~type_ ~attrs { body; clauses } =
+    (* See Note [Wrapping with Pexp_lazy] *)
     comprehension_expr
       type_
-      (Ast_helper.Exp.lazy_
-        (List.fold_right
-          expr_of_clause
-          clauses
-          (comprehension_expr ["body"] body)))
+      (Expression.add_attributes
+         attrs
+         (Ast_helper.Exp.lazy_
+            (List.fold_right
+               expr_of_clause
+               clauses
+               (comprehension_expr ["body"] (Ast_helper.Exp.lazy_ body)))))
 
   let expr_of ~loc ~attrs cexpr =
     (* See Note [Wrapping with make_entire_jane_syntax] *)
-    let expr = Expression.make_entire_jane_syntax ~loc feature (fun () ->
+    Expression.make_entire_jane_syntax ~loc feature (fun () ->
       match cexpr with
       | Cexp_list_comprehension comp ->
-          expr_of_comprehension ~type_:["list"] comp
+          expr_of_comprehension ~type_:["list"] ~attrs comp
       | Cexp_array_comprehension (amut, comp) ->
           expr_of_comprehension
             ~type_:[ "array"
@@ -152,39 +244,38 @@ module Comprehensions = struct
                      | Mutable   -> "mutable"
                      | Immutable -> "immutable"
                    ]
+            ~attrs
             comp)
-    in
-    { expr with pexp_attributes = expr.pexp_attributes @ attrs }
 
   (** Then, we define how to go from the OCaml AST to the nice AST; this is
-      the [..._of_expr] family of expressions, culminating in
-      [comprehension_expr_of_expr]. *)
+      the [..._of_expr] family of expressions, culminating in [of_expr]. *)
 
   module Desugaring_error = struct
     type error =
-      | Non_comprehension_embedding of Embedded_name.t
-      | Non_embedding
-      | Bad_comprehension_embedding of string list
       | No_clauses
+      | Unexpected_attributes of attributes
+      (* Note [Wrapping with Pexp_lazy]
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+         We require that every internal comprehensions node contain at least one
+         constructor, using [Pexp_lazy] by convention when there isn't another
+         obvious choice.  This means that every internal AST node synthesized
+         for comprehensions can contain no other attributes, which we can then
+         check for and raise [Unexpected_attributes] if we get this wrong.  This
+         helps guard against attribute erros. *)
 
     let report_error ~loc = function
-      | Non_comprehension_embedding name ->
-          Location.errorf ~loc
-            "Tried to desugar the non-comprehension embedded term %a@ \
-             as part of a comprehension expression"
-            Embedded_name.pp_quoted_name name
-      | Non_embedding ->
-          Location.errorf ~loc
-            "Tried to desugar a non-embedded expression@ \
-             as part of a comprehension expression"
-      | Bad_comprehension_embedding subparts ->
-          Location.errorf ~loc
-            "Unknown, unexpected, or malformed@ comprehension embedded term %a"
-            Embedded_name.pp_quoted_name
-            (Embedded_name.of_feature feature subparts)
       | No_clauses ->
           Location.errorf ~loc
             "Tried to desugar a comprehension with no clauses"
+      | Unexpected_attributes attrs ->
+          Location.errorf ~loc
+            "An internal synthesized comprehension node had extra attributes.@.\
+             The attributes had the following names:@ %a"
+            (Format.pp_print_list
+               ~pp_sep:(fun ppf () -> Format.fprintf ppf ",@ ")
+               (fun ppf attr -> Format.fprintf ppf "\"%s\"" attr.attr_name.txt))
+            attrs
 
     exception Error of Location.t * error
 
@@ -197,33 +288,22 @@ module Comprehensions = struct
     let raise expr err = raise (Error(expr.pexp_loc, err))
   end
 
-  (* Returns the expression node with the outermost Jane Syntax-related
-     attribute removed. *)
-  let expand_comprehension_extension_expr expr =
-    match find_and_remove_jane_syntax_attribute expr.pexp_attributes with
-    | Some (ext_name, attributes) -> begin
-        match Jane_syntax_parsing.Embedded_name.components ext_name with
-        | comprehensions :: names
-          when String.equal comprehensions extension_string ->
-            names, { expr with pexp_attributes = attributes }
-        | _ :: _ ->
-            Desugaring_error.raise expr (Non_comprehension_embedding ext_name)
-      end
-    | None ->
-        Desugaring_error.raise expr Non_embedding
+  let match_comprehension_piece matcher =
+    Expression.match_jane_syntax_piece feature @@ fun expr subparts ->
+      match expr.pexp_attributes with
+      | [] -> matcher expr subparts
+      | _ :: _ as attrs ->
+        Desugaring_error.raise expr (Unexpected_attributes attrs)
 
-  let iterator_of_expr expr =
-    match expand_comprehension_extension_expr expr with
-    | ["for"; "range"; "upto"],
-      { pexp_desc = Pexp_tuple [start; stop]; _ } ->
-        Range { start; stop; direction = Upto }
-    | ["for"; "range"; "downto"],
-      { pexp_desc = Pexp_tuple [start; stop]; _ } ->
-        Range { start; stop; direction = Downto }
-    | ["for"; "in"], seq ->
-        In seq
-    | bad, _ ->
-        Desugaring_error.raise expr (Bad_comprehension_embedding bad)
+  let iterator_of_expr = match_comprehension_piece @@ fun expr subparts ->
+    match subparts, expr.pexp_desc with
+    |["for"; "range"; "upto"], Pexp_tuple [start; stop] ->
+        Some (Range { start; stop; direction = Upto })
+    | ["for"; "range"; "downto"], Pexp_tuple [start; stop] ->
+        Some (Range { start; stop; direction = Downto })
+    | ["for"; "in"], Pexp_lazy seq ->
+        Some (In seq)
+    | _ -> None
 
   let clause_binding_of_vb { pvb_pat; pvb_expr; pvb_attributes; pvb_loc = _ } =
     { pattern = pvb_pat
@@ -234,19 +314,20 @@ module Comprehensions = struct
 
   let comprehension_of_expr =
     let rec raw_comprehension_of_expr expr =
-      match expand_comprehension_extension_expr expr with
-      | ["for"], { pexp_desc = Pexp_let(Nonrecursive, iterators, rest); _ } ->
-          add_clause
-            (For (List.map clause_binding_of_vb iterators))
-            (raw_comprehension_of_expr rest)
-      | ["when"], { pexp_desc = Pexp_sequence(cond, rest); _ } ->
-          add_clause
-            (When cond)
-            (raw_comprehension_of_expr rest)
-      | ["body"], body ->
-          { body; clauses = [] }
-      | bad, _ ->
-          Desugaring_error.raise expr (Bad_comprehension_embedding bad)
+      expr |> match_comprehension_piece @@ fun expr subparts ->
+        match subparts, expr.pexp_desc with
+        | ["for"], Pexp_let(Nonrecursive, iterators, rest) ->
+            Option.some @@ add_clause
+              (For (List.map clause_binding_of_vb iterators))
+              (raw_comprehension_of_expr rest)
+        | ["when"], Pexp_sequence(cond, rest) ->
+            Option.some @@ add_clause
+              (When cond)
+              (raw_comprehension_of_expr rest)
+        | ["body"], Pexp_lazy body ->
+            Some { body; clauses = [] }
+        | _ ->
+            None
     in
     fun expr ->
       match raw_comprehension_of_expr expr with
@@ -254,24 +335,22 @@ module Comprehensions = struct
           Desugaring_error.raise expr No_clauses
       | comp -> comp
 
-  (* Returns remaining unconsumed attributes on outermost expression *)
-  let comprehension_expr_of_expr expr =
-    let name, wrapper = expand_comprehension_extension_expr expr in
-    let comp =
-      match name, wrapper.pexp_desc with
-      | ["list"], Pexp_lazy comp ->
-          Cexp_list_comprehension (comprehension_of_expr comp)
-      | ["array"; "mutable"], Pexp_lazy comp ->
-          Cexp_array_comprehension (Mutable, comprehension_of_expr comp)
-      | ["array"; "immutable"], Pexp_lazy comp ->
-          (* assert_extension_enabled:
-            See Note [Check for immutable extension in comprehensions code] *)
-          assert_extension_enabled ~loc:expr.pexp_loc Immutable_arrays ();
-          Cexp_array_comprehension (Immutable, comprehension_of_expr comp)
-      | bad, _ ->
-          Desugaring_error.raise expr (Bad_comprehension_embedding bad)
-    in
-    comp, wrapper.pexp_attributes
+  let of_expr = match_comprehension_piece @@ fun expr subparts ->
+    (* See Note [Wrapping with Pexp_lazy] *)
+    match subparts, expr.pexp_desc with
+    | ["list"], Pexp_lazy comp ->
+      Some (Cexp_list_comprehension (comprehension_of_expr comp))
+    | ["array"; "mutable"], Pexp_lazy comp ->
+      Some (Cexp_array_comprehension (Mutable,
+                                      comprehension_of_expr comp))
+    | ["array"; "immutable"], Pexp_lazy comp ->
+      (* assert_extension_enabled:
+         See Note [Check for immutable extension in comprehensions code]
+      *)
+      assert_extension_enabled ~loc:expr.pexp_loc Immutable_arrays ();
+      Some (Cexp_array_comprehension (Immutable,
+                                      comprehension_of_expr comp))
+    | _ -> None
 end
 
 (** Immutable arrays *)
@@ -290,9 +369,8 @@ module Immutable_arrays = struct
       Expression.make_entire_jane_syntax ~loc feature (fun () ->
         Ast_helper.Exp.array ~attrs elts)
 
-  (* Returns remaining unconsumed attributes *)
   let of_expr expr = match expr.pexp_desc with
-    | Pexp_array elts -> Iaexp_immutable_array elts, expr.pexp_attributes
+    | Pexp_array elts -> Iaexp_immutable_array elts
     | _ -> failwith "Malformed immutable array expression"
 
   let pat_of ~loc ~attrs = function
@@ -301,9 +379,8 @@ module Immutable_arrays = struct
       Pattern.make_entire_jane_syntax ~loc feature (fun () ->
         Ast_helper.Pat.array ~attrs elts)
 
-  (* Returns remaining unconsumed attributes *)
   let of_pat pat = match pat.ppat_desc with
-    | Ppat_array elts -> Iapat_immutable_array elts, pat.ppat_attributes
+    | Ppat_array elts -> Iapat_immutable_array elts
     | _ -> failwith "Malformed immutable array pattern"
 end
 
@@ -358,7 +435,7 @@ module Strengthen = struct
   (* Returns remaining unconsumed attributes *)
   let of_mty mty = match mty.pmty_desc with
     | Pmty_functor(Named(_, mty), {pmty_desc = Pmty_alias mod_id}) ->
-       { mty; mod_id }, mty.pmty_attributes
+       { mty; mod_id }
     | _ -> failwith "Malformed strengthened module type"
 end
 
@@ -388,14 +465,14 @@ module Unboxed_constants = struct
   let of_expr expr =
     let loc = expr.pexp_loc in
     match expr.pexp_desc with
-    | Pexp_constant const -> of_constant ~loc const, expr.pexp_attributes
+    | Pexp_constant const -> of_constant ~loc const
     | _ -> fail_malformed ~loc
 
   (* Returns remaining unconsumed attributes *)
   let of_pat pat =
     let loc = pat.ppat_loc in
     match pat.ppat_desc with
-    | Ppat_constant const -> of_constant ~loc const, pat.ppat_attributes
+    | Ppat_constant const -> of_constant ~loc const
     | _ -> fail_malformed ~loc
 
   let constant_of = function
@@ -421,47 +498,59 @@ module type AST = sig
   type ast
 
   val of_ast : ast -> t option
+  val ast_of : loc:Location.t -> t -> ast
 end
 
 module Core_type = struct
-  type t = |
+  type t =
+    | Jtyp_local of Local.core_type
 
-  let of_ast_internal (feat : Feature.t) _typ = match feat with
+  let of_ast_internal (feat : Feature.t) typ = match feat with
+    | Language_extension Local -> Some (Jtyp_local (Local.of_type typ))
     | _ -> None
 
   let of_ast = Core_type.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc (jtyp, attrs) = match jtyp with
+    | Jtyp_local x -> Local.type_of ~loc ~attrs x
 end
 
 module Constructor_argument = struct
-  type t = |
+  type t =
+    | Jcarg_local of Local.constructor_argument
 
-  let of_ast_internal (feat : Feature.t) _carg = match feat with
+  let of_ast_internal (feat : Feature.t) carg = match feat with
+    | Language_extension Local -> Some (Jcarg_local (Local.of_constr_arg carg))
     | _ -> None
 
   let of_ast = Constructor_argument.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc jcarg = match jcarg with
+    | Jcarg_local x -> Local.constr_arg_of ~loc x
 end
 
 module Expression = struct
   type t =
+    | Jexp_local           of Local.expression
     | Jexp_comprehension   of Comprehensions.expression
     | Jexp_immutable_array of Immutable_arrays.expression
     | Jexp_unboxed_constant of Unboxed_constants.expression
 
   let of_ast_internal (feat : Feature.t) expr = match feat with
+    | Language_extension Local ->
+      Some (Jexp_local (Local.of_expr expr))
     | Language_extension Comprehensions ->
-      let expr, attrs = Comprehensions.comprehension_expr_of_expr expr in
-      Some (Jexp_comprehension expr, attrs)
+      Some (Jexp_comprehension (Comprehensions.of_expr expr))
     | Language_extension Immutable_arrays ->
-      let expr, attrs = Immutable_arrays.of_expr expr in
-      Some (Jexp_immutable_array expr, attrs)
+      Some (Jexp_immutable_array (Immutable_arrays.of_expr expr))
     | Language_extension Layouts ->
-      let expr, attrs = Unboxed_constants.of_expr expr in
-      Some (Jexp_unboxed_constant expr, attrs)
+      Some (Jexp_unboxed_constant (Unboxed_constants.of_expr expr))
     | _ -> None
 
   let of_ast = Expression.make_of_ast ~of_ast_internal
 
-  let expr_of ~loc ~attrs = function
+  let ast_of ~loc (jexp, attrs) = match jexp with
+    | Jexp_local            x -> Local.expr_of             ~loc ~attrs x
     | Jexp_comprehension    x -> Comprehensions.expr_of    ~loc ~attrs x
     | Jexp_immutable_array  x -> Immutable_arrays.expr_of  ~loc ~attrs x
     | Jexp_unboxed_constant x -> Unboxed_constants.expr_of ~loc ~attrs x
@@ -469,21 +558,23 @@ end
 
 module Pattern = struct
   type t =
+    | Jpat_local           of Local.pattern
     | Jpat_immutable_array of Immutable_arrays.pattern
     | Jpat_unboxed_constant of Unboxed_constants.pattern
 
   let of_ast_internal (feat : Feature.t) pat = match feat with
+    | Language_extension Local ->
+      Some (Jpat_local (Local.of_pat pat))
     | Language_extension Immutable_arrays ->
-      let expr, attrs = Immutable_arrays.of_pat pat in
-      Some (Jpat_immutable_array expr, attrs)
+      Some (Jpat_immutable_array (Immutable_arrays.of_pat pat))
     | Language_extension Layouts ->
-      let pat, attrs = Unboxed_constants.of_pat pat in
-      Some (Jpat_unboxed_constant pat, attrs)
+      Some (Jpat_unboxed_constant (Unboxed_constants.of_pat pat))
     | _ -> None
 
   let of_ast = Pattern.make_of_ast ~of_ast_internal
 
-  let pat_of ~loc ~attrs = function
+  let ast_of ~loc (jpat, attrs) = match jpat with
+    | Jpat_local x -> Local.pat_of ~loc ~attrs x
     | Jpat_immutable_array x -> Immutable_arrays.pat_of ~loc ~attrs x
     | Jpat_unboxed_constant x -> Unboxed_constants.pat_of ~loc ~attrs x
 end
@@ -494,11 +585,13 @@ module Module_type = struct
 
   let of_ast_internal (feat : Feature.t) mty = match feat with
     | Language_extension Module_strengthening ->
-      let mty, attrs = Strengthen.of_mty mty in
-      Some (Jmty_strengthen mty, attrs)
+      Some (Jmty_strengthen (Strengthen.of_mty mty))
     | _ -> None
 
   let of_ast = Module_type.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc (jmty, attrs) = match jmty with
+    | Jmty_strengthen x -> Strengthen.mty_of ~loc ~attrs x
 end
 
 module Signature_item = struct
@@ -512,6 +605,9 @@ module Signature_item = struct
     | _ -> None
 
   let of_ast = Signature_item.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc jsig = match jsig with
+    | Jsig_include_functor x -> Include_functor.sig_item_of ~loc x
 end
 
 module Structure_item = struct
@@ -525,6 +621,9 @@ module Structure_item = struct
     | _ -> None
 
   let of_ast = Structure_item.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc jstr = match jstr with
+    | Jstr_include_functor x -> Include_functor.str_item_of ~loc x
 end
 
 module Extension_constructor = struct
@@ -534,4 +633,7 @@ module Extension_constructor = struct
     | _ -> None
 
   let of_ast = Extension_constructor.make_of_ast ~of_ast_internal
+
+  let ast_of ~loc:_ (jext, _attrs) = match jext with
+    | (_ : t) -> .
 end
