@@ -602,3 +602,26 @@ module Of = struct
   let inherit_ ?loc ty =
     mk ?loc (Oinherit ty)
 end
+
+(* Jane Street extension *)
+module Jane = struct
+  let sign_str = function
+    | Positive -> ""
+    | Negative -> "-"
+
+  let pconst_unboxed_integer sign value suffix =
+    if Erase_jane_syntax.should_erase ()
+    then Pconst_integer (sign_str sign ^ value, suffix)
+    else Pconst_unboxed_integer (sign, value, suffix)
+
+  let pconst_unboxed_float sign value suffix =
+    if Erase_jane_syntax.should_erase ()
+    then Pconst_float (sign_str sign ^ value, suffix)
+    else Pconst_unboxed_float (sign, value, suffix)
+
+  let ptyp_constr_unboxed ident args =
+    if Erase_jane_syntax.should_erase ()
+    then Ptyp_constr (ident, args)
+    else Ptyp_constr_unboxed (ident, args)
+end
+(* End Jane Street extension *)

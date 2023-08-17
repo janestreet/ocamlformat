@@ -507,3 +507,19 @@ module Of:
       label with_loc -> core_type -> object_field
     val inherit_: ?loc:loc -> core_type -> object_field
   end
+
+(* Jane Street extension *)
+(** Jane Street syntax *)
+module Jane:
+  sig
+    (** One value per constructor, constructs [_desc]s, not split by AST
+        category.  These are used to toggle construction based on whether we're
+        erasing Jane syntax or not; if we are, they return the erased
+        version. *)
+
+    val pconst_unboxed_integer : sign -> string -> char option -> constant_desc
+    val pconst_unboxed_float : sign -> string -> char option -> constant_desc
+
+    val ptyp_constr_unboxed : lid -> core_type list -> core_type_desc
+  end
+(* End Jane Street extension *)

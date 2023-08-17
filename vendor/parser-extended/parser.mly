@@ -214,15 +214,19 @@ let include_functor_attr =
   Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
 
 let mkexp_stack ~loc exp =
+  if Erase_jane_syntax.should_erase () then exp else
   ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
 
 let mkpat_stack pat =
+  if Erase_jane_syntax.should_erase () then pat else
   {pat with ppat_attributes = local_attr :: pat.ppat_attributes}
 
 let mktyp_stack typ =
+  if Erase_jane_syntax.should_erase () then typ else
   {typ with ptyp_attributes = local_attr :: typ.ptyp_attributes}
 
 let wrap_exp_stack exp =
+  if Erase_jane_syntax.should_erase () then exp else
   {exp with pexp_attributes = local_attr :: exp.pexp_attributes}
 
 let mkexp_local_if p ~loc exp =
@@ -244,6 +248,7 @@ let exclave_extension loc =
     (Pexp_extension(exclave_ext_loc loc, PStr []))
 
 let mkexp_exclave ~loc ~kwd_loc exp =
+  if Erase_jane_syntax.should_erase () then exp else
   ghexp ~loc (Pexp_apply(exclave_extension (make_loc kwd_loc), [Nolabel, exp]))
 
 let curry_attr =
@@ -253,6 +258,7 @@ let is_curry_attr attr =
   attr.attr_name.txt = "extension.curry"
 
 let mktyp_curry typ =
+  if Erase_jane_syntax.should_erase () then typ else
   {typ with ptyp_attributes = curry_attr :: typ.ptyp_attributes}
 
 let maybe_curry_typ typ =
@@ -268,6 +274,7 @@ let global_attr loc =
   Attr.mk ~loc:Location.none (global_loc loc) (PStr [])
 
 let mkld_global ld loc =
+  if Erase_jane_syntax.should_erase () then ld else
   { ld with pld_attributes = global_attr loc :: ld.pld_attributes }
 
 let mkld_global_maybe gbl ld loc =
@@ -276,6 +283,7 @@ let mkld_global_maybe gbl ld loc =
   | Nothing -> ld
 
 let mkcty_global cty loc =
+  if Erase_jane_syntax.should_erase () then cty else
   { cty with ptyp_attributes = global_attr loc :: cty.ptyp_attributes }
 
 let mkcty_global_maybe gbl cty loc =
@@ -3645,7 +3653,7 @@ atomic_type:
     | tys = actual_type_parameters
       tid = mkrhs(type_longident)
       HASH_SUFFIX
-        { Ptyp_constr_unboxed(tid, tys) }
+        { Jane.ptyp_constr_unboxed tid tys }
     | tys = actual_type_parameters
       tid = mkrhs(type_longident)
         { Ptyp_constr(tid, tys) } %prec below_HASH
@@ -3792,9 +3800,9 @@ constant:
 
   (* Jane Street extension *)
   | HASH_INT     { let (n, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_unboxed_integer(Positive, n, m)) }
+                   mkconst ~loc:$sloc (Jane.pconst_unboxed_integer Positive n m) }
   | HASH_FLOAT   { let (f, m) = $1 in
-                   mkconst ~loc:$sloc (Pconst_unboxed_float (Positive, f, m)) }
+                   mkconst ~loc:$sloc (Jane.pconst_unboxed_float Positive f m) }
   (* End Jane Street extension *)
 ;
 signed_constant:
@@ -3811,16 +3819,16 @@ signed_constant:
   (* Jane Street extension *)
   | MINUS HASH_INT    { let (n, m) = $2 in
                         mkconst ~loc:$sloc
-                          (Pconst_unboxed_integer(Negative,n,m)) }
+                          (Jane.pconst_unboxed_integer Negative n m) }
   | MINUS HASH_FLOAT  { let (f, m) = $2 in
                         mkconst ~loc:$sloc
-                          (Pconst_unboxed_float(Negative,f,m)) }
+                          (Jane.pconst_unboxed_float Negative f m) }
   | PLUS HASH_INT     { let (n, m) = $2 in
                         mkconst ~loc:$sloc
-                          (Pconst_unboxed_integer (Positive,n,m)) }
+                          (Jane.pconst_unboxed_integer Positive n m) }
   | PLUS HASH_FLOAT   { let (f, m) = $2 in
                         mkconst ~loc:$sloc
-                          (Pconst_unboxed_float (Positive,f,m)) }
+                          (Jane.pconst_unboxed_float Positive f m) }
   (* End Jane Street extension *)
 ;
 
