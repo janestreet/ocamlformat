@@ -15,6 +15,7 @@ No redundant values:
   range=<whole input>
   disable-conf-attrs=false
   version-check=true
+  rewrite-old-style-jane-street-local-annotations=false
   assignment-operator=end-line (profile conventional (file .ocamlformat:1))
   break-before-in=fit-or-vertical (profile conventional (file .ocamlformat:1))
   break-cases=fit (profile conventional (file .ocamlformat:1))
@@ -94,6 +95,7 @@ Redundant values from the conventional profile:
   range=<whole input>
   disable-conf-attrs=false
   version-check=true
+  rewrite-old-style-jane-street-local-annotations=false
   assignment-operator=end-line (profile conventional (file .ocamlformat:1))
   break-before-in=fit-or-vertical (profile conventional (file .ocamlformat:1))
   break-cases=fit (profile conventional (file .ocamlformat:1))
@@ -173,6 +175,7 @@ Redundant values from the ocamlformat profile:
   range=<whole input>
   disable-conf-attrs=false
   version-check=true
+  rewrite-old-style-jane-street-local-annotations=false
   assignment-operator=end-line (profile ocamlformat (file .ocamlformat:1))
   break-before-in=fit-or-vertical (profile ocamlformat (file .ocamlformat:1))
   break-cases=nested (profile ocamlformat (file .ocamlformat:1))

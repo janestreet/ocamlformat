@@ -65,6 +65,24 @@ let normalize_code conf (m : Ast_mapper.mapper) txt =
 let docstring (c : Conf.t) =
   Docstring.normalize ~parse_docstrings:c.fmt_opts.parse_docstrings.v
 
+let normalize_jane_street_local_annotations c : attributes -> attributes =
+  List.map ~f:(fun attr ->
+      match attr with
+      | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
+          let new_name txt =
+            {attr with attr_name= {attr.attr_name with txt}}
+          in
+          if Conf.is_jane_street_local_annotation c "local" ~test:old_name
+          then new_name "extension.local"
+          else if
+            Conf.is_jane_street_local_annotation c "global" ~test:old_name
+          then new_name "extension.global"
+          else if
+            Conf.is_jane_street_local_annotation c "exclave" ~test:old_name
+          then new_name "extension.exclave"
+          else attr
+      | _ -> attr )
+
 let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
@@ -105,14 +123,20 @@ let make_mapper conf ~ignore_doc_comments =
                         , [] ) } ] }
     | _ -> Ast_mapper.default_mapper.attribute m attr
   in
-  (* sort attributes *)
+  (* sort and normalize attributes *)
   let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
     let atrs =
       if ignore_doc_comments then
         List.filter atrs ~f:(fun a -> not (Ast.Attr.is_doc a))
       else atrs
     in
-    Ast_mapper.default_mapper.attributes m (sort_attributes atrs)
+    let atrs = sort_attributes atrs in
+    let atrs =
+      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
+        normalize_jane_street_local_annotations conf atrs
+      else atrs
+    in
+    Ast_mapper.default_mapper.attributes m atrs
   in
   let repl_phrase (m : Ast_mapper.mapper) {prepl_phrase; prepl_output} =
     let p =
@@ -137,6 +161,22 @@ let make_mapper conf ~ignore_doc_comments =
           (Exp.sequence ~loc:loc1 ~attrs:attrs1
              (Exp.sequence ~loc:loc2 ~attrs:attrs2 exp1 exp2)
              exp3 )
+    | Pexp_extension (({txt= old_name; _} as old_loc_name), PStr [])
+      when conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v ->
+        let new_name txt =
+          Exp.extension ~loc:loc1 ~attrs:attrs1
+            ({old_loc_name with txt}, PStr [])
+        in
+        let exp' =
+          if Conf.is_jane_street_local_annotation conf "local" ~test:old_name
+          then new_name "extension.local"
+          else if
+            Conf.is_jane_street_local_annotation conf "exclave"
+              ~test:old_name
+          then new_name "extension.exclave"
+          else exp
+        in
+        Ast_mapper.default_mapper.expr m exp'
     | _ -> Ast_mapper.default_mapper.expr m exp
   in
   let typ (m : Ast_mapper.mapper) typ =
