@@ -123,20 +123,14 @@ let make_mapper conf ~ignore_doc_comments =
                         , [] ) } ] }
     | _ -> Ast_mapper.default_mapper.attribute m attr
   in
-  (* sort and normalize attributes *)
+  (* sort attributes *)
   let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
     let atrs =
       if ignore_doc_comments then
         List.filter atrs ~f:(fun a -> not (Ast.Attr.is_doc a))
       else atrs
     in
-    let atrs = sort_attributes atrs in
-    let atrs =
-      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
-        normalize_jane_street_local_annotations conf atrs
-      else atrs
-    in
-    Ast_mapper.default_mapper.attributes m atrs
+    Ast_mapper.default_mapper.attributes m (sort_attributes atrs)
   in
   let repl_phrase (m : Ast_mapper.mapper) {prepl_phrase; prepl_output} =
     let p =
@@ -179,9 +173,43 @@ let make_mapper conf ~ignore_doc_comments =
         Ast_mapper.default_mapper.expr m exp'
     | _ -> Ast_mapper.default_mapper.expr m exp
   in
+  (* The old-style [[@local]] attributes can only occur in record label
+     declarations, types, and patterns; checking there explicitly ensures we
+     don't confuse them with the existing [let[@local always] f x = x]
+     attribute, which occurs at a different level. *)
   let typ (m : Ast_mapper.mapper) typ =
+    (* Types also need their location stack cleared *)
     let typ = {typ with ptyp_loc_stack= []} in
+    let typ =
+      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
+        { typ with
+          ptyp_attributes=
+            normalize_jane_street_local_annotations conf typ.ptyp_attributes
+        }
+      else typ
+    in
     Ast_mapper.default_mapper.typ m typ
+  in
+  let pat (m : Ast_mapper.mapper) pat =
+    let pat =
+      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
+        { pat with
+          ppat_attributes=
+            normalize_jane_street_local_annotations conf pat.ppat_attributes
+        }
+      else pat
+    in
+    Ast_mapper.default_mapper.pat m pat
+  in
+  let label_declaration (m : Ast_mapper.mapper) ld =
+    let ld =
+      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
+        { ld with
+          pld_attributes=
+            normalize_jane_street_local_annotations conf ld.pld_attributes }
+      else ld
+    in
+    Ast_mapper.default_mapper.label_declaration m ld
   in
   { Ast_mapper.default_mapper with
     location
@@ -189,7 +217,9 @@ let make_mapper conf ~ignore_doc_comments =
   ; attributes
   ; repl_phrase
   ; expr
-  ; typ }
+  ; pat
+  ; typ
+  ; label_declaration }
 
 let ast fragment ~ignore_doc_comments c =
   map fragment (make_mapper c ~ignore_doc_comments)
