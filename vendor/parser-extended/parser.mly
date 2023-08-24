@@ -1626,6 +1626,8 @@ module_type:
         { Pmty_with($1, $3) }
 /*  | LPAREN MODULE mkrhs(mod_longident) RPAREN
         { Pmty_alias $3 } */
+    | module_type WITH mkrhs(mod_ext_longident)
+        { Pmty_strengthen($1,$3) }
     | extension
         { Pmty_extension $1 }
     )
