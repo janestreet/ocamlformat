@@ -917,7 +917,7 @@
 +let check_layout loc id =
 +  begin
 +    match id with
-+    | ("any" | "value" | "void" | "immediate64" | "immediate") -> ()
++    | ("any" | "value" | "void" | "immediate64" | "immediate" | "float64") -> ()
 +    | _ -> expecting loc "layout"
 +  end;
 +  let loc = make_loc loc in
@@ -1202,6 +1202,20 @@
      Incl.mk thing ~attrs ~loc ~docs, ext
    }
  ;
+@@@@
+         { Pmty_alias $3 } */
+     | extension
+         { Pmty_extension $1 }
+     )
+     { $1 }
++  | module_type WITH mkrhs(mod_ext_longident)
++      { Jane_syntax.Strengthen.mty_of ~loc:(make_loc $sloc) ~attrs:[]
++          { mty = $1; mod_id = $3 } }
+ ;
+ (* A signature, which appears between SIG and END (among other places),
+    is a list of signature elements. *)
+ signature:
+   extra_sig(flatten(signature_element*))
 @@@@
      { let seq = mkexp ~loc:$sloc (Pexp_sequence ($1, $5)) in
        let payload = PStr [mkstrexp seq []] in
