@@ -274,7 +274,8 @@ let rec mty_is_simple x =
   | Pmty_signature (_ :: _)
    |Pmty_with (_, _ :: _ :: _)
    |Pmty_extension _
-   |Pmty_functor (_, _) ->
+   |Pmty_functor (_, _)
+   |Pmty_strengthen _ ->
       false
   | Pmty_typeof e -> mod_is_simple e
   | Pmty_with (t, ([] | [_])) -> mty_is_simple t
@@ -1941,8 +1942,10 @@ end = struct
     Mty.has_trailing_attributes mty
     ||
     match (ctx, mty.pmty_desc) with
-    | Str {pstr_desc= Pstr_recmodule _; _}, Pmty_with _ -> true
-    | Sig {psig_desc= Psig_recmodule _; _}, Pmty_with _ -> true
+    | ( ( Str {pstr_desc= Pstr_recmodule _; _}
+        | Sig {psig_desc= Psig_recmodule _; _} )
+      , (Pmty_with _ | Pmty_strengthen _) ) ->
+        true
     | _ -> false
 
   (** [parenze_mod {ctx; ast}] holds when module expr [ast] should be

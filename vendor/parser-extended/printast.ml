@@ -824,6 +824,10 @@ and module_type i ppf x =
   | Pmty_extension (s, arg) ->
       line i ppf "Pmod_extension %a\n" fmt_string_loc s;
       payload i ppf arg
+  | Pmty_strengthen (mt, li) ->
+      line i ppf "Pmty_strengthen\n";
+      module_type i ppf mt;
+      longident_loc i ppf li
 
 and signature i ppf x = list i signature_item ppf x
 

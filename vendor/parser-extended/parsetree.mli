@@ -884,6 +884,7 @@ and module_type_desc =
   | Pmty_typeof of module_expr  (** [module type of ME] *)
   | Pmty_extension of extension  (** [[%id]] *)
   | Pmty_alias of Longident.t loc  (** [(module M)] *)
+  | Pmty_strengthen of module_type * Longident.t loc
 
 and functor_parameter =
   | Unit  (** [()] *)
