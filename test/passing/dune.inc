@@ -4009,6 +4009,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to module_type_strengthening.ml.stdout
+   (with-stderr-to module_type_strengthening.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/module_type_strengthening.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_type_strengthening.ml module_type_strengthening.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_type_strengthening.ml.err module_type_strengthening.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to monadic_binding.ml.stdout
    (with-stderr-to monadic_binding.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/monadic_binding.ml})))))

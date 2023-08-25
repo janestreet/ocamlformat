@@ -3757,6 +3757,27 @@ and fmt_module_type c ({ast= mty; _} as xmty) =
       { empty with
         bdy= fmt_longident_loc c lid
       ; epi= Some (fmt_attributes c pmty_attributes ~pre:(Break (1, 0))) }
+  | Pmty_strengthen (mty, lid) ->
+      let {pro; psp; bdy; esp; epi; opn= _; cls= _} =
+        fmt_module_type c (sub_mty ~ctx mty)
+      in
+      let epi1 =
+        Cmts.fmt_after c pmty_loc
+        $ fmt_attributes c pmty_attributes ~pre:(Break (1, 0))
+        $ fmt_if parens ")"
+      in
+      { empty with
+        pro=
+          Option.map pro ~f:(fun pro ->
+              open_hvbox 0 $ fmt_if parens "(" $ pro )
+      ; psp
+      ; bdy=
+          fmt_if_k (Option.is_none pro) (open_hvbox 2 $ fmt_if parens "(")
+          $ hvbox 0 bdy
+          $ fmt_if_k (Option.is_some epi) esp
+          $ fmt_opt epi $ str " with " $ fmt_longident_loc c lid $ close_box
+      ; esp= fmt_if_k (Option.is_none epi) esp
+      ; epi= Some epi1 }
 
 and fmt_signature c ctx itms =
   let update_config c i =
