@@ -2112,6 +2112,13 @@ end = struct
         | Pexp_function cases | Pexp_match (_, cases) | Pexp_try (_, cases)
           ->
             continue (List.last_exn cases).pc_rhs
+        | Pexp_apply
+            ( { pexp_desc=
+                  Pexp_extension ({txt= "extension.local"; _}, PStr [])
+              ; _ }
+            , [(Nolabel, _)] )
+          when match cls with Then -> true | _ -> false ->
+            true
         | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
         | Pexp_tuple es -> continue (List.last_exn es)
         | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
