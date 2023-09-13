@@ -67,3 +67,7 @@ let x : 'a. 'a -> 'a = local_ "hi"
 let x : 'a. 'a -> 'a = exclave_ "hi"
 
 let local_ f : 'a. 'a -> 'a = "hi"
+
+let foo () =
+  if true then (local_ ()) ;
+  ()
