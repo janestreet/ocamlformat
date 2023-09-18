@@ -4,18 +4,7 @@ Items marked with an asterisk (\*) are changes that are likely to format
 existing code differently from the previous release when using the default
 profile. This started with version 0.26.0.
 
-<!--
-The format of this Changelog is based on Keep a Changelog (https://keepachangelog.com/en/1.0.0/).
-
-Tags:
-- Changed
-- Added
-- Fixed
-- Documentation
-- Internal
--->
-
-## unreleased
+## 0.26.1 (2023-09-15)
 
 ### Changed
 
@@ -29,8 +18,10 @@ Tags:
 ### Fixed
 
 - Fix dropped attributes on a begin-end in a match case (#2421, @Julow)
+- Fix dropped attributes on begin-end in an if-then-else branch (#2436, @gpetiot)
 - Fix non-stabilizing comments before a functor type argument (#2420, @Julow)
 - Fix crash caused by module types with nested `with module` (#2419, @Julow)
+- Fix ';;' formatting between doc-comments and toplevel directives (#2432, @gpetiot)
 
 ## 0.26.0 (2023-07-18)
 

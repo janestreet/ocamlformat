@@ -2238,7 +2238,7 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
                           $ p.wrap_parens
                               ( fmt_expression c ?box:p.box_expr
                                   ~parens:parens_exp ?pro:p.expr_pro
-                                  ?eol:p.expr_eol xbch
+                                  ?eol:p.expr_eol p.branch_expr
                               $ p.break_end_branch ) ) )
                     $ fmt_if_k (not last) p.space_between_branches ) ) )
         $ fmt_atrs )
@@ -2663,24 +2663,11 @@ and fmt_expression c ?(box = true) ?pro ?epi ?eol ?parens ?(indent_wrap = 0)
       impossible "only used for methods, handled during method formatting"
   | Pexp_hole -> hvbox 0 (fmt_hole () $ fmt_atrs)
   | Pexp_beginend e ->
-      let wrap_beginend =
-        match ctx0 with
-        (* begin-end keywords are handled when printing if-then-else
-           branch *)
-        | Exp {pexp_desc= Pexp_ifthenelse (_, Some z); _}
-          when Base.phys_equal xexp.ast z ->
-            Fn.id
-        | Exp {pexp_desc= Pexp_ifthenelse (eN, _); _}
-          when List.exists eN ~f:(fun x ->
-                   Base.phys_equal xexp.ast x.if_body ) ->
-            Fn.id
-        | _ ->
-            fun k ->
-              let opn = str "begin" $ fmt_extension_suffix c ext
-              and cls = str "end" in
-              hvbox 0
-                ( wrap_k opn cls (wrap_k (break 1 2) (break 1000 0) k)
-                $ fmt_atrs )
+      let wrap_beginend k =
+        let opn = str "begin" $ fmt_extension_suffix c ext
+        and cls = str "end" in
+        hvbox 0
+          (wrap_k opn cls (wrap_k (break 1 2) (break 1000 0) k) $ fmt_atrs)
       in
       wrap_beginend
       @@ fmt_expression c ~box ?pro ?epi ?eol ~parens:false ~indent_wrap ?ext
@@ -4464,6 +4451,7 @@ let fmt_toplevel ?(force_semisemi = false) c ctx itms =
     let semisemi =
       match (itm, next) with
       | _, Some (`Item {pstr_desc= Pstr_eval _; _}, _) -> true
+      | `Item {pstr_desc= Pstr_attribute _; _}, _ -> false
       | `Item _, Some (`Directive _, _) -> true
       | _ -> force_semisemi && last
     in
