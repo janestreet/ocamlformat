@@ -132,7 +132,8 @@ type opr_opts =
   ; quiet: bool elt
   ; range: (string -> Range.t) elt
   ; disable_conf_attrs: bool elt
-  ; version_check: bool elt }
+  ; version_check: bool elt
+  ; rewrite_old_style_jane_street_local_annotations: bool elt }
 
 type t =
   { fmt_opts: fmt_opts
