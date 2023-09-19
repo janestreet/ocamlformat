@@ -34,8 +34,6 @@ type 'a r =
 type ('a, 'b) cfn =
   a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
 
-type loc_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
-
 let _ = local_ ()
 
 let _ = exclave_ ()
@@ -67,3 +65,43 @@ let local_ f : 'a. 'a -> 'a = "hi"
 let foo () =
   if true then (local_ ());
   ()
+
+type loc_long_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
+
+type loc_short_attrs = (string[@local]) -> (string[@local])
+
+type global_long_attrs =
+  | Foo of { s : string[@ocaml.global] }
+  | Bar of (string[@ocaml.global])
+
+type global_short_attrs =
+  | Foo of { s : string[@global] }
+  | Bar of (string[@global])
+
+type global_short_attrs =
+  | Foo of { s : string[@global] }
+  | Bar of (string[@global])
+
+let local_long_ext = [%ocaml.local] ()
+
+let local_short_ext = [%local] ()
+
+let exclave_long_ext = [%ocaml.exclave] ()
+
+let exclave_short_ext = [%exclave] ()
+
+let[@ocaml.local] upstream_local_attr_long x = x
+
+let[@ocaml.local never] upstream_local_attr_never_long x = x
+
+let[@ocaml.local always] upstream_local_attr_always_long x = x
+
+let[@ocaml.local maybe] upstream_local_attr_maybe_long x = x
+
+let[@local] upstream_local_attr_short x = x
+
+let[@local never] upstream_local_attr_never_short x = x
+
+let[@local always] upstream_local_attr_always_short x = x
+
+let[@local maybe] upstream_local_attr_maybe_short x = x
