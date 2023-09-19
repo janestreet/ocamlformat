@@ -3721,6 +3721,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to local-rewritten.ml.stdout
+   (with-stderr-to local-rewritten.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --rewrite-old-style-jane-street-local-annotations %{dep:tests/local.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local-rewritten.ml.ref local-rewritten.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local-rewritten.ml.err local-rewritten.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to local.ml.stdout
    (with-stderr-to local.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/local.ml})))))
