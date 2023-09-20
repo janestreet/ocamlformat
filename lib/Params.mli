@@ -52,8 +52,9 @@ module Mod : sig
     { dock: bool  (** Whether each argument's [pro] should be docked. *)
     ; arg_psp: Fmt.t  (** Break before every arguments. *)
     ; indent: int
-    ; align: bool
-          (** Whether to align argument types inside their parenthesis. *) }
+    ; arg_align: bool
+          (** Whether arguments should be aligned on opening parentheses *)
+    }
 
   val get_args : Conf.t -> functor_parameter loc list -> args
 
@@ -93,6 +94,8 @@ val get_cases :
 
 val wrap_tuple :
   Conf.t -> parens:bool -> no_parens_if_break:bool -> Fmt.t -> Fmt.t
+
+val tuple_sep : Conf.t -> Fmt.t
 
 type record_type =
   { docked_before: Fmt.t
@@ -176,6 +179,11 @@ module Align : sig
 
   val function_ :
     Conf.t -> parens:bool -> ctx0:Ast.t -> self:expression -> Fmt.t -> Fmt.t
+
+  val fun_decl : Conf.t -> decl:Fmt.t -> pattern:Fmt.t -> args:Fmt.t -> Fmt.t
+
+  val module_pack : Conf.t -> me:module_expr -> bool
+  (** Not implemented as a wrapper to work with the blk system. *)
 end
 
 module Indent : sig
@@ -221,9 +229,15 @@ module Indent : sig
 
   (** Module types *)
 
+  val mty : Conf.t -> int
+
   val mty_with : Conf.t -> int
 
   (** Types *)
 
   val type_constr : Conf.t -> int
+
+  val variant : Conf.t -> parens:bool -> int
+
+  val variant_type_arg : Conf.t -> int
 end

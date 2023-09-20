@@ -263,11 +263,11 @@ let x {aaaaaaaaaaaaaa; aaaaaaaaaaaaa; aaaaaaaaaa} =
   {aaaaaaaaaaaa= aaaaaaaaaaaaaaaaa; bbbbbbbbbbbbb= bbb bb bbbbbb}
 
 let x
-    { aaaaaaaaaaaaaaaaaaaaaa
-    ; aaaaaaaaaaaaaaaaaaa
-    ; aaaaaaaaaaaaaa
-    ; aaaaaaaaaaaaaaaaaa
-    ; aaaaaaaaaa }
+      { aaaaaaaaaaaaaaaaaaaaaa
+      ; aaaaaaaaaaaaaaaaaaa
+      ; aaaaaaaaaaaaaa
+      ; aaaaaaaaaaaaaaaaaa
+      ; aaaaaaaaaa }
   =
   { aaaaaaaaaaaa= aaaaaaaaaaaaaaaaa
   ; bbbbbbbbbbbbb= bbb bb bbbbbb
@@ -287,8 +287,7 @@ let foooooooooooo =
 
 let foooooooooooo =
   { foooooooooooooo with
-    (* foooooooooooooooo fooooooooooooooooooooooooo
-       foooooooooooooooooooooo *)
+    (* foooooooooooooooo fooooooooooooooooooooooooo foooooooooooooooooooooo *)
     fooooooooooooooooooooooooooooo= fooooooooooooo
   ; fooooooooooooo= foooooooooooooo }
 
@@ -371,7 +370,8 @@ let g () =
      ; hhhhhhhhhh |] ->
       fooooooooo
 
-let () = match x with _, (* line 1 line 2 *) Some _ -> x
+let () = match x with _, (* line 1 line 2 *)
+                         Some _ -> x
 
 let () =
   match x with

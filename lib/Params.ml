@@ -102,7 +102,7 @@ module Exp = struct
 end
 
 module Mod = struct
-  type args = {dock: bool; arg_psp: Fmt.t; indent: int; align: bool}
+  type args = {dock: bool; arg_psp: Fmt.t; indent: int; arg_align: bool}
 
   let arg_is_sig arg =
     match arg.txt with
@@ -123,8 +123,8 @@ module Mod = struct
       else List.for_all ~f:arg_is_sig args
     in
     let arg_psp = if dock then str " " else break 1 psp_indent in
-    let align = ocp c in
-    {dock; arg_psp; indent; align}
+    let arg_align = (not dock) && ocp c in
+    {dock; arg_psp; indent; arg_align}
 
   let break_constraint c ~rhs =
     if ocp c then
@@ -300,10 +300,15 @@ let wrap_collec c ~space_around opn cls =
 let wrap_record (c : Conf.t) =
   wrap_collec c ~space_around:c.fmt_opts.space_around_records.v "{" "}"
 
-let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break =
-  if parens then wrap_fits_breaks c "(" ")"
-  else if no_parens_if_break then Fn.id
-  else wrap_k (fits_breaks "" "( ") (fits_breaks "" ~hint:(1, 0) ")")
+let wrap_tuple (c : Conf.t) ~parens ~no_parens_if_break k =
+  if parens then wrap_fits_breaks c "(" ")" (hvbox 0 k)
+  else if no_parens_if_break then k
+  else fits_breaks "" "( " $ hvbox 0 k $ fits_breaks "" ~hint:(1, 0) ")"
+
+let tuple_sep (c : Conf.t) =
+  match c.fmt_opts.break_separators.v with
+  | `Before -> fits_breaks ", " ~hint:(1000, -2) ", "
+  | `After -> fmt ",@ "
 
 type record_type =
   { docked_before: Fmt.t
@@ -625,14 +630,6 @@ let comma_sep (c : Conf.t) : Fmt.s =
   | `After -> ",@;<1 2>"
 
 module Align = struct
-  (** Whether [exp] occurs in [args] as a labelled argument. *)
-  let is_labelled_arg args exp =
-    List.exists
-      ~f:(function
-        | Nolabel, _ -> false
-        | Labelled _, x | Optional _, x -> phys_equal x exp )
-      args
-
   let general (c : Conf.t) t =
     hvbox_if (not c.fmt_opts.align_symbol_open_paren.v) 0 t
 
@@ -661,6 +658,19 @@ module Align = struct
       | _ -> parens && not c.fmt_opts.align_symbol_open_paren.v
     in
     hvbox_if align 0 t
+
+  let fun_decl (c : Conf.t) ~decl ~pattern ~args =
+    if c.fmt_opts.ocp_indent_compat.v then
+      hovbox 4 (decl $ hvbox 2 (pattern $ args))
+    else hovbox 4 (decl $ pattern) $ args
+
+  let module_pack (c : Conf.t) ~me =
+    if not c.fmt_opts.ocp_indent_compat.v then false
+    else
+      (* Align when the constraint is not desugared. *)
+      match me.pmod_desc with
+      | Pmod_structure _ | Pmod_ident _ -> false
+      | _ -> true
 end
 
 module Indent = struct
@@ -726,7 +736,13 @@ module Indent = struct
 
   let mod_unpack_annot c = if ocp c then 0 else 2
 
+  let mty c = if ocp c then 2 else 3
+
   let mty_with c = if ocp c then 0 else 2
 
   let type_constr c = if ocp c then 2 else 0
+
+  let variant c ~parens = if ocp c && parens then 3 else 2
+
+  let variant_type_arg c = if ocp c then 2 else 0
 end

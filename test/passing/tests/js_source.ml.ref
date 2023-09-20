@@ -83,7 +83,8 @@ let () =
   and[@foo] y = 4 in
   [%foo
     (let module M = M in
-    ()) [@foo]];
+    ())
+    [@foo]];
   [%foo
     (let open M in
      ()) [@foo]];
@@ -98,18 +99,21 @@ let () =
   [%foo
     while () do
       ()
-    done [@foo]];
+    done
+    [@foo]];
   [%foo
     for x = () to () do
       ()
-    done [@foo]];
+    done
+    [@foo]];
   [%foo assert true [@foo]];
   [%foo lazy x [@foo]];
   [%foo object end [@foo]];
   [%foo
     begin
       3
-    end [@foo]];
+    end
+    [@foo]];
   [%foo new x [@foo]];
   [%foo
     match[@foo] () with
@@ -131,7 +135,8 @@ class x =
     method virtual x : t [@@foo]
     method! private x = 3 [@@foo]
     initializer x [@@foo]
-  end [@foo]
+  end
+  [@foo]
 
 (* Class type expressions *)
 class type t = object
@@ -910,8 +915,8 @@ let id x = x
 
 let idb1 =
   (fun id ->
-    let _ = id true in
-    id)
+     let _ = id true in
+     id)
     id
 ;;
 
@@ -1059,8 +1064,8 @@ let rec devariantize : type t. t ty -> variant -> t =
     let builder = create_builder () in
     List.iter2
       (fun (Field { label; field_type; set }) (lab, v) ->
-        if label <> lab then raise VariantMismatch;
-        set builder (devariantize field_type v))
+         if label <> lab then raise VariantMismatch;
+         set builder (devariantize field_type v))
       fields
       fl;
     of_builder builder
@@ -1308,8 +1313,8 @@ let ty_list : type a e. (a, e) ty -> (a vlist, e) ty =
        ; sum_inj =
            (fun (type c) : ((noarg -> a * a vlist -> unit, c) ty_sel * c -> a vlist) ->
               function
-             | Thd, Noarg -> `Nil
-             | Ttl Thd, v -> `Cons v)
+              | Thd, Noarg -> `Nil
+              | Ttl Thd, v -> `Cons v)
            (* One can also write the type annotation directly *)
        })
 ;;
@@ -1441,20 +1446,20 @@ let ty_list : type a e. (a, e) ty -> (a vlist, e) ty =
 ;;
 
 (*
-   type (_,_) ty_assoc =
-   | Anil : (unit,'e) ty_assoc
-   | Acons : string * ('a,'e) ty * ('b,'e) ty_assoc -> ('a -> 'b, 'e) ty_assoc
+type (_,_) ty_assoc =
+  | Anil : (unit,'e) ty_assoc
+  | Acons : string * ('a,'e) ty * ('b,'e) ty_assoc -> ('a -> 'b, 'e) ty_assoc
 
-   and (_,_) ty_pvar =
-   | Pnil : ('a,'e) ty_pvar
-   | Pconst : 't * ('b,'e) ty_pvar -> ('t -> 'b, 'e) ty_pvar
-   | Parg : 't * ('a,'e) ty * ('b,'e) ty_pvar -> ('t * 'a -> 'b, 'e) ty_pvar
+and (_,_) ty_pvar =
+  | Pnil : ('a,'e) ty_pvar
+  | Pconst : 't * ('b,'e) ty_pvar -> ('t -> 'b, 'e) ty_pvar
+  | Parg : 't * ('a,'e) ty * ('b,'e) ty_pvar -> ('t * 'a -> 'b, 'e) ty_pvar
 *)
 (*
    An attempt at encoding omega examples from the 2nd Central European
    Functional Programming School:
-   Generic Programming in Omega, by Tim Sheard and Nathan Linger
-   http://web.cecs.pdx.edu/~sheard/
+     Generic Programming in Omega, by Tim Sheard and Nathan Linger
+          http://web.cecs.pdx.edu/~sheard/
 *)
 
 (* Basic types *)
@@ -3305,7 +3310,7 @@ Error: Types marked with the immediate attribute must be
 
    New: implicit pack is also supported, and you only need to be able
    to infer the the module type path from the context.
-*)
+ *)
 (* ocaml -principal *)
 
 (* Use a module pattern *)
@@ -3316,20 +3321,20 @@ let sort (type s) (module Set : Set.S with type elt = s) l =
 (* No real improvement here? *)
 let make_set (type s) cmp : (module Set.S with type elt = s) =
   (module Set.Make (struct
-      type t = s
+       type t = s
 
-      let compare = cmp
-    end))
+       let compare = cmp
+     end))
 ;;
 
 (* No type annotation here *)
 let sort_cmp (type s) cmp =
   sort
     (module Set.Make (struct
-        type t = s
+         type t = s
 
-        let compare = cmp
-      end))
+         let compare = cmp
+       end))
 ;;
 
 module type S = sig
@@ -5227,21 +5232,21 @@ module type S' = S with module M := String
 
 (* with module type *)
 (*
-   module type S = sig module type T module F(X:T) : T end;;
-   module type T0 = sig type t end;;
-   module type S1 = S with module type T = T0;;
-   module type S2 = S with module type T := T0;;
-   module type S3 = S with module type T := sig type t = int end;;
-   module H = struct
-   include (Hashtbl : module type of Hashtbl with
-   type statistics := Hashtbl.statistics
-   and module type S := Hashtbl.S
-   and module Make := Hashtbl.Make
-   and module MakeSeeded := Hashtbl.MakeSeeded
-   and module type SeededS := Hashtbl.SeededS
-   and module type HashedType := Hashtbl.HashedType
-   and module type SeededHashedType := Hashtbl.SeededHashedType)
-   end;;
+module type S = sig module type T module F(X:T) : T end;;
+module type T0 = sig type t end;;
+module type S1 = S with module type T = T0;;
+module type S2 = S with module type T := T0;;
+module type S3 = S with module type T := sig type t = int end;;
+module H = struct
+  include (Hashtbl : module type of Hashtbl with
+           type statistics := Hashtbl.statistics
+           and module type S := Hashtbl.S
+           and module Make := Hashtbl.Make
+           and module MakeSeeded := Hashtbl.MakeSeeded
+           and module type SeededS := Hashtbl.SeededS
+           and module type HashedType := Hashtbl.HashedType
+           and module type SeededHashedType := Hashtbl.SeededHashedType)
+end;;
 *)
 
 (* A subtle problem appearing with -principal *)
@@ -6066,14 +6071,14 @@ class ['entity] entity_container =
 let f (x : entity entity_container) = ()
 
 (*
-   class world =
-   object
-   val entity_container : entity entity_container = new entity_container
+class world =
+  object
+    val entity_container : entity entity_container = new entity_container
 
-   method add_entity (s : entity) =
-   entity_container#add_entity (s :> entity)
+    method add_entity (s : entity) =
+      entity_container#add_entity (s :> entity)
 
-   end
+  end
 *)
 (* Two v's in the same class *)
 class c v =
@@ -6092,9 +6097,9 @@ class c (v : int) =
 
     inherit
       (fun v ->
-        object
-          method v : string = v
-        end)
+         object
+           method v : string = v
+         end)
         "42"
   end
 ;;
@@ -9464,7 +9469,8 @@ fun contents -> { contents = contents [@foo] };;
 
 ();
 (();
- ()) [@foo]
+ ())
+[@foo]
 
 (* https://github.com/LexiFi/gen_js_api/issues/61 *)
 
@@ -9682,7 +9688,7 @@ let _ =
 
 type t =
   [ `XXXX
-    (* __________________________________________________________________________________ *)
+      (* __________________________________________________________________________________ *)
   | `XXXX (* __________________________________________________________________ *)
   | `XXXX (* _____________________________________________________ *)
   | `XXXX (* ___________________________________________________ *)
@@ -9696,10 +9702,10 @@ type t =
 
 type t =
   { field : ty
-  (* Here is some verbatim formatted text:
-     {v
+    (* Here is some verbatim formatted text:
+       {v
        starting at column 7
-     v}*)
+       v}*)
   }
 
 module Intro_sort = struct
@@ -9789,10 +9795,11 @@ let[@a
                          and y = b in
                          x + y]
              | _ -> .) ->
-    y [@attr
-        (* ... *)
-        (* ... *)
-        attr (* ... *)]
+    y
+    [@attr
+      (* ... *)
+      (* ... *)
+      attr (* ... *)]
 ;;
 
 let x =
@@ -9916,11 +9923,11 @@ let _ =
 type t
 [@@deriving
   some_deriver_name
-  , another_deriver_name
-  , another_deriver_name
-  , another_deriver_name
-  , yet_another_such_name
-  , such_that_they_line_wrap]
+, another_deriver_name
+, another_deriver_name
+, another_deriver_name
+, yet_another_such_name
+, such_that_they_line_wrap]
 
 type t
 [@@deriving
@@ -9934,9 +9941,9 @@ type t
 let pat =
   String.Search_pattern.create
     (String.init len ~f:(function
-      | 0 -> '\n'
-      | n when n < len - 1 -> ' '
-      | _ -> '*'))
+       | 0 -> '\n'
+       | n when n < len - 1 -> ' '
+       | _ -> '*'))
 ;;
 
 type t =
@@ -9950,12 +9957,12 @@ type t =
   }
 
 let rec collect_files
-  ~enable_outside_detected_project
-  ~root
-  ~segs
-  ~ignores
-  ~enables
-  ~files
+          ~enable_outside_detected_project
+          ~root
+          ~segs
+          ~ignores
+          ~enables
+          ~files
   =
   match segs with
   | [] | [ "" ] -> ignores, enables, files, None
@@ -10108,23 +10115,17 @@ type action =
 
 let%test_module "semantics" =
   (module (
-  struct
-    open Core
-    open Appendable_list
-    module Stable = Stable
-  end :
-    S))
+   struct
+     open Core
+     open Appendable_list
+     module Stable = Stable
+   end :
+     S))
 ;;
 
 let _ =
   Error
     (`Foooooooooooooooooo
-      (name, Format.sprintf "expecting %S but got %S" Version.version value))
-;;
-
-let _ =
-  Error
-    (Foooooooooooooooooo
        (name, Format.sprintf "expecting %S but got %S" Version.version value))
 ;;
 
@@ -10138,19 +10139,14 @@ let _ =
     (name, Format.sprintf "expecting %S but got %S" Version.version value)
 ;;
 
-let _ =
-  Foooooooooooooooooo
-    (name, Format.sprintf "expecting %S but got %S" Version.version value)
-;;
-
 let (`Foooooooooooooooooo
-      (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
+       (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
   =
   x
 ;;
 
 let (Foooooooooooooooooo
-      (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
+       (foooooooooooooo, foooooooooooooo, foooooooooooooo, foooooooooooooo))
   =
   x
 ;;
@@ -10221,8 +10217,7 @@ val fooooooooooooooooooooooooooooooo
       , fooooooooooooooooooooooooooooooo )
       fooooooooooooooooooooooooooooooo
 
-(*
-    *)
+(* *)
 
 (** xxx *)
 include S1
@@ -10250,9 +10245,9 @@ class x =
 
 module M =
   [%demo
-  module Foo = Bar
+    module Foo = Bar
 
-  type t]
+    type t]
 
 let _ =
   Some
@@ -10273,14 +10268,14 @@ type t =
 
 module Test_gen
     (For_tests : For_tests_gen)
-    (Tested : S_gen
-              with type 'a src := 'a For_tests.Src.t
-              with type 'a dst := 'a For_tests.Dst.t)
-    (Tested : S_gen
-              with type 'a src := 'a For_tests.Src.t
-              with type 'a dst := 'a For_tests.Dst.t
-               and type 'a dst := 'a For_tests.Dst.t
-               and type 'a dst := 'a For_tests.Dst.t) =
+    (Tested :
+       S_gen with type 'a src := 'a For_tests.Src.t with type 'a dst := 'a For_tests.Dst.t)
+    (Tested :
+       S_gen
+       with type 'a src := 'a For_tests.Src.t
+       with type 'a dst := 'a For_tests.Dst.t
+        and type 'a dst := 'a For_tests.Dst.t
+        and type 'a dst := 'a For_tests.Dst.t) =
 struct
   open Tested
   open For_tests
@@ -10289,12 +10284,25 @@ end
 type t =
   { xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx :
       YYYYYYYYYYYYYYYYYYYYY.t
-  (* ____________________________________ *)
+    (* ____________________________________ *)
   }
 
 (*{v
       foo
   v}*)
+
+(*$
+  {|
+       f|}
+*)
+
+type t =
+  { xxxxxxxxxxxxxxxxxxx : yyy
+        [@zzzzzzzzzzzzzzzzzzz
+          (* ________________________________
+             ___ *)
+          _______]
+  }
 
 let _ =
   match () with
@@ -10313,15 +10321,16 @@ let _ =
 (*$*)
 
 (*$
-  [%string {| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  zzzzzzzzzzzzzzzzzzzzzzzzzzzz
-      |}]
+    [%string
+      {| xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+zzzzzzzzzzzzzzzzzzzzzzzzzzzz
+    |}]
 *)
 (*$*)
 
 (*$
   {|
-        f|}
+       f|}
 *)
 
 let () =
@@ -10412,6 +10421,8 @@ let _ =
 ;;
 
 (* *)
+
+(*$ (* *) *)
 
 (** xxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx
     xxxx] xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx [xxxxxxx] *)
