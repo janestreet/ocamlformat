@@ -105,3 +105,19 @@ let[@local never] upstream_local_attr_never_short x = x
 let[@local always] upstream_local_attr_always_short x = x
 
 let[@local maybe] upstream_local_attr_maybe_short x = x
+
+let f x = (* a *) local_
+  let y = 1 in
+  x + y
+
+let f x = (* a *) exclave_
+  let y = 1 in
+  x + y
+
+let x = (* a *) local_
+  let y = 1 in
+  y
+
+let x = (* a *) exclave_
+  let y = 1 in
+  y
