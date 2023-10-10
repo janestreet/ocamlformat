@@ -353,7 +353,10 @@ module Let_binding = struct
 
         let (x : string) = local_ "hi" (* Don't surgar *)
       ]} *)
-  let local_pattern_can_be_sugared conf ~body_loc lb_pat =
+  let local_pattern_can_be_sugared conf ~body_loc lb_pat exp_loc cmts =
+    (not (Cmts.has_before cmts exp_loc))
+    (* Don't wipe away comments before [local_]. *)
+    &&
     match lb_pat.ppat_desc with
     | Ppat_var _ -> true
     | Ppat_constraint (_, {ptyp_desc= Ptyp_poly (_ :: _, _); _}) ->
@@ -378,7 +381,7 @@ module Let_binding = struct
                pattern and the expression. *)
             if
               local_pattern_can_be_sugared conf ~body_loc:sbody.pexp_loc
-                lb_pat
+                lb_pat lb_exp.pexp_loc cmts
             then
               let sattrs, _ = check_local_attr conf sbody.pexp_attributes in
               (true, {sbody with pexp_attributes= sattrs})

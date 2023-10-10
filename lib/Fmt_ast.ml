@@ -1426,9 +1426,12 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
           ( { pexp_desc= Pexp_extension ({txt= extension_local; _}, PStr [])
             ; _ }
           , [(Nolabel, sbody)] )
+    ; pexp_loc
     ; _ }
     when Conf.is_jane_street_local_annotation c.conf "local"
-           ~test:extension_local ->
+           ~test:extension_local
+         (* Don't wipe away comments before [local_]. *)
+         && not (Cmts.has_before c.cmts pexp_loc) ->
       ( fmt " local_"
       , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp c.conf ~ctx sbody)
       )
@@ -1437,9 +1440,12 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
           ( { pexp_desc= Pexp_extension ({txt= extension_exclave; _}, PStr [])
             ; _ }
           , [(Nolabel, sbody)] )
+    ; pexp_loc
     ; _ }
     when Conf.is_jane_street_local_annotation c.conf "exclave"
-           ~test:extension_exclave ->
+           ~test:extension_exclave
+         (* Don't wipe away comments before [exclave_]. *)
+         && not (Cmts.has_before c.cmts pexp_loc) ->
       ( fmt " exclave_"
       , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp c.conf ~ctx sbody)
       )
