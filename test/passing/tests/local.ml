@@ -126,3 +126,5 @@ let x = (* a *) exclave_
   y
 
 module type S = S -> S -> S
+(* this is here to make sure we pass the AST equality checks even when the
+   extended AST is different *)
