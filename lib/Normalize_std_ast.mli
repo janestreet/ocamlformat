@@ -9,13 +9,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-val ast :
-     'a Std_ast.t
-  -> erase_jane_syntax:bool
-  -> ignore_local_annot_differences:bool
-  -> Conf.t
-  -> 'a
-  -> 'a
+val ast : 'a Std_ast.t -> erase_jane_syntax:bool -> Conf.t -> 'a -> 'a
 (** Normalize an AST fragment. If [erase_jane_syntax] is true, remove all
     [Jane_syntax] attributes signaling erasable syntax. *)
 
@@ -23,7 +17,6 @@ val equal :
      'a Std_ast.t
   -> ignore_doc_comments:bool
   -> erase_jane_syntax:bool
-  -> ignore_local_annot_differences:bool
   -> Conf.t
   -> old:'a
   -> new_:'a
@@ -36,7 +29,6 @@ val equal :
 val moved_docstrings :
      'a Std_ast.t
   -> erase_jane_syntax:bool
-  -> ignore_local_annot_differences:bool
   -> Conf.t
   -> old:'a
   -> new_:'a

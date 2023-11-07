@@ -109,8 +109,7 @@ let docstring (c : Conf.t) =
 let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
-let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
-    ~ignore_local_annot_differences:_ =
+let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   let open Ast_helper in
   (* remove locations *)
   let location _ _ = Location.none in
@@ -313,18 +312,15 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
   ; label_declaration
   ; constructor_declaration }
 
-let ast fragment ~ignore_doc_comments ~erase_jane_syntax
-    ~ignore_local_annot_differences c =
-  map fragment
-    (make_mapper c ~ignore_doc_comments ~erase_jane_syntax
-       ~ignore_local_annot_differences )
+let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
+  map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
 
-let equal fragment ~ignore_doc_comments ~erase_jane_syntax
-    ~ignore_local_annot_differences c ~old:ast1 ~new_:ast2 =
+let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
+    ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
   equal fragment
-    (map ~erase_jane_syntax ~ignore_local_annot_differences ast1)
-    (map ~erase_jane_syntax:false ~ignore_local_annot_differences ast2)
+    (map ~erase_jane_syntax ast1)
+    (map ~erase_jane_syntax:false ast2)
 
 let ast = ast ~ignore_doc_comments:false
 
@@ -355,22 +351,20 @@ let docstrings (type a) (fragment : a t) s =
   let (_ : a) = map fragment (make_docstring_mapper docstrings) s in
   !docstrings
 
-let docstring conf ~erase_jane_syntax ~ignore_local_annot_differences =
+let docstring conf ~erase_jane_syntax =
   let mapper =
     make_mapper conf ~ignore_doc_comments:false ~erase_jane_syntax
-      ~ignore_local_annot_differences
   in
   let normalize_code = normalize_code conf mapper in
   docstring conf ~normalize_code
 
-let moved_docstrings fragment ~erase_jane_syntax
-    ~ignore_local_annot_differences c ~old:s1 ~new_:s2 =
+let moved_docstrings fragment ~erase_jane_syntax c ~old:s1 ~new_:s2 =
   let d1 = docstrings fragment s1 in
   let d2 = docstrings fragment s2 in
   let equal ~old:(_, x) ~new_:(_, y) =
     String.equal
-      (docstring c x ~erase_jane_syntax ~ignore_local_annot_differences)
-      (docstring c y ~erase_jane_syntax ~ignore_local_annot_differences:false)
+      (docstring c x ~erase_jane_syntax)
+      (docstring c y ~erase_jane_syntax:false)
   in
   let cmt_kind = `Doc_comment in
   let cmt (loc, x) = Cmt.create_docstring x loc in

@@ -1572,11 +1572,9 @@ let parse_state_attr attr =
   | _ -> None
 
 let is_jane_street_local_annotation _config name ~test =
-  let is_legacy =
-    String.equal test name || String.equal test ("ocaml." ^ name)
-  in
-  if is_legacy then Erase_jane_syntax.set_local_rewrite_occurred true ;
-  is_legacy || String.equal test ("extension." ^ name)
+  String.equal test name
+  || String.equal test ("ocaml." ^ name)
+  || String.equal test ("extension." ^ name)
 
 let print_config = Decl.print_config options
 
