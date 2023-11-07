@@ -155,8 +155,7 @@ let make_mapper (conf : Conf.t) ~ignore_doc_comments ~normalize_doc =
           (Exp.sequence ~loc:loc1 ~attrs:attrs1
              (Exp.sequence ~loc:loc2 ~attrs:attrs2 exp1 exp2)
              exp3 )
-    | Pexp_extension (({txt= old_name; _} as old_loc_name), PStr [])
-      when conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v ->
+    | Pexp_extension (({txt= old_name; _} as old_loc_name), PStr []) ->
         let new_name txt =
           Exp.extension ~loc:loc1 ~attrs:attrs1
             ({old_loc_name with txt}, PStr [])
@@ -181,33 +180,25 @@ let make_mapper (conf : Conf.t) ~ignore_doc_comments ~normalize_doc =
     (* Types also need their location stack cleared *)
     let typ = {typ with ptyp_loc_stack= []} in
     let typ =
-      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
-        { typ with
-          ptyp_attributes=
-            normalize_jane_street_local_annotations conf typ.ptyp_attributes
-        }
-      else typ
+      { typ with
+        ptyp_attributes=
+          normalize_jane_street_local_annotations conf typ.ptyp_attributes }
     in
     Ast_mapper.default_mapper.typ m typ
   in
   let pat (m : Ast_mapper.mapper) pat =
     let pat =
-      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
-        { pat with
-          ppat_attributes=
-            normalize_jane_street_local_annotations conf pat.ppat_attributes
-        }
-      else pat
+      { pat with
+        ppat_attributes=
+          normalize_jane_street_local_annotations conf pat.ppat_attributes }
     in
     Ast_mapper.default_mapper.pat m pat
   in
   let label_declaration (m : Ast_mapper.mapper) ld =
     let ld =
-      if conf.opr_opts.rewrite_old_style_jane_street_local_annotations.v then
-        { ld with
-          pld_attributes=
-            normalize_jane_street_local_annotations conf ld.pld_attributes }
-      else ld
+      { ld with
+        pld_attributes=
+          normalize_jane_street_local_annotations conf ld.pld_attributes }
     in
     Ast_mapper.default_mapper.label_declaration m ld
   in

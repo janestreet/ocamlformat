@@ -70,29 +70,27 @@ let foo () =
   if true then (local_ ()) ;
   ()
 
-type loc_long_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
+type loc_long_attrs = local_ string -> local_ string
 
-type loc_short_attrs = (string[@local]) -> (string[@local])
+type loc_short_attrs = local_ string -> local_ string
 
-type global_long_attrs =
-  | Foo of {s: string [@ocaml.global]}
-  | Bar of (string[@ocaml.global])
+type global_long_attrs = Foo of {global_ s: string} | Bar of global_ string
 
 type global_short_attrs =
-  | Foo of {s: string [@global]}
-  | Bar of (string[@global])
+  | Foo of {global_ s: string}
+  | Bar of global_ string
 
 type global_short_attrs =
-  | Foo of {s: string [@global]}
-  | Bar of (string[@global])
+  | Foo of {global_ s: string}
+  | Bar of global_ string
 
-let local_long_ext = [%ocaml.local] ()
+let local_ local_long_ext = ()
 
-let local_short_ext = [%local] ()
+let local_ local_short_ext = ()
 
-let exclave_long_ext = [%ocaml.exclave] ()
+let exclave_long_ext = exclave_ ()
 
-let exclave_short_ext = [%exclave] ()
+let exclave_short_ext = exclave_ ()
 
 let[@ocaml.local] upstream_local_attr_long x = x
 
