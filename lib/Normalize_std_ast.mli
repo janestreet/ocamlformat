@@ -12,7 +12,7 @@
 val ast :
      'a Std_ast.t
   -> erase_jane_syntax:bool
-  -> local_rewrite_occurred:bool
+  -> ignore_local_annot_differences:bool
   -> Conf.t
   -> 'a
   -> 'a
@@ -23,7 +23,7 @@ val equal :
      'a Std_ast.t
   -> ignore_doc_comments:bool
   -> erase_jane_syntax:bool
-  -> local_rewrite_occurred:bool
+  -> ignore_local_annot_differences:bool
   -> Conf.t
   -> old:'a
   -> new_:'a
@@ -36,7 +36,7 @@ val equal :
 val moved_docstrings :
      'a Std_ast.t
   -> erase_jane_syntax:bool
-  -> local_rewrite_occurred:bool
+  -> ignore_local_annot_differences:bool
   -> Conf.t
   -> old:'a
   -> new_:'a

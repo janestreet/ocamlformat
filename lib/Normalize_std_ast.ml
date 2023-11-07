@@ -84,7 +84,7 @@ let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
 let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
-    ~local_rewrite_occurred =
+    ~ignore_local_annot_differences =
   let open Ast_helper in
   (* remove locations *)
   let location _ _ = Location.none in
@@ -124,7 +124,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
       else atrs
     in
     let atrs =
-      if local_rewrite_occurred then
+      if ignore_local_annot_differences then
         List.filter atrs ~f:(fun a -> not (is_local_jane_syntax a))
       else atrs
     in
@@ -155,7 +155,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
     | Pexp_apply
         ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
         , [(Nolabel, sbody)] )
-      when (local_rewrite_occurred || erase_jane_syntax)
+      when (ignore_local_annot_differences || erase_jane_syntax)
            && ( Conf.is_jane_street_local_annotation conf "local"
                   ~test:extension_name
               || Conf.is_jane_street_local_annotation conf "exclave"
@@ -166,7 +166,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
   let pat (m : Ast_mapper.mapper) pat =
     let pat = {pat with ppat_loc_stack= []} in
     let pat =
-      if local_rewrite_occurred || erase_jane_syntax then
+      if ignore_local_annot_differences || erase_jane_syntax then
         { pat with
           ppat_attributes=
             erase_legacy_jane_street_local_annotations conf
@@ -196,7 +196,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
   let typ (m : Ast_mapper.mapper) typ =
     let typ = {typ with ptyp_loc_stack= []} in
     let typ =
-      if local_rewrite_occurred || erase_jane_syntax then
+      if ignore_local_annot_differences || erase_jane_syntax then
         { typ with
           ptyp_attributes=
             erase_legacy_jane_street_local_annotations conf
@@ -243,7 +243,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
   in
   let label_declaration (m : Ast_mapper.mapper) ld =
     let ld =
-      if local_rewrite_occurred || erase_jane_syntax then
+      if ignore_local_annot_differences || erase_jane_syntax then
         { ld with
           pld_attributes=
             erase_legacy_jane_street_local_annotations conf ld.pld_attributes
@@ -266,17 +266,17 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
   ; label_declaration }
 
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax
-    ~local_rewrite_occurred c =
+    ~ignore_local_annot_differences c =
   map fragment
     (make_mapper c ~ignore_doc_comments ~erase_jane_syntax
-       ~local_rewrite_occurred )
+       ~ignore_local_annot_differences )
 
 let equal fragment ~ignore_doc_comments ~erase_jane_syntax
-    ~local_rewrite_occurred c ~old:ast1 ~new_:ast2 =
+    ~ignore_local_annot_differences c ~old:ast1 ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
   equal fragment
-    (map ~erase_jane_syntax ~local_rewrite_occurred ast1)
-    (map ~erase_jane_syntax:false ~local_rewrite_occurred ast2)
+    (map ~erase_jane_syntax ~ignore_local_annot_differences ast1)
+    (map ~erase_jane_syntax:false ~ignore_local_annot_differences ast2)
 
 let ast = ast ~ignore_doc_comments:false
 
@@ -307,22 +307,22 @@ let docstrings (type a) (fragment : a t) s =
   let (_ : a) = map fragment (make_docstring_mapper docstrings) s in
   !docstrings
 
-let docstring conf ~erase_jane_syntax ~local_rewrite_occurred =
+let docstring conf ~erase_jane_syntax ~ignore_local_annot_differences =
   let mapper =
     make_mapper conf ~ignore_doc_comments:false ~erase_jane_syntax
-      ~local_rewrite_occurred
+      ~ignore_local_annot_differences
   in
   let normalize_code = normalize_code conf mapper in
   docstring conf ~normalize_code
 
-let moved_docstrings fragment ~erase_jane_syntax ~local_rewrite_occurred c
-    ~old:s1 ~new_:s2 =
+let moved_docstrings fragment ~erase_jane_syntax
+    ~ignore_local_annot_differences c ~old:s1 ~new_:s2 =
   let d1 = docstrings fragment s1 in
   let d2 = docstrings fragment s2 in
   let equal ~old:(_, x) ~new_:(_, y) =
     String.equal
-      (docstring c x ~erase_jane_syntax ~local_rewrite_occurred)
-      (docstring c y ~erase_jane_syntax ~local_rewrite_occurred:false)
+      (docstring c x ~erase_jane_syntax ~ignore_local_annot_differences)
+      (docstring c y ~erase_jane_syntax ~ignore_local_annot_differences:false)
   in
   let cmt_kind = `Doc_comment in
   let cmt (loc, x) = Cmt.create_docstring x loc in

@@ -320,10 +320,10 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
       in
       (* Ast not preserved ? *)
       let erase_jane_syntax = Erase_jane_syntax.should_erase () in
-      let local_rewrite_occurred =
+      let ignore_local_annot_differences =
         Erase_jane_syntax.local_rewrite_occurred ()
       in
-      if i = 1 && local_rewrite_occurred then
+      if i = 1 && ignore_local_annot_differences then
         Format.eprintf
           "Warning: Legacy local annotation rewrite occurred. AST \
            normalization will ignore local syntax differences.\n" ;
@@ -331,7 +331,7 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
           (not
              (Normalize_std_ast.equal std_fg conf ~old:std_t.ast
                 ~new_:std_t_new.ast ~erase_jane_syntax
-                ~local_rewrite_occurred
+                ~ignore_local_annot_differences
                 ~ignore_doc_comments:(not conf.opr_opts.comment_check.v) ) )
           && not
                (Normalize_extended_ast.equal fg conf t.ast t_new.ast
@@ -340,12 +340,12 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
           let old_ast =
             dump_ast std_fg ~suffix:".old"
               (Normalize_std_ast.ast std_fg ~erase_jane_syntax
-                 ~local_rewrite_occurred conf std_t.ast )
+                 ~ignore_local_annot_differences conf std_t.ast )
           in
           let new_ast =
             dump_ast std_fg ~suffix:".new"
               (Normalize_std_ast.ast std_fg ~erase_jane_syntax:false
-                 ~local_rewrite_occurred conf std_t_new.ast )
+                 ~ignore_local_annot_differences conf std_t_new.ast )
           in
           let args ~suffix =
             [ ("output file", dump_formatted ~suffix fmted)
@@ -356,12 +356,12 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
           in
           if
             Normalize_std_ast.equal std_fg ~ignore_doc_comments:true
-              ~erase_jane_syntax ~local_rewrite_occurred conf ~old:std_t.ast
-              ~new_:std_t_new.ast
+              ~erase_jane_syntax ~ignore_local_annot_differences conf
+              ~old:std_t.ast ~new_:std_t_new.ast
           then
             let docstrings =
               Normalize_std_ast.moved_docstrings std_fg ~erase_jane_syntax
-                ~local_rewrite_occurred conf ~old:std_t.ast
+                ~ignore_local_annot_differences conf ~old:std_t.ast
                 ~new_:std_t_new.ast
             in
             let args = args ~suffix:".unequal-docs" in
@@ -374,7 +374,7 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
         else
           dump_ast std_fg ~suffix:""
             (Normalize_std_ast.ast std_fg ~erase_jane_syntax
-               ~local_rewrite_occurred conf std_t_new.ast )
+               ~ignore_local_annot_differences conf std_t_new.ast )
           |> function
           | Some file ->
               if i = 1 then Format.eprintf "[DEBUG] AST structure: %s\n" file
