@@ -27,3 +27,11 @@ val should_erase : unit -> bool
     erased from parsing/printing: [true] if they should be erased (so that
     the parse tree will be modified by ocamlformat), [false] if they should
     not. *)
+
+val set_local_rewrite_occurred : bool -> unit
+(** Set whether legacy local annotation rewrite has occurred. We need this information
+    when checking the ASTs for equality. If such a rewrite did take place, we will have to
+    ignore local annotation changes in the standard parsetree. *)
+
+val local_rewrite_occurred : unit -> bool
+(** Returns whether or not a legacy local annotation rewrite has occurred. *)

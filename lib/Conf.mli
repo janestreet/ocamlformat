@@ -26,6 +26,10 @@ val update_state : t -> [`Enable | `Disable] -> t
 val parse_state_attr : Parsetree.attribute -> [`Enable | `Disable] option
 
 val is_jane_street_local_annotation : t -> string -> test:string -> bool
+(** [is_jane_street_local_annotation c n ~test] checks if [test] refers to
+    a piece of jane street local annotation with the name [c]. This function
+    contains side effects: when a legacy piece of local annotation is encountered,
+    it sets [Erase_jane_syntax.local_rewrite_occurred ()] to [true]. *)
 
 val parse_line :
      t

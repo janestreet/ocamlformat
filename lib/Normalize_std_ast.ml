@@ -12,12 +12,26 @@
 open Parser_standard
 open Std_ast
 
+let erase_legacy_jane_street_local_annotations c : attributes -> attributes =
+  List.filter ~f:(fun attr ->
+      match attr with
+      | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
+          not
+            ( Conf.is_jane_street_local_annotation c "local" ~test:old_name
+            || Conf.is_jane_street_local_annotation c "global" ~test:old_name
+            || Conf.is_jane_street_local_annotation c "exclave"
+                 ~test:old_name )
+      | _ -> true )
+
 let is_doc = function
   | {attr_name= {Location.txt= "ocaml.doc" | "ocaml.text"; _}; _} -> true
   | _ -> false
 
 let is_erasable_jane_syntax attr =
   String.is_prefix ~prefix:"jane.erasable." attr.attr_name.txt
+
+let is_local_jane_syntax attr =
+  String.is_prefix ~prefix:"jane.erasable.local" attr.attr_name.txt
 
 let dedup_cmts fragment ast comments =
   let of_ast ast =
@@ -69,7 +83,8 @@ let docstring (c : Conf.t) =
 let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
-let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
+let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax
+    ~local_rewrite_occurred =
   let open Ast_helper in
   (* remove locations *)
   let location _ _ = Location.none in
@@ -109,6 +124,11 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       else atrs
     in
     let atrs =
+      if local_rewrite_occurred then
+        List.filter atrs ~f:(fun a -> not (is_local_jane_syntax a))
+      else atrs
+    in
+    let atrs =
       if ignore_doc_comments then
         List.filter atrs ~f:(fun a -> not (is_doc a))
       else atrs
@@ -132,10 +152,27 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           (Exp.sequence ~loc:loc1 ~attrs:attrs1
              (Exp.sequence ~loc:loc2 ~attrs:attrs2 exp1 exp2)
              exp3 )
+    | Pexp_apply
+        ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
+        , [(Nolabel, sbody)] )
+      when (local_rewrite_occurred || erase_jane_syntax)
+           && ( Conf.is_jane_street_local_annotation conf "local"
+                  ~test:extension_name
+              || Conf.is_jane_street_local_annotation conf "exclave"
+                   ~test:extension_name ) ->
+        m.expr m sbody
     | _ -> Ast_mapper.default_mapper.expr m exp
   in
   let pat (m : Ast_mapper.mapper) pat =
     let pat = {pat with ppat_loc_stack= []} in
+    let pat =
+      if local_rewrite_occurred || erase_jane_syntax then
+        { pat with
+          ppat_attributes=
+            erase_legacy_jane_street_local_annotations conf
+              pat.ppat_attributes }
+      else pat
+    in
     let {ppat_desc; ppat_loc= loc1; ppat_attributes= attrs1; _} = pat in
     (* normalize nested or patterns *)
     match ppat_desc with
@@ -158,6 +195,14 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   in
   let typ (m : Ast_mapper.mapper) typ =
     let typ = {typ with ptyp_loc_stack= []} in
+    let typ =
+      if local_rewrite_occurred || erase_jane_syntax then
+        { typ with
+          ptyp_attributes=
+            erase_legacy_jane_street_local_annotations conf
+              typ.ptyp_attributes }
+      else typ
+    in
     Ast_mapper.default_mapper.typ m typ
   in
   let structure =
@@ -196,6 +241,17 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       Ast_mapper.default_mapper.class_signature m {x with pcsig_fields}
     else Ast_mapper.default_mapper.class_signature
   in
+  let label_declaration (m : Ast_mapper.mapper) ld =
+    let ld =
+      if local_rewrite_occurred || erase_jane_syntax then
+        { ld with
+          pld_attributes=
+            erase_legacy_jane_street_local_annotations conf ld.pld_attributes
+        }
+      else ld
+    in
+    Ast_mapper.default_mapper.label_declaration m ld
+  in
   { Ast_mapper.default_mapper with
     location
   ; attribute
@@ -206,17 +262,21 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; class_structure
   ; expr
   ; pat
-  ; typ }
+  ; typ
+  ; label_declaration }
 
-let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
-  map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
+let ast fragment ~ignore_doc_comments ~erase_jane_syntax
+    ~local_rewrite_occurred c =
+  map fragment
+    (make_mapper c ~ignore_doc_comments ~erase_jane_syntax
+       ~local_rewrite_occurred )
 
-let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
-    ~new_:ast2 =
+let equal fragment ~ignore_doc_comments ~erase_jane_syntax
+    ~local_rewrite_occurred c ~old:ast1 ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
   equal fragment
-    (map ~erase_jane_syntax ast1)
-    (map ~erase_jane_syntax:false ast2)
+    (map ~erase_jane_syntax ~local_rewrite_occurred ast1)
+    (map ~erase_jane_syntax:false ~local_rewrite_occurred ast2)
 
 let ast = ast ~ignore_doc_comments:false
 
@@ -247,20 +307,22 @@ let docstrings (type a) (fragment : a t) s =
   let (_ : a) = map fragment (make_docstring_mapper docstrings) s in
   !docstrings
 
-let docstring conf ~erase_jane_syntax =
+let docstring conf ~erase_jane_syntax ~local_rewrite_occurred =
   let mapper =
     make_mapper conf ~ignore_doc_comments:false ~erase_jane_syntax
+      ~local_rewrite_occurred
   in
   let normalize_code = normalize_code conf mapper in
   docstring conf ~normalize_code
 
-let moved_docstrings fragment ~erase_jane_syntax c ~old:s1 ~new_:s2 =
+let moved_docstrings fragment ~erase_jane_syntax ~local_rewrite_occurred c
+    ~old:s1 ~new_:s2 =
   let d1 = docstrings fragment s1 in
   let d2 = docstrings fragment s2 in
   let equal ~old:(_, x) ~new_:(_, y) =
     String.equal
-      (docstring c x ~erase_jane_syntax)
-      (docstring c y ~erase_jane_syntax:false)
+      (docstring c x ~erase_jane_syntax ~local_rewrite_occurred)
+      (docstring c y ~erase_jane_syntax ~local_rewrite_occurred:false)
   in
   let cmt_kind = `Doc_comment in
   let cmt (loc, x) = Cmt.create_docstring x loc in
