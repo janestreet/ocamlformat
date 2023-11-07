@@ -3705,7 +3705,7 @@
  (action
   (with-stdout-to local-erased.ml.stdout
    (with-stderr-to local-erased.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax %{dep:tests/local.ml})))))
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/local.ml})))))
 
 (rule
  (alias runtest)
@@ -3723,7 +3723,7 @@
  (action
   (with-stdout-to local.ml.stdout
    (with-stderr-to local.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/local.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/local.ml})))))
 
 (rule
  (alias runtest)

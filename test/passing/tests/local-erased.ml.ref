@@ -70,7 +70,7 @@ type loc_long_attrs = string -> string
 
 type loc_short_attrs = string -> string
 
-type global_long_attrs = Foo of {s: string} | Bar of string
+type global_long_attrs = Foo of {s: string; b: int} | Bar of string
 
 type global_short_attrs = Foo of {s: string} | Bar of string
 
@@ -84,7 +84,11 @@ let exclave_long_ext = ()
 
 let exclave_short_ext = ()
 
+let g a b c = 1
+
 let[@ocaml.local] upstream_local_attr_long x = x
+
+module type S = functor (_ : S) (_ : S) -> S
 
 let[@ocaml.local never] upstream_local_attr_never_long x = x
 
@@ -119,3 +123,5 @@ let x =
   (* a *)
   let y = 1 in
   y
+
+module type S = functor (_ : S) (_ : S) -> S
