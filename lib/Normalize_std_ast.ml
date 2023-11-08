@@ -17,7 +17,7 @@ let make_attr_with_name name =
     (Location.mkloc name Location.none)
     (PStr [])
 
-let convert_legacy_jane_street_local_annotations c ~ghost ?segment =
+let convert_legacy_jane_street_local_annotations ~ghost ?segment =
   let segment_str =
     Option.value_map ~default:"" ~f:(fun s -> "." ^ s) segment
   in
@@ -31,25 +31,25 @@ let convert_legacy_jane_street_local_annotations c ~ghost ?segment =
   List.concat_map ~f:(fun attr ->
       match attr with
       | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
-          if Conf.is_jane_street_local_annotation c "local" ~test:old_name
-          then attrs "local"
+          if Conf.is_jane_street_local_annotation "local" ~test:old_name then
+            attrs "local"
           else if
-            Conf.is_jane_street_local_annotation c "global" ~test:old_name
+            Conf.is_jane_street_local_annotation "global" ~test:old_name
           then attrs "global"
           else if
-            Conf.is_jane_street_local_annotation c "exclave" ~test:old_name
+            Conf.is_jane_street_local_annotation "exclave" ~test:old_name
           then attrs "exclave"
           else [attr]
       | _ -> [attr] )
 
-let extract_legacy_jane_street_local_annotations c :
+let extract_legacy_jane_street_local_annotations :
     attributes -> attributes * attributes =
   List.partition_tf ~f:(fun attr ->
       match attr with
       | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
-          Conf.is_jane_street_local_annotation c "local" ~test:old_name
-          || Conf.is_jane_street_local_annotation c "global" ~test:old_name
-          || Conf.is_jane_street_local_annotation c "exclave" ~test:old_name
+          Conf.is_jane_street_local_annotation "local" ~test:old_name
+          || Conf.is_jane_street_local_annotation "global" ~test:old_name
+          || Conf.is_jane_street_local_annotation "exclave" ~test:old_name
       | _ -> false )
 
 let is_doc = function
@@ -175,9 +175,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | Pexp_apply
         ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
         , [(Nolabel, sbody)] )
-      when Conf.is_jane_street_local_annotation conf "local"
-             ~test:extension_name
-           || Conf.is_jane_street_local_annotation conf "exclave"
+      when Conf.is_jane_street_local_annotation "local" ~test:extension_name
+           || Conf.is_jane_street_local_annotation "exclave"
                 ~test:extension_name ->
         let is_fun =
           match sbody.pexp_desc with Pexp_fun _ -> true | _ -> false
@@ -185,7 +184,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         m.expr m
           { sbody with
             pexp_attributes=
-              convert_legacy_jane_street_local_annotations conf ~ghost:is_fun
+              convert_legacy_jane_street_local_annotations ~ghost:is_fun
                 (make_attr_with_name extension_name :: sbody.pexp_attributes)
           }
     | _ -> Ast_mapper.default_mapper.expr m exp
@@ -195,7 +194,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let pat =
       { pat with
         ppat_attributes=
-          convert_legacy_jane_street_local_annotations conf ~ghost:false
+          convert_legacy_jane_street_local_annotations ~ghost:false
             pat.ppat_attributes }
     in
     let {ppat_desc; ppat_loc= loc1; ppat_attributes= attrs1; _} = pat in
@@ -223,7 +222,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let typ =
       { typ with
         ptyp_attributes=
-          convert_legacy_jane_street_local_annotations conf ~ghost:false
+          convert_legacy_jane_street_local_annotations ~ghost:false
             ~segment:"type" typ.ptyp_attributes }
     in
     Ast_mapper.default_mapper.typ m typ
@@ -266,14 +265,14 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   in
   let label_declaration (m : Ast_mapper.mapper) ld =
     let local_attrs, attrs =
-      extract_legacy_jane_street_local_annotations conf ld.pld_attributes
+      extract_legacy_jane_street_local_annotations ld.pld_attributes
     in
     let ld =
       { ld with
         pld_type=
           { ld.pld_type with
             ptyp_attributes=
-              convert_legacy_jane_street_local_annotations conf ~ghost:false
+              convert_legacy_jane_street_local_annotations ~ghost:false
                 ~segment:"constructor_argument"
                 (local_attrs @ ld.pld_type.ptyp_attributes) }
       ; pld_attributes= attrs }
@@ -289,7 +288,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                ~f:(fun typ ->
                  { typ with
                    ptyp_attributes=
-                     convert_legacy_jane_street_local_annotations conf
+                     convert_legacy_jane_street_local_annotations
                        ~ghost:false ~segment:"constructor_argument"
                        typ.ptyp_attributes } )
                l )

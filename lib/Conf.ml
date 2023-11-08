@@ -1571,7 +1571,7 @@ let parse_state_attr attr =
   | Ok ("disable", _) -> Some `Disable
   | _ -> None
 
-let is_jane_street_local_annotation _config name ~test =
+let is_jane_street_local_annotation name ~test =
   String.equal test name
   || String.equal test ("ocaml." ^ name)
   || String.equal test ("extension." ^ name)
