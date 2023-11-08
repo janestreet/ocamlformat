@@ -755,7 +755,6 @@ and type_constr_and_body c xbody =
 
 and fmt_arrow_param c ctx
     ({pap_label= lI; pap_loc= locI; pap_type= tI}, localI) =
-  let localI = localI && not (Erase_jane_syntax.should_erase ()) in
   let arg_label lbl =
     match lbl with
     | Nolabel -> if localI then Some (str "local_ ") else None
@@ -1483,7 +1482,7 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
     when Conf.is_jane_street_local_annotation "local" ~test:extension_local
          (* Don't wipe away comments before [local_]. *)
          && not (Cmts.has_before c.cmts pexp_loc) ->
-      ( fmt_if (not (Erase_jane_syntax.should_erase ())) " local_"
+      ( fmt " local_"
       , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | { pexp_desc=
         Pexp_apply
@@ -1496,7 +1495,7 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
            ~test:extension_exclave
          (* Don't wipe away comments before [exclave_]. *)
          && not (Cmts.has_before c.cmts pexp_loc) ->
-      ( fmt_if (not (Erase_jane_syntax.should_erase ())) " exclave_"
+      ( fmt " exclave_"
       , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | _ -> (noop, fmt_expression c ~eol:(fmt "@;<1000 0>") xbody)
 
@@ -2110,8 +2109,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
     ->
       pro
       $ Params.parens_if parens c.conf
-          ( fmt_if (not (Erase_jane_syntax.should_erase ())) "local_@ "
-          $ fmt_expression c (sub_exp ~ctx sbody) )
+          (fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody))
   | Pexp_apply
       ( {pexp_desc= Pexp_extension ({txt= extension_exclave; _}, PStr []); _}
       , [(Nolabel, sbody)] )
@@ -2119,8 +2117,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
            ~test:extension_exclave ->
       pro
       $ Params.parens_if parens c.conf
-          ( fmt_if (not (Erase_jane_syntax.should_erase ())) "exclave_@ "
-          $ fmt_expression c (sub_exp ~ctx sbody) )
+          (fmt "exclave_@ " $ fmt_expression c (sub_exp ~ctx sbody))
   | Pexp_prefix (op, e) ->
       let has_cmts = Cmts.has_before c.cmts e.pexp_loc in
       pro
@@ -3644,7 +3641,6 @@ and fmt_label_declaration c ctx ?(last = false) decl =
           (str ";")
   in
   let is_global, atrs = split_global_flags_from_attrs atrs in
-  let is_global = is_global && not (Erase_jane_syntax.should_erase ()) in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
     $ hvbox
@@ -3703,7 +3699,6 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
 and fmt_core_type_gf c ctx typ =
   let {ptyp_attributes; _} = typ in
   let is_global, _ = split_global_flags_from_attrs ptyp_attributes in
-  let is_global = is_global && not (Erase_jane_syntax.should_erase ()) in
   fmt_if is_global "global_ " $ fmt_core_type c (sub_typ ~ctx typ)
 
 and fmt_constructor_arguments ?vars c ctx ~pre = function
@@ -4789,12 +4784,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
                                   $ fmt_extension_suffix c ext
                                   $ fmt_attributes c at_attrs
                                   $ fmt_if rec_flag " rec"
-                                  $ fmt_if
-                                      ( lb_local
-                                      && not
-                                           (Erase_jane_syntax.should_erase ())
-                                      )
-                                      " local_"
+                                  $ fmt_if lb_local " local_"
                                   $ fmt_or pat_has_cmt "@ " " "
                                   $ fmt_pattern c lb_pat )
                               $ fmt_if_k
