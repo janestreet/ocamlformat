@@ -17,6 +17,24 @@ let make_attr_with_name name =
     (Location.mkloc name Location.none)
     (PStr [])
 
+(** This function takes a list of attributes and replaces the legacy local
+    annotation attributes with the new syntax attributes. This allows the new
+    and old syntax to normalize to the same representation.
+
+    Input of shape:
+
+    [...; "local"; ...]
+
+    turns into:
+
+    [ ...
+    ; "jane.erasable.local"
+    ; "jane.erasable.local._location.GHOST"
+    ; "jane.erasable.local.SEGMENT.local"
+    ; ...]
+
+    where GHOST and SEGMENT are controlled by the function parameters.
+   *)
 let convert_legacy_jane_street_local_annotations ~ghost ?segment =
   let segment_str =
     Option.value_map ~default:"" ~f:(fun s -> "." ^ s) segment
