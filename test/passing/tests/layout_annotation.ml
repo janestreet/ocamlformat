@@ -297,3 +297,16 @@ type a =
   immediate64
   (* comment 4 *))
 (* comment 5 *)
+
+let f (type a : immediate) x = x
+
+let f
+    (type (a : immediate) b c d e f g h i j k l m n o p q r s t u v w x y z)
+    x =
+  x
+
+let f (type (a : immediate) b) x = x
+
+let f (type a (b : immediate)) x = x
+
+let f (type (a : immediate) (b : immediate)) x = x
