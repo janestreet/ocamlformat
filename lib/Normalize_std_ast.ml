@@ -42,6 +42,31 @@ let convert_legacy_jane_street_local_annotations ~ghost ?segment =
           else [attr]
       | _ -> [attr] )
 
+let convert_legacy_jane_street_local_extension_expressions ~is_value_binding
+    exp =
+  match exp.pexp_desc with
+  | Pexp_apply
+      ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
+      , [(Nolabel, sbody)] )
+    when Conf.is_jane_street_local_annotation "local" ~test:extension_name
+         || Conf.is_jane_street_local_annotation "exclave"
+              ~test:extension_name ->
+      let is_fun =
+        match sbody.pexp_desc with Pexp_fun _ -> true | _ -> false
+      in
+      `Changed
+        { sbody with
+          pexp_attributes=
+            convert_legacy_jane_street_local_annotations
+              ~ghost:(is_fun && is_value_binding)
+                (* This is here to deal with a special case in the shape of
+                   [let g = [%local] (fun a b c -> 1)]. The new syntax for
+                   this is [let local_ g a b c = 1] and has a ghost location
+                   attribute. *)
+              (make_attr_with_name extension_name :: sbody.pexp_attributes)
+        }
+  | _ -> `Same exp
+
 let extract_legacy_jane_street_local_annotations :
     attributes -> attributes * attributes =
   List.partition_tf ~f:(fun attr ->
@@ -172,22 +197,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           (Exp.sequence ~loc:loc1 ~attrs:attrs1
              (Exp.sequence ~loc:loc2 ~attrs:attrs2 exp1 exp2)
              exp3 )
-    | Pexp_apply
-        ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
-        , [(Nolabel, sbody)] )
-      when Conf.is_jane_street_local_annotation "local" ~test:extension_name
-           || Conf.is_jane_street_local_annotation "exclave"
-                ~test:extension_name ->
-        let is_fun =
-          match sbody.pexp_desc with Pexp_fun _ -> true | _ -> false
-        in
-        m.expr m
-          { sbody with
-            pexp_attributes=
-              convert_legacy_jane_street_local_annotations ~ghost:is_fun
-                (make_attr_with_name extension_name :: sbody.pexp_attributes)
-          }
-    | _ -> Ast_mapper.default_mapper.expr m exp
+    | _ -> (
+      match
+        convert_legacy_jane_street_local_extension_expressions
+          ~is_value_binding:false exp
+      with
+      | `Changed exp -> m.expr m exp
+      | `Same exp -> Ast_mapper.default_mapper.expr m exp )
   in
   let pat (m : Ast_mapper.mapper) pat =
     let pat = {pat with ppat_loc_stack= []} in
@@ -297,6 +313,17 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     Ast_mapper.default_mapper.constructor_declaration m
       {decl with pcd_args= args}
   in
+  let value_binding (m : Ast_mapper.mapper) vb =
+    let pvb_expr =
+      match
+        convert_legacy_jane_street_local_extension_expressions
+          ~is_value_binding:true vb.pvb_expr
+      with
+      | `Changed expr -> expr
+      | `Same expr -> expr
+    in
+    Ast_mapper.default_mapper.value_binding m {vb with pvb_expr}
+  in
   { Ast_mapper.default_mapper with
     location
   ; attribute
@@ -309,7 +336,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; pat
   ; typ
   ; label_declaration
-  ; constructor_declaration }
+  ; constructor_declaration
+  ; value_binding }
 
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)

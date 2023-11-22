@@ -94,7 +94,13 @@ let exclave_long_ext = exclave_ ()
 
 let exclave_short_ext = exclave_ ()
 
+let () =
+  let local_ g a b c = 1 in
+  ()
+
 let local_ g a b c = 1
+
+let g = f (local_ fun a b c -> 1)
 
 let[@ocaml.local] upstream_local_attr_long x = x
 

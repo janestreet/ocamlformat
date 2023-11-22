@@ -90,7 +90,12 @@ let exclave_long_ext = [%ocaml.exclave] ()
 
 let exclave_short_ext = [%exclave] ()
 
+let () =
+  let g = [%local] (fun a b c -> 1) in
+  ()
+
 let g = [%local] (fun a b c -> 1)
+let g = f ([%local] (fun a b c -> 1))
 
 let[@ocaml.local] upstream_local_attr_long x = x
 module type S = S -> S -> S
