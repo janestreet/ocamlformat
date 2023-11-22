@@ -74,6 +74,8 @@ type loc_long_attrs = local_ string -> local_ string
 
 type loc_short_attrs = local_ string -> local_ string
 
+type loc_short_attrs2 = local_ (string[@aaa] [@bbb] [@ccc]) -> local_ string
+
 type global_long_attrs =
   | Foo of {global_ s: string; b: int}
   | Bar of global_ string

@@ -69,6 +69,7 @@ let foo () =
 type loc_long_attrs = (string[@ocaml.local]) -> (string[@ocaml.local])
 
 type loc_short_attrs = (string[@local]) -> (string[@local])
+type loc_short_attrs2 = (string[@aaa][@local][@bbb][@ccc]) -> (string[@local])
 
 type global_long_attrs =
   | Foo of { s : string[@ocaml.global]; b: int }
