@@ -553,9 +553,6 @@ let fmt_layout_str ~c ~loc string =
 
 let fmt_layout c l = fmt_layout_str ~c ~loc:l.loc (layout_to_string l.txt)
 
-let fmt_layout_attr c attr =
-  fmt_layout_str ~c ~loc:attr.attr_name.loc attr.attr_name.txt
-
 let fmt_type_var ~have_tick c s =
   let {txt= name_opt; loc= name_loc}, layout_opt = s in
   let var_name = Option.value name_opt ~default:"_" in
@@ -585,16 +582,6 @@ let split_global_flags_from_attrs conf atrs =
   with
   | [`Global], atrs -> (true, atrs)
   | _ -> (false, atrs)
-
-let is_layout attr =
-  match attr.attr_name.txt with
-  | "any" -> true
-  | "value" -> true
-  | "void" -> true
-  | "immediate" -> true
-  | "immediate64" -> true
-  | "float64" -> true
-  | _ -> false
 
 let rec fmt_extension_aux c ctx ~key (ext, pld) =
   match (ext.txt, pld, ctx) with
@@ -866,11 +853,6 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   @@ (fun k -> k $ fmt_docstring c ~pro:(fmt "@ ") doc)
   @@ ( match atrs with
      | [] -> Fn.id
-     | [attr] when is_layout attr ->
-         Fn.id
-         (* CR layouts v1.5: layout annotations on type params are printed by
-            the type parameter printer. Revisit when we have support for
-            pretty layout annotations in more places. *)
      | _ ->
          fun k ->
            hvbox 0
@@ -3539,24 +3521,6 @@ and fmt_value_description ?ext c ctx vd =
 
 and fmt_tydcl_param c ctx ty =
   fmt_core_type ~tydecl_param:true c (sub_typ ~ctx ty)
-  $
-  (* CR layouts v1.5: When we added the syntax for layout annotations on type
-     parameters to the parser, we also made it possible for people to put
-     arbitrary attributes on type parameters. Previously, the parser didn't
-     accept attributes at all here, though there has always been a place in
-     the parse tree.
-
-     The parser currently allows you to have either a pretty layout
-     annotation or arbitrary attributes, but not both. A pretty layout
-     annotation only parses if it's the only attribute, so we only print the
-     pretty syntax in that case. Probably we'll change this in v1.5.
-
-     In the case of multiple attributes, which may include layouts, they'll
-     be printed as normal attributes by [fmt_core_type]. So we do nothing
-     here. *)
-  match ty.ptyp_attributes with
-  | [] | _ :: _ :: _ -> noop
-  | [attr] -> fmt_if_k (is_layout attr) (fmt_layout_attr c attr)
 
 and fmt_tydcl_params c ctx params =
   let empty, parenize =
