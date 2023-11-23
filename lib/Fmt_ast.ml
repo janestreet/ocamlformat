@@ -557,16 +557,18 @@ let fmt_layout_attr c attr =
   fmt_layout_str ~c ~loc:attr.attr_name.loc attr.attr_name.txt
 
 let fmt_type_var ~have_tick c s =
-  let name, layout_opt = s in
-  Cmts.fmt c name.loc
-  @@ ( fmt_if_k have_tick
-         ( fmt_if (not (String.equal "_" name.txt)) "'"
+  let {txt= name_opt; loc= name_loc}, layout_opt = s in
+  let var_name = Option.value name_opt ~default:"_" in
+  Cmts.fmt c name_loc
+  @@ ( fmt_if_k
+         (Option.is_some name_opt && have_tick)
+         ( str "'"
          (* [' a'] is a valid type variable, the space is required to not lex
             as a char. https://github.com/ocaml/ocaml/pull/2034 *)
          $ fmt_if
-             (String.length name.txt > 1 && Char.equal name.txt.[1] '\'')
+             (String.length var_name > 1 && Char.equal var_name.[1] '\'')
              " " )
-     $ str name.txt )
+     $ str var_name )
   $ Option.value_map layout_opt ~default:noop ~f:(fmt_layout c)
 
 let fmt_type_var_with_parenze ~have_tick c s =
@@ -3299,27 +3301,18 @@ and fmt_class_field_kind c ctx = function
         match (e, args') with
         | {pexp_desc= Pexp_constraint (e, t); _}, [] ->
             Some (List.rev names, t, e)
-        | ( { pexp_desc=
-                Pexp_newtype ((({txt; _} as new_name), new_layout), body)
-            ; _ }
+        | ( {pexp_desc= Pexp_newtype ((({txt; _}, _) as newtyp), body); _}
           , ({txt= txt'; _}, _) :: args )
-          when String.equal txt txt' ->
-            cleanup ((new_name, new_layout) :: names) body args
+          when Option.equal String.equal txt txt' ->
+            cleanup (newtyp :: names) body args
         | _ -> None
       in
       match cleanup [] e poly_args with
       | Some (args, t, e) ->
-          let before_name, before_layout_opt =
-            match args with
-            | (x, y) :: _ -> (x.loc, Option.map ~f:(fun l -> l.loc) y)
-            | [] -> (e.pexp_loc, Some e.pexp_loc)
+          let before =
+            match args with (x, _) :: _ -> x.loc | [] -> e.pexp_loc
           in
-          Cmts.relocate c.cmts ~src:pexp_loc ~before:before_name
-            ~after:e.pexp_loc ;
-          Option.iter
-            ~f:(fun before ->
-              Cmts.relocate c.cmts ~src:pexp_loc ~before ~after:e.pexp_loc )
-            before_layout_opt ;
+          Cmts.relocate c.cmts ~src:pexp_loc ~before ~after:e.pexp_loc ;
           ( fmt "@ : type "
             $ list args "@ " (fmt_type_var_with_parenze ~have_tick:false c)
             $ fmt_core_type ~pro:"." ~pro_space:false c (sub_typ ~ctx t)

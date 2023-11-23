@@ -72,7 +72,7 @@ type const_layout =
   | Float64
 
 type layout_annotation = const_layout loc
-type ty_var = string loc * layout_annotation option
+type ty_var = string option loc * layout_annotation option
 
 type label = string
 

@@ -212,7 +212,7 @@ let fmt_layout_opt ppf l = Format.fprintf ppf "%s"
   (Option.value ~default:"none" (Option.map (fun l -> layout_to_string l.txt) l))
 
 let fmt_ty_var ppf (name, layout) =
-  Format.fprintf ppf "%a:%a" fmt_string_loc name fmt_layout_opt layout
+  Format.fprintf ppf "%a:%a" fmt_str_opt_loc name fmt_layout_opt layout
 
 let typevars ppf vs =
   List.iter (fun x ->
