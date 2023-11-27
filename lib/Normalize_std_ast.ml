@@ -17,6 +17,11 @@ let make_attr_with_name name =
     (Location.mkloc name Location.none)
     (PStr [])
 
+type convert_legacy_jane_street_local_annotations_segment_type =
+  | Type
+  | Constructor_argument
+  | Pattern
+
 (** This function takes a list of attributes and replaces the legacy local
     annotation attributes with the new syntax attributes. This allows the new
     and old syntax to normalize to the same representation.
@@ -30,21 +35,27 @@ let make_attr_with_name name =
     [ ...
     ; "jane.erasable.local"
     ; "jane.erasable.local._location.GHOST"
-    ; "jane.erasable.local.SEGMENT.local"
+    ; "jane.erasable.local.SEGMENT.local" <-- omitted in the special case of [Pattern]
     ; ...]
 
     where GHOST and SEGMENT are controlled by the function parameters.
    *)
 let convert_legacy_jane_street_local_annotations ~ghost ?segment =
-  let segment_str =
-    Option.value_map ~default:"" ~f:(fun s -> "." ^ s) segment
-  in
+  let prefix = "jane.erasable.local." in
   let attrs name =
+    let segment =
+      match segment with
+      | None -> [prefix ^ name]
+      | Some Type -> [prefix ^ "type." ^ name]
+      | Some Constructor_argument -> [prefix ^ "constructor_argument." ^ name]
+      | Some Pattern -> []
+    in
     List.map ~f:make_attr_with_name
-      [ "jane.erasable.local"
-      ; ( "jane.erasable.local._location."
-        ^ if ghost then "_ghost" else "_nonghost" )
-      ; "jane.erasable.local" ^ segment_str ^ "." ^ name ]
+      (List.concat
+         [ [ "jane.erasable.local"
+           ; ( "jane.erasable.local._location."
+             ^ if ghost then "_ghost" else "_nonghost" ) ]
+         ; segment ] )
   in
   List.concat_map ~f:(fun attr ->
       match attr with
@@ -229,7 +240,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       { pat with
         ppat_attributes=
           convert_legacy_jane_street_local_annotations ~ghost:false
-            pat.ppat_attributes }
+            ~segment:Pattern pat.ppat_attributes }
     in
     let {ppat_desc; ppat_loc= loc1; ppat_attributes= attrs1; _} = pat in
     (* normalize nested or patterns *)
@@ -257,7 +268,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       { typ with
         ptyp_attributes=
           convert_legacy_jane_street_local_annotations ~ghost:false
-            ~segment:"type" typ.ptyp_attributes }
+            ~segment:Type typ.ptyp_attributes }
     in
     Ast_mapper.default_mapper.typ m typ
   in
@@ -307,7 +318,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           { ld.pld_type with
             ptyp_attributes=
               convert_legacy_jane_street_local_annotations ~ghost:false
-                ~segment:"constructor_argument"
+                ~segment:Constructor_argument
                 (local_attrs @ ld.pld_type.ptyp_attributes) }
       ; pld_attributes= attrs }
     in
@@ -323,7 +334,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                  { typ with
                    ptyp_attributes=
                      convert_legacy_jane_street_local_annotations
-                       ~ghost:false ~segment:"constructor_argument"
+                       ~ghost:false ~segment:Constructor_argument
                        typ.ptyp_attributes } )
                l )
       | a -> a
