@@ -3487,19 +3487,18 @@ sig_exception_declaration:
   vars_args_res = generalized_constructor_arguments
   attrs2 = attributes
   attrs = post_item_attributes
-  { let vars, args, res = vars_args_res in
-    let loc = make_loc ($startpos, $endpos(attrs2)) in
-    let docs = symbol_docs $sloc in
-    Te.mk_exception ~attrs
-      (Te.decl id ~vars ~args ?res ~attrs:(attrs1 @ attrs2) ~loc ~docs)
-    , ext }
+    { let vars, args, res = vars_args_res in
+      let loc = make_loc ($startpos, $endpos(attrs2)) in
+      let docs = symbol_docs $sloc in
+      Te.mk_exception ~attrs
+        (Te.decl id ~vars ~args ?res ~attrs:(attrs1 @ attrs2) ~loc ~docs)
+      , ext }
 ;
 %inline let_exception_declaration:
     mkrhs(constr_ident) generalized_constructor_arguments attributes
-    { let vars, args, res = $2 in
-      Te.decl $1 ~vars ~args ?res ~attrs:$3 ~loc:(make_loc $sloc) }
+      { let vars, args, res = $2 in
+        Te.decl $1 ~vars ~args ?res ~attrs:$3 ~loc:(make_loc $sloc) }
 ;
-
 generalized_constructor_arguments:
     /*empty*/                     { ([],Pcstr_tuple [],None) }
   | OF constructor_arguments      { ([],$2,None) }
