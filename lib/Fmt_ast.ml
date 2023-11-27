@@ -555,17 +555,19 @@ let fmt_layout c l = fmt_layout_str ~c ~loc:l.loc (layout_to_string l.txt)
 
 let fmt_type_var ~have_tick c s =
   let {txt= name_opt; loc= name_loc}, layout_opt = s in
-  let var_name = Option.value name_opt ~default:"_" in
-  Cmts.fmt c name_loc
-  @@ ( fmt_if_k
-         (Option.is_some name_opt && have_tick)
-         ( str "'"
-         (* [' a'] is a valid type variable, the space is required to not lex
-            as a char. https://github.com/ocaml/ocaml/pull/2034 *)
-         $ fmt_if
-             (String.length var_name > 1 && Char.equal var_name.[1] '\'')
-             " " )
-     $ str var_name )
+  ( Cmts.fmt c name_loc
+  @@
+  match name_opt with
+  | None -> str "_"
+  | Some var_name ->
+      fmt_if_k have_tick
+        ( str "'"
+        (* [' a'] is a valid type variable, the space is required to not lex
+           as a char. https://github.com/ocaml/ocaml/pull/2034 *)
+        $ fmt_if
+            (String.length var_name > 1 && Char.equal var_name.[1] '\'')
+            " " )
+      $ str var_name )
   $ Option.value_map layout_opt ~default:noop ~f:(fmt_layout c)
 
 let fmt_type_var_with_parenze ~have_tick c s =
