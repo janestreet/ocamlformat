@@ -37,7 +37,7 @@ type convert_legacy_jane_street_local_annotations_segment_type =
     ; "jane.erasable.local.SEGMENT.local" <-- omitted in the special case of [Pattern]
     ; ...]
 
-    where SEGMENT are controlled by the function parameters.
+    where SEGMENT is controlled by the function parameter.
    *)
 let convert_legacy_jane_street_local_annotations ?segment =
   let prefix = "jane.erasable.local." in
