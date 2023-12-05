@@ -1155,7 +1155,14 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
               | Ppat_var var -> String.equal var.txt lbl
               | _ -> false
             in
+            let punned_with_constraint =
+              match pat_desc with
+              | Ppat_constraint ({ppat_desc= Ppat_var var; _}, _) ->
+                  String.equal var.txt lbl
+              | _ -> false
+            in
             if punned then str "~" $ str lbl
+            else if punned_with_constraint then str "~" $ fmt_pattern c pat
             else str "~" $ str lbl $ str ":" $ fmt_pattern c pat
       in
       let fmt_elements =
