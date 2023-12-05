@@ -781,9 +781,14 @@ and fmt_arrow_param c ctx
         Some (str "?" $ str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
   in
   let xtI = sub_typ ~ctx tI in
+  let arg_parens =
+    match tI.ptyp_desc with
+    | Ptyp_tuple ((Some _, _) :: _) -> true
+    | _ -> false
+  in
   let arg =
     match arg_label lI with
-    | None -> fmt_core_type c xtI
+    | None -> Params.parens_if arg_parens c.conf (fmt_core_type c xtI)
     | Some f -> hovbox 2 (f $ fmt_core_type c xtI)
   in
   hvbox 0 (Cmts.fmt_before c locI $ arg)
