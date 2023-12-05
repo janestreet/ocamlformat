@@ -15,7 +15,11 @@ module Left = struct
   let rec core_type typ =
     match typ.ptyp_desc with
     | Ptyp_arrow (t :: _, _) -> core_type t.pap_type
-    | Ptyp_tuple l -> core_type (List.hd_exn l)
+    | Ptyp_tuple l -> begin
+        match List.hd_exn l with
+        | Some _, _ -> false
+        | None, typ -> core_type typ
+      end
     | Ptyp_object _ -> true
     | Ptyp_alias (typ, _) -> core_type typ
     | _ -> false
@@ -29,7 +33,11 @@ module Right = struct
     | {ptyp_desc; _} -> (
       match ptyp_desc with
       | Ptyp_arrow (_, t) -> core_type t
-      | Ptyp_tuple l -> core_type (List.last_exn l)
+      | Ptyp_tuple l -> begin
+          match List.last_exn l with
+          | Some _, _ -> false
+          | None, typ -> core_type typ
+        end
       | Ptyp_object _ -> true
       | _ -> false )
 

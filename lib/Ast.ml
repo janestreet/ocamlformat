@@ -960,7 +960,9 @@ end = struct
       | Ptyp_alias (t1, _) | Ptyp_poly (_, t1) -> assert (typ == t1)
       | Ptyp_arrow (t, t2) ->
           assert (List.exists t ~f:(fun x -> typ == x.pap_type) || typ == t2)
-      | Ptyp_tuple t1N | Ptyp_constr (_, t1N) -> assert (List.exists t1N ~f)
+      | Ptyp_tuple t1N ->
+          assert (List.exists t1N ~f:(fun (_, t) -> f t))
+      | Ptyp_constr (_, t1N) -> assert (List.exists t1N ~f)
       | Ptyp_variant (r1N, _, _) ->
           assert (
             List.exists r1N ~f:(function
@@ -1317,8 +1319,10 @@ end = struct
         Pat.maybe_extension ctx check_extension
         @@ fun () ->
         match ctx.ppat_desc with
-        | Ppat_array p1N | Ppat_list p1N | Ppat_tuple p1N | Ppat_cons p1N ->
+        | Ppat_array p1N | Ppat_list p1N | Ppat_cons p1N ->
             assert (List.exists p1N ~f)
+        | Ppat_tuple (p1N, _) ->
+            assert (List.exists p1N ~f:(fun (_, p) -> f p))
         | Ppat_record (p1N, _) ->
             assert (List.exists p1N ~f:(fun (_, _, x) -> Option.exists x ~f))
         | Ppat_or l -> assert (List.exists ~f:(fun p -> p == pat) l)
@@ -1484,7 +1488,9 @@ end = struct
         | Pexp_apply (e0, e1N) ->
             (* FAIL *)
             assert (e0 == exp || List.exists e1N ~f:snd_f)
-        | Pexp_tuple e1N | Pexp_array e1N | Pexp_list e1N | Pexp_cons e1N ->
+        | Pexp_tuple e1N ->
+            assert (List.exists e1N ~f:(fun (_, e) -> f e))
+        | Pexp_array e1N | Pexp_list e1N | Pexp_cons e1N ->
             assert (List.exists e1N ~f)
         | Pexp_construct (_, e) | Pexp_variant (_, e) ->
             assert (Option.exists e ~f)
@@ -1609,8 +1615,11 @@ end = struct
         && fit_margin c (width xexp)
     | Pexp_construct (_, Some e0) | Pexp_variant (_, Some e0) ->
         Exp.is_trivial e0
-    | Pexp_array e1N | Pexp_list e1N | Pexp_tuple e1N ->
+    | Pexp_array e1N | Pexp_list e1N ->
         List.for_all e1N ~f:Exp.is_trivial && fit_margin c (width xexp)
+    | Pexp_tuple e1N ->
+        List.for_all e1N ~f:(fun (_, e) -> Exp.is_trivial e)
+        && fit_margin c (width xexp)
     | Pexp_record (e1N, e0) ->
         Option.for_all e0 ~f:Exp.is_trivial
         && List.for_all e1N ~f:(fun (_, c, eo) ->
@@ -1731,7 +1740,7 @@ end = struct
         Exp.maybe_extension ctx prec_ctx_extension
         @@ fun () ->
         match pexp_desc with
-        | Pexp_tuple (e0 :: _) ->
+        | Pexp_tuple ((_, e0) :: _) ->
             Some (Comma, if exp == e0 then Left else Right)
         | Pexp_cons l ->
             Some (ColonColon, if exp == List.last_exn l then Right else Left)
@@ -2171,7 +2180,7 @@ end = struct
           when match cls with Then -> true | _ -> false ->
             true
         | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
-        | Pexp_tuple es -> continue (List.last_exn es)
+        | Pexp_tuple es -> continue (snd (List.last_exn es))
         | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
          |Pexp_constraint _
          |Pexp_construct (_, None)
@@ -2260,7 +2269,7 @@ end = struct
       | Pexp_indexop_access {pia_rhs= rhs; _} -> (
         match rhs with Some e -> continue e | None -> false )
       | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
-      | Pexp_tuple es -> continue (List.last_exn es)
+      | Pexp_tuple es -> continue (snd (List.last_exn es))
       | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
        |Pexp_constraint _
        |Pexp_construct (_, None)
@@ -2286,7 +2295,7 @@ end = struct
                && Option.value_map ~default:false (prec_ast ctx) ~f:(fun p ->
                       Prec.compare p Apply < 0 ) ->
             true
-        | Pexp_tuple e1N -> List.last_exn e1N == xexp.ast
+        | Pexp_tuple e1N -> snd (List.last_exn e1N) == xexp.ast
         | _ -> false
       in
       match ambig_prec (sub_ast ~ctx (Exp exp)) with

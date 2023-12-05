@@ -931,10 +931,14 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
         $ fmt ".@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx t) )
   | Ptyp_tuple typs ->
+      (* XXX surely will need to tweak this for more parens in labeled case *)
       hvbox 0
         (wrap_if parenze_constraint_ctx "(" ")"
            (wrap_fits_breaks_if ~space:false c.conf parens "(" ")"
-              (list typs "@ * " (sub_typ ~ctx >> fmt_core_type c)) ) )
+              (list typs "@ * "
+                 (fun (lbl, typ) ->
+                    let typ = sub_typ ~ctx typ in
+                    fmt_labeled_tuple_type c lbl typ)) ) )
   | Ptyp_var s -> fmt_type_var ~have_tick:true c s
   | Ptyp_variant (rfs, flag, lbls) ->
       let row_fields rfs =
@@ -1031,6 +1035,15 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            (sub_typ ~ctx >> fmt_core_type c) )
       $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
 
+and fmt_labeled_tuple_type c lbl xtyp =
+  match lbl with
+  | None -> fmt_core_type c xtyp
+  | Some s -> begin
+      str s
+      $ str ":"
+      $ fmt_core_type c xtyp
+    end
+
 and fmt_package_type c ctx cnstrs =
   let fmt_cstr ~first ~last:_ (lid, typ) =
     fmt_or first "@;<1 0>" "@;<1 1>"
@@ -1126,14 +1139,30 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
                      "( " " )" (str txt) ) ) ) )
   | Ppat_constant const -> fmt_constant c const
   | Ppat_interval (l, u) -> fmt_constant c l $ str " .. " $ fmt_constant c u
-  | Ppat_tuple pats ->
+  | Ppat_tuple (pats, oc) ->
       let parens =
         parens || Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
       in
+      let fmt_lt_pat_element (lbl, pat) =
+        let pat = sub_pat ~ctx pat in
+        match lbl with
+        | None -> fmt_pattern c pat
+        | Some lbl ->
+           (  str "~"
+            $ str lbl
+            $ str ":"
+            $ fmt_pattern c pat)
+      in
+      let fmt_elements =
+        list pats (Params.comma_sep c.conf) fmt_lt_pat_element
+      in
+      let fmt_oc = match oc with
+        | Closed -> noop
+        | Open -> fmt (Params.comma_sep c.conf) $ str ".."
+      in
       hvbox 0
         (Params.wrap_tuple ~parens ~no_parens_if_break:false c.conf
-           (list pats (Params.comma_sep c.conf)
-              (sub_pat ~ctx >> fmt_pattern c) ) )
+           (fmt_elements $ fmt_oc))
   | Ppat_construct ({txt= Lident (("()" | "[]") as txt); loc}, None) ->
       let opn = txt.[0] and cls = txt.[1] in
       Cmts.fmt c loc
@@ -1337,6 +1366,8 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
         ( fmt_longident_loc c lid
         $ wrap_k (str opn) (str cls)
             (fmt "@;<0 2>" $ fmt_pattern c (sub_pat ~ctx pat)) )
+
+
 
 and fmt_pattern_extension ~ext:_ c ~pro:_ ~parens:_ ~box:_ ~ctx0 ~ctx
     ~ppat_loc : Extensions.Pattern.t -> _ = function
@@ -2768,14 +2799,23 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       in
       let outer_wrap = has_attr && parens in
       let inner_wrap = has_attr || parens in
+      let fmt_lt_exp_element (lbl, exp) =
+        let exp = sub_exp ~ctx exp in
+        match lbl with
+        | None -> fmt_expression c exp
+        | Some lbl ->
+           (  str "~"
+            $ str lbl
+            $ str ":"
+            $ fmt_expression c exp)
+      in
       pro
       $ hvbox_if outer_wrap 0
           (Params.parens_if outer_wrap c.conf
              ( hvbox 0
                  (Params.wrap_tuple ~parens:inner_wrap ~no_parens_if_break
                     c.conf
-                    (list es (Params.comma_sep c.conf)
-                       (sub_exp ~ctx >> fmt_expression c) ) )
+                    (list es (Params.comma_sep c.conf) (fmt_lt_exp_element) ) )
              $ fmt_atrs ) )
   | Pexp_lazy e ->
       pro
