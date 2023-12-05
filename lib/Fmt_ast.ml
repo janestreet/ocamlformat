@@ -2811,10 +2811,27 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       let outer_wrap = has_attr && parens in
       let inner_wrap = has_attr || parens in
       let fmt_lt_exp_element (lbl, exp) =
+        let exp_desc = exp.pexp_desc in
         let exp = sub_exp ~ctx exp in
         match lbl with
         | None -> fmt_expression c exp
-        | Some lbl -> str "~" $ str lbl $ str ":" $ fmt_expression c exp
+        | Some lbl ->
+            let punned =
+              match exp_desc with
+              | Pexp_ident {txt= Lident var; _} -> String.equal lbl var
+              | _ -> false
+            in
+            let punned_with_constraint =
+              match exp_desc with
+              | Pexp_constraint
+                  ({pexp_desc= Pexp_ident {txt= Lident var; _}; _}, _) ->
+                  String.equal var lbl
+              | _ -> false
+            in
+            if punned then str "~" $ str lbl
+            else if punned_with_constraint then
+              str "~" $ fmt_expression c exp
+            else str "~" $ str lbl $ str ":" $ fmt_expression c exp
       in
       pro
       $ hvbox_if outer_wrap 0
