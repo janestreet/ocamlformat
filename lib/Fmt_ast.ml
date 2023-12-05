@@ -1145,10 +1145,18 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
         parens || Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
       in
       let fmt_lt_pat_element (lbl, pat) =
+        let pat_desc = pat.ppat_desc in
         let pat = sub_pat ~ctx pat in
         match lbl with
         | None -> fmt_pattern c pat
-        | Some lbl -> str "~" $ str lbl $ str ":" $ fmt_pattern c pat
+        | Some lbl ->
+            let punned =
+              match pat_desc with
+              | Ppat_var var -> String.equal var.txt lbl
+              | _ -> false
+            in
+            if punned then str "~" $ str lbl
+            else str "~" $ str lbl $ str ":" $ fmt_pattern c pat
       in
       let fmt_elements =
         list pats (Params.comma_sep c.conf) fmt_lt_pat_element
