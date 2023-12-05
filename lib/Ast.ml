@@ -960,8 +960,7 @@ end = struct
       | Ptyp_alias (t1, _) | Ptyp_poly (_, t1) -> assert (typ == t1)
       | Ptyp_arrow (t, t2) ->
           assert (List.exists t ~f:(fun x -> typ == x.pap_type) || typ == t2)
-      | Ptyp_tuple t1N ->
-          assert (List.exists t1N ~f:(fun (_, t) -> f t))
+      | Ptyp_tuple t1N -> assert (List.exists t1N ~f:(fun (_, t) -> f t))
       | Ptyp_constr (_, t1N) -> assert (List.exists t1N ~f)
       | Ptyp_variant (r1N, _, _) ->
           assert (
@@ -1488,8 +1487,7 @@ end = struct
         | Pexp_apply (e0, e1N) ->
             (* FAIL *)
             assert (e0 == exp || List.exists e1N ~f:snd_f)
-        | Pexp_tuple e1N ->
-            assert (List.exists e1N ~f:(fun (_, e) -> f e))
+        | Pexp_tuple e1N -> assert (List.exists e1N ~f:(fun (_, e) -> f e))
         | Pexp_array e1N | Pexp_list e1N | Pexp_cons e1N ->
             assert (List.exists e1N ~f)
         | Pexp_construct (_, e) | Pexp_variant (_, e) ->
