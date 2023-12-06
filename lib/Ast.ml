@@ -1738,8 +1738,24 @@ end = struct
         Exp.maybe_extension ctx prec_ctx_extension
         @@ fun () ->
         match pexp_desc with
-        | Pexp_tuple ((_, e0) :: _) ->
-            Some (Comma, if exp == e0 then Left else Right)
+        | Pexp_tuple (((_, e0) :: _) as exps) ->
+          (* Jane Street: Here we pretend tuple elements with labels have the same
+             precedence as function arguments, because they need to be parenthesized in
+             the same cases. *)
+          let lr = if exp == e0 then Left else Right in
+          let prec =
+            List.find_map exps ~f:(fun (l,e) ->
+              if exp == e then
+                match l with
+                | Some _ -> Some Apply
+                | None -> Some Comma
+              else None)
+          in
+          let prec = match prec with
+            | Some p -> p
+            | None -> Comma
+          in
+          Some (prec, lr)
         | Pexp_cons l ->
             Some (ColonColon, if exp == List.last_exn l then Right else Left)
         | Pexp_construct
