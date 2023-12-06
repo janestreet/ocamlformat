@@ -931,8 +931,6 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
         $ fmt ".@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx t) )
   | Ptyp_tuple typs ->
-      (* XXX surely will need to tweak this for more parens in labeled
-         case *)
       hvbox 0
         (wrap_if parenze_constraint_ctx "(" ")"
            (wrap_fits_breaks_if ~space:false c.conf parens "(" ")"
@@ -1158,7 +1156,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
                   && List.is_empty pat.ast.ppat_attributes
               | _ -> false
             in
-            if punned then str "~" $ str lbl
+            if punned then hovbox 0 (str "~" $ str lbl)
             else if punned_with_constraint then str "~" $ fmt_pattern c pat
             else str "~" $ str lbl $ str ":" $ fmt_pattern c pat
       in
@@ -2827,7 +2825,8 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                   && List.is_empty exp.ast.pexp_attributes
               | _ -> false
             in
-            if punned then str "~" $ str lbl
+            if punned then
+              Cmts.fmt c exp.ast.pexp_loc @@ hovbox 0 (str "~" $ str lbl)
             else if punned_with_constraint then
               str "~" $ fmt_expression c exp
             else str "~" $ str lbl $ str ":" $ fmt_expression c exp
