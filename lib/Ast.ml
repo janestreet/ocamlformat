@@ -1971,6 +1971,10 @@ end = struct
         true
     | {ast= {ptyp_desc= Ptyp_var (_, l); _}; ctx= _} when Option.is_some l ->
         true
+    | { ast= {ptyp_desc= Ptyp_tuple ((Some _, _) :: _); _}
+      ; ctx= Typ {ptyp_desc= Ptyp_arrow (args, _); _} }
+      when List.exists args ~f:(fun arg -> arg.pap_type == typ) ->
+        true
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
