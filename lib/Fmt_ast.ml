@@ -1145,20 +1145,22 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
         parens || Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
       in
       let fmt_lt_pat_element (lbl, pat) =
-        let pat_desc = pat.ppat_desc in
         let pat = sub_pat ~ctx pat in
         match lbl with
         | None -> fmt_pattern c pat
         | Some lbl ->
             let punned =
-              match pat_desc with
-              | Ppat_var var -> String.equal var.txt lbl
+              match pat.ast.ppat_desc with
+              | Ppat_var var ->
+                  String.equal var.txt lbl
+                  && List.is_empty pat.ast.ppat_attributes
               | _ -> false
             in
             let punned_with_constraint =
-              match pat_desc with
+              match pat.ast.ppat_desc with
               | Ppat_constraint ({ppat_desc= Ppat_var var; _}, _) ->
                   String.equal var.txt lbl
+                  && List.is_empty pat.ast.ppat_attributes
               | _ -> false
             in
             if punned then str "~" $ str lbl
@@ -2811,21 +2813,23 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       let outer_wrap = has_attr && parens in
       let inner_wrap = has_attr || parens in
       let fmt_lt_exp_element (lbl, exp) =
-        let exp_desc = exp.pexp_desc in
         let exp = sub_exp ~ctx exp in
         match lbl with
         | None -> fmt_expression c exp
         | Some lbl ->
             let punned =
-              match exp_desc with
-              | Pexp_ident {txt= Lident var; _} -> String.equal lbl var
+              match exp.ast.pexp_desc with
+              | Pexp_ident {txt= Lident var; _} ->
+                  String.equal lbl var
+                  && List.is_empty exp.ast.pexp_attributes
               | _ -> false
             in
             let punned_with_constraint =
-              match exp_desc with
+              match exp.ast.pexp_desc with
               | Pexp_constraint
                   ({pexp_desc= Pexp_ident {txt= Lident var; _}; _}, _) ->
                   String.equal var lbl
+                  && List.is_empty exp.ast.pexp_attributes
               | _ -> false
             in
             if punned then str "~" $ str lbl
