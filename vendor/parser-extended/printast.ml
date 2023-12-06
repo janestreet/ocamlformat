@@ -216,7 +216,7 @@ let fmt_ty_var ppf (name, layout) =
 
 let tuple_component_label i ppf = function
   | None -> line i ppf "Label: None\n"
-  | Some s -> line i ppf "Label: Some \"%s\"\n" s
+  | Some s -> line i ppf "Label: Some \"%s\"\n" s.txt
 ;;
 
 let typevars ppf vs =

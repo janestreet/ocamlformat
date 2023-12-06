@@ -1036,7 +1036,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with
   | None -> fmt_core_type c xtyp
-  | Some s -> str s $ str ":" $ fmt_core_type c xtyp
+  | Some s ->
+      hvbox 0 (Cmts.fmt c s.loc (str s.txt) $ str ":" $ fmt_core_type c xtyp)
 
 and fmt_package_type c ctx cnstrs =
   let fmt_cstr ~first ~last:_ (lid, typ) =
@@ -1145,20 +1146,24 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             let punned =
               match pat.ast.ppat_desc with
               | Ppat_var var ->
-                  String.equal var.txt lbl
+                  String.equal var.txt lbl.txt
                   && List.is_empty pat.ast.ppat_attributes
               | _ -> false
             in
             let punned_with_constraint =
               match pat.ast.ppat_desc with
               | Ppat_constraint ({ppat_desc= Ppat_var var; _}, _) ->
-                  String.equal var.txt lbl
+                  String.equal var.txt lbl.txt
                   && List.is_empty pat.ast.ppat_attributes
               | _ -> false
             in
-            if punned then hovbox 0 (str "~" $ str lbl)
-            else if punned_with_constraint then str "~" $ fmt_pattern c pat
-            else str "~" $ str lbl $ str ":" $ fmt_pattern c pat
+            if punned then
+              Cmts.fmt c lbl.loc
+              @@ Cmts.fmt c pat.ast.ppat_loc
+              @@ hovbox 0 (str "~" $ str lbl.txt)
+            else if punned_with_constraint then
+              Cmts.fmt c lbl.loc @@ str "~" $ fmt_pattern c pat
+            else str "~" $ str lbl.txt $ str ":" $ fmt_pattern c pat
       in
       let fmt_elements =
         list pats (Params.comma_sep c.conf) fmt_lt_pat_element
@@ -2813,7 +2818,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
             let punned =
               match exp.ast.pexp_desc with
               | Pexp_ident {txt= Lident var; _} ->
-                  String.equal lbl var
+                  String.equal lbl.txt var
                   && List.is_empty exp.ast.pexp_attributes
               | _ -> false
             in
@@ -2821,15 +2826,17 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               match exp.ast.pexp_desc with
               | Pexp_constraint
                   ({pexp_desc= Pexp_ident {txt= Lident var; _}; _}, _) ->
-                  String.equal var lbl
+                  String.equal var lbl.txt
                   && List.is_empty exp.ast.pexp_attributes
               | _ -> false
             in
             if punned then
-              Cmts.fmt c exp.ast.pexp_loc @@ hovbox 0 (str "~" $ str lbl)
+              Cmts.fmt c lbl.loc
+              @@ Cmts.fmt c exp.ast.pexp_loc
+              @@ hovbox 0 (str "~" $ str lbl.txt)
             else if punned_with_constraint then
-              str "~" $ fmt_expression c exp
-            else str "~" $ str lbl $ str ":" $ fmt_expression c exp
+              Cmts.fmt c lbl.loc @@ str "~" $ fmt_expression c exp
+            else str "~" $ str lbl.txt $ str ":" $ fmt_expression c exp
       in
       pro
       $ hvbox_if outer_wrap 0
