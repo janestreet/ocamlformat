@@ -3362,7 +3362,7 @@
  (action
   (with-stdout-to labeled_tuple_patterns.ml.stdout
    (with-stderr-to labeled_tuple_patterns.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuple_patterns.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuple_patterns.ml})))))
 
 (rule
  (alias runtest)
