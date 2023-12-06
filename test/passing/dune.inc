@@ -3378,6 +3378,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to labeled_tuples.ml.stdout
+   (with-stderr-to labeled_tuples.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/labeled_tuples.ml labeled_tuples.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/labeled_tuples.ml.err labeled_tuples.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to labelled_args-414.ml.stdout
    (with-stderr-to labelled_args-414.ml.stderr
      (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 %{dep:tests/labelled_args.ml})))))
