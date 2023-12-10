@@ -1,6 +1,9 @@
-(* This test file is a copy of the compiler's "labeledtuples.ml" and
-   "labeled_tuples_dsource.ml" tests.  Not everything here is expected to typecheck, but
-   it should all parse.
+(* This test file is just a copy of some of the compiler's labeled tuple tests as a
+   convenient source of examples.  It include:
+   - labeledtuples.ml
+   - labeled_tuples_dsource.ml
+   - labeld_tuples_and_constructors.ml
+   Not everything here is expected to typecheck, but it should all parse.
 *)
 
 (* Basic expressions *)
@@ -232,3 +235,37 @@ let y = ~z, ~z, ~z:(z [@attr])
 let (~x:x0, ~s, ~(y : int), ..) : x:int * s:string * y:int * string =
   ~x:1, ~s:"a", ~y:2, "ignore me"
 ;;
+
+(* Constructor with labeled arguments (disallowed) *)
+
+type ('a, 'b) pair = Pair of 'a * 'b
+
+let x = Pair (~x:5, 2)
+
+(* Labeled tuple pattern in constructor pattern, with the same arity as the
+   constructor. This is intentionally disallowed. *)
+let f = function
+  | Pair (~x:5, 2) -> true
+  | _ -> false
+;;
+
+(* Labeled tuple patterns in constructor patterns with that can union with the
+   constructor pattern type. *)
+let f = function
+  | Some (~x:5, 2) -> true
+  | _ -> false
+;;
+
+type t = Foo of (x:int * int)
+
+let f = function
+  | Foo (~x:5, 2) -> true
+  | _ -> false
+;;
+
+let _ = f (Foo (~x:5, 2))
+let _ = f (Foo (~x:4, 2))
+let _ = f (Foo (~x:5, 1))
+let _ = f (Foo (5, 1))
+let _ = f (Foo (5, ~x:1))
+let _ = f (Foo (5, ~y:1))
