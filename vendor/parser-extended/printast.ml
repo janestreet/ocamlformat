@@ -216,7 +216,7 @@ let fmt_ty_var ppf (name, layout) =
 
 let tuple_component_label i ppf = function
   | None -> line i ppf "Label: None\n"
-  | Some s -> line i ppf "Label: Some \"%s\"\n" s.txt
+  | Some s -> line i ppf "Label: Some %a\n" fmt_string_loc s
 ;;
 
 let typevars ppf vs =
@@ -373,8 +373,7 @@ and pattern i ppf x =
       line i ppf "Ppat_cons\n";
       list i pattern ppf l
 
-and labeled_pattern =
-  fun i ppf (label, x) ->
+and labeled_pattern i ppf (label, x) =
     tuple_component_label i ppf label;
     pattern i ppf x
 
