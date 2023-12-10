@@ -133,10 +133,10 @@ and core_type_desc =
                                      {{!Asttypes.arg_label.Optional}[Optional]}.
          *)
   | Ptyp_tuple of (string loc option * core_type) list
-        (** [Lttyp_tuple(tl)] represents a product type:
-          - [T1 * ... * Tn]       when [tl] is [(None,T1);...;(None,Tn)]
-          - [L1:T1 * ... * Ln:Tn] when [tl] is [(Some L1,T1);...;(Some Ln,Tn)]
-          - A mix, e.g. [L1:T1,T2] when [tl] is [(Some L1,T1);(None,T2)]
+      (** [Ptyp_tuple(tl)] represents a product type:
+            - [T1 * ... * Tn]       when [tl] is [(None,T1);...;(None,Tn)]
+            - [L1:T1 * ... * Ln:Tn] when [tl] is [(Some L1,T1);...;(Some Ln,Tn)]
+            - A mix, e.g. [L1:T1,T2] when [tl] is [(Some L1,T1);(None,T2)]
 
           Invariant: [n >= 2]
       *)
@@ -271,16 +271,16 @@ and pattern_desc =
            Other forms of interval are recognized by the parser
            but rejected by the type-checker. *)
   | Ppat_tuple of (string loc option * pattern) list * Asttypes.closed_flag
-        (** [Ppat_tuple(pl, Closed)] represents
-          - [(P1, ..., Pn)]       when [pl] is [(None, P1);...;(None, Pn)]
-          - [(L1:P1, ..., Ln:Pn)] when [pl] is
-                                              [(Some L1, P1);...;(Some Ln, Pn)]
-          - A mix, e.g. [(L1:P1, P2)] when [pl] is [(Some L1, P1);(None, P2)]
-          - If pattern is open, then it also ends in a [..]
+      (** [Ppat_tuple(pl, Closed)] represents
+            - [(P1, ..., Pn)]       when [pl] is [(None, P1);...;(None, Pn)]
+            - [(L1:P1, ..., Ln:Pn)] when [pl] is
+                                                [(Some L1, P1);...;(Some Ln, Pn)]
+            - A mix, e.g. [(L1:P1, P2)] when [pl] is [(Some L1, P1);(None, P2)]
+            - If pattern is open, then it also ends in a [..]
 
         Invariant:
-        - If Closed, [n >= 2].
-        - If Open, [n >= 1].
+            - If Closed, [n >= 2].
+            - If Open, [n >= 1].
       *)
   | Ppat_construct of Longident.t loc * (string loc list * pattern) option
       (** [Ppat_construct(C, args)] represents:
@@ -373,13 +373,13 @@ and expression_desc =
   | Pexp_try of expression * case list
       (** [try E0 with P1 -> E1 | ... | Pn -> En] *)
   | Pexp_tuple of (string loc option * expression) list
-        (** [Pexp_tuple(el)] represents
-          - [(E1, ..., En)]
-              when [el] is [(None, E1);...;(None, En)]
-          - [(~L1:E1, ..., ~Ln:En)]
-              when [el] is [(Some L1, E1);...;(Some Ln, En)]
-          - A mix, e.g.:
-              [(~L1:E1, E2)] when [el] is [(Some L1, E1); (None, E2)]
+      (** [Pexp_tuple(el)] represents
+            - [(E1, ..., En)]
+                when [el] is [(None, E1);...;(None, En)]
+            - [(~L1:E1, ..., ~Ln:En)]
+                when [el] is [(Some L1, E1);...;(Some Ln, En)]
+            - A mix, e.g.:
+                [(~L1:E1, E2)] when [el] is [(Some L1, E1); (None, E2)]
 
           Invariant: [n >= 2].
       *)
