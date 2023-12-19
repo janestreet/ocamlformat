@@ -166,7 +166,7 @@ Debugging
 ---------
 
 - To see the `parser-extended` ast coming out of the parser for a given source
-  file, use `dune exec -- tools/printast/printast.exe path/to/your/file.ml`.
+  file, use `dune exec tools/printast/printast.exe -- path/to/your/file.ml`.
 
 - It can be useful to visualize the _boxes_ the pretty printer creates to align
   and group code.  To see these, run `ocamlformat` with the `-g` flag.  E.g.,:
