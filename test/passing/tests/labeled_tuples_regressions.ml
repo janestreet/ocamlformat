@@ -15,5 +15,7 @@ let foo a =
     , ~m:(lazy _)
     , ~n:(module M)
     , ~o:(exception _)
-    , ~p:[%bar baz] ) -> false
+    , ~p:[%bar baz]
+    , ~q:M.(A)
+    , ~r:M.(A 42) ) -> false
 ;;
