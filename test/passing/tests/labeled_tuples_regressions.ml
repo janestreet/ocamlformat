@@ -70,3 +70,12 @@ let bar =
        ())
   , ~p:(assert true) )
 ;;
+
+(* Labeled tuples in function return positions:  Parens are needed iff
+   the first element is labeled AND the return is `local_` *)
+module type S = sig
+  val t1 : unit -> int * y:bool
+  val t2 : unit -> local_ int * y:bool
+  val t3 : unit -> x:int * y:bool
+  val t4 : unit -> local_ (x:int * y:bool)
+end
