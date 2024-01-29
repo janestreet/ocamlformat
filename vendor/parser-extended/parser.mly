@@ -2478,7 +2478,7 @@ expr:
     name=mkrhs(LIDENT {Some $1}) COLON layout=layout_annotation
     RPAREN fun_def
     { let loc = $sloc in
-      wrap_exp_attrs ~loc (mk_newtypes ~loc:$sloc [name, Some layout] $9) $2 }
+      wrap_exp_attrs ~loc (mk_newtypes ~loc:$sloc [name, layout] $9) $2 }
   | expr attribute
       { Exp.attr $1 $2 }
 /* BEGIN AVOID */
@@ -2913,7 +2913,7 @@ strict_binding:
   | LPAREN TYPE
     name=mkrhs(LIDENT {Some $1}) COLON layout=layout_annotation
     RPAREN fun_binding
-      { mk_newtypes ~loc:$sloc [name, Some layout] $7 }
+      { mk_newtypes ~loc:$sloc [name, layout] $7 }
 ;
 local_fun_binding:
     local_strict_binding
@@ -2934,7 +2934,7 @@ local_strict_binding:
   | LPAREN TYPE
     name=mkrhs(LIDENT {Some $1}) COLON layout=layout_annotation
     RPAREN fun_binding
-      { mk_newtypes ~loc:$sloc [name, Some layout] $7 }
+      { mk_newtypes ~loc:$sloc [name, layout] $7 }
 ;
 %inline match_cases:
   xs = preceded_or_separated_nonempty_llist(BAR, match_case)
@@ -2967,7 +2967,7 @@ fun_def:
   | LPAREN TYPE
     name=mkrhs(LIDENT {Some $1}) COLON layout=layout_annotation
     RPAREN fun_def
-      { mk_newtypes ~loc:$sloc [name, Some layout] $7 }
+      { mk_newtypes ~loc:$sloc [name, layout] $7 }
 ;
 
 (* Parsing labeled tuple expressions
@@ -3106,7 +3106,7 @@ newtype: (* : string with_loc * layout_annotation option *)
   | LPAREN
     name=mkrhs(LIDENT {Some $1}) COLON layout=layout_annotation
     RPAREN
-      { name, Some layout }
+      { name, layout }
 
 /* Patterns */
 
@@ -3432,7 +3432,7 @@ generic_type_declaration(flag, kind):
   flag = flag
   params = type_parameters
   id = mkrhs(LIDENT)
-  layout = layout_attr?
+  layout = layout_attr_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
@@ -3450,7 +3450,7 @@ generic_type_declaration(flag, kind):
   attrs1 = attributes
   params = type_parameters
   id = mkrhs(LIDENT)
-  layout = layout_attr?
+  layout = layout_attr_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
@@ -3514,13 +3514,17 @@ type_parameters:
 ;
 
 layout_annotation: (* : layout_annotation *)
-  ident { let loc = make_loc $sloc in
-          mkloc (check_layout ~loc $1) loc }
+  ident {
+    if Erase_jane_syntax.should_erase () then None
+    else
+      let loc = make_loc $sloc in
+      Some (mkloc (check_layout ~loc $1) loc) }
 ;
 
-layout_attr:
-  COLON
-  layout_annotation
+layout_attr_opt:
+  /* empty */
+    { None }
+  | COLON layout_annotation
     { $2 }
 ;
 
@@ -3529,7 +3533,7 @@ layout_attr:
   attrs=attributes
   COLON
   layout=layout_annotation
-  { let descr = Ptyp_var (name, Some layout) in
+  { let descr = Ptyp_var (name, layout) in
     mktyp ~loc:$sloc ~attrs descr }
 ;
 
@@ -3795,7 +3799,7 @@ with_type_binder:
   QUOTE mkrhs(ident {Some $1})
     { $2, None }
   | LPAREN QUOTE mkrhs(ident {Some $1})  COLON layout=layout_annotation RPAREN
-    { $3, Some layout }
+    { $3, layout }
 ;
 %inline typevar_list:
   (* : (string with_loc * layout_annotation option) list *)
@@ -3851,16 +3855,20 @@ alias_type:
       { $1 }
   | mktyp(
       ty = alias_type AS QUOTE tyvar = mkrhs(ident {Some $1})
-        { Ptyp_alias(ty, (tyvar, None)) }
-    | aliased_type = alias_type AS
+        { Ptyp_alias(ty, (tyvar, None)) })
+    { $1 }
+  | aliased_type = alias_type AS
       LPAREN
       name=mkrhs(tyvar_name_or_underscore)
       COLON
       layout = layout_annotation
       RPAREN
-        { Ptyp_alias (aliased_type, (name, Some layout)) }
-    )
-    { $1 }
+        { match layout, name.txt with
+        | None, None ->
+          assert (Erase_jane_syntax.should_erase ());
+          aliased_type
+        | _ ->
+          mktyp ~loc:$sloc (Ptyp_alias (aliased_type, (name, layout))) }
 ;
 
 (* Function types include:
@@ -4108,9 +4116,9 @@ atomic_type:
     | extension
         { Ptyp_extension $1 }
     | LPAREN QUOTE name=mkrhs(ident {Some $1}) COLON layout=layout_annotation RPAREN
-      { Ptyp_var (name, Some layout) }
+      { Ptyp_var (name, layout) }
     | LPAREN mkrhs(UNDERSCORE {None}) COLON layout=layout_annotation RPAREN
-      { Ptyp_var ($2, Some layout) }
+      { Ptyp_var ($2, layout) }
 
   )
   { $1 } /* end mktyp group */
