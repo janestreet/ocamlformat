@@ -252,6 +252,19 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           convert_legacy_jane_street_local_annotations ~segment:Type
             typ.ptyp_attributes }
     in
+    let typ =
+      match typ with
+      (* Allow [???#] to [???] change when erasing jane syntax. *)
+      | {ptyp_desc= Ptyp_constr (({txt= Lident s; _} as ident_loc), l); _}
+        when String.is_suffix s ~suffix:"#" && erase_jane_syntax ->
+          { typ with
+            ptyp_desc=
+              Ptyp_constr
+                ( { ident_loc with
+                    txt= Lident (String.chop_suffix_exn s ~suffix:"#") }
+                , l ) }
+      | _ -> typ
+    in
     Ast_mapper.default_mapper.typ m typ
   in
   let structure =
