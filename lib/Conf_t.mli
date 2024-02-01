@@ -102,6 +102,7 @@ type fmt_opts =
   ; parens_ite: bool elt
   ; parens_tuple: [`Always | `Multi_line_only] elt
   ; parens_tuple_patterns: [`Always | `Multi_line_only] elt
+  ; parens_tuple_labeled_arg_types: bool elt
   ; parse_docstrings: bool elt
   ; parse_toplevel_phrases: bool elt
   ; sequence_blank_line: [`Compact | `Preserve_one] elt
