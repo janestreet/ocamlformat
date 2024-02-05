@@ -22,6 +22,11 @@ type t_any : any
 
 type t_void : void
 
+(* Attributes are not changed *)
+type old_imm [@@immediate]
+
+type old_imm64 [@@immediate64]
+
 (***************************************)
 (* Test 1: annotation on type variable *)
 
@@ -310,3 +315,9 @@ let f (type (a : immediate) b) x = x
 let f (type a (b : immediate)) x = x
 
 let f (type (a : immediate) (b : immediate)) x = x
+
+module type S = sig
+  val init_with_immediates :
+    ('a : immediate) ('b : immediate).
+    int -> f:local_ (int -> local_ 'a) -> local_ 'a t
+end
