@@ -10,9 +10,9 @@ type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
 
 type t_value
 
-type t_imm
+type t_imm [@@immediate]
 
-type t_imm64
+type t_imm64 [@@immediate64]
 
 type t_float64
 

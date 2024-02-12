@@ -716,6 +716,14 @@ let check_layout ~loc id : const_layout =
   | "bits32" -> Bits32
   | "bits64" -> Bits64
   | _ -> expecting_loc loc "layout"
+
+let convert_layout_to_legacy_attr =
+  let mk ~loc name = [Attr.mk ~loc (mkloc name loc) (PStr [])] in
+  function
+  | {txt = Immediate; loc} -> mk ~loc "immediate"
+  | {txt = Immediate64; loc} -> mk ~loc "immediate64"
+  | _ -> []
+
 %}
 
 /* Tokens */
@@ -3432,14 +3440,15 @@ generic_type_declaration(flag, kind):
   flag = flag
   params = type_parameters
   id = mkrhs(LIDENT)
-  layout = layout_attr_opt
+  layout_and_attr = layout_attr_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
     {
       let (kind, priv, manifest) = kind_priv_manifest in
+      let (layout, attrs3) = layout_and_attr in
       let docs = symbol_docs $sloc in
-      let attrs = attrs1 @ attrs2 in
+      let attrs = attrs1 @ attrs2 @ attrs3 in
       let loc = make_loc $sloc in
       (flag, ext),
       Type.mk id ~params ?layout ~cstrs ~kind ~priv ?manifest ~attrs ~loc ~docs
@@ -3450,14 +3459,15 @@ generic_type_declaration(flag, kind):
   attrs1 = attributes
   params = type_parameters
   id = mkrhs(LIDENT)
-  layout = layout_attr_opt
+  layout_and_attr = layout_attr_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
     {
       let (kind, priv, manifest) = kind_priv_manifest in
+      let (layout, attrs3) = layout_and_attr in
       let docs = symbol_docs $sloc in
-      let attrs = attrs1 @ attrs2 in
+      let attrs = attrs1 @ attrs2 @ attrs3 in
       let loc = make_loc $sloc in
       let text = symbol_text $symbolstartpos in
       Type.mk id ~params ?layout ~cstrs ~kind ~priv ?manifest ~attrs ~loc ~docs ~text
@@ -3513,19 +3523,30 @@ type_parameters:
       { ps }
 ;
 
-layout_annotation: (* : layout_annotation *)
-  ident {
-    if Erase_jane_syntax.should_erase () then None
-    else
+layout_annotation_gen:
+  ident
+    {
       let loc = make_loc $sloc in
-      Some (mkloc (check_layout ~loc $1) loc) }
+      (mkloc (check_layout ~loc $1) loc)
+    }
+
+layout_annotation: (* : layout_annotation *)
+  layout_annotation_gen
+    {
+      if Erase_jane_syntax.should_erase () then None
+      else Some $1
+    }
 ;
 
 layout_attr_opt:
   /* empty */
-    { None }
-  | COLON layout_annotation
-    { $2 }
+    { None, [] }
+  | COLON layout_annotation_gen
+    {
+      if Erase_jane_syntax.should_erase ()
+      then None, convert_layout_to_legacy_attr $2
+      else Some $2, []
+    }
 ;
 
 %inline type_param_with_layout:
