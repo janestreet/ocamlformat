@@ -3540,6 +3540,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_annotation_immediate_rewrite.ml.stdout
+   (with-stderr-to layout_annotation_immediate_rewrite.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --max-iter=4 --profile=janestreet %{dep:tests/layout_annotation_immediate_rewrite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_immediate_rewrite.ml.ref layout_annotation_immediate_rewrite.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_immediate_rewrite.ml.err layout_annotation_immediate_rewrite.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to lazy.ml.stdout
    (with-stderr-to lazy.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/lazy.ml})))))

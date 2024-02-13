@@ -22,11 +22,6 @@ type t_any : any
 
 type t_void : void
 
-(* Attributes are not changed *)
-type old_imm [@@immediate]
-
-type old_imm64 [@@immediate64]
-
 (***************************************)
 (* Test 1: annotation on type variable *)
 

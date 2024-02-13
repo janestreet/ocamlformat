@@ -98,6 +98,8 @@ let is_doc = function
 let is_erasable_jane_syntax attr =
   String.is_prefix ~prefix:"jane.erasable." attr.attr_name.txt
 
+(* Immediate layout annotations should be treated the same as their attribute
+   counterparts *)
 let convert_immediate_annot_to_legacy_attr attr =
   match (attr.attr_name.txt, attr.attr_payload) with
   (* CR layouts: change to something like: {[ | (
@@ -355,10 +357,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   in
   let type_declaration (m : Ast_mapper.mapper) decl =
     let ptype_attributes =
-      if erase_jane_syntax then
-        decl.ptype_attributes
-        |> List.map ~f:convert_immediate_annot_to_legacy_attr
-      else decl.ptype_attributes
+      decl.ptype_attributes
+      |> List.map ~f:convert_immediate_annot_to_legacy_attr
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
   in
