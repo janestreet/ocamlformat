@@ -100,18 +100,22 @@ let is_erasable_jane_syntax attr =
 
 (* Immediate layout annotations should be treated the same as their attribute
    counterparts *)
-let convert_immediate_annot_to_legacy_attr attr =
+let normalize_immediate_annot_and_attrs attr =
   match (attr.attr_name.txt, attr.attr_payload) with
   (* CR layouts: change to something like: {[ | (
      "jane.erasable.layouts.annot" , PStr [ { pstr_desc= Pstr_eval
      ({pexp_desc= Pexp_ident {txt= Lident "immediate"; _}; _}, _) ; _ } ] )
      -> attr ]} after the parsing logic catches up to what's in
      flambda-backend. *)
-  | "jane.erasable.layouts.immediate", _ ->
+  (* We also have to normalize "ocaml.immediate" into "immediate"
+     for this to work. Since if we rewrite [@@ocaml.immediate] into
+     an annotation and treat that as [@@immediate]. That's an attribute
+     change we need to accept. *)
+  | "jane.erasable.layouts.immediate", _ | "ocaml.immediate", _ ->
       { attr with
         attr_name= {attr.attr_name with txt= "immediate"}
       ; attr_payload= PStr [] }
-  | "jane.erasable.layouts.immediate64", _ ->
+  | "jane.erasable.layouts.immediate64", _ | "ocaml.immediate64", _ ->
       { attr with
         attr_name= {attr.attr_name with txt= "immediate64"}
       ; attr_payload= PStr [] }
@@ -358,7 +362,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   let type_declaration (m : Ast_mapper.mapper) decl =
     let ptype_attributes =
       decl.ptype_attributes
-      |> List.map ~f:convert_immediate_annot_to_legacy_attr
+      |> List.map ~f:normalize_immediate_annot_and_attrs
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
   in
