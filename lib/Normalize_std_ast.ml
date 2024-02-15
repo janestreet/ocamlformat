@@ -111,11 +111,13 @@ let normalize_immediate_annot_and_attrs attr =
      for this to work. Since if we rewrite [@@ocaml.immediate] into
      an annotation and treat that as [@@immediate]. That's an attribute
      change we need to accept. *)
-  | "jane.erasable.layouts.immediate", _ | "ocaml.immediate", _ ->
+  | "jane.erasable.layouts.immediate", PStr [] | "ocaml.immediate", PStr []
+    ->
       { attr with
         attr_name= {attr.attr_name with txt= "immediate"}
       ; attr_payload= PStr [] }
-  | "jane.erasable.layouts.immediate64", _ | "ocaml.immediate64", _ ->
+  | "jane.erasable.layouts.immediate64", PStr []
+   |"ocaml.immediate64", PStr [] ->
       { attr with
         attr_name= {attr.attr_name with txt= "immediate64"}
       ; attr_payload= PStr [] }

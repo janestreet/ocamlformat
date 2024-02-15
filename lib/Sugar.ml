@@ -132,9 +132,9 @@ let remove_local_attrs cmts param =
       Pparam_val (is_local, label, default, {pattern with ppat_attributes})
 
 let get_layout_of_legacy_attr attr =
-  match attr.attr_name.txt with
-  | "ocaml.immediate64" | "immediate64" -> Some Immediate64
-  | "ocaml.immediate" | "immediate" -> Some Immediate
+  match (attr.attr_name.txt, attr.attr_payload) with
+  | ("ocaml.immediate64" | "immediate64"), PStr [] -> Some Immediate64
+  | ("ocaml.immediate" | "immediate"), PStr [] -> Some Immediate
   | _ -> None
 
 let rewrite_type_declaration_imm_attr_to_layout_annot cmts decl =
