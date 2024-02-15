@@ -18,6 +18,9 @@ type old_imm (* a *)[@@immediate(* b *)](* c *)
 
 type old_imm64 = (* a *)s (* b *) [@@immediate64](* c *)
 
+type  old_imm64' = (* a *)s (* b *) [@@immediate64](* c *)[@@abc](* d *)
+
+
 (* Do nothing if there are more than one attribute *)
 
 type old_imm [@@immediate] [@@immediate]

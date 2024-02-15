@@ -11,14 +11,15 @@ type old_imm64 : immediate64 = q
 
 (* Comments are not dropped *)
 
-type old_imm : immediate
-
 (* a *)
 (* b *)
-(* c *)
-type old_imm64 : immediate64 = (* a *) s
+type old_imm : immediate (* c *)
+
 (* b *)
-(* c *)
+type old_imm64 : immediate64 = (* a *) s (* c *)
+
+(* b *)
+type old_imm64' : immediate64 = (* a *) s (* c *) [@@abc] (* d *)
 
 (* Do nothing if there are more than one attribute *)
 

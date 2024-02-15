@@ -150,10 +150,10 @@ let rewrite_type_declaration_imm_attr_to_layout_annot cmts decl =
       (* We only do this rewrite if (1.) there's no layout annotation already
          present and (2.) only one immediate attribute is attached *)
       let ptype_layout = Some Location.(mknoloc layout) in
-      Cmts.relocate_all_to_after cmts ~src:attr.attr_name.loc
-        ~after:decl.ptype_name.loc ;
-      Cmts.relocate_all_to_after cmts ~src:attr.attr_loc
-        ~after:decl.ptype_name.loc ;
+      Cmts.relocate_all_to_before cmts ~src:attr.attr_name.loc
+        ~before:decl.ptype_loc ;
+      Cmts.relocate_all_to_before cmts ~src:attr.attr_loc
+        ~before:decl.ptype_loc ;
       {decl with ptype_attributes= remaining_attrs; ptype_layout}
   | _ -> decl
 
