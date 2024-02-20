@@ -317,6 +317,9 @@ let merge_and_sort x y =
   List.rev_append x y
   |> List.sort ~compare:(Comparable.lift Location.compare_start ~f:Cmt.loc)
 
+(* [relocate], [relocate_all_to_before], and [relocate_all_to_after] are very
+   similar in implementation. When fixing bugs, should consider propagating
+   the changes to all three functions. *)
 let relocate (t : t) ~src ~before ~after =
   if t.debug then
     Format.eprintf "relocate %a to %a and %a@\n%!" Location.fmt src
@@ -333,6 +336,9 @@ let relocate (t : t) ~src ~before ~after =
         let s = Set.add s after in
         Set.add s before )
 
+(* [relocate], [relocate_all_to_before], and [relocate_all_to_after] are very
+   similar in implementation. When fixing bugs, should consider propagating
+   the changes to all three functions. *)
 let relocate_all_to_before (t : t) ~src ~before =
   if t.debug then
     Format.eprintf "relocate %a all to %a@\n%!" Location.fmt src Location.fmt
@@ -354,6 +360,9 @@ let relocate_all_to_before (t : t) ~src ~before =
         let s = Set.remove s src in
         Set.add s before )
 
+(* [relocate], [relocate_all_to_before], and [relocate_all_to_after] are very
+   similar in implementation. When fixing bugs, should consider propagating
+   the changes to all three functions. *)
 let relocate_all_to_after (t : t) ~src ~after =
   if t.debug then
     Format.eprintf "relocate %a all to %a@\n%!" Location.fmt src Location.fmt
