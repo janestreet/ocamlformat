@@ -288,6 +288,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                 ( { ident_loc with
                     txt= Lident (String.chop_suffix_exn s ~suffix:"#") }
                 , l ) }
+      | {ptyp_desc= Ptyp_extension ({txt= "src_pos"; _}, _); _}
+        when erase_jane_syntax ->
+          { typ with
+            ptyp_desc=
+              Ptyp_constr
+                ( {loc= typ.ptyp_loc; txt= Ldot (Lident "Lexing", "position")}
+                , [] ) }
       | _ -> typ
     in
     Ast_mapper.default_mapper.typ m typ

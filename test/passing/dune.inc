@@ -2370,6 +2370,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to implicit_source_position_erased.ml.stdout
+   (with-stderr-to implicit_source_position_erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/implicit_source_position_erased.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position_erased.ml.ref implicit_source_position_erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position_erased.ml.err implicit_source_position_erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to include_functor.ml.stdout
    (with-stderr-to include_functor.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))

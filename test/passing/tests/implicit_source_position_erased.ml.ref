@@ -1,0 +1,14 @@
+(* Note that this file cannot contain legacy local annotation syntax. If a
+   file with legacy local annotations wants to have its syntax erased, call
+   ocamlformat once without the --erase-jane-syntax flag to rewrite it into
+   the new syntax and then call ocamlformat a second time to erase the
+   syntax. *)
+let f a b c = 1
+
+let f a ~foo:b ?foo:(c = 1) ~d = ()
+
+let f ~(src_pos : Lexing.position) () = src_pos
+
+let g : src_pos:Lexing.position -> unit -> Lexing.position = f
+
+let here = [%src_pos]

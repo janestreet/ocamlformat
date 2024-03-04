@@ -802,7 +802,14 @@ and fmt_arrow_param ~return c ctx
     | _ -> false
   in
   let core_type =
-    Params.parens_if labeled_tuple_ret_parens c.conf (fmt_core_type c xtI)
+    let fmt =
+      match xtI.ast.ptyp_desc with
+      | Ptyp_extension ({txt= "src_pos"; _}, _)
+        when Erase_jane_syntax.should_erase () ->
+          str "Lexing.position"
+      | _ -> fmt_core_type c xtI
+    in
+    Params.parens_if labeled_tuple_ret_parens c.conf fmt
   in
   let arg =
     match arg_label lI with
@@ -1341,13 +1348,20 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             (fits_breaks (if parens then ")" else "") "")
             (fits_breaks (if parens then ")" else "") ~hint:(1, 2) ")") )
   | Ppat_constraint (pat, typ) ->
+      let type_fmt =
+        match typ.ptyp_desc with
+        | Ptyp_extension ({txt= "src_pos"; _}, _)
+          when Erase_jane_syntax.should_erase () ->
+            str "Lexing.position"
+        | _ -> fmt_core_type c (sub_typ ~ctx typ)
+      in
       hvbox 2
         (Params.parens_if parens c.conf
            ( fmt_pattern c (sub_pat ~ctx pat)
            $ ( match ctx0 with
              | Exp {pexp_desc= Pexp_let _; _} -> fmt "@ : "
              | _ -> fmt " :@ " )
-           $ fmt_core_type c (sub_typ ~ctx typ) ) )
+           $ type_fmt ) )
   | Ppat_type lid -> fmt_longident_loc c ~pre:"#" lid
   | Ppat_lazy pat ->
       cbox 2
