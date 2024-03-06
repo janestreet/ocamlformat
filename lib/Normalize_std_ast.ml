@@ -173,6 +173,9 @@ let docstring (c : Conf.t) =
 let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
+let dummy_position ~loc =
+  Ast_helper.Exp.ident {loc; txt= Ldot (Lident "Lexing", "dummy_pos")}
+
 let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   let open Ast_helper in
   (* remove locations *)
@@ -236,6 +239,27 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           (Exp.sequence ~loc:loc1 ~attrs:attrs1
              (Exp.sequence ~loc:loc2 ~attrs:attrs2 exp1 exp2)
              exp3 )
+    | Pexp_fun
+        ( Labelled l
+        , None
+        , { ppat_desc=
+              Ppat_constraint
+                ( pat
+                , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+                )
+          ; _ }
+        , expression )
+      when erase_jane_syntax ->
+        let default_pos = dummy_position ~loc in
+        let expression =
+          let pexp_desc =
+            Pexp_fun (Optional l, Some default_pos, pat, expression)
+          in
+          {exp with pexp_desc}
+        in
+        m.expr m expression
+    | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
+        m.expr m (dummy_position ~loc)
     | _ -> (
       match convert_legacy_jane_street_local_extension_expressions exp with
       | `Changed exp -> m.expr m exp

@@ -1583,7 +1583,11 @@ end = struct
       | Pstr_value {pvbs_bindings; _} ->
           assert (
             List.exists pvbs_bindings ~f:(fun {pvb_expr; _} ->
-                pvb_expr == exp ) )
+                match pvb_expr.pexp_desc with
+                | Pexp_extension ({txt= "src_pos"; _}, _)
+                  when Erase_jane_syntax.should_erase () ->
+                    true
+                | _ -> pvb_expr == exp ) )
       | Pstr_extension ((_, ext), _) -> assert (check_extensions ext)
       | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_exception _
        |Pstr_module _ | Pstr_recmodule _ | Pstr_modtype _ | Pstr_open _

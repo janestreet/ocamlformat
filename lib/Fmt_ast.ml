@@ -556,6 +556,9 @@ let fmt_layout_str ~c ~loc string =
 
 let fmt_layout c l = fmt_layout_str ~c ~loc:l.loc (layout_to_string l.txt)
 
+let dummy_position ~loc =
+  Ast_helper.Exp.ident {loc; txt= Ldot (Lident "Lexing", "dummy_pos")}
+
 let fmt_type_var ~have_tick c s =
   let {txt= name_opt; loc= name_loc}, layout_opt = s in
   ( Cmts.fmt c name_loc
@@ -1348,13 +1351,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             (fits_breaks (if parens then ")" else "") "")
             (fits_breaks (if parens then ")" else "") ~hint:(1, 2) ")") )
   | Ppat_constraint (pat, typ) ->
-      let type_fmt =
-        match typ.ptyp_desc with
-        | Ptyp_extension ({txt= "src_pos"; _}, _)
-          when Erase_jane_syntax.should_erase () ->
-            str "Lexing.position"
-        | _ -> fmt_core_type c (sub_typ ~ctx typ)
-      in
+      let type_fmt = fmt_core_type c (sub_typ ~ctx typ) in
       hvbox 2
         (Params.parens_if parens c.conf
            ( fmt_pattern c (sub_pat ~ctx pat)
@@ -1441,6 +1438,26 @@ and fmt_fun_args c args =
   let fmt_fun_arg (a : function_param) =
     let a =
       {a with pparam_desc= Sugar.remove_local_attrs c.cmts a.pparam_desc}
+    in
+    let a =
+      match a.pparam_desc with
+      | Pparam_val
+          ( local
+          , Labelled label
+          , None
+          , { ppat_desc=
+                Ppat_constraint
+                  ( pat
+                  , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+                  )
+            ; _ } )
+        when Erase_jane_syntax.should_erase () ->
+          let pparam_desc =
+            Pparam_val
+              (local, Optional label, Some (dummy_position ~loc), pat)
+          in
+          {a with pparam_desc}
+      | _ -> a
     in
     let ctx = Fp a in
     Cmts.fmt c a.pparam_loc
@@ -1956,7 +1973,15 @@ and maybe_fmt_expression_extension c ~pexp_loc ~fmt_atrs ~has_attr ~parens
   | None -> fmt_normal_expr ()
 
 and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
-    ?(indent_wrap = 0) ?ext ({ast= exp; ctx= ctx0} as xexp) =
+    ?(indent_wrap = 0) ?ext (exp : _ xt) =
+  let exp =
+    match exp.ast.pexp_desc with
+    | Pexp_extension ({txt= "src_pos"; loc}, _)
+      when Erase_jane_syntax.should_erase () ->
+        sub_exp ~ctx:exp.ctx (dummy_position ~loc)
+    | _ -> exp
+  in
+  let ({ast= exp; ctx= ctx0} as xexp) = exp in
   protect c (Exp exp)
   @@
   let {pexp_desc; pexp_loc; pexp_attributes; _} = exp in

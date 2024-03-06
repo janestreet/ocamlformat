@@ -7,8 +7,12 @@ let f a b c = 1
 
 let f (local_ a) ~foo:(local_ b) ?foo:(local_ c = 1) ~(local_ d) = ()
 
-let f ~(src_pos : [%src_pos]) () = src_pos
+let punned_pattern ~(src_pos : [%src_pos]) () = src_pos
 
-let g : src_pos:[%src_pos] -> unit -> Lexing.position = f
+let ignored_pattern ~src_pos:(_ : [%src_pos]) () = 1
 
-let here = [%src_pos]
+let destructured_pattern ~src_pos:({pos_fname; _ } : [%src_pos]) () = ()
+
+let in_a_type : src_pos:[%src_pos] -> unit -> Lexing.position = punned_pattern
+
+let in_an_expression = [%src_pos]
