@@ -1357,14 +1357,13 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             (fits_breaks (if parens then ")" else "") "")
             (fits_breaks (if parens then ")" else "") ~hint:(1, 2) ")") )
   | Ppat_constraint (pat, typ) ->
-      let type_fmt = fmt_core_type c (sub_typ ~ctx typ) in
       hvbox 2
         (Params.parens_if parens c.conf
            ( fmt_pattern c (sub_pat ~ctx pat)
            $ ( match ctx0 with
              | Exp {pexp_desc= Pexp_let _; _} -> fmt "@ : "
              | _ -> fmt " :@ " )
-           $ type_fmt ) )
+           $ fmt_core_type c (sub_typ ~ctx typ) ) )
   | Ppat_type lid -> fmt_longident_loc c ~pre:"#" lid
   | Ppat_lazy pat ->
       cbox 2
