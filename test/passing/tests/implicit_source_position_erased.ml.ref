@@ -4,10 +4,6 @@
    The test output for this file can be found in
    [implicit_source_position_erased.ml.ref]. The options for this test can be
    found in [implicit_source_position_erased.ml.opts]. *)
-let f a b c = 1
-
-let f a ~foo:b ?foo:(c = 1) ~d = ()
-
 let punned_pattern ?(call_pos = Lexing.dummy_pos) () = call_pos
 
 let ignored_pattern ?call_pos:(_ = Lexing.dummy_pos) () = 1

@@ -3,10 +3,6 @@
    The test output for this file can be found in [implicit_source_position_erased.ml.ref].
    The options for this test can be found in  [implicit_source_position_erased.ml.opts].
 *)
-let f a b c = 1
-
-let f (local_ a) ~foo:(local_ b) ?foo:(local_ c = 1) ~(local_ d) = ()
-
 let punned_pattern ~(call_pos : [%call_pos]) () = call_pos
 
 let ignored_pattern ~call_pos:(_ : [%call_pos]) () = 1
