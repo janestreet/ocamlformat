@@ -1,8 +1,9 @@
-(* Note that this file cannot contain legacy local annotation syntax. If a
-   file with legacy local annotations wants to have its syntax erased, call
-   ocamlformat once without the --erase-jane-syntax flag to rewrite it into
-   the new syntax and then call ocamlformat a second time to erase the
-   syntax. *)
+(* This file is the test case for erasing "implicit source position"
+   arguments.
+
+   The test output for this file can be found in
+   [implicit_source_position_erased.ml.ref]. The options for this test can be
+   found in [implicit_source_position_erased.ml.opts]. *)
 let f a b c = 1
 
 let f a ~foo:b ?foo:(c = 1) ~d = ()
