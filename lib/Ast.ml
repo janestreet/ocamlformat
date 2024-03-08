@@ -1009,7 +1009,15 @@ end = struct
       | Ptyp_any | Ptyp_var _ -> assert false
       | Ptyp_alias (t1, _) | Ptyp_poly (_, t1) -> assert (typ == t1)
       | Ptyp_arrow (t, t2) ->
-          assert (List.exists t ~f:(fun x -> typ == x.pap_type) || typ == t2)
+          assert (
+            List.exists t ~f:(fun x ->
+                match (x.pap_label, x.pap_type) with
+                | ( Labelled _
+                  , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; _}, _); _} )
+                  when Erase_jane_syntax.should_erase () ->
+                    true
+                | _ -> typ == x.pap_type )
+            || typ == t2 )
       | Ptyp_tuple t1N -> assert (List.exists t1N ~f:(fun (_, t) -> f t))
       | Ptyp_constr (_, t1N) -> assert (List.exists t1N ~f)
       | Ptyp_variant (r1N, _, _) ->

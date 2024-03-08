@@ -781,6 +781,19 @@ and type_constr_and_body c xbody =
    types. The ~return parameter distinguishes. *)
 and fmt_arrow_param ~return c ctx
     ({pap_label= lI; pap_loc= locI; pap_type= tI}, localI) =
+  let lI, tI =
+    match (lI, tI.ptyp_desc) with
+    | Labelled l, Ptyp_extension ({txt= "src_pos"; loc}, _)
+      when Erase_jane_syntax.should_erase () ->
+        let label = Optional l in
+        let type_ =
+          Ast_helper.Typ.constr
+            {loc; txt= Ldot (Lident "Lexing", "position")}
+            []
+        in
+        (label, type_)
+    | _ -> (lI, tI)
+  in
   let arg_label lbl =
     match lbl with
     | Nolabel -> if localI then Some (str "local_ ") else None
@@ -805,14 +818,7 @@ and fmt_arrow_param ~return c ctx
     | _ -> false
   in
   let core_type =
-    let fmt =
-      match xtI.ast.ptyp_desc with
-      | Ptyp_extension ({txt= "src_pos"; _}, _)
-        when Erase_jane_syntax.should_erase () ->
-          str "Lexing.position"
-      | _ -> fmt_core_type c xtI
-    in
-    Params.parens_if labeled_tuple_ret_parens c.conf fmt
+    Params.parens_if labeled_tuple_ret_parens c.conf (fmt_core_type c xtI)
   in
   let arg =
     match arg_label lI with

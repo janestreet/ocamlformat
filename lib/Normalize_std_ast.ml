@@ -312,13 +312,22 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                 ( { ident_loc with
                     txt= Lident (String.chop_suffix_exn s ~suffix:"#") }
                 , l ) }
-      | {ptyp_desc= Ptyp_extension ({txt= "src_pos"; _}, _); _}
+      | { ptyp_desc=
+            Ptyp_arrow
+              ( Labelled l
+              , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+              , return_type )
+        ; _ }
         when erase_jane_syntax ->
-          { typ with
-            ptyp_desc=
-              Ptyp_constr
-                ( {loc= typ.ptyp_loc; txt= Ldot (Lident "Lexing", "position")}
-                , [] ) }
+          let lexing_position_type =
+            Ast_helper.Typ.constr
+              {loc; txt= Ldot (Lident "Lexing", "position")}
+              []
+          in
+          let desc =
+            Ptyp_arrow (Optional l, lexing_position_type, return_type)
+          in
+          {typ with ptyp_desc= desc}
       | _ -> typ
     in
     Ast_mapper.default_mapper.typ m typ

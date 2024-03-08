@@ -13,7 +13,7 @@ let ignored_pattern ?src_pos:(_ = Lexing.dummy_pos) () = 1
 
 let destructured_pattern ?src_pos:({pos_fname; _} = Lexing.dummy_pos) () = ()
 
-let in_a_type : src_pos:Lexing.position -> unit -> Lexing.position =
+let in_a_type : ?src_pos:Lexing.position -> unit -> Lexing.position =
   punned_pattern
 
 let in_an_expression = Lexing.dummy_pos
