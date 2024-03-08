@@ -245,7 +245,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         , { ppat_desc=
               Ppat_constraint
                 ( pat
-                , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+                , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
                 )
           ; _ }
         , expression )
@@ -315,7 +315,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       | { ptyp_desc=
             Ptyp_arrow
               ( Labelled l
-              , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+              , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
               , return_type )
         ; _ }
         when erase_jane_syntax ->

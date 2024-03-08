@@ -7,13 +7,14 @@ let f a b c = 1
 
 let f a ~foo:b ?foo:(c = 1) ~d = ()
 
-let punned_pattern ?(src_pos = Lexing.dummy_pos) () = src_pos
+let punned_pattern ?(call_pos = Lexing.dummy_pos) () = call_pos
 
-let ignored_pattern ?src_pos:(_ = Lexing.dummy_pos) () = 1
+let ignored_pattern ?call_pos:(_ = Lexing.dummy_pos) () = 1
 
-let destructured_pattern ?src_pos:({pos_fname; _} = Lexing.dummy_pos) () = ()
+let destructured_pattern ?call_pos:({pos_fname; _} = Lexing.dummy_pos) () =
+  ()
 
-let in_a_type : ?src_pos:Lexing.position -> unit -> Lexing.position =
+let in_a_type : ?call_pos:Lexing.position -> unit -> Lexing.position =
   punned_pattern
 
 let in_an_expression = Lexing.dummy_pos

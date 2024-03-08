@@ -783,7 +783,7 @@ and fmt_arrow_param ~return c ctx
     ({pap_label= lI; pap_loc= locI; pap_type= tI}, localI) =
   let lI, tI =
     match (lI, tI.ptyp_desc) with
-    | Labelled l, Ptyp_extension ({txt= "src_pos"; loc}, _)
+    | Labelled l, Ptyp_extension ({txt= "call_pos"; loc}, _)
       when Erase_jane_syntax.should_erase () ->
         let label = Optional l in
         let type_ =
@@ -1454,7 +1454,7 @@ and fmt_fun_args c args =
           , { ppat_desc=
                 Ppat_constraint
                   ( pat
-                  , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; loc}, _); _}
+                  , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
                   )
             ; _ } )
         when Erase_jane_syntax.should_erase () ->

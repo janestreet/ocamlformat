@@ -1013,7 +1013,8 @@ end = struct
             List.exists t ~f:(fun x ->
                 match (x.pap_label, x.pap_type) with
                 | ( Labelled _
-                  , {ptyp_desc= Ptyp_extension ({txt= "src_pos"; _}, _); _} )
+                  , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; _}, _); _}
+                  )
                   when Erase_jane_syntax.should_erase () ->
                     true
                 | _ -> typ == x.pap_type )
