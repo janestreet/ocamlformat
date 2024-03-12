@@ -4,14 +4,15 @@
    The test output for this file can be found in
    [implicit_source_position_erased.ml.ref]. The options for this test can be
    found in [implicit_source_position_erased.ml.opts]. *)
-let punned_pattern ?(call_pos = Lexing.dummy_pos) () = call_pos
+let punned_pattern ?(call_pos = Stdlib.Lexing.dummy_pos) () = call_pos
 
-let ignored_pattern ?call_pos:(_ = Lexing.dummy_pos) () = 1
+let ignored_pattern ?call_pos:(_ = Stdlib.Lexing.dummy_pos) () = 1
 
-let destructured_pattern ?call_pos:({pos_fname; _} = Lexing.dummy_pos) () =
+let destructured_pattern ?call_pos:({pos_fname; _} = Stdlib.Lexing.dummy_pos)
+    () =
   ()
 
-let in_a_type : ?call_pos:Lexing.position -> unit -> Lexing.position =
+let in_a_type : ?call_pos:Stdlib.Lexing.position -> unit -> Lexing.position =
   punned_pattern
 
-let in_an_expression = Lexing.dummy_pos
+let in_an_expression = Stdlib.Lexing.dummy_pos

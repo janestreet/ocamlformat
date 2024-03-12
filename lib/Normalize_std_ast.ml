@@ -174,7 +174,8 @@ let sort_attributes : attributes -> attributes =
   List.sort ~compare:Poly.compare
 
 let dummy_position ~loc =
-  Ast_helper.Exp.ident {loc; txt= Ldot (Lident "Lexing", "dummy_pos")}
+  Ast_helper.Exp.ident
+    {loc; txt= Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos")}
 
 let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   let open Ast_helper in
@@ -321,7 +322,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         when erase_jane_syntax ->
           let lexing_position_type =
             Ast_helper.Typ.constr
-              {loc; txt= Ldot (Lident "Lexing", "position")}
+              {loc; txt= Ldot (Ldot (Lident "Stdlib", "Lexing"), "position")}
               []
           in
           let desc =

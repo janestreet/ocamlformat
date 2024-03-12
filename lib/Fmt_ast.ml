@@ -557,7 +557,8 @@ let fmt_layout_str ~c ~loc string =
 let fmt_layout c l = fmt_layout_str ~c ~loc:l.loc (layout_to_string l.txt)
 
 let dummy_position ~loc =
-  Ast_helper.Exp.ident {loc; txt= Ldot (Lident "Lexing", "dummy_pos")}
+  Ast_helper.Exp.ident
+    {loc; txt= Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos")}
 
 let fmt_type_var ~have_tick c s =
   let {txt= name_opt; loc= name_loc}, layout_opt = s in
@@ -788,7 +789,7 @@ and fmt_arrow_param ~return c ctx
         let label = Optional l in
         let type_ =
           Ast_helper.Typ.constr
-            {loc; txt= Ldot (Lident "Lexing", "position")}
+            {loc; txt= Ldot (Ldot (Lident "Stdlib", "Lexing"), "position")}
             []
         in
         (label, type_)
