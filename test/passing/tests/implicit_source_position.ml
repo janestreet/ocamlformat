@@ -14,3 +14,5 @@ let in_a_type : call_pos:[%call_pos] -> unit -> Lexing.position =
   punned_pattern
 
 let in_an_expression = [%src_pos]
+
+let with_locals ~(local_ call_pos : [%call_pos]) () = ()
