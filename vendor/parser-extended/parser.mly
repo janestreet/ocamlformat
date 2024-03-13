@@ -724,6 +724,9 @@ let convert_layout_to_legacy_attr =
   | {txt = Immediate64; loc} -> mk ~loc "immediate64"
   | _ -> []
 
+(* NOTE: An alternate approach for performing the erasure of %call_pos and %src_pos
+   could have been doing it as a ppx transformation instead of performing the erasing
+   inside of ocamlformat. *)
 let transl_label ~pattern ~arg_label ~loc =
   match arg_label, pattern.ppat_desc with
   | ( Labelled l
