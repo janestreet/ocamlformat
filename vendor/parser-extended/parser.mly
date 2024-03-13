@@ -21,7 +21,7 @@
    [END AVOID] has been removed. This file should be formatted in
    such a way that this results in a clean removal of certain
    symbols, productions, or declarations. */
-      
+
 %{
 
 open Asttypes
