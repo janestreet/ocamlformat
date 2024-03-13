@@ -1009,16 +1009,7 @@ end = struct
       | Ptyp_any | Ptyp_var _ -> assert false
       | Ptyp_alias (t1, _) | Ptyp_poly (_, t1) -> assert (typ == t1)
       | Ptyp_arrow (t, t2) ->
-          assert (
-            List.exists t ~f:(fun x ->
-                match (x.pap_label, x.pap_type) with
-                | ( Labelled _
-                  , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; _}, _); _}
-                  )
-                  when Erase_jane_syntax.should_erase () ->
-                    true
-                | _ -> typ == x.pap_type )
-            || typ == t2 )
+          assert (List.exists t ~f:(fun x -> typ == x.pap_type) || typ == t2)
       | Ptyp_tuple t1N -> assert (List.exists t1N ~f:(fun (_, t) -> f t))
       | Ptyp_constr (_, t1N) -> assert (List.exists t1N ~f)
       | Ptyp_variant (r1N, _, _) ->
@@ -1592,11 +1583,7 @@ end = struct
       | Pstr_value {pvbs_bindings; _} ->
           assert (
             List.exists pvbs_bindings ~f:(fun {pvb_expr; _} ->
-                match pvb_expr.pexp_desc with
-                | Pexp_extension ({txt= "src_pos"; _}, _)
-                  when Erase_jane_syntax.should_erase () ->
-                    true
-                | _ -> pvb_expr == exp ) )
+                pvb_expr == exp ) )
       | Pstr_extension ((_, ext), _) -> assert (check_extensions ext)
       | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_exception _
        |Pstr_module _ | Pstr_recmodule _ | Pstr_modtype _ | Pstr_open _
