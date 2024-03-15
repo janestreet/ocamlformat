@@ -728,17 +728,19 @@ let convert_layout_to_legacy_attr =
    could have been doing it as a ppx transformation instead of performing the erasing
    inside of ocamlformat. *)
 let transl_label ~pattern ~arg_label ~loc =
-  match arg_label, pattern.ppat_desc with
-  | ( Labelled l
-    , Ppat_constraint
-        (pat, { ptyp_desc = Ptyp_extension ({ txt = "call_pos"; loc = _ }, _); _ }) )
-    when Erase_jane_syntax.should_erase () ->
-    ( Optional l
-    , pat
-    , Some
-        (Ast_helper.Exp.ident
-           { loc; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos") }) )
-  | _ -> arg_label, pattern, None
+  if not (Erase_jane_syntax.should_erase ())
+  then arg_label, pattern, None
+  else (
+    match arg_label, pattern.ppat_desc with
+    | ( Labelled l
+      , Ppat_constraint
+          (pat, { ptyp_desc = Ptyp_extension ({ txt = "call_pos"; loc = _ }, _); _ }) ) ->
+      ( Optional l
+      , pat
+      , Some
+          (Ast_helper.Exp.ident
+             { loc; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos") }) )
+    | _ -> arg_label, pattern, None)
 ;;
 
 %}
@@ -2764,13 +2766,16 @@ comprehension_clause:
       { mkinfix $1 $2 $3 }
   | extension
       { let (({ txt = id; _ }, _) as p) = $1 in
-        match id with
-        | "src_pos" when Erase_jane_syntax.should_erase () ->
-          Pexp_ident
-            { loc = make_loc $sloc
-            ; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos")
-            }
-        | _ -> Pexp_extension p
+        if not (Erase_jane_syntax.should_erase ()) then Pexp_extension p
+        else (
+          match id with
+          | "src_pos" ->
+            Pexp_ident
+              { loc = make_loc $sloc
+              ; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos")
+              }
+          | _ -> Pexp_extension p
+        )
       }
   | UNDERSCORE
       { Pexp_hole }
@@ -3958,16 +3963,18 @@ strict_function_or_labeled_tuple_type:
       codomain = strict_function_or_labeled_tuple_type
         { let type_ = mktyp_modes local domain in
           let label, type_ =
-            match label, type_.ptyp_desc with
-            | Labelled l, Ptyp_extension ({ txt = "call_pos"; _ }, _)
-              when Erase_jane_syntax.should_erase () ->
-              ( Optional l
-              , Ast_helper.Typ.constr
-                  { loc = make_loc $sloc
-                  ; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "position")
-                  }
-                  [] )
-            | _ -> label, type_
+            if not (Erase_jane_syntax.should_erase ())
+            then label, type_
+            else (
+              match label, type_.ptyp_desc with
+              | Labelled l, Ptyp_extension ({ txt = "call_pos"; _ }, _) ->
+                ( Optional l
+                , Ast_helper.Typ.constr
+                    { loc = make_loc $sloc
+                    ; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "position")
+                    }
+                    [] )
+              | _ -> label, type_)
           in
           let arrow_type = { pap_label = label; pap_loc = make_loc $sloc; pap_type = type_ } in
           let params, codomain =
