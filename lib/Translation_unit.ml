@@ -346,7 +346,7 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
                    Option.map f_opt ~f:(fun f -> (s, String.sexp_of_t f)) )
           in
           if
-            Normalize_std_ast.equal std_fg ~ignore_doc_comments:true
+            Normalize_std_ast.equal std_fg ~debug:true ~ignore_doc_comments:true
               ~erase_jane_syntax conf ~old:std_t.ast ~new_:std_t_new.ast
           then
             let docstrings =
@@ -379,6 +379,7 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
         (* All good, continue *)
         print_check ~i:(i + 1) ~conf ~prev_source:fmted t_new std_t_new
   in
+  let _ = print_check ~i:1 ~conf ~prev_source parsed std_parsed in
   try print_check ~i:1 ~conf ~prev_source parsed std_parsed with
   | Sys_error msg -> Error (User_error msg)
   | exn -> Error (Ocamlformat_bug {exn; input_name})

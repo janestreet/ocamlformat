@@ -22,6 +22,23 @@
 
 open Format
 
+(* loc_ghost: Ghost expressions and patterns:
+  expressions and patterns that do not appear explicitly in the
+  source file they have the loc_ghost flag set to true.
+  Then the profiler will not try to instrument them and the
+  -annot option will not try to display their type.
+
+  Every grammar rule that generates an element with a location must
+  make at most one non-ghost element, the topmost one.
+
+  How to tell whether your location must be ghost:
+  A location corresponds to a range of characters in the source file.
+  If the location contains a piece of code that is syntactically
+  valid (according to the documentation), and corresponds to the
+  AST node, then the location must be real; in all other cases,
+  it must be ghost.
+*)
+
 type t = Warnings.loc = {
   loc_start: Lexing.position;
   loc_end: Lexing.position;
@@ -35,11 +52,13 @@ type t = Warnings.loc = {
    Else all fields are correct.
 *)
 
-(** Strict equality: Two locations are equal iff every field is equal.  Two
-    locations that happen to refer to the same place -- for instance, if one has
-    [pos_lnum] set correctly and the other has [pos_lnum = -1] -- are not
-    considered to be equal. *)
-val equal : t -> t -> bool
+(** Strict comparison: Compares all fields of the two locations, irrespective of
+    whether or not they happen to refer to the same place.  For fully-defined
+    locations within the same file, is guaranteed to return them in source
+    order; otherwise, or if given two locations that differ only in ghostiness,
+    is just guaranteed to produce a consistent order, but which one is
+    unspecified. *)
+val compare : t -> t -> int
 
 val none : t
 (** An arbitrary value of type [t]; describes an empty ghost range. *)
@@ -79,9 +98,9 @@ type 'a loc = {
 
 val mknoloc : 'a -> 'a loc
 val mkloc : 'a -> t -> 'a loc
+val get_txt : 'a loc -> 'a
 val map : ('a -> 'b) -> 'a loc -> 'b loc
 val compare_txt : ('a -> 'b -> 'c) -> 'a loc -> 'b loc -> 'c
-
 
 (** {1 Input info} *)
 
@@ -106,9 +125,18 @@ val reset: unit -> unit
 (** {1 Rewriting path } *)
 
 val rewrite_absolute_path: string -> string
-    (** rewrite absolute path to honor the BUILD_PATH_PREFIX_MAP
-        variable (https://reproducible-builds.org/specs/build-path-prefix-map/)
-        if it is set. *)
+(** [rewrite_absolute_path path] rewrites [path] to honor the
+    BUILD_PATH_PREFIX_MAP variable
+    if it is set. It does not check whether [path] is absolute or not.
+    The result is as follows:
+    - If BUILD_PATH_PREFIX_MAP is not set, just return [path].
+    - otherwise, rewrite using the mapping (and if there are no
+      matching prefixes that will just return [path]).
+
+    See
+    {{: https://reproducible-builds.org/specs/build-path-prefix-map/ }
+    the BUILD_PATH_PREFIX_MAP spec}
+    *)
 
 val absolute_path: string -> string
  (** [absolute_path path] first makes an absolute path, [s] from [path],
@@ -126,6 +154,7 @@ val show_filename: string -> string
 val print_filename: formatter -> string -> unit
 
 val print_loc: formatter -> t -> unit
+val print_loc_in_lowercase: formatter -> t -> unit
 val print_locs: formatter -> t list -> unit
 
 

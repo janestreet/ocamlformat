@@ -65,21 +65,7 @@ let convert_legacy_jane_street_local_annotations ?segment =
           else [attr]
       | _ -> [attr] )
 
-let convert_legacy_jane_street_local_extension_expressions exp =
-  match exp.pexp_desc with
-  | Pexp_apply
-      ( {pexp_desc= Pexp_extension ({txt= extension_name; _}, PStr []); _}
-      , [(Nolabel, sbody)] )
-    when Conf.is_jane_street_local_annotation "local" ~test:extension_name
-         || Conf.is_jane_street_local_annotation "exclave"
-              ~test:extension_name ->
-      `Changed
-        { sbody with
-          pexp_attributes=
-            convert_legacy_jane_street_local_annotations
-              (make_attr_with_name extension_name :: sbody.pexp_attributes)
-        }
-  | _ -> `Same exp
+let convert_legacy_jane_street_local_extension_expressions exp = `Same exp
 
 let extract_legacy_jane_street_local_annotations :
     attributes -> attributes * attributes =
@@ -102,26 +88,31 @@ let is_erasable_jane_syntax attr =
    counterparts *)
 let normalize_immediate_annot_and_attrs attr =
   match (attr.attr_name.txt, attr.attr_payload) with
-  (* CR layouts: change to something like: {[ | (
-     "jane.erasable.layouts.annot" , PStr [ { pstr_desc= Pstr_eval
-     ({pexp_desc= Pexp_ident {txt= Lident "immediate"; _}; _}, _) ; _ } ] )
-     -> attr ]} after the parsing logic catches up to what's in
-     flambda-backend. *)
   (* We also have to normalize "ocaml.immediate" into "immediate"
      for this to work. Since if we rewrite [@@ocaml.immediate] into
      an annotation and treat that as [@@immediate]. That's an attribute
      change we need to accept. *)
-  | "jane.erasable.layouts.immediate", PStr [] | "ocaml.immediate", PStr []
+  | ( "jane.erasable.layouts.annot"
+    , PStr [
+        { pstr_desc= Pstr_eval ({pexp_desc= Pexp_ident {txt= Lident "immediate"; _}; _}, _) ; _ }
+      ]
+    )
+  | "ocaml.immediate", PStr []
     ->
-      { attr with
+      Some { attr with
         attr_name= {attr.attr_name with txt= "immediate"}
       ; attr_payload= PStr [] }
-  | "jane.erasable.layouts.immediate64", PStr []
-   |"ocaml.immediate64", PStr [] ->
-      { attr with
-        attr_name= {attr.attr_name with txt= "immediate64"}
-      ; attr_payload= PStr [] }
-  | _, _ -> attr
+  | ( "jane.erasable.layouts.annot"
+    , PStr [
+        { pstr_desc= Pstr_eval ({pexp_desc= Pexp_ident {txt= Lident "immediate64"; _}; _}, _) ; _ }
+      ]
+    )
+  | "ocaml.immediate64", PStr [] ->
+    Some { attr with
+      attr_name= {attr.attr_name with txt= "immediate64"}
+    ; attr_payload= PStr [] }
+  | "jane.erasable.layouts", PStr [] -> None
+  | _, _ -> Some attr
 
 let dedup_cmts fragment ast comments =
   let of_ast ast =
@@ -227,9 +218,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let exp = {exp with pexp_loc_stack= []} in
     let {pexp_desc; pexp_loc= loc1; pexp_attributes= attrs1; _} = exp in
     match pexp_desc with
-    | Pexp_poly ({pexp_desc= Pexp_constraint (e, t); _}, None) ->
+    | Pexp_poly ({pexp_desc= Pexp_constraint (e, Some t, []); _}, None) ->
         m.expr m {exp with pexp_desc= Pexp_poly (e, Some t)}
-    | Pexp_constraint (e, {ptyp_desc= Ptyp_poly ([], _t); _}) -> m.expr m e
+    | Pexp_constraint (exp1, None, _ :: _) when erase_jane_syntax ->
+      m.expr m exp1
+    | Pexp_constraint (exp1, Some ty, _ :: _) when erase_jane_syntax ->
+      m.expr m { exp with pexp_desc = Pexp_constraint (exp1, Some ty, []) }
+    | Pexp_constraint (e, Some {ptyp_desc= Ptyp_poly ([], _t); _}, []) -> m.expr m e
     | Pexp_sequence
         ( exp1
         , { pexp_desc= Pexp_sequence (exp2, exp3)
@@ -246,7 +241,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         , { ppat_desc=
               Ppat_constraint
                 ( pat
-                , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
+                , Some {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
+                , _
                 )
           ; _ }
         , expression )
@@ -287,7 +283,11 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           (Pat.or_ ~loc:loc1 ~attrs:attrs1
              (Pat.or_ ~loc:loc2 ~attrs:attrs2 pat1 pat2)
              pat3 )
-    | Ppat_constraint (pat1, {ptyp_desc= Ptyp_poly ([], _t); _}) ->
+    | Ppat_constraint (pat1, None, _ :: _) when erase_jane_syntax ->
+      m.pat m pat1
+    | Ppat_constraint (pat1, Some ty, _ :: _) when erase_jane_syntax ->
+      m.pat m { pat with ppat_desc = Ppat_constraint (pat1, Some ty, []) }
+    | Ppat_constraint (pat1, Some {ptyp_desc= Ptyp_poly ([], _t); _}, _) ->
         (* The parser put the same type constraint in two different nodes:
            [let _ : typ = exp] is represented as [let _ : typ = (exp :
            typ)]. *)
@@ -317,7 +317,9 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
             Ptyp_arrow
               ( Labelled l
               , {ptyp_desc= Ptyp_extension ({txt= "call_pos"; loc}, _); _}
-              , return_type )
+              , return_type
+              , _
+              , _ )
         ; _ }
         when erase_jane_syntax ->
           let lexing_position_type =
@@ -326,7 +328,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
               []
           in
           let desc =
-            Ptyp_arrow (Optional l, lexing_position_type, return_type)
+            Ptyp_arrow (Optional l, lexing_position_type, return_type, [], [])
           in
           {typ with ptyp_desc= desc}
       | _ -> typ
@@ -385,27 +387,10 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     in
     Ast_mapper.default_mapper.label_declaration m ld
   in
-  let constructor_declaration (m : Ast_mapper.mapper) decl =
-    let args =
-      match decl.pcd_args with
-      | Pcstr_tuple l ->
-          Pcstr_tuple
-            (List.map
-               ~f:(fun typ ->
-                 { typ with
-                   ptyp_attributes=
-                     convert_legacy_jane_street_local_annotations
-                       ~segment:Constructor_argument typ.ptyp_attributes } )
-               l )
-      | a -> a
-    in
-    Ast_mapper.default_mapper.constructor_declaration m
-      {decl with pcd_args= args}
-  in
   let type_declaration (m : Ast_mapper.mapper) decl =
     let ptype_attributes =
       decl.ptype_attributes
-      |> List.map ~f:normalize_immediate_annot_and_attrs
+      |> List.filter_map ~f:normalize_immediate_annot_and_attrs
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
   in
@@ -421,18 +406,28 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; pat
   ; typ
   ; label_declaration
-  ; constructor_declaration
   ; type_declaration }
 
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
 
-let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
+let equal fragment ?(debug = false) ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
     ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
-  equal fragment
-    (map ~erase_jane_syntax ast1)
-    (map ~erase_jane_syntax:false ast2)
+  let ast1 = map ~erase_jane_syntax ast1 in
+  let ast2 = map ~erase_jane_syntax:false ast2 in
+  let result = equal fragment ast1 ast2 in
+  (if not result && debug then
+     let p = Filename.temp_file "prev_ast_" ".txt" in
+     let n = Filename.temp_file "post_ast_" ".txt" in
+     Out_channel.write_all p ~data:(Format.asprintf "OLD:\n %a\n\n" (Std_ast.Printast.ast fragment) ast1);
+     Out_channel.write_all n ~data:(Format.asprintf "NEW:\n %a\n\n" (Std_ast.Printast.ast fragment) ast2);
+     ignore
+       (Stdlib.Sys.command (Printf.sprintf "patdiff %s %s" p n));
+     Stdlib.Sys.remove p;
+     Stdlib.Sys.remove n
+  );
+  result
 
 let ast = ast ~ignore_doc_comments:false
 

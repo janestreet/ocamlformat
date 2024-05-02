@@ -12,6 +12,8 @@
  (flags
   :standard
   --lalr
+  --explain
+  --dump
   --strict
   --unused-token
   COMMENT
