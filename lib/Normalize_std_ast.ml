@@ -423,23 +423,12 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
 
-let equal fragment ?(debug = false) ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
+let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
     ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
   let ast1 = map ~erase_jane_syntax ast1 in
   let ast2 = map ~erase_jane_syntax:false ast2 in
-  let result = equal fragment ast1 ast2 in
-  (if not result && debug then
-     let p = Filename.temp_file "prev_ast_" ".txt" in
-     let n = Filename.temp_file "post_ast_" ".txt" in
-     Out_channel.write_all p ~data:(Format.asprintf "OLD:\n %a\n\n" (Std_ast.Printast.ast fragment) ast1);
-     Out_channel.write_all n ~data:(Format.asprintf "NEW:\n %a\n\n" (Std_ast.Printast.ast fragment) ast2);
-     ignore
-       (Stdlib.Sys.command (Printf.sprintf "patdiff %s %s" p n));
-     Stdlib.Sys.remove p;
-     Stdlib.Sys.remove n
-  );
-  result
+  equal fragment ast1 ast2
 
 let ast = ast ~ignore_doc_comments:false
 
