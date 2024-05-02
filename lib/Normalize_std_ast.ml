@@ -12,82 +12,55 @@
 open Parser_standard
 open Std_ast
 
-let make_attr_with_name name =
-  Ast_helper.Attr.mk ~loc:Location.none
-    (Location.mkloc name Location.none)
-    (PStr [])
-
-type convert_legacy_jane_street_local_annotations_segment_type =
-  | Type
-  | Constructor_argument
-  | Pattern
-
-(** This function takes a list of attributes and replaces the legacy local
-    annotation attributes with the new syntax attributes. This allows the new
-    and old syntax to normalize to the same representation.
-
-    Input of shape:
-
-    [...; "local"; ...]
-
-    turns into:
-
-    [ ...
-    ; "jane.erasable.local"
-    ; "jane.erasable.local.SEGMENT.local" <-- omitted in the special case of [Pattern]
-    ; ...]
-
-    where SEGMENT is controlled by the function parameter.
-   *)
-let convert_legacy_jane_street_local_annotations ?segment =
-  let prefix = "jane.erasable.local." in
-  let attrs name =
-    let segment =
-      match segment with
-      | None -> [prefix ^ name]
-      | Some Type -> [prefix ^ "type." ^ name]
-      | Some Constructor_argument -> [prefix ^ "constructor_argument." ^ name]
-      | Some Pattern -> []
-    in
-    List.map ~f:make_attr_with_name ("jane.erasable.local" :: segment)
-  in
-  List.concat_map ~f:(fun attr ->
-      match attr with
-      | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
-          if Conf.is_jane_street_local_annotation "local" ~test:old_name then
-            attrs "local"
-          else if
-            Conf.is_jane_street_local_annotation "global" ~test:old_name
-          then attrs "global"
-          else if
-            Conf.is_jane_street_local_annotation "exclave" ~test:old_name
-          then attrs "exclave"
-          else [attr]
-      | _ -> [attr] )
-
-let convert_legacy_jane_street_local_extension_expressions exp = `Same exp
-
-let extract_legacy_jane_street_local_annotations :
-    attributes -> attributes * attributes =
-  List.partition_tf ~f:(fun attr ->
-      match attr with
-      | {attr_name= {txt= old_name; _}; attr_payload= PStr []; _} ->
-          Conf.is_jane_street_local_annotation "local" ~test:old_name
-          || Conf.is_jane_street_local_annotation "global" ~test:old_name
-          || Conf.is_jane_street_local_annotation "exclave" ~test:old_name
-      | _ -> false )
-
 let is_doc = function
   | {attr_name= {Location.txt= "ocaml.doc" | "ocaml.text"; _}; _} -> true
   | _ -> false
 
+let is_builtin_jane_syntax attr =
+  let name = attr.attr_name.txt in
+  (* match name with
+   * | "jane.erasable._builtin" -> true
+   * | "jane.erasable._builtin.cases" -> true
+   * | -> false *)
+  String.is_prefix ~prefix:"jane.erasable._builtin" name
+
 let is_erasable_jane_syntax attr =
-  String.is_prefix ~prefix:"jane.erasable." attr.attr_name.txt
+  let name = attr.attr_name.txt in
+  String.is_prefix ~prefix:"jane.erasable." name
+  || String.equal "extension.curry" name
+
+let is_erasable_builtin_jane_syntax attr =
+  let name = attr.attr_name.txt in
+  String.is_prefix ~prefix:"jane.erasable._builtin" name
+
+let remove_builtin_constraint_cases exp =
+  let attrs = exp.pexp_attributes in
+  let builtins, rest = List.partition_tf ~f:is_builtin_jane_syntax attrs in
+  let builtins =
+    List.sort builtins
+      ~compare:(fun a b ->
+        let rank attr =
+          match attr.attr_name.txt with
+          | "jane.erasable._builtin.constraint.cases" -> 0
+          | "jane.erasable._builtin" -> 1
+          | _ -> 2
+        in
+        Int.compare (rank b) (rank a))
+  in
+  let attrs =
+    match List.map builtins ~f:(fun a -> a.attr_name.txt) with
+    | "jane.erasable._builtin.constraint.cases" :: "jane.erasable._builtin" :: _ :: _ ->
+      List.drop builtins 1 @ rest
+    | "jane.erasable._builtin.constraint.cases" :: "jane.erasable._builtin" :: [] ->
+      List.drop builtins 2 @ rest
+    | _ -> builtins @ rest
+  in
+  { exp with pexp_attributes = attrs }
 
 (* Immediate layout annotations should be treated the same as their attribute
    counterparts *)
 let normalize_immediate_annot_and_attrs attr =
-  match (attr.attr_name.txt, attr.attr_payload) with
+   match (attr.attr_name.txt, attr.attr_payload) with
   (* We also have to normalize "ocaml.immediate" into "immediate"
      for this to work. Since if we rewrite [@@ocaml.immediate] into
      an annotation and treat that as [@@immediate]. That's an attribute
@@ -201,23 +174,36 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | _ -> Ast_mapper.default_mapper.attribute m attr
   in
   (* sort attributes *)
-  let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
+  let attributes_no_sort (m : Ast_mapper.mapper) (atrs : attribute list) =
     let atrs =
       if erase_jane_syntax then
         List.filter atrs ~f:(fun a -> not (is_erasable_jane_syntax a))
-      else atrs
+      else
+        List.filter atrs ~f:(fun a -> not (is_erasable_builtin_jane_syntax a))
     in
     let atrs =
       if ignore_doc_comments then
         List.filter atrs ~f:(fun a -> not (is_doc a))
       else atrs
     in
-    Ast_mapper.default_mapper.attributes m atrs |> sort_attributes
+    Ast_mapper.default_mapper.attributes m atrs
+  in
+  let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
+    attributes_no_sort m atrs |> sort_attributes
   in
   let expr (m : Ast_mapper.mapper) exp =
-    let exp = {exp with pexp_loc_stack= []} in
+    let exp =
+      { exp with
+        pexp_loc_stack = []
+      ; pexp_attributes = attributes_no_sort m exp.pexp_attributes
+      }
+    in
+    let exp = remove_builtin_constraint_cases exp in
     let {pexp_desc; pexp_loc= loc1; pexp_attributes= attrs1; _} = exp in
     match pexp_desc with
+    | Pexp_apply ({pexp_desc= Pexp_extension ({txt= "extension.exclave"; _}, _); _}, [ Nolabel, expr ])
+        when erase_jane_syntax ->
+        m.expr m expr
     | Pexp_poly ({pexp_desc= Pexp_constraint (e, Some t, []); _}, None) ->
         m.expr m {exp with pexp_desc= Pexp_poly (e, Some t)}
     | Pexp_constraint (exp1, None, _ :: _) when erase_jane_syntax ->
@@ -257,19 +243,19 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         m.expr m expression
     | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
         m.expr m (dummy_position ~loc)
-    | _ -> (
-      match convert_legacy_jane_street_local_extension_expressions exp with
-      | `Changed exp -> m.expr m exp
-      | `Same exp -> Ast_mapper.default_mapper.expr m exp )
+    | Pexp_fun _ ->
+      (* CR-soon cgunn: stop ignoring N_ary function *)
+      let attrs1 = List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1 in
+      Ast_mapper.default_mapper.expr m { exp with pexp_attributes = attrs1}
+    | Pexp_function _ ->
+      (* CR-soon cgunn: stop ignoring N_ary function *)
+      let attrs1 = List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1 in
+      Ast_mapper.default_mapper.expr m { exp with pexp_attributes = attrs1}
+    | _ ->
+      Ast_mapper.default_mapper.expr m exp
   in
   let pat (m : Ast_mapper.mapper) pat =
     let pat = {pat with ppat_loc_stack= []} in
-    let pat =
-      { pat with
-        ppat_attributes=
-          convert_legacy_jane_street_local_annotations ~segment:Pattern
-            pat.ppat_attributes }
-    in
     let {ppat_desc; ppat_loc= loc1; ppat_attributes= attrs1; _} = pat in
     (* normalize nested or patterns *)
     match ppat_desc with
@@ -295,12 +281,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | _ -> Ast_mapper.default_mapper.pat m pat
   in
   let typ (m : Ast_mapper.mapper) typ =
-    let typ = {typ with ptyp_loc_stack= []} in
     let typ =
       { typ with
-        ptyp_attributes=
-          convert_legacy_jane_street_local_annotations ~segment:Type
-            typ.ptyp_attributes }
+        ptyp_loc_stack= []
+      ; ptyp_attributes =
+          typ.ptyp_attributes
+          |> (if erase_jane_syntax then attributes_no_sort m else Fn.id)
+      }
     in
     let typ =
       match typ with
@@ -371,28 +358,49 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       Ast_mapper.default_mapper.class_signature m {x with pcsig_fields}
     else Ast_mapper.default_mapper.class_signature
   in
-  let label_declaration (m : Ast_mapper.mapper) ld =
-    let local_attrs, attrs =
-      extract_legacy_jane_street_local_annotations ld.pld_attributes
-    in
-    let ld =
-      { ld with
-        pld_type=
-          { ld.pld_type with
-            ptyp_attributes=
-              convert_legacy_jane_street_local_annotations
-                ~segment:Constructor_argument
-                (local_attrs @ ld.pld_type.ptyp_attributes) }
-      ; pld_attributes= attrs }
-    in
-    Ast_mapper.default_mapper.label_declaration m ld
-  in
   let type_declaration (m : Ast_mapper.mapper) decl =
     let ptype_attributes =
       decl.ptype_attributes
       |> List.filter_map ~f:normalize_immediate_annot_and_attrs
+      |> (if erase_jane_syntax then attributes_no_sort m else Fn.id)
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
+  in
+  let modes (m : Ast_mapper.mapper) ms =
+    Ast_mapper.default_mapper.modes m (if erase_jane_syntax then [] else ms)
+  in
+  let modalities (m : Ast_mapper.mapper) ms =
+    Ast_mapper.default_mapper.modalities m (if erase_jane_syntax then [] else ms)
+  in
+  let value_binding (m : Ast_mapper.mapper) vb =
+    let vb =
+      match vb.pvb_expr.pexp_desc with
+      | Pexp_constraint (exp, cty, modes) when not (List.is_empty modes) ->
+        let pvb_expr =
+          match cty with
+          | None -> exp
+          | _ ->
+            { vb.pvb_expr with pexp_desc = Pexp_constraint (exp, cty, []) }
+        in
+        { vb with
+          pvb_modes = vb.pvb_modes @ modes
+        ; pvb_expr
+        }
+      | _ -> vb
+    in
+    Ast_mapper.default_mapper.value_binding m vb
+  in
+  let constructor_declaration (m : Ast_mapper.mapper) cd =
+    (if erase_jane_syntax then
+      { cd with pcd_attributes = attributes_no_sort m cd.pcd_attributes }
+    else cd)
+    |> Ast_mapper.default_mapper.constructor_declaration m
+  in
+  let extension_constructor (m : Ast_mapper.mapper) ext =
+    (if erase_jane_syntax then
+       { ext with pext_attributes = attributes_no_sort m ext.pext_attributes }
+     else ext)
+    |> Ast_mapper.default_mapper.extension_constructor m
   in
   { Ast_mapper.default_mapper with
     location
@@ -405,8 +413,12 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; expr
   ; pat
   ; typ
-  ; label_declaration
-  ; type_declaration }
+  ; type_declaration
+  ; modes
+  ; modalities
+  ; value_binding
+  ; constructor_declaration
+  ; extension_constructor }
 
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)
