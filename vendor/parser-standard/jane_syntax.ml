@@ -755,7 +755,7 @@ end
 (** Layout annotations' encoding as attribute payload, used in both n-ary
     functions and layouts. *)
 module Layout_annotation : sig
-  include Payload_protocol with type t := const_layout
+  include Payload_protocol with type t := layout
 
   module Decode : sig
     include module type of Decode
@@ -766,33 +766,14 @@ module Layout_annotation : sig
   end
 end = struct
   module Protocol = Make_payload_protocol_of_stringable (struct
-      type t = const_layout
+      type t = layout
 
       let indefinite_article_and_name = "a", "layout"
 
       let to_string = function
-        | Any -> "any"
-        | Value -> "value"
-        | Void -> "void"
-        | Immediate64 -> "immediate64"
-        | Immediate -> "immediate"
-        | Float64 -> "float64"
-        | Word -> "word"
-        | Bits32 -> "bits32"
-        | Bits64 -> "bits64"
+        | Layout s -> s
 
-      (* CR layouts v1.5: revise when moving layout recognition away from parser*)
-      let of_string = function
-        | "any" -> Some Any
-        | "value" -> Some Value
-        | "void" -> Some Void
-        | "immediate" -> Some Immediate
-        | "immediate64" -> Some Immediate64
-        | "float64" -> Some Float64
-        | "word" -> Some Word
-        | "bits32" -> Some Bits32
-        | "bits64" -> Some Bits64
-        | _ -> None
+      let of_string s = Some (Layout s)
     end)
   (*******************************************************)
   (* Conversions with a payload *)
