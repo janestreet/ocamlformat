@@ -18,10 +18,6 @@ let is_doc = function
 
 let is_builtin_jane_syntax attr =
   let name = attr.attr_name.txt in
-  (* match name with
-   * | "jane.erasable._builtin" -> true
-   * | "jane.erasable._builtin.cases" -> true
-   * | -> false *)
   String.is_prefix ~prefix:"jane.erasable._builtin" name
 
 let is_erasable_jane_syntax attr =
@@ -32,31 +28,6 @@ let is_erasable_jane_syntax attr =
 let is_erasable_builtin_jane_syntax attr =
   let name = attr.attr_name.txt in
   String.is_prefix ~prefix:"jane.erasable._builtin" name
-
-let remove_builtin_constraint_cases exp =
-  let attrs = exp.pexp_attributes in
-  let builtins, rest = List.partition_tf ~f:is_builtin_jane_syntax attrs in
-  let builtins =
-    List.sort builtins ~compare:(fun a b ->
-        let rank attr =
-          match attr.attr_name.txt with
-          | "jane.erasable._builtin.constraint.cases" -> 0
-          | "jane.erasable._builtin" -> 1
-          | _ -> 2
-        in
-        Int.compare (rank b) (rank a) )
-  in
-  let attrs =
-    match List.map builtins ~f:(fun a -> a.attr_name.txt) with
-    | "jane.erasable._builtin.constraint.cases" :: "jane.erasable._builtin"
-      :: _ :: _ ->
-        List.drop builtins 1 @ rest
-    | ["jane.erasable._builtin.constraint.cases"; "jane.erasable._builtin"]
-      ->
-        List.drop builtins 2 @ rest
-    | _ -> builtins @ rest
-  in
-  {exp with pexp_attributes= attrs}
 
 (* Immediate layout annotations should be treated the same as their attribute
    counterparts *)
@@ -177,8 +148,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                         , [] ) } ] }
     | _ -> Ast_mapper.default_mapper.attribute m attr
   in
-  (* sort attributes *)
-  let attributes_no_sort (m : Ast_mapper.mapper) (atrs : attribute list) =
+  let map_attributes_no_sort (m : Ast_mapper.mapper) (atrs : attribute list)
+      =
     let atrs =
       if erase_jane_syntax then
         List.filter atrs ~f:(fun a -> not (is_erasable_jane_syntax a))
@@ -194,15 +165,14 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     Ast_mapper.default_mapper.attributes m atrs
   in
   let attributes (m : Ast_mapper.mapper) (atrs : attribute list) =
-    attributes_no_sort m atrs |> sort_attributes
+    sort_attributes (map_attributes_no_sort m atrs)
   in
   let expr (m : Ast_mapper.mapper) exp =
     let exp =
       { exp with
         pexp_loc_stack= []
-      ; pexp_attributes= attributes_no_sort m exp.pexp_attributes }
+      ; pexp_attributes= map_attributes_no_sort m exp.pexp_attributes }
     in
-    let exp = remove_builtin_constraint_cases exp in
     let {pexp_desc; pexp_loc= loc1; pexp_attributes= attrs1; _} = exp in
     match pexp_desc with
     | Pexp_apply
@@ -214,8 +184,6 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         m.expr m {exp with pexp_desc= Pexp_poly (e, Some t)}
     | Pexp_constraint (exp1, None, _ :: _) when erase_jane_syntax ->
         m.expr m exp1
-    | Pexp_constraint (exp1, Some ty, _ :: _) when erase_jane_syntax ->
-        m.expr m {exp with pexp_desc= Pexp_constraint (exp1, Some ty, [])}
     | Pexp_constraint (e, Some {ptyp_desc= Ptyp_poly ([], _t); _}, []) ->
         m.expr m e
     | Pexp_sequence
@@ -251,13 +219,15 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
         m.expr m (dummy_position ~loc)
     | Pexp_fun _ ->
-        (* CR-soon cgunn: stop ignoring N_ary function *)
+        (* CR-soon cgunn: stop ignoring N_ary function when ocamlformat stops
+           messing with them *)
         let attrs1 =
           List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1
         in
         Ast_mapper.default_mapper.expr m {exp with pexp_attributes= attrs1}
     | Pexp_function _ ->
-        (* CR-soon cgunn: stop ignoring N_ary function *)
+        (* CR-soon cgunn: stop ignoring N_ary function when ocamlformat stops
+           messing with them *)
         let attrs1 =
           List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1
         in
@@ -281,8 +251,6 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
              pat3 )
     | Ppat_constraint (pat1, None, _ :: _) when erase_jane_syntax ->
         m.pat m pat1
-    | Ppat_constraint (pat1, Some ty, _ :: _) when erase_jane_syntax ->
-        m.pat m {pat with ppat_desc= Ppat_constraint (pat1, Some ty, [])}
     | Ppat_constraint (pat1, Some {ptyp_desc= Ptyp_poly ([], _t); _}, _) ->
         (* The parser put the same type constraint in two different nodes:
            [let _ : typ = exp] is represented as [let _ : typ = (exp :
@@ -296,7 +264,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         ptyp_loc_stack= []
       ; ptyp_attributes=
           ( typ.ptyp_attributes
-          |> if erase_jane_syntax then attributes_no_sort m else Fn.id ) }
+          |> if erase_jane_syntax then map_attributes_no_sort m else Fn.id )
+      }
     in
     let typ =
       match typ with
@@ -371,7 +340,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let ptype_attributes =
       decl.ptype_attributes
       |> List.filter_map ~f:normalize_immediate_annot_and_attrs
-      |> if erase_jane_syntax then attributes_no_sort m else Fn.id
+      |> if erase_jane_syntax then map_attributes_no_sort m else Fn.id
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
   in
@@ -399,13 +368,14 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   in
   let constructor_declaration (m : Ast_mapper.mapper) cd =
     ( if erase_jane_syntax then
-        {cd with pcd_attributes= attributes_no_sort m cd.pcd_attributes}
+        {cd with pcd_attributes= map_attributes_no_sort m cd.pcd_attributes}
       else cd )
     |> Ast_mapper.default_mapper.constructor_declaration m
   in
   let extension_constructor (m : Ast_mapper.mapper) ext =
     ( if erase_jane_syntax then
-        {ext with pext_attributes= attributes_no_sort m ext.pext_attributes}
+        { ext with
+          pext_attributes= map_attributes_no_sort m ext.pext_attributes }
       else ext )
     |> Ast_mapper.default_mapper.extension_constructor m
   in
@@ -433,9 +403,9 @@ let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
 let equal fragment ~ignore_doc_comments ~erase_jane_syntax c ~old:ast1
     ~new_:ast2 =
   let map = ast fragment c ~ignore_doc_comments in
-  let ast1 = map ~erase_jane_syntax ast1 in
-  let ast2 = map ~erase_jane_syntax:false ast2 in
-  equal fragment ast1 ast2
+  equal fragment
+    (map ~erase_jane_syntax ast1)
+    (map ~erase_jane_syntax:false ast2)
 
 let ast = ast ~ignore_doc_comments:false
 
