@@ -55,9 +55,9 @@ type 'a loc = 'a Location.loc = {
 
 (* constant layouts are parsed as layout annotations, and also used
    in the type checker as already-inferred (i.e. non-variable) layouts *)
-type layout = Layout of string [@@unboxed]
+type const_layout = Layout of string [@@unboxed]
 
-type layout_annotation = layout loc
+type layout_annotation = const_layout loc
 
 type label = string
 

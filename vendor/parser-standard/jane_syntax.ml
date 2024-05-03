@@ -755,7 +755,7 @@ end
 (** Layout annotations' encoding as attribute payload, used in both n-ary
     functions and layouts. *)
 module Layout_annotation : sig
-  include Payload_protocol with type t := layout
+  include Payload_protocol with type t := const_layout
 
   module Decode : sig
     include module type of Decode
@@ -766,7 +766,7 @@ module Layout_annotation : sig
   end
 end = struct
   module Protocol = Make_payload_protocol_of_stringable (struct
-      type t = layout
+      type t = const_layout
 
       let indefinite_article_and_name = "a", "layout"
 

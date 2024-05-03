@@ -19,9 +19,6 @@ open Lexing
 open Location
 open Parsetree
 
-let layout_to_string = function
-  | Layout s -> s
-
 let fmt_position with_name f l =
   let fname = if with_name then l.pos_fname else "" in
   if l.pos_lnum = -1
@@ -141,11 +138,11 @@ let tyvar ppf s =
   else
     Format.fprintf ppf "'%s" s
 
-let layout ppf lay =
-  Format.fprintf ppf "%s" (layout_to_string lay)
+let const_layout ppf (Layout lay) =
+  Format.fprintf ppf "%s" lay
 
-let layout_annotation i ppf lay =
-  line i ppf "%a" layout lay.txt
+let layout_annotation i ppf layout =
+  line i ppf "%a" const_layout layout.txt
 
 let typevars ppf vs =
   List.iter (fun x -> fprintf ppf " %a" tyvar x.txt) vs

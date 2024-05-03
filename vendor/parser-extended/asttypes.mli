@@ -61,9 +61,9 @@ type 'a loc = 'a Location.loc = {
   loc : Location.t;
 }
 
-type layout = Layout of string [@@unboxed]
+type const_layout = Layout of string [@@unboxed]
 
-type layout_annotation = layout loc
+type layout_annotation = const_layout loc
 type ty_var = string option loc * layout_annotation option
 
 type label = string
