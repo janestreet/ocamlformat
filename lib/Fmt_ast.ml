@@ -540,16 +540,7 @@ let fmt_quoted_string key ext s = function
 
 let type_var_has_layout_annot (_, layout_opt) = Option.is_some layout_opt
 
-let layout_to_string = function
-  | Any -> "any"
-  | Value -> "value"
-  | Void -> "void"
-  | Immediate64 -> "immediate64"
-  | Immediate -> "immediate"
-  | Float64 -> "float64"
-  | Word -> "word"
-  | Bits32 -> "bits32"
-  | Bits64 -> "bits64"
+let layout_to_string = function Layout s -> s
 
 let fmt_layout_str ~c ~loc string =
   fmt "@ :@ " $ Cmts.fmt c loc @@ str string
@@ -1188,7 +1179,9 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
               @@ hovbox 0 (str "~" $ str lbl.txt)
             else if punned_with_constraint then
               Cmts.fmt c lbl.loc @@ (str "~" $ fmt_pattern c pat)
-            else str "~" $ str lbl.txt $ str ":" $ fmt_pattern c pat
+            else
+              Cmts.fmt c lbl.loc
+              @@ (str "~" $ str lbl.txt $ str ":" $ fmt_pattern c pat)
       in
       let fmt_elements =
         list pats (Params.comma_sep c.conf) fmt_lt_pat_element
@@ -2870,7 +2863,9 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               @@ hovbox 0 (str "~" $ str lbl.txt)
             else if punned_with_constraint then
               Cmts.fmt c lbl.loc @@ (str "~" $ fmt_expression c exp)
-            else str "~" $ str lbl.txt $ str ":" $ fmt_expression c exp
+            else
+              Cmts.fmt c lbl.loc
+              @@ (str "~" $ str lbl.txt $ str ":" $ fmt_expression c exp)
       in
       pro
       $ hvbox_if outer_wrap 0
