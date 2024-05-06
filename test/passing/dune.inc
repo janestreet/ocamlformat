@@ -3559,18 +3559,12 @@
  (package ocamlformat)
  (action
   (with-stdout-to layout_annotation.ml.stdout
-   (with-stderr-to layout_annotation.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml}))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/layout_annotation.ml layout_annotation.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_annotation.ml.err layout_annotation.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5655,18 +5649,12 @@
  (package ocamlformat)
  (action
   (with-stdout-to unboxed_types.ml.stdout
-   (with-stderr-to unboxed_types.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml}))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unboxed_types.ml unboxed_types.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/unboxed_types.ml.err unboxed_types.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )

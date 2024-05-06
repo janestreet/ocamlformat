@@ -358,6 +358,11 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
               (List.map ~f:(fun x -> `Comment x) docstrings)
               args
           else
+            let _ =
+              Normalize_std_ast.equal std_fg ~debug:true
+                ~ignore_doc_comments:true ~erase_jane_syntax conf
+                ~old:std_t.ast ~new_:std_t_new.ast
+            in
             let args = args ~suffix:".unequal-ast" in
             internal_error [`Ast_changed] args
         else
