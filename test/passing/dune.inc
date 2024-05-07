@@ -3559,7 +3559,7 @@
  (package ocamlformat)
  (action
   (with-stdout-to layout_annotation.ml.stdout
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml} --debug))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml}))))
 
 (rule
  (alias runtest)
@@ -5649,7 +5649,7 @@
  (package ocamlformat)
  (action
   (with-stdout-to unboxed_types.ml.stdout
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml} --debug))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types.ml}))))
 
 (rule
  (alias runtest)
