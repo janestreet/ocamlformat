@@ -144,9 +144,8 @@ module Error = struct
               List.iter l ~f:(fun (msg, sexp) ->
                   Format.fprintf fmt "  %s: %s\n%!" msg (Sexp.to_string sexp) )
         | exn ->
-            Format.fprintf fmt
-              "  BUG: unhandled exception.\n%!" ;
-            Format.fprintf fmt "%s\n%!" (Exn.to_string exn))
+            Format.fprintf fmt "  BUG: unhandled exception.\n%!" ;
+            Format.fprintf fmt "%s\n%!" (Exn.to_string exn) )
 end
 
 let with_file input_name output_file suf ext f =
@@ -359,9 +358,8 @@ let format (type a b) (fg : a Extended_ast.t) (std_fg : b Std_ast.t)
               args
           else
             let _ =
-              Normalize_std_ast.equal std_fg ~debug:true
-                ~ignore_doc_comments:true ~erase_jane_syntax conf
-                ~old:std_t.ast ~new_:std_t_new.ast
+              Normalize_std_ast.equal std_fg ~ignore_doc_comments:true
+                ~erase_jane_syntax conf ~old:std_t.ast ~new_:std_t_new.ast
             in
             let args = args ~suffix:".unequal-ast" in
             internal_error [`Ast_changed] args

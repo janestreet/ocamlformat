@@ -15,7 +15,6 @@ val ast : 'a Std_ast.t -> erase_jane_syntax:bool -> Conf.t -> 'a -> 'a
 
 val equal :
      'a Std_ast.t
-  -> ?debug:bool
   -> ignore_doc_comments:bool
   -> erase_jane_syntax:bool
   -> Conf.t
