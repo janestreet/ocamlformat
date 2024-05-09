@@ -356,6 +356,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   in
   let value_binding (m : Ast_mapper.mapper) vb =
     let vb =
+      (* ocamlformat currently formats [let x = local_ ("" : string)] into
+         [let local_ x = ("" : string)]. This normalizes against that *)
       match vb.pvb_expr.pexp_desc with
       | Pexp_constraint (exp, cty, modes) when not (List.is_empty modes) ->
           let pvb_expr =
