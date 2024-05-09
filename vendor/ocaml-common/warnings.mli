@@ -70,7 +70,6 @@ type t =
   | Wildcard_arg_to_constant_constr         (* 28 *)
   | Eol_in_string                           (* 29 *)
   | Duplicate_definitions of string * string * string * string (* 30 *)
-  | Module_linked_twice of string * string * string (* 31 *)
   | Unused_value_declaration of string      (* 32 *)
   | Unused_open of string                   (* 33 *)
   | Unused_type_declaration of string       (* 34 *)
@@ -110,11 +109,20 @@ type t =
   | Match_on_mutable_state_prevent_uncurry  (* 68 *)
   | Unused_field of string * field_usage_warning (* 69 *)
   | Missing_mli                             (* 70 *)
-;;
+  | Unused_tmc_attribute                    (* 71 *)
+  | Tmc_breaks_tailcall                     (* 72 *)
+  | Generative_application_expects_unit     (* 73 *)
+(* Flambda_backend specific warnings: numbers should go down from 199 *)
+  | Unerasable_position_argument            (* 188 *)
+  | Unnecessarily_partial_tuple_pattern     (* 189 *)
+  | Probe_name_too_long of string           (* 190 *)
+  | Unchecked_property_attribute of string  (* 199 *)
+  | Unboxing_impossible                     (* 210 *)
+  | Redundant_modality of string            (* 250 *)
 
 type alert = {kind:string; message:string; def:loc; use:loc}
 
-val parse_options : bool -> string -> alert option;;
+val parse_options : bool -> string -> alert option
 
 val parse_alert_option: string -> unit
   (** Disable/enable alerts based on the parameter to the -alert
@@ -125,11 +133,11 @@ val parse_alert_option: string -> unit
 val without_warnings : (unit -> 'a) -> 'a
   (** Run the thunk with all warnings and alerts disabled. *)
 
-val is_active : t -> bool;;
-val is_error : t -> bool;;
+val is_active : t -> bool
+val is_error : t -> bool
 
-val defaults_w : string;;
-val defaults_warn_error : string;;
+val defaults_w : string
+val defaults_warn_error : string
 
 type reporting_information =
   { id : string
@@ -141,9 +149,9 @@ type reporting_information =
 val report : t -> [ `Active of reporting_information | `Inactive ]
 val report_alert : alert -> [ `Active of reporting_information | `Inactive ]
 
-exception Errors;;
+exception Errors
 
-val check_fatal : unit -> unit;;
+val check_fatal : unit -> unit
 val reset_fatal: unit -> unit
 
 val help_warnings: unit -> unit
@@ -151,6 +159,15 @@ val help_warnings: unit -> unit
 type state
 val backup: unit -> state
 val restore: state -> unit
+val with_state : state -> (unit -> 'a) -> 'a
 val mk_lazy: (unit -> 'a) -> 'a Lazy.t
     (** Like [Lazy.of_fun], but the function is applied with
         the warning/alert settings at the time [mk_lazy] is called. *)
+
+type description =
+  { number : int;
+    names : string list;
+    description : string;
+    since : Sys.ocaml_release_info option; }
+
+val descriptions : description list

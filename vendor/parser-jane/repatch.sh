@@ -12,16 +12,20 @@ cd $(dirname $0)
 cd ..
 
 cleanup() {
-    rm -f changes.patch
+    rm -f changes-parser.patch
+    rm -f changes-common.patch
 }
 trap cleanup ERR EXIT
 
 commands=(
-    "diff -ruN parser-jane/ parser-standard/ > changes.patch || true"
+    "diff -ruN parser-jane/for-parser-standard/ parser-standard/ > changes-parser.patch || true"
+    "diff -ruN parser-jane/for-ocaml-common/ ocaml-common/ > changes-common.patch || true"
     "./parser-jane/update.sh $flambda_backend_dir"
-    "rm -rf parser-standard/"
-    "cp -r parser-jane/ parser-standard/"
-    "patch -p1 -d parser-standard/ < changes.patch"
+    "rm -rf parser-standard/ ocaml-common/"
+    "cp -r parser-jane/for-parser-standard parser-standard/"
+    "cp -r parser-jane/for-ocaml-common ocaml-common/"
+    "patch -p1 -d parser-standard/ < changes-parser.patch"
+    "patch -p1 -d ocaml-common/ < changes-common.patch"
 )
 
 for cmd in "${commands[@]}"
