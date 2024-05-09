@@ -23,11 +23,11 @@ let is_builtin_jane_syntax attr =
 let is_erasable_jane_syntax attr =
   let name = attr.attr_name.txt in
   String.is_prefix ~prefix:"jane.erasable." name
+  (* CR jane-syntax: When erasing jane syntax, [int -> (int -> int)] is
+     reformatted to [int -> int -> int]. This causes the removal of
+     [extension.curry] attributes, so these attributes should be considered
+     "erasable jane syntax" *)
   || String.equal "extension.curry" name
-
-let is_erasable_builtin_jane_syntax attr =
-  let name = attr.attr_name.txt in
-  String.is_prefix ~prefix:"jane.erasable._builtin" name
 
 (* Immediate layout annotations should be treated the same as their attribute
    counterparts *)
@@ -153,9 +153,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let atrs =
       if erase_jane_syntax then
         List.filter atrs ~f:(fun a -> not (is_erasable_jane_syntax a))
-      else
-        List.filter atrs ~f:(fun a ->
-            not (is_erasable_builtin_jane_syntax a) )
+      else atrs
     in
     let atrs =
       if ignore_doc_comments then
@@ -171,7 +169,12 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let exp =
       { exp with
         pexp_loc_stack= []
-      ; pexp_attributes= map_attributes_no_sort m exp.pexp_attributes }
+      ; pexp_attributes=
+          (* CR jane-syntax: This ensures that jane syntax attributes are
+             removed *)
+          ( exp.pexp_attributes
+          |> if erase_jane_syntax then map_attributes_no_sort m else Fn.id )
+      }
     in
     let {pexp_desc; pexp_loc= loc1; pexp_attributes= attrs1; _} = exp in
     match pexp_desc with
@@ -183,6 +186,9 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | Pexp_poly ({pexp_desc= Pexp_constraint (e, Some t, []); _}, None) ->
         m.expr m {exp with pexp_desc= Pexp_poly (e, Some t)}
     | Pexp_constraint (exp1, None, _ :: _) when erase_jane_syntax ->
+        (* When erasing jane syntax, if [Pexp_constraint] was only
+           constraining based on modes, remove the node entirely instead of
+           just making the modes list empty *)
         m.expr m exp1
     | Pexp_constraint (e, Some {ptyp_desc= Ptyp_poly ([], _t); _}, []) ->
         m.expr m e
@@ -218,16 +224,9 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         m.expr m expression
     | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
         m.expr m (dummy_position ~loc)
-    | Pexp_fun _ ->
-        (* CR-soon cgunn: stop ignoring N_ary function when ocamlformat stops
-           messing with them *)
-        let attrs1 =
-          List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1
-        in
-        Ast_mapper.default_mapper.expr m {exp with pexp_attributes= attrs1}
-    | Pexp_function _ ->
-        (* CR-soon cgunn: stop ignoring N_ary function when ocamlformat stops
-           messing with them *)
+    | Pexp_fun _ | Pexp_function _ | Pexp_newtype _ ->
+        (* CR jane-syntax: This just ignores N_ary functions, and can be
+           removed when ocamlformat stops messing with them *)
         let attrs1 =
           List.filter ~f:(fun a -> not (is_builtin_jane_syntax a)) attrs1
         in
@@ -263,6 +262,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       { typ with
         ptyp_loc_stack= []
       ; ptyp_attributes=
+          (* CR jane-syntax: This ensures that jane syntax attributes are
+             removed *)
           ( typ.ptyp_attributes
           |> if erase_jane_syntax then map_attributes_no_sort m else Fn.id )
       }
@@ -340,6 +341,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let ptype_attributes =
       decl.ptype_attributes
       |> List.filter_map ~f:normalize_immediate_annot_and_attrs
+      (* CR jane-syntax: This ensures that jane syntax attributes are
+         removed *)
       |> if erase_jane_syntax then map_attributes_no_sort m else Fn.id
     in
     Ast_mapper.default_mapper.type_declaration m {decl with ptype_attributes}
@@ -367,12 +370,16 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     Ast_mapper.default_mapper.value_binding m vb
   in
   let constructor_declaration (m : Ast_mapper.mapper) cd =
+    (* CR jane-syntax: This ensures that jane syntax attributes are
+       removed *)
     ( if erase_jane_syntax then
         {cd with pcd_attributes= map_attributes_no_sort m cd.pcd_attributes}
       else cd )
     |> Ast_mapper.default_mapper.constructor_declaration m
   in
   let extension_constructor (m : Ast_mapper.mapper) ext =
+    (* CR jane-syntax: This ensures that jane syntax attributes are
+       removed *)
     ( if erase_jane_syntax then
         { ext with
           pext_attributes= map_attributes_no_sort m ext.pext_attributes }
