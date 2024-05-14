@@ -113,6 +113,7 @@ module Pat = struct
   let exception_ ?loc ?attrs a = mk ?loc ?attrs (Ppat_exception a)
   let extension ?loc ?attrs a = mk ?loc ?attrs (Ppat_extension a)
   let cons ?loc ?attrs a = mk ?loc ?attrs (Ppat_cons a)
+  let iarray ?loc ?attrs a = mk ?loc ?attrs (Ppat_immutable_array a)
 end
 
 module Exp = struct
@@ -171,6 +172,9 @@ module Exp = struct
   let cons ?loc ?attrs a = mk ?loc ?attrs (Pexp_cons a)
   let prefix ?loc ?attrs a b = mk ?loc ?attrs (Pexp_prefix (a, b))
   let infix ?loc ?attrs a b c = mk ?loc ?attrs (Pexp_infix (a, b, c))
+  let list_comp ?loc ?attrs a = mk ?loc ?attrs (Pexp_list_comprehension a)
+  let array_comp ?loc ?attrs a b = mk ?loc ?attrs (Pexp_array_comprehension (a, b))
+  let iarray ?loc ?attrs a = mk ?loc ?attrs (Pexp_immutable_array a)
 
   let case lhs ?guard rhs =
     {

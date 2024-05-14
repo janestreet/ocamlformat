@@ -134,6 +134,8 @@ module Flag = struct
     let mv_mut = map_opt (sub.location sub) mv_mut in
     let mv_virt = map_opt (sub.location sub) mv_virt in
     { mv_mut; mv_virt }
+
+  let map_direction _ dir = dir
 end
 
 module C = struct
@@ -485,6 +487,31 @@ module M = struct
     | Pstr_attribute x -> attribute ~loc (sub.attribute sub x)
 end
 
+module Comprehension = struct
+  (* List/array comprehensions *)
+
+  let map_iterator sub = function
+    | Range { start; stop; direction } ->
+      Range
+        { start = sub.expr sub start
+        ; stop = sub.expr sub stop
+        ; direction = Flag.map_direction sub direction }
+    | In e -> In (sub.expr sub e)
+
+  let map_clause_binding sub {pattern; iterator; attributes} =
+    { pattern = sub.pat sub pattern
+    ; iterator = map_iterator sub iterator
+    ; attributes = sub.attributes sub attributes }
+
+  let map_clause sub = function
+    | For cbl -> For (List.map (map_clause_binding sub) cbl)
+    | When e -> When (sub.expr sub e)
+
+  let map sub {comp_body; clauses} =
+    { comp_body = sub.expr sub comp_body
+    ; clauses = List.map (map_clause sub) clauses }
+end
+
 module E = struct
   (* Value expressions for the core language *)
 
@@ -627,6 +654,10 @@ module E = struct
         prefix ~loc ~attrs (map_loc sub op) (sub.expr sub e)
     | Pexp_infix (op, e1, e2) ->
         infix ~loc ~attrs (map_loc sub op) (sub.expr sub e1) (sub.expr sub e2)
+    | Pexp_list_comprehension c -> list_comp ~loc ~attrs (Comprehension.map sub c)
+    | Pexp_array_comprehension (f, c) ->
+        array_comp ~loc ~attrs (Flag.map_mutable sub f) (Comprehension.map sub c)
+    | Pexp_immutable_array el -> iarray ~loc ~attrs (List.map (sub.expr sub) el)
 
   let map_binding_op sub {pbop_op; pbop_pat; pbop_exp; pbop_is_pun; pbop_loc} =
     let open Exp in
@@ -691,6 +722,7 @@ module P = struct
     | Ppat_exception p -> exception_ ~loc ~attrs (sub.pat sub p)
     | Ppat_extension x -> extension ~loc ~attrs (sub.extension sub x)
     | Ppat_cons pl -> cons ~loc ~attrs (List.map (sub.pat sub) pl)
+    | Ppat_immutable_array pl -> iarray ~loc ~attrs (List.map (sub.pat sub) pl)
 end
 
 module CE = struct

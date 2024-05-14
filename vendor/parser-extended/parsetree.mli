@@ -323,6 +323,7 @@ and pattern_desc =
   | Ppat_extension of extension  (** Pattern [[%id]] *)
   | Ppat_open of Longident.t loc * pattern  (** Pattern [M.(P)] *)
   | Ppat_cons of pattern list  (** Pattern [P1 :: ... :: Pn] *)
+  | Ppat_immutable_array of pattern list  (** Pattern [[: P1; ...; Pn :]] **)
 
 (** {2 Value expressions} *)
 
@@ -470,6 +471,40 @@ and expression_desc =
   | Pexp_indexop_access of indexop_access
   | Pexp_prefix of string loc * expression  (** [op E] *)
   | Pexp_infix of string loc * expression * expression  (** [E1 op E2] *)
+  | Pexp_list_comprehension of comprehension
+      (** [[BODY ...CLAUSES...]] *)
+  | Pexp_array_comprehension of mutable_flag * comprehension
+      (** [[|BODY ...CLAUSES...|]] (flag = Mutable)
+          [[:BODY ...CLAUSES...:]] (flag = Immutable)
+          (only allowed with [-extension immutable_arrays]) *)
+  | Pexp_immutable_array of expression list  (** [[: E1; ...; En :]] *)
+
+and iterator =
+  | Range of { start     : expression
+             ; stop      : expression
+             ; direction : direction_flag }
+  (** "= START to STOP" (direction = Upto)
+      "= START downto STOP" (direction = Downto) *)
+  | In of expression
+  (** "in EXPR" *)
+
+and clause_binding =
+  { pattern    : pattern
+  ; iterator   : iterator
+  ; attributes : attribute list }
+  (** PAT (in/=) ... [@...] *)
+
+and clause =
+  | For of clause_binding list
+  (** "for PAT (in/=) ... and PAT (in/=) ... and ..."; must be nonempty *)
+  | When of expression
+  (** "when EXPR" *)
+
+and comprehension =
+  { comp_body : expression
+  (** The body/generator of the comprehension *)
+  ; clauses : clause list
+  (** The clauses of the comprehension; must be nonempty *) }
 
 and indexop_access =
   {

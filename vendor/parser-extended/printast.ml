@@ -367,6 +367,9 @@ and pattern i ppf x =
   | Ppat_cons l ->
       line i ppf "Ppat_cons\n";
       list i pattern ppf l
+  | Ppat_immutable_array l ->
+      line i ppf "Ppat_immutable_array\n";
+      list i pattern ppf l
 
 and labeled_pattern i ppf (label, x) =
     tuple_component_label i ppf label;
@@ -554,6 +557,42 @@ and expression i ppf x =
       line i ppf "Pexp_infix %a\n" fmt_string_loc op;
       expression i ppf e1;
       expression i ppf e2
+  | Pexp_list_comprehension c ->
+      line i ppf "Pexp_list_comprehension\n";
+      comprehension i ppf c
+  | Pexp_array_comprehension (m, c) ->
+      line i ppf "Pexp_array_comprehension %a\n" fmt_mutable_flag m;
+      comprehension i ppf c
+  | Pexp_immutable_array l ->
+      line i ppf "Pexp_array\n";
+      list i expression ppf l;
+
+and clause_binding i ppf { pattern=pat; iterator; attributes=attrs } =
+  line i ppf "<binding>\n";
+  let i = i + 1 in
+  attributes i ppf attrs;
+  pattern i ppf pat;
+  match iterator with
+  | Range { start; stop; direction } ->
+      line i ppf "Range %a\n" fmt_direction_flag direction;
+      expression i ppf start;
+      expression i ppf stop
+  | In expr ->
+      line i ppf "In\n";
+      expression i ppf expr;
+
+and clause i ppf = function
+  | For cbl ->
+      line i ppf "For\n";
+      list i clause_binding ppf cbl
+  | When e ->
+      line i ppf "When\n";
+      expression i ppf e;
+
+and comprehension i ppf { comp_body; clauses } =
+  line i ppf "<comprehension>\n";
+  expression (i+1) ppf comp_body;
+  list (i+1) clause ppf clauses;
 
 and labeled_expression i ppf (l, e) =
   line i ppf "<tuple component>\n";
