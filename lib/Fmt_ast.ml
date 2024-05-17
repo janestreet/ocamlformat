@@ -1119,15 +1119,6 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
   @@ fmt_pattern_attributes c xpat
   @@
   match ppat_desc with
-  | Ppat_immutable_array [] ->
-      hvbox 0
-        (wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c ppat_loc))
-  | Ppat_immutable_array pats ->
-      let p = Params.get_iarray_pat c.conf ~ctx:ctx0 in
-      p.box
-        (fmt_elements_collection c p Pat.location ppat_loc
-           (sub_pat ~ctx >> fmt_pattern c >> hvbox 0)
-           pats )
   | Ppat_any -> str "_"
   | Ppat_var {txt; loc} ->
       Cmts.fmt c loc
@@ -1247,11 +1238,18 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
       hvbox_if parens 0
         (Params.parens_if parens c.conf
            (p1.box (fmt_fields $ fmt_underscore)) )
-  | Ppat_array [] ->
+  | Ppat_array (m, []) ->
+      let left, right =
+        match m with Mutable _ -> ("[|", "|]") | Immutable -> ("[:", ":]")
+      in
       hvbox 0
-        (wrap_fits_breaks c.conf "[|" "|]" (Cmts.fmt_within c ppat_loc))
-  | Ppat_array pats ->
-      let p = Params.get_array_pat c.conf ~ctx:ctx0 in
+        (wrap_fits_breaks c.conf left right (Cmts.fmt_within c ppat_loc))
+  | Ppat_array (m, pats) ->
+      let p =
+        match m with
+        | Mutable _ -> Params.get_array_pat c.conf ~ctx:ctx0
+        | Immutable -> Params.get_iarray_pat c.conf ~ctx:ctx0
+      in
       p.box
         (fmt_elements_collection c p Pat.location ppat_loc
            (sub_pat ~ctx >> fmt_pattern c >> hvbox 0)
@@ -1385,9 +1383,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
   | Ppat_open (lid, pat) ->
       let can_skip_parens =
         match pat.ppat_desc with
-        | Ppat_array _ | Ppat_list _ | Ppat_record _ | Ppat_immutable_array _
-          ->
-            true
+        | Ppat_array _ | Ppat_list _ | Ppat_record _ -> true
         | Ppat_tuple _ ->
             Poly.(c.conf.fmt_opts.parens_tuple_patterns.v = `Always)
         | Ppat_construct ({txt= Lident "[]"; _}, None) -> true
@@ -1938,20 +1934,6 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
            ( Params.wrap_comprehension c.conf ~space_around ~punctuation
                (fmt_comprehension c ~ctx comp)
            $ fmt_atrs ) )
-  | Pexp_immutable_array [] ->
-      hvbox 0
-        (Params.parens_if parens c.conf
-           ( wrap_fits_breaks c.conf "[:" ":]" (Cmts.fmt_within c pexp_loc)
-           $ fmt_atrs ) )
-  | Pexp_immutable_array e1N ->
-      let p = Params.get_iarray_expr c.conf in
-      hvbox_if has_attr 0
-        (Params.parens_if parens c.conf
-           ( p.box
-               (fmt_expressions c (expression_width c) (sub_exp ~ctx) e1N
-                  (sub_exp ~ctx >> fmt_expression c)
-                  p pexp_loc )
-           $ fmt_atrs ) )
   | Pexp_apply (_, []) -> impossible "not produced by parser"
   | Pexp_sequence
       ( { pexp_desc=
@@ -2331,14 +2313,21 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
           $ hvbox 2
               ( fmt_args_grouped ~epi:fmt_atrs e0 e1N1
               $ fmt_if_k parens (closing_paren c ~force ~offset:(-3)) ) )
-  | Pexp_array [] ->
+  | Pexp_array (m, []) ->
+      let left, right =
+        match m with Mutable _ -> ("[|", "|]") | Immutable -> ("[:", ":]")
+      in
       pro
       $ hvbox 0
           (Params.parens_if parens c.conf
-             ( wrap_fits_breaks c.conf "[|" "|]" (Cmts.fmt_within c pexp_loc)
+             ( wrap_fits_breaks c.conf left right (Cmts.fmt_within c pexp_loc)
              $ fmt_atrs ) )
-  | Pexp_array e1N ->
-      let p = Params.get_array_expr c.conf in
+  | Pexp_array (m, e1N) ->
+      let p =
+        match m with
+        | Mutable _ -> Params.get_array_expr c.conf
+        | Immutable -> Params.get_iarray_expr c.conf
+      in
       pro
       $ hvbox_if has_attr 0
           (Params.parens_if parens c.conf
@@ -2610,7 +2599,6 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         match e0.pexp_desc with
         | Pexp_array _ | Pexp_list _ | Pexp_record _
          |Pexp_list_comprehension _ | Pexp_array_comprehension _
-         |Pexp_immutable_array _
           when List.is_empty e0.pexp_attributes ->
             true
         | Pexp_tuple _ -> Poly.(c.conf.fmt_opts.parens_tuple.v = `Always)

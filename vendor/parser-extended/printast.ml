@@ -333,8 +333,8 @@ and pattern i ppf x =
   | Ppat_record (l, c) ->
       line i ppf "Ppat_record %a\n" fmt_obj_closed_flag c;
       list i longident_x_pattern ppf l;
-  | Ppat_array (l) ->
-      line i ppf "Ppat_array\n";
+  | Ppat_array (mf, l) ->
+      line i ppf "Ppat_array %a\n" fmt_mutable_flag mf;
       list i pattern ppf l;
   | Ppat_list (l) ->
       line i ppf "Ppat_list\n";
@@ -366,9 +366,6 @@ and pattern i ppf x =
       payload i ppf arg
   | Ppat_cons l ->
       line i ppf "Ppat_cons\n";
-      list i pattern ppf l
-  | Ppat_immutable_array l ->
-      line i ppf "Ppat_immutable_array\n";
       list i pattern ppf l
 
 and labeled_pattern i ppf (label, x) =
@@ -435,8 +432,8 @@ and expression i ppf x =
       expression i ppf e1;
       longident_loc i ppf li;
       expression i ppf e2;
-  | Pexp_array (l) ->
-      line i ppf "Pexp_array\n";
+  | Pexp_array (mf, l) ->
+      line i ppf "Pexp_array %a\n" fmt_mutable_flag mf;
       list i expression ppf l;
   | Pexp_list (l) ->
       line i ppf "Pexp_list\n";
@@ -563,9 +560,6 @@ and expression i ppf x =
   | Pexp_array_comprehension (m, c) ->
       line i ppf "Pexp_array_comprehension %a\n" fmt_mutable_flag m;
       comprehension i ppf c
-  | Pexp_immutable_array l ->
-      line i ppf "Pexp_array\n";
-      list i expression ppf l;
 
 and clause_binding i ppf { pattern=pat; iterator; attributes=attrs } =
   line i ppf "<binding>\n";

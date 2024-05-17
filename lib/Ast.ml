@@ -156,9 +156,8 @@ module Exp = struct
         ({pexp_desc= Pexp_ident {txt= Lident "not"; _}; _}, [(_, e1)]) ->
         is_trivial e1
     | Pexp_variant (_, None) -> true
-    | Pexp_array [] | Pexp_list [] | Pexp_immutable_array [] -> true
-    | Pexp_array [x] | Pexp_list [x] | Pexp_immutable_array [x] ->
-        is_trivial x
+    | Pexp_array (_, []) | Pexp_list [] -> true
+    | Pexp_array (_, [x]) | Pexp_list [x] -> is_trivial x
     | _ -> false
 
   let rec exposed_left e =
@@ -204,8 +203,7 @@ module Exp = struct
      |Pexp_variant (_, None)
      |Pexp_override _ | Pexp_open _ | Pexp_extension _ | Pexp_hole
      |Pexp_record _ | Pexp_array _ | Pexp_list _
-     |Pexp_list_comprehension _ | Pexp_array_comprehension _
-     |Pexp_immutable_array _ ->
+     |Pexp_list_comprehension _ | Pexp_array_comprehension _ ->
         true
     | Pexp_prefix (_, e) | Pexp_field (e, _) | Pexp_send (e, _) ->
         is_simple_in_parser e
@@ -257,8 +255,7 @@ module Pat = struct
      |Ppat_constant _ | Ppat_any | Ppat_var _
      |Ppat_variant (_, None)
      |Ppat_record _ | Ppat_array _ | Ppat_list _ | Ppat_type _
-     |Ppat_unpack _ | Ppat_extension _ | Ppat_open _ | Ppat_interval _
-     |Ppat_immutable_array _ ->
+     |Ppat_unpack _ | Ppat_extension _ | Ppat_open _ | Ppat_interval _ ->
         false
     | _ -> List.exists ppat_attributes ~f:(Fn.non Attr.is_doc)
 end
@@ -1330,10 +1327,7 @@ end = struct
     | Pat ctx -> (
         let f pI = pI == pat in
         match ctx.ppat_desc with
-        | Ppat_array p1N
-         |Ppat_list p1N
-         |Ppat_cons p1N
-         |Ppat_immutable_array p1N ->
+        | Ppat_array (_, p1N) | Ppat_list p1N | Ppat_cons p1N ->
             assert (List.exists p1N ~f)
         | Ppat_tuple (p1N, _) ->
             assert (List.exists p1N ~f:(fun (_, p) -> f p))
@@ -1367,8 +1361,7 @@ end = struct
        |Pexp_setfield _ | Pexp_setinstvar _ | Pexp_tuple _
        |Pexp_unreachable | Pexp_variant _ | Pexp_while _ | Pexp_hole
        |Pexp_beginend _ | Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
-       |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _
-       |Pexp_immutable_array _ ->
+       |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ ->
           assert false
       | Pexp_extension (_, ext) -> assert (check_extensions ext)
       | Pexp_object {pcstr_self; _} ->
@@ -1486,10 +1479,7 @@ end = struct
             (* FAIL *)
             assert (e0 == exp || List.exists e1N ~f:snd_f)
         | Pexp_tuple e1N -> assert (List.exists e1N ~f:(fun (_, e) -> f e))
-        | Pexp_array e1N
-         |Pexp_list e1N
-         |Pexp_cons e1N
-         |Pexp_immutable_array e1N ->
+        | Pexp_array (_, e1N) | Pexp_list e1N | Pexp_cons e1N ->
             assert (List.exists e1N ~f)
         | Pexp_construct (_, e) | Pexp_variant (_, e) ->
             assert (Option.exists e ~f)
@@ -1612,7 +1602,7 @@ end = struct
         && fit_margin c (width xexp)
     | Pexp_construct (_, Some e0) | Pexp_variant (_, Some e0) ->
         Exp.is_trivial e0
-    | Pexp_array e1N | Pexp_list e1N | Pexp_immutable_array e1N ->
+    | Pexp_array (_, e1N) | Pexp_list e1N ->
         List.for_all e1N ~f:Exp.is_trivial && fit_margin c (width xexp)
     | Pexp_tuple e1N ->
         List.for_all e1N ~f:(fun (_, e) -> Exp.is_trivial e)
@@ -1737,7 +1727,7 @@ end = struct
           ({txt= Lident "[]"; _}, Some {pexp_desc= Pexp_tuple [_; _]; _}) ->
           Some (Semi, Non)
       | Pexp_array _ | Pexp_list _ | Pexp_list_comprehension _
-       |Pexp_array_comprehension _ | Pexp_immutable_array _ ->
+       |Pexp_array_comprehension _ ->
           Some (Semi, Non)
       | Pexp_construct (_, Some _)
        |Pexp_assert _ | Pexp_lazy _
@@ -2185,7 +2175,7 @@ end = struct
          |Pexp_variant (_, None)
          |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
          |Pexp_indexop_access _ | Pexp_list_comprehension _
-         |Pexp_array_comprehension _ | Pexp_immutable_array _ ->
+         |Pexp_array_comprehension _ ->
             false
       in
       Exp.mem_cls cls exp
@@ -2264,8 +2254,7 @@ end = struct
        |Pexp_poly _ | Pexp_record _ | Pexp_send _ | Pexp_unreachable
        |Pexp_variant (_, None)
        |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
-       |Pexp_list_comprehension _ | Pexp_array_comprehension _
-       |Pexp_immutable_array _ ->
+       |Pexp_list_comprehension _ | Pexp_array_comprehension _ ->
           false
     in
     Hashtbl.find_or_add marked_parenzed_inner_nested_match exp
@@ -2475,7 +2464,7 @@ end = struct
         let fallthrough_case () =
           match exp.pexp_desc with
           | Pexp_list _ | Pexp_array _ | Pexp_list_comprehension _
-           |Pexp_array_comprehension _ | Pexp_immutable_array _ ->
+           |Pexp_array_comprehension _ ->
               false
           | _ ->
               Exp.has_trailing_attributes exp
@@ -2558,8 +2547,7 @@ end = struct
                    | Pexp_list _, _ :: _ when e0 == exp -> true
                    | Pexp_array _, _ :: _ when e0 == exp -> true
                    | ( ( Pexp_list_comprehension _
-                       | Pexp_array_comprehension _ | Pexp_immutable_array _
-                         )
+                       | Pexp_array_comprehension _ )
                      , _ :: _ )
                      when e0 == exp ->
                        true
@@ -2570,7 +2558,6 @@ end = struct
     | _, {pexp_desc= Pexp_array _; _} -> false
     | _, {pexp_desc= Pexp_list_comprehension _; _} -> false
     | _, {pexp_desc= Pexp_array_comprehension _; _} -> false
-    | _, {pexp_desc= Pexp_immutable_array _; _} -> false
     | ctx, exp
       when Exp.has_trailing_attributes exp
            && trailing_attrs_require_parens ctx exp ->

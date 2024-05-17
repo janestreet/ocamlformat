@@ -2774,12 +2774,12 @@ comprehension_clause:
   | array_exprs(LBRACKETBAR, BARRBRACKET)
       { Generic_array.expression
           "[|" "|]"
-          (fun elts -> Pexp_array elts)
+          (fun elts -> Pexp_array (Mutable Location.none, elts))
           $1 }
   | array_exprs(LBRACKETCOLON, COLONRBRACKET)
       { Generic_array.expression
           "[:" ":]"
-          (fun elts -> Pexp_immutable_array elts)
+          (fun elts -> Pexp_array (Immutable, elts))
           $1 }
   | LBRACKET expr_semi_list RBRACKET
       { Pexp_list $2 }
@@ -3352,12 +3352,12 @@ simple_delimited_pattern:
     | array_patterns(LBRACKETBAR, BARRBRACKET)
         { Generic_array.pattern
             "[|" "|]"
-            (fun elts -> Ppat_array elts)
+            (fun elts -> Ppat_array (Mutable Location.none, elts))
             $1 }
     | array_patterns(LBRACKETCOLON, COLONRBRACKET)
         { Generic_array.pattern
             "[:" ":]"
-            (fun elts -> Ppat_immutable_array elts)
+            (fun elts -> Ppat_array (Immutable, elts))
             $1 }
   ) { $1 }
 

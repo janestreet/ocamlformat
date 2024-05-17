@@ -306,7 +306,9 @@ and pattern_desc =
 
            Invariant: [n > 0]
          *)
-  | Ppat_array of pattern list  (** Pattern [[| P1; ...; Pn |]] *)
+  | Ppat_array of mutable_flag * pattern list
+      (** Pattern [[| P1; ...; Pn |]] (flag = Mutable)
+          Pattern [[: P1; ...; Pn :]] (flag = Immutable) *)
   | Ppat_list of pattern list  (** Pattern [[ P1; ...; Pn ]] *)
   | Ppat_or of pattern list  (** Pattern [P1 | ... | Pn] *)
   | Ppat_constraint of pattern * core_type  (** Pattern [(P : T)] *)
@@ -323,7 +325,6 @@ and pattern_desc =
   | Ppat_extension of extension  (** Pattern [[%id]] *)
   | Ppat_open of Longident.t loc * pattern  (** Pattern [M.(P)] *)
   | Ppat_cons of pattern list  (** Pattern [P1 :: ... :: Pn] *)
-  | Ppat_immutable_array of pattern list  (** Pattern [[: P1; ...; Pn :]] **)
 
 (** {2 Value expressions} *)
 
@@ -410,7 +411,9 @@ and expression_desc =
   | Pexp_field of expression * Longident.t loc  (** [E.l] *)
   | Pexp_setfield of expression * Longident.t loc * expression
       (** [E1.l <- E2] *)
-  | Pexp_array of expression list  (** [[| E1; ...; En |]] *)
+  | Pexp_array of mutable_flag * expression list
+      (** [[| E1; ...; En |]] (flag = Mutable)
+          [[: E1; ...; En :]] (flag = Immutable) *)
   | Pexp_list of expression list  (** [[ E1; ...; En ]] *)
   | Pexp_ifthenelse of if_branch list * expression option
       (** [if E1 then E2 else E3] *)
@@ -477,7 +480,6 @@ and expression_desc =
       (** [[|BODY ...CLAUSES...|]] (flag = Mutable)
           [[:BODY ...CLAUSES...:]] (flag = Immutable)
           (only allowed with [-extension immutable_arrays]) *)
-  | Pexp_immutable_array of expression list  (** [[: E1; ...; En :]] *)
 
 and iterator =
   | Range of { start     : expression
