@@ -69,11 +69,10 @@ let normalize_immediate_annot_and_attrs attrs =
               (Some (overwrite_attr_name attr "immediate64"), true)
           | "ocaml.immediate64", PStr [] ->
               (Some (overwrite_attr_name attr "immediate64"), false)
-          | "jane.erasable.layouts", PStr [] ->
+          | "jane.erasable.layouts", PStr [] when deleted_layout_annot ->
               (* Only remove [jane.erasable.layouts] if we previously rewrote
                  an associated [jane.erasable.layouts.annot] *)
-              if deleted_layout_annot then (None, false)
-              else (Some attr, false)
+              (None, false)
           | _, _ -> (Some attr, false)
         in
         let new_attrs =
