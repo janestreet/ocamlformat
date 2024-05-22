@@ -542,8 +542,7 @@ let type_var_has_jkind_annot (_, jkind_opt) = Option.is_some jkind_opt
 
 let jkind_to_string = function Layout s -> s
 
-let fmt_jkind_str ~c ~loc string =
-  fmt "@ :@ " $ Cmts.fmt c loc @@ str string
+let fmt_jkind_str ~c ~loc string = fmt "@ :@ " $ Cmts.fmt c loc @@ str string
 
 let fmt_jkind c l = fmt_jkind_str ~c ~loc:l.loc (jkind_to_string l.txt)
 

@@ -29,7 +29,6 @@ let is_erasable_jane_syntax attr =
      "erasable jane syntax" *)
   || String.equal "extension.curry" name
 
-
 (* Immediate jkind annotations should be treated the same as their attribute
    counterparts *)
 let normalize_immediate_annot_and_attrs attrs =
@@ -84,7 +83,7 @@ let normalize_immediate_annot_and_attrs attrs =
                                 ; _ } ]
                         ; _ }
                   ; _ } ] ) ->
-            (Some (overwrite_attr_name attr "immediate64"), true)
+              (Some (overwrite_attr_name attr "immediate64"), true)
           | "ocaml.immediate64", PStr [] ->
               (Some (overwrite_attr_name attr "immediate64"), false)
           | "jane.erasable.layouts", PStr [] when deleted_jkind_annot ->
