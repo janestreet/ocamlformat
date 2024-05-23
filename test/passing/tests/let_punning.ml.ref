@@ -64,7 +64,10 @@ let r =
 
 (* Non-standard syntax *)
 
-let s = [%bar let x = x and y = y in ()]
+let s =
+  [%bar
+    let x = x and y = y in
+    ()]
 
 (* Is it a pun??? *)
 
@@ -73,5 +76,5 @@ let t =
   ()
 
 let u =
-  let%foo x[@bar] = x and y = y[@baz] in
+  let%foo (x [@bar]) = x and y = y [@baz] in
   ()

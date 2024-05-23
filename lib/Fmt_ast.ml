@@ -578,6 +578,36 @@ let split_global_flags_from_attrs atrs =
   | [global_attr], atrs -> (Some global_attr, atrs)
   | _ -> (None, atrs)
 
+let let_binding_can_be_punned c ~binding ~ext =
+  let ({ lb_pat; lb_exp; lb_typ; lb_args; _ } : Sugar.Let_binding.t) = binding in
+  match
+    ( lb_pat.ast.ppat_desc
+    , lb_exp.ast.pexp_desc
+    , lb_typ
+    , lb_args
+    , (lb_pat.ast.ppat_attributes, lb_exp.ast.pexp_attributes)
+    , ext
+    , c.conf.fmt_opts.let_punning.v )
+  with
+  | ( (* LHS must be just a variable *)
+      Ppat_var { txt = left; _ }
+    , (* RHS must be just an identifier with no dots *)
+      Pexp_ident { txt = Lident right; _ }
+    , (* There cannot be a type annotation on the [let] *)
+      None
+    , (* This cannot be a lambda *)
+      []
+    , (* There must be no attrs on either side *)
+      ([], [])
+    , (* There must be some extension on the [let] *)
+      Some _
+    , (* Only permit punning if the punning setting is [`All_ext_lets] *)
+      `All_ext_lets )
+    when (* LHS and RHS variable names must be the same *)
+         String.equal left right -> true
+  | _ -> false
+;;
+
 let rec fmt_extension_aux c ctx ~key (ext, pld) =
   match (ext.txt, pld, ctx) with
   (* Quoted extensions (since ocaml 4.11). *)
@@ -4785,10 +4815,11 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
     | `Auto -> fits_breaks " in" ~hint:(1, -indent) "in"
   in
   let fmt_binding ~first ~last binding =
+    let ext_pun = let_binding_can_be_punned c ~binding ~ext in
     let ext = if first then ext else None in
     let in_ indent = fmt_if_k last (fmt_in indent) in
     let rec_flag = first && Asttypes.is_recursive rec_flag in
-    fmt_value_binding c ~rec_flag ?ext ~in_ binding
+    fmt_value_binding c ~rec_flag ?ext ~in_ ~ext_pun binding
     $ fmt_if (not last)
         ( match c.conf.fmt_opts.let_and.v with
         | `Sparse -> "@;<1000 0>"
@@ -4845,7 +4876,7 @@ and fmt_value_constraint c vc_opt =
             $ fmt_core_type c (sub_typ ~ctx coercion) ) )
   | None -> (noop, noop)
 
-and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
+and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ?(ext_pun = false)
     { lb_op
     ; lb_pat
     ; lb_args
@@ -4858,9 +4889,9 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let lb_pun =
-    Ocaml_version.(
-      compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0 )
-    && lb_pun
+    (Ocaml_version.(
+      compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0)
+     && lb_pun) || ext_pun
   in
   let doc1, atrs = doc_atrs lb_attrs in
   let doc2, atrs = doc_atrs atrs in
@@ -4876,8 +4907,10 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
   let f {attr_name= {loc; _}; _} =
     Location.compare_start loc lb_exp.ast.pexp_loc < 1
   in
+  if lb_pun && not (Location.contains lb_pat.ast.ppat_loc lb_exp.ast.pexp_loc) then
+    Cmts.relocate_all_to_after ~src:lb_exp.ast.pexp_loc ~after:lb_pat.ast.ppat_loc c.cmts;
   let at_attrs, at_at_attrs = List.partition_tf atrs ~f in
-  let pre_body, body = fmt_body c lb_exp in
+  let pre_body, body = if lb_pun then Fmt.noop, Fmt.noop else fmt_body c lb_exp in
   let pat_has_cmt = Cmts.has_before c.cmts lb_pat.ast.ppat_loc in
   let toplevel, in_, epi, cmts_before, cmts_after =
     match in_ with
@@ -4925,9 +4958,9 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi
                           (fmt_or_k c.conf.fmt_opts.ocp_indent_compat.v
                              (fits_breaks " =" ~hint:(1000, 0) "=")
                              (fmt "@;<1 2>=") )
-                      $ fmt_if_k (not lb_pun) pre_body )
+                      $ pre_body )
                   $ fmt_if (not lb_pun) "@ "
-                  $ fmt_if_k (not lb_pun) body )
+                  $ body )
               $ cmts_after )
           $ in_ )
       $ epi )

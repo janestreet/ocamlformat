@@ -3774,6 +3774,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_punning-js.ml.stdout
+   (with-stderr-to let_punning-js.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/let_punning.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_punning-js.ml.ref let_punning-js.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_punning-js.ml.err let_punning-js.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_punning.ml.stdout
    (with-stderr-to let_punning.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/let_punning.ml})))))
@@ -3781,7 +3799,7 @@
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/let_punning.ml let_punning.ml.stdout)))
+ (action (diff tests/let_punning.ml.ref let_punning.ml.stdout)))
 
 (rule
  (alias runtest)
