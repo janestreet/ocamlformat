@@ -24,6 +24,22 @@ let q =
   let%foo x = x and y = y and z = z in
   (x, y, z)
 
+let p =
+  let* x = x and* y = z in
+  (x, y)
+
+let q =
+  let%foo x = x and y = z in
+  (x, y)
+
+let p =
+  let* x = y and* z = z in
+  (x, z)
+
+let q =
+  let%foo x = y and z = z in
+  (x, z)
+
 (* Comments *)
 
 let r =
@@ -77,9 +93,13 @@ let s = [%bar let x = x and y = y in ()]
 (* Is it a pun??? *)
 
 let t =
-  let%foo x y = x in
+  let x = x in
   ()
 
 let u =
+  let%foo x y = x in
+  ()
+
+let v =
   let%foo x[@bar] = x and y = y[@baz] in
   ()
