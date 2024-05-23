@@ -4890,7 +4890,7 @@ and fmt_value_binding c ~rec_flag ?ext ?in_ ?epi ?(ext_pun = false)
   @@ fun c ->
   let lb_pun =
     (Ocaml_version.(
-      compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0)
+       compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0 )
      && lb_pun) || ext_pun
   in
   let doc1, atrs = doc_atrs lb_attrs in
