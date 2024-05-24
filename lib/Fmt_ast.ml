@@ -831,11 +831,11 @@ and fmt_arrow_type c ~ctx ?indent ~parens ~parent_has_parens args fmt_ret_typ
    [xtyp] should be parenthesized. [constraint_ctx] gives the higher context
    of the expression, i.e. if the expression is part of a `fun`
    expression. *)
-(* CR jkinds: Instead of having a [tydecl_param] argument here, the right
+(* CR layouts: Instead of having a [tydecl_param] argument here, the right
    thing would be for [xtyp] to provide enough information to determine
    whether we are printing a type parameter in a typedecl. But it doesn't,
    and that change would be a much bigger diff and make rebasing on upstream
-   harder in the future. When jkinds are upstreamed and upstream ocamlformat
+   harder in the future. When layouts are upstreamed and upstream ocamlformat
    gets support for them, we should remove tydecl_param and go with whatever
    their solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
