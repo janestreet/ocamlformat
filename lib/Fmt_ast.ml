@@ -4851,6 +4851,15 @@ and fmt_value_binding c ~rec_flag ?ext ?parsed_ext ?in_ ?epi
     Location.compare_start loc lb_exp.ast.pexp_loc < 1
   in
   if
+    (* We wish to move the comments from the expression onto the pattern only
+       if we are about to produce a [let] pun, but only if this binding was
+       not punned originally. Otherwise, we will end up duplicating the
+       comments.
+
+       We use [Location.contains] to detect whether the binding was
+       originally punned because [Location.compare] is sensitive to
+       [ghost]ness, and so even in a pun the locations do not [compare] to
+       0. *)
     lb_pun && not (Location.contains lb_pat.ast.ppat_loc lb_exp.ast.pexp_loc)
   then
     Cmts.relocate_all_to_after ~src:lb_exp.ast.pexp_loc
