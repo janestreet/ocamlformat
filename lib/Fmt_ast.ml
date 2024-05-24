@@ -4833,7 +4833,7 @@ and fmt_value_binding c ~rec_flag ?ext ?parsed_ext ?in_ ?epi
         Ocaml_version.(
           compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0 )
         && lb_pun
-    | `Alway_pun_if_possible ->
+    | `Always_pun_if_possible ->
         let_binding_can_be_punned ~binding ~parsed_ext
   in
   let doc1, atrs = doc_atrs lb_attrs in
