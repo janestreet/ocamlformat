@@ -4824,15 +4824,15 @@ and fmt_value_binding c ~rec_flag ?ext ?parsed_ext ?in_ ?epi
       ; lb_attrs
       ; lb_local
       ; lb_loc
-      ; lb_pun } as binding ) =
+      ; lb_pun= punned_in_source } as binding ) =
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
-  let lb_pun =
+  let punned_in_output =
     match c.conf.fmt_opts.let_punning.v with
     | `Preserve_existing_puns ->
         Ocaml_version.(
           compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0 )
-        && lb_pun
+        && punned_in_source
     | `Always_pun_if_possible ->
         let_binding_can_be_punned ~binding ~parsed_ext
   in
@@ -4853,19 +4853,15 @@ and fmt_value_binding c ~rec_flag ?ext ?parsed_ext ?in_ ?epi
   if
     (* We wish to move the comments from the expression onto the pattern if
        we are about to produce a [let] pun, but only if this binding was not
-       punned originally. Otherwise, we will end up duplicating the comments.
-
-       We use [Location.contains] to detect whether the binding was
-       originally punned because [Location.compare] is sensitive to
-       [ghost]ness, and so even in a pun the locations do not [compare] to
-       0. *)
-    lb_pun && not (Location.contains lb_pat.ast.ppat_loc lb_exp.ast.pexp_loc)
+       punned originally. Otherwise, we will end up duplicating the
+       comments. *)
+    punned_in_output && not punned_in_source
   then
     Cmts.relocate_all_to_after ~src:lb_exp.ast.pexp_loc
       ~after:lb_pat.ast.ppat_loc c.cmts ;
   let at_attrs, at_at_attrs = List.partition_tf atrs ~f in
   let pre_body, body =
-    if lb_pun then (Fmt.noop, Fmt.noop) else fmt_body c lb_exp
+    if punned_in_output then (Fmt.noop, Fmt.noop) else fmt_body c lb_exp
   in
   let pat_has_cmt = Cmts.has_before c.cmts lb_pat.ast.ppat_loc in
   let toplevel, in_, epi, cmts_before, cmts_after =
@@ -4910,12 +4906,13 @@ and fmt_value_binding c ~rec_flag ?ext ?parsed_ext ?in_ ?epi
                                       (fmt_fun_args c lb_args) )
                               $ fmt_newtypes )
                           $ fmt_cstr )
-                      $ fmt_if_k (not lb_pun)
+                      $ fmt_if_k (not punned_in_output)
                           (fmt_or_k c.conf.fmt_opts.ocp_indent_compat.v
                              (fits_breaks " =" ~hint:(1000, 0) "=")
                              (fmt "@;<1 2>=") )
                       $ pre_body )
-                  $ fmt_if (not lb_pun) "@ " $ body )
+                  $ fmt_if (not punned_in_output) "@ "
+                  $ body )
               $ cmts_after )
           $ in_ )
       $ epi )
