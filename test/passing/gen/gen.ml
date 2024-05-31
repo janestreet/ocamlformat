@@ -6,6 +6,7 @@ let dep fname = spf "%%{dep:%s}" fname
 
 type setup =
   { mutable has_ref: bool
+  ; mutable has_js_ref: bool
   ; mutable has_opts: bool
   ; mutable has_ocp: bool
   ; mutable ocp_opts: string list
@@ -41,6 +42,7 @@ let read_file file =
 let add_test ?base_file map src_test_name =
   let s =
     { has_ref= false
+    ; has_js_ref= false
     ; has_opts= false
     ; has_ocp= false
     ; ocp_opts= []
@@ -75,12 +77,13 @@ let register_file tests fname =
       | ["output"] | ["ocp"; "output"] -> ()
       | ["opts"] -> setup.has_opts <- true
       | ["ref"] -> setup.has_ref <- true
+      | ["js-ref"] -> setup.has_js_ref <- true
       | ["ocp"] -> setup.has_ocp <- true
       | ["ocp-opts"] -> setup.ocp_opts <- read_lines fname
       | ["deps"] -> setup.extra_deps <- read_lines fname
       | ["should-fail"] -> setup.should_fail <- true
       | ["enabled-if"] -> setup.enabled_if <- Some (read_file fname)
-      | ["err"] -> ()
+      | ["err" | "js-err"] -> ()
       | _ -> invalid_arg fname )
   | _ -> ()
 
@@ -93,6 +96,54 @@ let cmd should_fail args =
        (run %s))|} cmd_string
   else spf {|(run %s)|} cmd_string
 
+let one_styling_test
+  ~extra_deps
+  ~enabled_if_line
+  ~test_name
+  ~base_test_name
+  ~should_fail
+  ~opts
+  ~output_name
+  ~extra_suffix
+  =
+  Printf.sprintf
+    {|
+(rule
+ (deps tests/.ocamlformat %s)%s
+ (package ocamlformat)
+ (action
+  (with-stdout-to %s.%sstdout
+   (with-stderr-to %s.%sstderr
+     %s))))
+
+(rule
+ (alias runtest)%s
+ (package ocamlformat)
+ (action (diff %s %s.%sstdout)))
+
+(rule
+ (alias runtest)%s
+ (package ocamlformat)
+ (action (diff tests/%s.%serr %s.%sstderr)))
+|}
+    extra_deps
+    enabled_if_line
+    test_name
+    extra_suffix
+    test_name
+    extra_suffix
+    (cmd should_fail ([ "%{bin:ocamlformat}" ] @ opts @ [ dep base_test_name ]))
+    enabled_if_line
+    output_name
+    test_name
+    extra_suffix
+    enabled_if_line
+    test_name
+    extra_suffix
+    test_name
+    extra_suffix
+;;
+
 let emit_test test_name setup =
   let opts =
     "--margin-check"
@@ -103,7 +154,7 @@ let emit_test test_name setup =
   let ref_name =
     "tests/" ^ if setup.has_ref then test_name ^ ".ref" else test_name
   in
-  let err_name = "tests/" ^ test_name ^ ".err" in
+  let js_ref_name = "tests/" ^ test_name ^ ".js-ref" in
   let base_test_name =
     "tests/" ^ match setup.base_file with Some n -> n | None -> test_name
   in
@@ -114,30 +165,28 @@ let emit_test test_name setup =
     | Some clause -> spf "\n (enabled_if %s)" clause
   in
   let output_fname = test_name ^ ".stdout" in
-  Printf.printf
-    {|
-(rule
- (deps tests/.ocamlformat %s)%s
- (package ocamlformat)
- (action
-  (with-stdout-to %s
-   (with-stderr-to %s.stderr
-     %s))))
-
-(rule
- (alias runtest)%s
- (package ocamlformat)
- (action (diff %s %s.stdout)))
-
-(rule
- (alias runtest)%s
- (package ocamlformat)
- (action (diff %s %s.stderr)))
-|}
-    extra_deps enabled_if_line output_fname test_name
-    (cmd setup.should_fail
-       (["%{bin:ocamlformat}"] @ opts @ [dep base_test_name]) )
-    enabled_if_line ref_name test_name enabled_if_line err_name test_name ;
+  one_styling_test
+    ~extra_deps
+    ~enabled_if_line
+    ~test_name
+    ~base_test_name
+    ~should_fail:setup.should_fail
+    ~opts
+    ~output_name:ref_name
+    ~extra_suffix:""
+  |> print_string;
+  if setup.has_js_ref
+  then
+    one_styling_test
+      ~extra_deps
+      ~enabled_if_line
+      ~test_name
+      ~base_test_name
+      ~should_fail:setup.should_fail
+      ~opts:("--profile=janestreet" :: opts)
+      ~output_name:js_ref_name
+      ~extra_suffix:"js-"
+    |> print_string;
   if setup.has_ocp then
     let ocp_cmd =
       "%{bin:ocp-indent}" :: (setup.ocp_opts @ [dep output_fname])
