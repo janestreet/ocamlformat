@@ -1,2 +1,2 @@
 --profile=ocamlformat
---max-iters=3
+--max-iters=5

@@ -1,1 +1,2 @@
 --let-binding-spacing=double-semicolon
+--max-iters=5

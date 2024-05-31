@@ -1,1 +1,2 @@
 --let-binding-indent=6
+--max-iters=5

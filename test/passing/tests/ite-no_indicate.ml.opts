@@ -1,2 +1,3 @@
 --if-then-else=compact
 --indicate-multiline-delimiters=no
+--max-iters=5

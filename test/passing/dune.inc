@@ -23,7 +23,7 @@
  (action
   (with-stdout-to alignment.ml.stdout
    (with-stderr-to alignment.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/alignment.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/alignment.ml})))))
 
 (rule
  (alias runtest)
@@ -34,6 +34,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/alignment.ml.err alignment.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to alignment.ml.js-stdout
+   (with-stderr-to alignment.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/alignment.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/alignment.ml.js-ref alignment.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/alignment.ml.js-err alignment.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -77,7 +95,7 @@
  (action
   (with-stdout-to args_grouped-conventional.ml.stdout
    (with-stderr-to args_grouped-conventional.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=conventional --margin=30 --max-iters=3 %{dep:tests/args_grouped.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=conventional --margin=30 --max-iters=5 %{dep:tests/args_grouped.ml})))))
 
 (rule
  (alias runtest)
@@ -147,6 +165,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to assignment_operator-op_begin_line.ml.js-stdout
+   (with-stderr-to assignment_operator-op_begin_line.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --assignment-operator=begin-line %{dep:tests/assignment_operator.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/assignment_operator-op_begin_line.ml.js-ref assignment_operator-op_begin_line.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/assignment_operator-op_begin_line.ml.js-err assignment_operator-op_begin_line.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to assignment_operator.ml.stdout
    (with-stderr-to assignment_operator.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/assignment_operator.ml})))))
@@ -160,6 +196,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/assignment_operator.ml.err assignment_operator.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to assignment_operator.ml.js-stdout
+   (with-stderr-to assignment_operator.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/assignment_operator.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/assignment_operator.ml.js-ref assignment_operator.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/assignment_operator.ml.js-err assignment_operator.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -237,6 +291,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to attributes.mli.js-stdout
+   (with-stderr-to attributes.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/attributes.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attributes.mli.js-ref attributes.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/attributes.mli.js-err attributes.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to binders.ml.stdout
    (with-stderr-to binders.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/binders.ml})))))
@@ -268,6 +340,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_before_in-auto.ml.err break_before_in-auto.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_before_in-auto.ml.js-stdout
+   (with-stderr-to break_before_in-auto.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-before-in=auto %{dep:tests/break_before_in.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_before_in-auto.ml.js-ref break_before_in-auto.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_before_in-auto.ml.js-err break_before_in-auto.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -313,6 +403,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
+  (with-stdout-to break_cases-align.ml.js-stdout
+   (with-stderr-to break_cases-align.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --nested-match=align --break-cases=all %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-align.ml.js-ref break_cases-align.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-align.ml.js-err break_cases-align.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
   (with-stdout-to break_cases-all.ml.stdout
    (with-stderr-to break_cases-all.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-cases=all %{dep:tests/break_cases.ml})))))
@@ -328,6 +439,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/break_cases-all.ml.err break_cases-all.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-all.ml.js-stdout
+   (with-stderr-to break_cases-all.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=all %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-all.ml.js-ref break_cases-all.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-all.ml.js-err break_cases-all.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -355,6 +487,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
+  (with-stdout-to break_cases-closing_on_separate_line.ml.js-stdout
+   (with-stderr-to break_cases-closing_on_separate_line.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-closing_on_separate_line.ml.js-ref break_cases-closing_on_separate_line.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-closing_on_separate_line.ml.js-err break_cases-closing_on_separate_line.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
   (with-stdout-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.stdout
    (with-stderr-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line --leading-nested-match-parens %{dep:tests/break_cases.ml})))))
@@ -370,6 +523,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/break_cases-closing_on_separate_line_leading_nested_match_parens.ml.err break_cases-closing_on_separate_line_leading_nested_match_parens.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stdout
+   (with-stderr-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line --leading-nested-match-parens %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-ref break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-err break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -397,6 +571,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
+  (with-stdout-to break_cases-cosl_lnmp_cmei.ml.js-stdout
+   (with-stderr-to break_cases-cosl_lnmp_cmei.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line --leading-nested-match-parens --cases-matching-exp-indent=normal %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-cosl_lnmp_cmei.ml.js-ref break_cases-cosl_lnmp_cmei.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-cosl_lnmp_cmei.ml.js-err break_cases-cosl_lnmp_cmei.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
   (with-stdout-to break_cases-fit_or_vertical.ml.stdout
    (with-stderr-to break_cases-fit_or_vertical.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-cases=fit-or-vertical %{dep:tests/break_cases.ml})))))
@@ -418,9 +613,30 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
+  (with-stdout-to break_cases-fit_or_vertical.ml.js-stdout
+   (with-stderr-to break_cases-fit_or_vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=fit-or-vertical %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-fit_or_vertical.ml.js-ref break_cases-fit_or_vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-fit_or_vertical.ml.js-err break_cases-fit_or_vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
   (with-stdout-to break_cases-nested.ml.stdout
    (with-stderr-to break_cases-nested.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --break-cases=nested %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --margin-check --break-cases=nested --max-iters=5 %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -433,6 +649,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/break_cases-nested.ml.err break_cases-nested.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-nested.ml.js-stdout
+   (with-stderr-to break_cases-nested.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=nested --max-iters=5 %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-nested.ml.js-ref break_cases-nested.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-nested.ml.js-err break_cases-nested.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -457,6 +694,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-normal_indent.ml.js-stdout
+   (with-stderr-to break_cases-normal_indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --cases-matching-exp-indent=normal --break-cases=all %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-normal_indent.ml.js-ref break_cases-normal_indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-normal_indent.ml.js-err break_cases-normal_indent.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to break_cases-toplevel.ml.stdout
@@ -472,6 +730,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_cases-toplevel.ml.err break_cases-toplevel.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-toplevel.ml.js-stdout
+   (with-stderr-to break_cases-toplevel.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=toplevel --max-iter=4 %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_cases-toplevel.ml.js-ref break_cases-toplevel.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_cases-toplevel.ml.js-err break_cases-toplevel.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -496,6 +772,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases-vertical.ml.js-stdout
+   (with-stderr-to break_cases-vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=vertical %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-vertical.ml.js-ref break_cases-vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/break_cases-vertical.ml.js-err break_cases-vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to break_cases.ml.stdout
@@ -511,6 +808,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_cases.ml.err break_cases.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_cases.ml.js-stdout
+   (with-stderr-to break_cases.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-cases=fit --max-iter=4 %{dep:tests/break_cases.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_cases.ml.js-ref break_cases.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_cases.ml.js-err break_cases.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -534,6 +849,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_collection_expressions-wrap.ml.js-stdout
+   (with-stderr-to break_collection_expressions-wrap.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-collection-expressions=wrap --max-iters=3 %{dep:tests/break_collection_expressions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_collection_expressions-wrap.ml.js-ref break_collection_expressions-wrap.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_collection_expressions-wrap.ml.js-err break_collection_expressions-wrap.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_collection_expressions.ml.stdout
    (with-stderr-to break_collection_expressions.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-collection-expressions=fit-or-vertical --max-iters=3 %{dep:tests/break_collection_expressions.ml})))))
@@ -552,6 +885,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_collection_expressions.ml.js-stdout
+   (with-stderr-to break_collection_expressions.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-collection-expressions=fit-or-vertical --max-iters=3 %{dep:tests/break_collection_expressions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_collection_expressions.ml.js-ref break_collection_expressions.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_collection_expressions.ml.js-err break_collection_expressions.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_colon-before.ml.stdout
    (with-stderr-to break_colon-before.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-colon=before %{dep:tests/break_colon.ml})))))
@@ -565,6 +916,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_colon-before.ml.err break_colon-before.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_colon-before.ml.js-stdout
+   (with-stderr-to break_colon-before.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-colon=before %{dep:tests/break_colon.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_colon-before.ml.js-ref break_colon-before.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_colon-before.ml.js-err break_colon-before.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -606,6 +975,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_fun_decl-fit_or_vertical.ml.js-stdout
+   (with-stderr-to break_fun_decl-fit_or_vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-fun-decl=fit-or-vertical --break-fun-sig=fit-or-vertical %{dep:tests/break_fun_decl.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-fit_or_vertical.ml.js-ref break_fun_decl-fit_or_vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-fit_or_vertical.ml.js-err break_fun_decl-fit_or_vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_fun_decl-smart.ml.stdout
    (with-stderr-to break_fun_decl-smart.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-fun-decl=smart --break-fun-sig=smart %{dep:tests/break_fun_decl.ml})))))
@@ -624,6 +1011,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_fun_decl-smart.ml.js-stdout
+   (with-stderr-to break_fun_decl-smart.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-fun-decl=smart --break-fun-sig=smart %{dep:tests/break_fun_decl.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-smart.ml.js-ref break_fun_decl-smart.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-smart.ml.js-err break_fun_decl-smart.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_fun_decl-wrap.ml.stdout
    (with-stderr-to break_fun_decl-wrap.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-fun-decl=wrap --break-fun-sig=wrap %{dep:tests/break_fun_decl.ml})))))
@@ -637,6 +1042,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_fun_decl-wrap.ml.err break_fun_decl-wrap.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_fun_decl-wrap.ml.js-stdout
+   (with-stderr-to break_fun_decl-wrap.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-fun-decl=wrap --break-fun-sig=wrap %{dep:tests/break_fun_decl.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-wrap.ml.js-ref break_fun_decl-wrap.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_fun_decl-wrap.ml.js-err break_fun_decl-wrap.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -678,6 +1101,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_infix-fit-or-vertical.ml.js-stdout
+   (with-stderr-to break_infix-fit-or-vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=fit-or-vertical %{dep:tests/break_infix.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix-fit-or-vertical.ml.js-ref break_infix-fit-or-vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix-fit-or-vertical.ml.js-err break_infix-fit-or-vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_infix-wrap.ml.stdout
    (with-stderr-to break_infix-wrap.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-infix=wrap %{dep:tests/break_infix.ml})))))
@@ -696,6 +1137,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_infix-wrap.ml.js-stdout
+   (with-stderr-to break_infix-wrap.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=wrap %{dep:tests/break_infix.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix-wrap.ml.js-ref break_infix-wrap.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix-wrap.ml.js-err break_infix-wrap.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_infix.ml.stdout
    (with-stderr-to break_infix.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-infix=wrap-or-vertical %{dep:tests/break_infix.ml})))))
@@ -709,6 +1168,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_infix.ml.err break_infix.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_infix.ml.js-stdout
+   (with-stderr-to break_infix.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=wrap-or-vertical %{dep:tests/break_infix.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix.ml.js-ref break_infix.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_infix.ml.js-err break_infix.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -750,6 +1227,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_separators-after.ml.js-stdout
+   (with-stderr-to break_separators-after.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-separators=after --max-iter=3 %{dep:tests/break_separators.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-after.ml.js-ref break_separators-after.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-after.ml.js-err break_separators-after.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_separators-after_docked.ml.stdout
    (with-stderr-to break_separators-after_docked.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-separators=after --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
@@ -768,6 +1263,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_separators-after_docked.ml.js-stdout
+   (with-stderr-to break_separators-after_docked.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-separators=after --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-after_docked.ml.js-ref break_separators-after_docked.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-after_docked.ml.js-err break_separators-after_docked.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_separators-before_docked.ml.stdout
    (with-stderr-to break_separators-before_docked.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-separators=before --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
@@ -781,6 +1294,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_separators-before_docked.ml.err break_separators-before_docked.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_separators-before_docked.ml.js-stdout
+   (with-stderr-to break_separators-before_docked.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-separators=before --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-before_docked.ml.js-ref break_separators-before_docked.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_separators-before_docked.ml.js-err break_separators-before_docked.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -840,6 +1371,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_string_literals-never.ml.js-stdout
+   (with-stderr-to break_string_literals-never.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-string-literals=never %{dep:tests/break_string_literals.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_string_literals-never.ml.js-ref break_string_literals-never.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_string_literals-never.ml.js-err break_string_literals-never.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_string_literals.ml.stdout
    (with-stderr-to break_string_literals.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-string-literals=auto %{dep:tests/break_string_literals.ml})))))
@@ -858,9 +1407,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to break_string_literals.ml.js-stdout
+   (with-stderr-to break_string_literals.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-string-literals=auto %{dep:tests/break_string_literals.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_string_literals.ml.js-ref break_string_literals.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_string_literals.ml.js-err break_string_literals.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_struct.ml.stdout
    (with-stderr-to break_struct.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/break_struct.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/break_struct.ml})))))
 
 (rule
  (alias runtest)
@@ -871,6 +1438,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/break_struct.ml.err break_struct.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to break_struct.ml.js-stdout
+   (with-stderr-to break_struct.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/break_struct.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_struct.ml.js-ref break_struct.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/break_struct.ml.js-err break_struct.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -892,12 +1477,30 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to cases_exp_grouping.ml.js-stdout
+   (with-stderr-to cases_exp_grouping.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --exp-grouping=preserve %{dep:tests/cases_exp_grouping.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/cases_exp_grouping.ml.js-ref cases_exp_grouping.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/cases_exp_grouping.ml.js-err cases_exp_grouping.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
   (with-stdout-to cinaps.ml.stdout
    (with-stderr-to cinaps.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/cinaps.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/cinaps.ml})))))
 
 (rule
  (alias runtest)
@@ -910,6 +1513,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/cinaps.ml.err cinaps.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to cinaps.ml.js-stdout
+   (with-stderr-to cinaps.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/cinaps.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/cinaps.ml.js-ref cinaps.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/cinaps.ml.js-err cinaps.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -951,6 +1575,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to class_sig-after.mli.js-stdout
+   (with-stderr-to class_sig-after.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-separators=after %{dep:tests/class_sig.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_sig-after.mli.js-ref class_sig-after.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_sig-after.mli.js-err class_sig-after.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to class_sig.mli.stdout
    (with-stderr-to class_sig.mli.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/class_sig.mli})))))
@@ -969,6 +1611,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to class_sig.mli.js-stdout
+   (with-stderr-to class_sig.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/class_sig.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_sig.mli.js-ref class_sig.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_sig.mli.js-err class_sig.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to class_type.ml.stdout
    (with-stderr-to class_type.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/class_type.ml})))))
@@ -982,6 +1642,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/class_type.ml.err class_type.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to class_type.ml.js-stdout
+   (with-stderr-to class_type.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=3 %{dep:tests/class_type.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_type.ml.js-ref class_type.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/class_type.ml.js-err class_type.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1078,6 +1756,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to comment_header.ml.js-stdout
+   (with-stderr-to comment_header.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/comment_header.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/comment_header.ml.js-ref comment_header.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/comment_header.ml.js-err comment_header.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to comment_in_empty.ml.stdout
@@ -1111,6 +1810,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/comment_in_modules.ml.err comment_in_modules.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comment_in_modules.ml.js-stdout
+   (with-stderr-to comment_in_modules.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/comment_in_modules.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comment_in_modules.ml.js-ref comment_in_modules.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comment_in_modules.ml.js-err comment_in_modules.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1154,7 +1871,7 @@
  (action
   (with-stdout-to comments-no-wrap.ml.stdout
    (with-stderr-to comments-no-wrap.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --no-wrap-comments --max-iter=3 %{dep:tests/comments.ml})))))
+     (run %{bin:ocamlformat} --margin-check --no-wrap-comments --max-iters=5 %{dep:tests/comments.ml})))))
 
 (rule
  (alias runtest)
@@ -1165,6 +1882,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/comments-no-wrap.ml.err comments-no-wrap.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comments-no-wrap.ml.js-stdout
+   (with-stderr-to comments-no-wrap.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --no-wrap-comments --max-iters=5 %{dep:tests/comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments-no-wrap.ml.js-ref comments-no-wrap.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments-no-wrap.ml.js-err comments-no-wrap.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1183,6 +1918,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/comments.ml.err comments.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comments.ml.js-stdout
+   (with-stderr-to comments.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=4 %{dep:tests/comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments.ml.js-ref comments.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments.ml.js-err comments.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1224,6 +1977,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to comments_args.ml.js-stdout
+   (with-stderr-to comments_args.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=4 %{dep:tests/comments_args.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_args.ml.js-ref comments_args.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_args.ml.js-err comments_args.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to comments_around_disabled.ml.stdout
    (with-stderr-to comments_around_disabled.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/comments_around_disabled.ml})))))
@@ -1242,6 +2013,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to comments_around_disabled.ml.js-stdout
+   (with-stderr-to comments_around_disabled.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/comments_around_disabled.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_around_disabled.ml.js-ref comments_around_disabled.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_around_disabled.ml.js-err comments_around_disabled.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to comments_in_record.ml.stdout
    (with-stderr-to comments_in_record.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/comments_in_record.ml})))))
@@ -1255,6 +2044,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/comments_in_record.ml.err comments_in_record.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comments_in_record.ml.js-stdout
+   (with-stderr-to comments_in_record.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/comments_in_record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_in_record.ml.js-ref comments_in_record.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comments_in_record.ml.js-err comments_in_record.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1296,6 +2103,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to crlf_to_crlf.ml.js-stdout
+   (with-stderr-to crlf_to_crlf.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --line-endings=crlf %{dep:tests/crlf_to_crlf.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/crlf_to_crlf.ml.js-ref crlf_to_crlf.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/crlf_to_crlf.ml.js-err crlf_to_crlf.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to crlf_to_lf.ml.stdout
    (with-stderr-to crlf_to_lf.ml.stderr
      (run %{bin:ocamlformat} --margin-check --line-endings=lf %{dep:tests/crlf_to_lf.ml})))))
@@ -1309,6 +2134,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/crlf_to_lf.ml.err crlf_to_lf.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to crlf_to_lf.ml.js-stdout
+   (with-stderr-to crlf_to_lf.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --line-endings=lf %{dep:tests/crlf_to_lf.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/crlf_to_lf.ml.js-ref crlf_to_lf.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/crlf_to_lf.ml.js-err crlf_to_lf.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1350,6 +2193,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to directives.mlt.js-stdout
+   (with-stderr-to directives.mlt.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/directives.mlt})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/directives.mlt.js-ref directives.mlt.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/directives.mlt.js-err directives.mlt.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to disable_attr.ml.stdout
    (with-stderr-to disable_attr.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/disable_attr.ml})))))
@@ -1381,6 +2242,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/disable_conf_attrs.ml.err disable_conf_attrs.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to disable_conf_attrs.ml.js-stdout
+   (with-stderr-to disable_conf_attrs.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --disable-conf-attrs %{dep:tests/disable_conf_attrs.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/disable_conf_attrs.ml.js-ref disable_conf_attrs.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/disable_conf_attrs.ml.js-err disable_conf_attrs.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1476,6 +2355,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to doc.mld.js-stdout
+   (with-stderr-to doc.mld.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/doc.mld})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc.mld.js-ref doc.mld.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc.mld.js-err doc.mld.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to doc_comments-after.ml.stdout
    (with-stderr-to doc_comments-after.ml.stderr
      (run %{bin:ocamlformat} --margin-check --doc-comments=after-when-possible %{dep:tests/doc_comments.ml})))))
@@ -1489,6 +2386,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/doc_comments-after.ml.err doc_comments-after.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_comments-after.ml.js-stdout
+   (with-stderr-to doc_comments-after.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --doc-comments=after-when-possible %{dep:tests/doc_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-after.ml.js-ref doc_comments-after.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-after.ml.js-err doc_comments-after.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1512,6 +2427,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to doc_comments-before-except-val.ml.js-stdout
+   (with-stderr-to doc_comments-before-except-val.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --doc-comments=before-except-val %{dep:tests/doc_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-before-except-val.ml.js-ref doc_comments-before-except-val.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-before-except-val.ml.js-err doc_comments-before-except-val.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to doc_comments-before.ml.stdout
    (with-stderr-to doc_comments-before.ml.stderr
      (run %{bin:ocamlformat} --margin-check --doc-comments=before %{dep:tests/doc_comments.ml})))))
@@ -1530,6 +2463,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to doc_comments-before.ml.js-stdout
+   (with-stderr-to doc_comments-before.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --doc-comments=before %{dep:tests/doc_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-before.ml.js-ref doc_comments-before.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-before.ml.js-err doc_comments-before.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to doc_comments-no-parse-docstrings.mli.stdout
    (with-stderr-to doc_comments-no-parse-docstrings.mli.stderr
      (run %{bin:ocamlformat} --margin-check --no-parse-docstrings --max-iters=3 %{dep:tests/doc_comments.mli})))))
@@ -1543,6 +2494,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/doc_comments-no-parse-docstrings.mli.err doc_comments-no-parse-docstrings.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_comments-no-parse-docstrings.mli.js-stdout
+   (with-stderr-to doc_comments-no-parse-docstrings.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --no-parse-docstrings --max-iters=3 %{dep:tests/doc_comments.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-no-parse-docstrings.mli.js-ref doc_comments-no-parse-docstrings.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments-no-parse-docstrings.mli.js-err doc_comments-no-parse-docstrings.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1567,6 +2536,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_comments-no-wrap.mli.js-stdout
+   (with-stderr-to doc_comments-no-wrap.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --no-wrap-comments %{dep:tests/doc_comments.mli})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/doc_comments-no-wrap.mli.js-ref doc_comments-no-wrap.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/doc_comments-no-wrap.mli.js-err doc_comments-no-wrap.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to doc_comments.ml.stdout
@@ -1582,6 +2572,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/doc_comments.ml.err doc_comments.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_comments.ml.js-stdout
+   (with-stderr-to doc_comments.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/doc_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments.ml.js-ref doc_comments.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_comments.ml.js-err doc_comments.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1603,6 +2611,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/doc_comments.mli.err doc_comments.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_comments.mli.js-stdout
+   (with-stderr-to doc_comments.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/doc_comments.mli})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/doc_comments.mli.js-ref doc_comments.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/doc_comments.mli.js-err doc_comments.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1639,6 +2668,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/doc_repl.mld.err doc_repl.mld.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to doc_repl.mld.js-stdout
+   (with-stderr-to doc_repl.mld.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --parse-toplevel-phrases %{dep:tests/doc_repl.mld})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_repl.mld.js-ref doc_repl.mld.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/doc_repl.mld.js-err doc_repl.mld.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1771,6 +2818,25 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to error1.ml.js-stdout
+   (with-stderr-to error1.ml.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/error1.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error1.ml.js-ref error1.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error1.ml.js-err error1.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to error2.ml.stdout
    (with-stderr-to error2.ml.stderr
      (with-accepted-exit-codes 1
@@ -1785,6 +2851,25 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/error2.ml.err error2.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to error2.ml.js-stdout
+   (with-stderr-to error2.ml.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/error2.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error2.ml.js-ref error2.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error2.ml.js-err error2.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1809,6 +2894,25 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to error3.ml.js-stdout
+   (with-stderr-to error3.ml.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/error3.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error3.ml.js-ref error3.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error3.ml.js-err error3.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to error4.ml.stdout
    (with-stderr-to error4.ml.stderr
      (run %{bin:ocamlformat} --margin-check --no-comment-check %{dep:tests/error4.ml})))))
@@ -1825,12 +2929,30 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to error4.ml.js-stdout
+   (with-stderr-to error4.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --no-comment-check %{dep:tests/error4.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error4.ml.js-ref error4.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/error4.ml.js-err error4.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
   (with-stdout-to escaped_nl.ml.stdout
    (with-stderr-to escaped_nl.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/escaped_nl.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/escaped_nl.ml})))))
 
 (rule
  (alias runtest)
@@ -1843,6 +2965,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/escaped_nl.ml.err escaped_nl.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to escaped_nl.ml.js-stdout
+   (with-stderr-to escaped_nl.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/escaped_nl.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/escaped_nl.ml.js-ref escaped_nl.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/escaped_nl.ml.js-err escaped_nl.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1886,7 +3029,7 @@
  (action
   (with-stdout-to exp_grouping-parens.ml.stdout
    (with-stderr-to exp_grouping-parens.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --exp-grouping=parens %{dep:tests/exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --margin-check --exp-grouping=parens --max-iters=5 %{dep:tests/exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -1902,9 +3045,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to exp_grouping-parens.ml.js-stdout
+   (with-stderr-to exp_grouping-parens.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --exp-grouping=parens --max-iters=5 %{dep:tests/exp_grouping.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/exp_grouping-parens.ml.js-ref exp_grouping-parens.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/exp_grouping-parens.ml.js-err exp_grouping-parens.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to exp_grouping.ml.stdout
    (with-stderr-to exp_grouping.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --exp-grouping=preserve %{dep:tests/exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -1915,6 +3076,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/exp_grouping.ml.err exp_grouping.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to exp_grouping.ml.js-stdout
+   (with-stderr-to exp_grouping.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/exp_grouping.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/exp_grouping.ml.js-ref exp_grouping.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/exp_grouping.ml.js-err exp_grouping.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -1974,6 +3153,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to extensions-indent.ml.js-stdout
+   (with-stderr-to extensions-indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=3 --extension-indent=5 --stritem-extension-indent=3 %{dep:tests/extensions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions-indent.ml.js-ref extensions-indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions-indent.ml.js-err extensions-indent.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to extensions-indent.mli.stdout
    (with-stderr-to extensions-indent.mli.stderr
      (run %{bin:ocamlformat} --margin-check --extension-indent=5 --stritem-extension-indent=3 %{dep:tests/extensions.mli})))))
@@ -1992,6 +3189,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to extensions-indent.mli.js-stdout
+   (with-stderr-to extensions-indent.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --extension-indent=5 --stritem-extension-indent=3 %{dep:tests/extensions.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions-indent.mli.js-ref extensions-indent.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions-indent.mli.js-err extensions-indent.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to extensions.ml.stdout
    (with-stderr-to extensions.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/extensions.ml})))))
@@ -2005,6 +3220,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/extensions.ml.err extensions.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to extensions.ml.js-stdout
+   (with-stderr-to extensions.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=3 %{dep:tests/extensions.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions.ml.js-ref extensions.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions.ml.js-err extensions.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2030,7 +3263,7 @@
  (action
   (with-stdout-to extensions_exp_grouping.ml.stdout
    (with-stderr-to extensions_exp_grouping.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --exp-grouping=preserve %{dep:tests/extensions_exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/extensions_exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -2041,6 +3274,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/extensions_exp_grouping.ml.err extensions_exp_grouping.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to extensions_exp_grouping.ml.js-stdout
+   (with-stderr-to extensions_exp_grouping.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/extensions_exp_grouping.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions_exp_grouping.ml.js-ref extensions_exp_grouping.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/extensions_exp_grouping.ml.js-err extensions_exp_grouping.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2059,6 +3310,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/field-op_begin_line.ml.err field-op_begin_line.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to field-op_begin_line.ml.js-stdout
+   (with-stderr-to field-op_begin_line.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --assignment-operator=begin-line %{dep:tests/field.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/field-op_begin_line.ml.js-ref field-op_begin_line.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/field-op_begin_line.ml.js-err field-op_begin_line.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2084,7 +3353,7 @@
  (action
   (with-stdout-to first_class_module.ml.stdout
    (with-stderr-to first_class_module.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/first_class_module.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/first_class_module.ml})))))
 
 (rule
  (alias runtest)
@@ -2095,6 +3364,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/first_class_module.ml.err first_class_module.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to first_class_module.ml.js-stdout
+   (with-stderr-to first_class_module.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/first_class_module.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/first_class_module.ml.js-ref first_class_module.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/first_class_module.ml.js-err first_class_module.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2190,6 +3477,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to function_indent-never.ml.js-stdout
+   (with-stderr-to function_indent-never.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --function-indent=4 --function-indent-nested=never %{dep:tests/function_indent.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/function_indent-never.ml.js-ref function_indent-never.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/function_indent-never.ml.js-err function_indent-never.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to function_indent.ml.stdout
    (with-stderr-to function_indent.ml.stderr
      (run %{bin:ocamlformat} --margin-check --function-indent=4 --function-indent-nested=always %{dep:tests/function_indent.ml})))))
@@ -2203,6 +3508,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/function_indent.ml.err function_indent.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to function_indent.ml.js-stdout
+   (with-stderr-to function_indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --function-indent=4 --function-indent-nested=always %{dep:tests/function_indent.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/function_indent.ml.js-ref function_indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/function_indent.ml.js-err function_indent.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2280,6 +3603,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to generative.ml.js-stdout
+   (with-stderr-to generative.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=3 %{dep:tests/generative.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/generative.ml.js-ref generative.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/generative.ml.js-err generative.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to hash_bang.ml.stdout
    (with-stderr-to hash_bang.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/hash_bang.ml})))))
@@ -2334,6 +3675,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to holes.ml.js-stdout
+   (with-stderr-to holes.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/holes.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/holes.ml.js-ref holes.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/holes.ml.js-err holes.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ifand.ml.stdout
    (with-stderr-to ifand.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/ifand.ml})))))
@@ -2347,6 +3706,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/ifand.ml.err ifand.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to ifand.ml.js-stdout
+   (with-stderr-to ifand.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/ifand.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ifand.ml.js-ref ifand.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ifand.ml.js-err ifand.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2388,6 +3765,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to implicit_source_position-erased.ml.js-stdout
+   (with-stderr-to implicit_source_position-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/implicit_source_position.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position-erased.ml.js-ref implicit_source_position-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position-erased.ml.js-err implicit_source_position-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to implicit_source_position.ml.stdout
    (with-stderr-to implicit_source_position.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/implicit_source_position.ml})))))
@@ -2401,6 +3796,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/implicit_source_position.ml.err implicit_source_position.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to implicit_source_position.ml.js-stdout
+   (with-stderr-to implicit_source_position.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/implicit_source_position.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position.ml.js-ref implicit_source_position.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/implicit_source_position.ml.js-err implicit_source_position.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2460,6 +3873,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to indicate_multiline_delimiters-cosl.ml.js-stdout
+   (with-stderr-to indicate_multiline_delimiters-cosl.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/indicate_multiline_delimiters.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/indicate_multiline_delimiters-cosl.ml.js-ref indicate_multiline_delimiters-cosl.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/indicate_multiline_delimiters-cosl.ml.js-err indicate_multiline_delimiters-cosl.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to indicate_multiline_delimiters-space.ml.stdout
    (with-stderr-to indicate_multiline_delimiters-space.ml.stderr
      (run %{bin:ocamlformat} --margin-check --indicate-multiline-delimiters=space %{dep:tests/indicate_multiline_delimiters.ml})))))
@@ -2473,6 +3904,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/indicate_multiline_delimiters-space.ml.err indicate_multiline_delimiters-space.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to indicate_multiline_delimiters-space.ml.js-stdout
+   (with-stderr-to indicate_multiline_delimiters-space.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --indicate-multiline-delimiters=space %{dep:tests/indicate_multiline_delimiters.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/indicate_multiline_delimiters-space.ml.js-ref indicate_multiline_delimiters-space.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/indicate_multiline_delimiters-space.ml.js-err indicate_multiline_delimiters-space.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2516,7 +3965,7 @@
  (action
   (with-stdout-to infix_bind-break.ml.stdout
    (with-stderr-to infix_bind-break.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --break-infix=wrap --break-infix-before-func %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --margin-check --break-infix=wrap --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -2532,9 +3981,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to infix_bind-break.ml.js-stdout
+   (with-stderr-to infix_bind-break.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=wrap --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-break.ml.js-ref infix_bind-break.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-break.ml.js-err infix_bind-break.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to infix_bind-fit_or_vertical-break.ml.stdout
    (with-stderr-to infix_bind-fit_or_vertical-break.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --break-infix=fit-or-vertical --break-infix-before-func %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --margin-check --break-infix=fit-or-vertical --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -2550,9 +4017,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to infix_bind-fit_or_vertical-break.ml.js-stdout
+   (with-stderr-to infix_bind-fit_or_vertical-break.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=fit-or-vertical --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-fit_or_vertical-break.ml.js-ref infix_bind-fit_or_vertical-break.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-fit_or_vertical-break.ml.js-err infix_bind-fit_or_vertical-break.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to infix_bind-fit_or_vertical.ml.stdout
    (with-stderr-to infix_bind-fit_or_vertical.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --break-infix=fit-or-vertical --no-break-infix-before-func %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --margin-check --break-infix=fit-or-vertical --no-break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -2563,6 +4048,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/infix_bind-fit_or_vertical.ml.err infix_bind-fit_or_vertical.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to infix_bind-fit_or_vertical.ml.js-stdout
+   (with-stderr-to infix_bind-fit_or_vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --break-infix=fit-or-vertical --no-break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-fit_or_vertical.ml.js-ref infix_bind-fit_or_vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/infix_bind-fit_or_vertical.ml.js-err infix_bind-fit_or_vertical.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2640,6 +4143,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to into_infix.ml.js-stdout
+   (with-stderr-to into_infix.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/into_infix.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/into_infix.ml.js-ref into_infix.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/into_infix.ml.js-err into_infix.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to invalid.ml.stdout
    (with-stderr-to invalid.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/invalid.ml})))))
@@ -2674,6 +4195,24 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to invalid_docstring.ml.js-stdout
+   (with-stderr-to invalid_docstring.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/invalid_docstring.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/invalid_docstring.ml.js-ref invalid_docstring.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/invalid_docstring.ml.js-err invalid_docstring.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
@@ -2692,6 +4231,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/invalid_docstrings.mli.err invalid_docstrings.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to invalid_docstrings.mli.js-stdout
+   (with-stderr-to invalid_docstrings.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/invalid_docstrings.mli})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/invalid_docstrings.mli.js-ref invalid_docstrings.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/invalid_docstrings.mli.js-err invalid_docstrings.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2879,7 +4439,7 @@
  (action
   (with-stdout-to ite-compact.ml.stdout
    (with-stderr-to ite-compact.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=compact %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -2895,9 +4455,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-compact.ml.js-stdout
+   (with-stderr-to ite-compact.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-compact.ml.js-ref ite-compact.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-compact.ml.js-err ite-compact.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-compact_closing.ml.stdout
    (with-stderr-to ite-compact_closing.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -2913,9 +4491,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-compact_closing.ml.js-stdout
+   (with-stderr-to ite-compact_closing.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=compact --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-compact_closing.ml.js-ref ite-compact_closing.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-compact_closing.ml.js-err ite-compact_closing.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-fit_or_vertical.ml.stdout
    (with-stderr-to ite-fit_or_vertical.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=fit-or-vertical %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=fit-or-vertical --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -2931,9 +4527,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-fit_or_vertical.ml.js-stdout
+   (with-stderr-to ite-fit_or_vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=fit-or-vertical --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical.ml.js-ref ite-fit_or_vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical.ml.js-err ite-fit_or_vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-fit_or_vertical_closing.ml.stdout
    (with-stderr-to ite-fit_or_vertical_closing.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else fit-or-vertical --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else fit-or-vertical --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -2949,9 +4563,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-fit_or_vertical_closing.ml.js-stdout
+   (with-stderr-to ite-fit_or_vertical_closing.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else fit-or-vertical --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical_closing.ml.js-ref ite-fit_or_vertical_closing.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical_closing.ml.js-err ite-fit_or_vertical_closing.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-fit_or_vertical_no_indicate.ml.stdout
    (with-stderr-to ite-fit_or_vertical_no_indicate.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=fit-or-vertical --indicate-multiline-delimiters=no %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=fit-or-vertical --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -2962,6 +4594,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/ite-fit_or_vertical_no_indicate.ml.err ite-fit_or_vertical_no_indicate.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to ite-fit_or_vertical_no_indicate.ml.js-stdout
+   (with-stderr-to ite-fit_or_vertical_no_indicate.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=fit-or-vertical --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical_no_indicate.ml.js-ref ite-fit_or_vertical_no_indicate.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-fit_or_vertical_no_indicate.ml.js-err ite-fit_or_vertical_no_indicate.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -2985,6 +4635,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-kr.ml.js-stdout
+   (with-stderr-to ite-kr.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=k-r --max-iters=3 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kr.ml.js-ref ite-kr.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kr.ml.js-err ite-kr.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-kr_closing.ml.stdout
    (with-stderr-to ite-kr_closing.ml.stderr
      (run %{bin:ocamlformat} --margin-check --if-then-else=k-r --max-iters=3 --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
@@ -3003,9 +4671,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-kr_closing.ml.js-stdout
+   (with-stderr-to ite-kr_closing.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=k-r --max-iters=3 --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kr_closing.ml.js-ref ite-kr_closing.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kr_closing.ml.js-err ite-kr_closing.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-kw_first.ml.stdout
    (with-stderr-to ite-kw_first.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=keyword-first %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=keyword-first --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3021,9 +4707,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-kw_first.ml.js-stdout
+   (with-stderr-to ite-kw_first.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=keyword-first --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first.ml.js-ref ite-kw_first.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first.ml.js-err ite-kw_first.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-kw_first_closing.ml.stdout
    (with-stderr-to ite-kw_first_closing.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else keyword-first --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else keyword-first --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3039,9 +4743,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-kw_first_closing.ml.js-stdout
+   (with-stderr-to ite-kw_first_closing.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else keyword-first --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first_closing.ml.js-ref ite-kw_first_closing.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first_closing.ml.js-err ite-kw_first_closing.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-kw_first_no_indicate.ml.stdout
    (with-stderr-to ite-kw_first_no_indicate.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=keyword-first --indicate-multiline-delimiters=no %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=keyword-first --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3057,9 +4779,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-kw_first_no_indicate.ml.js-stdout
+   (with-stderr-to ite-kw_first_no_indicate.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=keyword-first --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first_no_indicate.ml.js-ref ite-kw_first_no_indicate.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-kw_first_no_indicate.ml.js-err ite-kw_first_no_indicate.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-no_indicate.ml.stdout
    (with-stderr-to ite-no_indicate.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --indicate-multiline-delimiters=no %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3075,9 +4815,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-no_indicate.ml.js-stdout
+   (with-stderr-to ite-no_indicate.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=compact --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-no_indicate.ml.js-ref ite-no_indicate.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-no_indicate.ml.js-err ite-no_indicate.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite-vertical.ml.stdout
    (with-stderr-to ite-vertical.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=vertical %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=vertical --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3093,9 +4851,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ite-vertical.ml.js-stdout
+   (with-stderr-to ite-vertical.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=vertical --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-vertical.ml.js-ref ite-vertical.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite-vertical.ml.js-err ite-vertical.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ite.ml.stdout
    (with-stderr-to ite.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --if-then-else=compact %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -3106,6 +4882,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/ite.ml.err ite.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to ite.ml.js-stdout
+   (with-stderr-to ite.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite.ml.js-ref ite.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ite.ml.js-err ite.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3129,6 +4923,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_args.ml.js-stdout
+   (with-stderr-to js_args.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/js_args.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_args.ml.js-ref js_args.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_args.ml.js-err js_args.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_begin.ml.stdout
    (with-stderr-to js_begin.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/js_begin.ml})))))
@@ -3147,9 +4959,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_begin.ml.js-stdout
+   (with-stderr-to js_begin.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/js_begin.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_begin.ml.js-ref js_begin.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_begin.ml.js-err js_begin.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_bind.ml.stdout
    (with-stderr-to js_bind.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/js_bind.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/js_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -3160,6 +4990,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/js_bind.ml.err js_bind.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to js_bind.ml.js-stdout
+   (with-stderr-to js_bind.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/js_bind.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_bind.ml.js-ref js_bind.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_bind.ml.js-err js_bind.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3183,6 +5031,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_fun.ml.js-stdout
+   (with-stderr-to js_fun.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/js_fun.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_fun.ml.js-ref js_fun.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_fun.ml.js-err js_fun.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_map.ml.stdout
    (with-stderr-to js_map.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/js_map.ml})))))
@@ -3196,6 +5062,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/js_map.ml.err js_map.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to js_map.ml.js-stdout
+   (with-stderr-to js_map.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/js_map.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_map.ml.js-ref js_map.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_map.ml.js-err js_map.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3219,6 +5103,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_pattern.ml.js-stdout
+   (with-stderr-to js_pattern.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/js_pattern.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_pattern.ml.js-ref js_pattern.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_pattern.ml.js-err js_pattern.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_poly.ml.stdout
    (with-stderr-to js_poly.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/js_poly.ml})))))
@@ -3237,9 +5139,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_poly.ml.js-stdout
+   (with-stderr-to js_poly.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/js_poly.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_poly.ml.js-ref js_poly.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_poly.ml.js-err js_poly.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_record.ml.stdout
    (with-stderr-to js_record.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/js_record.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/js_record.ml})))))
 
 (rule
  (alias runtest)
@@ -3255,9 +5175,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to js_record.ml.js-stdout
+   (with-stderr-to js_record.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/js_record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_record.ml.js-ref js_record.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_record.ml.js-err js_record.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to js_sig.mli.stdout
    (with-stderr-to js_sig.mli.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/js_sig.mli})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/js_sig.mli})))))
 
 (rule
  (alias runtest)
@@ -3275,7 +5213,7 @@
  (action
   (with-stdout-to js_source.ml.stdout
    (with-stderr-to js_source.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iters=3 --profile=janestreet %{dep:tests/js_source.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/js_source.ml})))))
 
 (rule
  (alias runtest)
@@ -3319,6 +5257,24 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to js_syntax.ml.js-stdout
+   (with-stderr-to js_syntax.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/js_syntax.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_syntax.ml.js-ref js_syntax.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_syntax.ml.js-err js_syntax.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
@@ -3340,6 +5296,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to js_to_do.ml.js-stdout
+   (with-stderr-to js_to_do.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/js_to_do.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/js_to_do.ml.js-ref js_to_do.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/js_to_do.ml.js-err js_to_do.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to js_upon.ml.stdout
@@ -3355,6 +5332,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/js_upon.ml.err js_upon.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to js_upon.ml.js-stdout
+   (with-stderr-to js_upon.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/js_upon.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_upon.ml.js-ref js_upon.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/js_upon.ml.js-err js_upon.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3391,6 +5386,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/label_option_default_args.ml.err label_option_default_args.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to label_option_default_args.ml.js-stdout
+   (with-stderr-to label_option_default_args.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=4 %{dep:tests/label_option_default_args.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/label_option_default_args.ml.js-ref label_option_default_args.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/label_option_default_args.ml.js-err label_option_default_args.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3452,7 +5465,7 @@
  (action
   (with-stdout-to labeled_tuples_cmts_attrs_move.ml.stdout
    (with-stderr-to labeled_tuples_cmts_attrs_move.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples_cmts_attrs_move.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/labeled_tuples_cmts_attrs_move.ml})))))
 
 (rule
  (alias runtest)
@@ -3522,6 +5535,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to labelled_args-414.ml.js-stdout
+   (with-stderr-to labelled_args-414.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --ocaml-version=4.14.0 %{dep:tests/labelled_args.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/labelled_args-414.ml.js-ref labelled_args-414.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/labelled_args-414.ml.js-err labelled_args-414.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to labelled_args.ml.stdout
    (with-stderr-to labelled_args.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/labelled_args.ml})))))
@@ -3558,9 +5589,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_annotation-erased.ml.js-stdout
+   (with-stderr-to layout_annotation-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --erase-jane-syntax --max-iter=4 %{dep:tests/layout_annotation.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation-erased.ml.js-ref layout_annotation-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation-erased.ml.js-err layout_annotation-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to layout_annotation.ml.stdout
    (with-stderr-to layout_annotation.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/layout_annotation.ml})))))
 
 (rule
  (alias runtest)
@@ -3576,9 +5625,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_annotation.ml.js-stdout
+   (with-stderr-to layout_annotation.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/layout_annotation.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation.ml.js-ref layout_annotation.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation.ml.js-err layout_annotation.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to layout_annotation_immediate_rewrite.ml.stdout
    (with-stderr-to layout_annotation_immediate_rewrite.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iter=4 --profile=janestreet %{dep:tests/layout_annotation_immediate_rewrite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/layout_annotation_immediate_rewrite.ml})))))
 
 (rule
  (alias runtest)
@@ -3614,7 +5681,7 @@
  (action
   (with-stdout-to let_binding-in_indent.ml.stdout
    (with-stderr-to let_binding-in_indent.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --indent-after-in=4 %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --margin-check --indent-after-in=4 --max-iters=5 %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -3630,9 +5697,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_binding-in_indent.ml.js-stdout
+   (with-stderr-to let_binding-in_indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --indent-after-in=4 --max-iters=5 %{dep:tests/let_binding.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding-in_indent.ml.js-ref let_binding-in_indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding-in_indent.ml.js-err let_binding-in_indent.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_binding-indent.ml.stdout
    (with-stderr-to let_binding-indent.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --let-binding-indent=6 %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --margin-check --let-binding-indent=6 --max-iters=5 %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -3648,9 +5733,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_binding-indent.ml.js-stdout
+   (with-stderr-to let_binding-indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --let-binding-indent=6 --max-iters=5 %{dep:tests/let_binding.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding-indent.ml.js-ref let_binding-indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding-indent.ml.js-err let_binding-indent.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_binding.ml.stdout
    (with-stderr-to let_binding.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -3666,9 +5769,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_binding.ml.js-stdout
+   (with-stderr-to let_binding.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/let_binding.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding.ml.js-ref let_binding.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding.ml.js-err let_binding.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_binding_spacing-double-semicolon.ml.stdout
    (with-stderr-to let_binding_spacing-double-semicolon.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --let-binding-spacing=double-semicolon %{dep:tests/let_binding_spacing.ml})))))
+     (run %{bin:ocamlformat} --margin-check --let-binding-spacing=double-semicolon --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -3684,9 +5805,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_binding_spacing-double-semicolon.ml.js-stdout
+   (with-stderr-to let_binding_spacing-double-semicolon.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --let-binding-spacing=double-semicolon --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding_spacing-double-semicolon.ml.js-ref let_binding_spacing-double-semicolon.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding_spacing-double-semicolon.ml.js-err let_binding_spacing-double-semicolon.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_binding_spacing-sparse.ml.stdout
    (with-stderr-to let_binding_spacing-sparse.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --let-binding-spacing=sparse %{dep:tests/let_binding_spacing.ml})))))
+     (run %{bin:ocamlformat} --margin-check --let-binding-spacing=sparse --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -3697,6 +5836,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/let_binding_spacing-sparse.ml.err let_binding_spacing-sparse.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to let_binding_spacing-sparse.ml.js-stdout
+   (with-stderr-to let_binding_spacing-sparse.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --let-binding-spacing=sparse --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding_spacing-sparse.ml.js-ref let_binding_spacing-sparse.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_binding_spacing-sparse.ml.js-err let_binding_spacing-sparse.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3756,6 +5913,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to let_module-sparse.ml.js-stdout
+   (with-stderr-to let_module-sparse.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --let-module=sparse %{dep:tests/let_module.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_module-sparse.ml.js-ref let_module-sparse.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_module-sparse.ml.js-err let_module-sparse.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to let_module.ml.stdout
    (with-stderr-to let_module.ml.stderr
      (run %{bin:ocamlformat} --margin-check --let-module=compact %{dep:tests/let_module.ml})))))
@@ -3769,6 +5944,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/let_module.ml.err let_module.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to let_module.ml.js-stdout
+   (with-stderr-to let_module.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --let-module=compact %{dep:tests/let_module.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_module.ml.js-ref let_module.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/let_module.ml.js-err let_module.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3811,9 +6004,28 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to line_directives.ml.js-stdout
+   (with-stderr-to line_directives.ml.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/line_directives.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/line_directives.ml.js-ref line_directives.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/line_directives.ml.js-err line_directives.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to list-space_around.ml.stdout
    (with-stderr-to list-space_around.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --space-around-arrays --space-around-lists --space-around-records --space-around-variants %{dep:tests/list.ml})))))
+     (run %{bin:ocamlformat} --margin-check --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/list.ml})))))
 
 (rule
  (alias runtest)
@@ -3824,6 +6036,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/list-space_around.ml.err list-space_around.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to list-space_around.ml.js-stdout
+   (with-stderr-to list-space_around.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/list.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list-space_around.ml.js-ref list-space_around.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list-space_around.ml.js-err list-space_around.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3865,6 +6095,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to list_and_comments.ml.js-stdout
+   (with-stderr-to list_and_comments.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/list_and_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list_and_comments.ml.js-ref list_and_comments.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list_and_comments.ml.js-err list_and_comments.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to list_normalized.ml.stdout
    (with-stderr-to list_normalized.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iters=4 %{dep:tests/list_normalized.ml})))))
@@ -3878,6 +6126,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/list_normalized.ml.err list_normalized.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to list_normalized.ml.js-stdout
+   (with-stderr-to list_normalized.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=4 %{dep:tests/list_normalized.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list_normalized.ml.js-ref list_normalized.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/list_normalized.ml.js-err list_normalized.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3901,6 +6167,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to loc_stack.ml.js-stdout
+   (with-stderr-to loc_stack.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check -n 3 %{dep:tests/loc_stack.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/loc_stack.ml.js-ref loc_stack.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/loc_stack.ml.js-err loc_stack.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to local.ml.stdout
    (with-stderr-to local.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/local.ml})))))
@@ -3919,6 +6203,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to local.ml.js-stdout
+   (with-stderr-to local.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/local.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml.js-ref local.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local.ml.js-err local.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to local_erased.ml.stdout
    (with-stderr-to local_erased.ml.stderr
      (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/local_erased.ml})))))
@@ -3932,6 +6234,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/local_erased.ml.err local_erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to local_erased.ml.js-stdout
+   (with-stderr-to local_erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/local_erased.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local_erased.ml.js-ref local_erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/local_erased.ml.js-err local_erased.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -3968,6 +6288,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/margin_80.ml.err margin_80.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to margin_80.ml.js-stdout
+   (with-stderr-to margin_80.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --margin=80 %{dep:tests/margin_80.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/margin_80.ml.js-ref margin_80.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/margin_80.ml.js-err margin_80.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4027,6 +6365,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to match_indent-never.ml.js-stdout
+   (with-stderr-to match_indent-never.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --match-indent=4 --match-indent-nested=never %{dep:tests/match_indent.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/match_indent-never.ml.js-ref match_indent-never.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/match_indent-never.ml.js-err match_indent-never.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to match_indent.ml.stdout
    (with-stderr-to match_indent.ml.stderr
      (run %{bin:ocamlformat} --margin-check --match-indent=4 --match-indent-nested=always %{dep:tests/match_indent.ml})))))
@@ -4040,6 +6396,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/match_indent.ml.err match_indent.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to match_indent.ml.js-stdout
+   (with-stderr-to match_indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --match-indent=4 --match-indent-nested=always %{dep:tests/match_indent.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/match_indent.ml.js-ref match_indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/match_indent.ml.js-err match_indent.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4135,6 +6509,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to module_attributes.ml.js-stdout
+   (with-stderr-to module_attributes.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/module_attributes.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_attributes.ml.js-ref module_attributes.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_attributes.ml.js-err module_attributes.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to module_item_spacing-preserve.ml.stdout
    (with-stderr-to module_item_spacing-preserve.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 --module-item-spacing=preserve %{dep:tests/module_item_spacing.ml})))))
@@ -4148,6 +6540,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/module_item_spacing-preserve.ml.err module_item_spacing-preserve.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to module_item_spacing-preserve.ml.js-stdout
+   (with-stderr-to module_item_spacing-preserve.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 --module-item-spacing=preserve %{dep:tests/module_item_spacing.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing-preserve.ml.js-ref module_item_spacing-preserve.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing-preserve.ml.js-err module_item_spacing-preserve.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4171,6 +6581,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to module_item_spacing-sparse.ml.js-stdout
+   (with-stderr-to module_item_spacing-sparse.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 --module-item-spacing=sparse %{dep:tests/module_item_spacing.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing-sparse.ml.js-ref module_item_spacing-sparse.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing-sparse.ml.js-err module_item_spacing-sparse.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to module_item_spacing.ml.stdout
    (with-stderr-to module_item_spacing.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 --module-item-spacing=compact %{dep:tests/module_item_spacing.ml})))))
@@ -4189,6 +6617,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to module_item_spacing.ml.js-stdout
+   (with-stderr-to module_item_spacing.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 --module-item-spacing=compact %{dep:tests/module_item_spacing.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing.ml.js-ref module_item_spacing.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing.ml.js-err module_item_spacing.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to module_item_spacing.mli.stdout
    (with-stderr-to module_item_spacing.mli.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/module_item_spacing.mli})))))
@@ -4202,6 +6648,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/module_item_spacing.mli.err module_item_spacing.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to module_item_spacing.mli.js-stdout
+   (with-stderr-to module_item_spacing.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iter=3 %{dep:tests/module_item_spacing.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing.mli.js-ref module_item_spacing.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_item_spacing.mli.js-err module_item_spacing.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4238,6 +6702,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/module_type.mli.err module_type.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to module_type.mli.js-stdout
+   (with-stderr-to module_type.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/module_type.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_type.mli.js-ref module_type.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_type.mli.js-err module_type.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4334,6 +6816,25 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to need_format.ml.js-stdout
+   (with-stderr-to need_format.ml.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=1 %{dep:tests/need_format.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/need_format.ml.js-ref need_format.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/need_format.ml.js-err need_format.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to new.ml.stdout
    (with-stderr-to new.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/new.ml})))))
@@ -4388,9 +6889,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to object2.ml.js-stdout
+   (with-stderr-to object2.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/object2.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object2.ml.js-ref object2.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object2.ml.js-err object2.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to object_expr-414.ml.stdout
    (with-stderr-to object_expr-414.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 %{dep:tests/object_expr.ml})))))
+     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 --max-iters=5 %{dep:tests/object_expr.ml})))))
 
 (rule
  (alias runtest)
@@ -4406,9 +6925,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to object_expr-414.ml.js-stdout
+   (with-stderr-to object_expr-414.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --ocaml-version=4.14.0 --max-iters=5 %{dep:tests/object_expr.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_expr-414.ml.js-ref object_expr-414.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_expr-414.ml.js-err object_expr-414.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to object_expr.ml.stdout
    (with-stderr-to object_expr.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/object_expr.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/object_expr.ml})))))
 
 (rule
  (alias runtest)
@@ -4424,9 +6961,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to object_expr.ml.js-stdout
+   (with-stderr-to object_expr.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/object_expr.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_expr.ml.js-ref object_expr.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_expr.ml.js-err object_expr.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to object_type.ml.stdout
    (with-stderr-to object_type.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/object_type.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/object_type.ml})))))
 
 (rule
  (alias runtest)
@@ -4437,6 +6992,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/object_type.ml.err object_type.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to object_type.ml.js-stdout
+   (with-stderr-to object_type.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/object_type.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_type.ml.js-ref object_type.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/object_type.ml.js-err object_type.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4460,6 +7033,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to obuild.ml.js-stdout
+   (with-stderr-to obuild.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/obuild.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/obuild.ml.js-ref obuild.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/obuild.ml.js-err obuild.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to ocp_indent_compat-break_colon_after.ml.stdout
    (with-stderr-to ocp_indent_compat-break_colon_after.ml.stderr
      (run %{bin:ocamlformat} --margin-check --ocp-indent-compat --break-colon=after %{dep:tests/ocp_indent_compat.ml})))))
@@ -4473,6 +7064,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/ocp_indent_compat-break_colon_after.ml.err ocp_indent_compat-break_colon_after.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to ocp_indent_compat-break_colon_after.ml.js-stdout
+   (with-stderr-to ocp_indent_compat-break_colon_after.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --ocp-indent-compat --break-colon=after %{dep:tests/ocp_indent_compat.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ocp_indent_compat-break_colon_after.ml.js-ref ocp_indent_compat-break_colon_after.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ocp_indent_compat-break_colon_after.ml.js-err ocp_indent_compat-break_colon_after.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4514,9 +7123,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to ocp_indent_options.ml.js-stdout
+   (with-stderr-to ocp_indent_options.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --ocp-indent-config %{dep:tests/ocp_indent_options.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ocp_indent_options.ml.js-ref ocp_indent_options.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/ocp_indent_options.ml.js-err ocp_indent_options.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to open-closing-on-separate-line.ml.stdout
    (with-stderr-to open-closing-on-separate-line.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/open.ml})))))
+     (run %{bin:ocamlformat} --margin-check --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/open.ml})))))
 
 (rule
  (alias runtest)
@@ -4532,9 +7159,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to open-closing-on-separate-line.ml.js-stdout
+   (with-stderr-to open-closing-on-separate-line.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/open.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/open-closing-on-separate-line.ml.js-ref open-closing-on-separate-line.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/open-closing-on-separate-line.ml.js-err open-closing-on-separate-line.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to open.ml.stdout
    (with-stderr-to open.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/open.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/open.ml})))))
 
 (rule
  (alias runtest)
@@ -4545,6 +7190,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/open.ml.err open.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to open.ml.js-stdout
+   (with-stderr-to open.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/open.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/open.ml.js-ref open.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/open.ml.js-err open.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4586,6 +7249,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to option.ml.js-stdout
+   (with-stderr-to option.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/option.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/option.ml.js-ref option.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/option.ml.js-err option.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to override.ml.stdout
    (with-stderr-to override.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/override.ml})))))
@@ -4599,6 +7280,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/override.ml.err override.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to override.ml.js-stdout
+   (with-stderr-to override.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/override.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/override.ml.js-ref override.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/override.ml.js-err override.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4642,7 +7341,7 @@
  (action
   (with-stdout-to polytypes-default.ml.stdout
    (with-stderr-to polytypes-default.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=default %{dep:tests/polytypes.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=default --max-iters=5 %{dep:tests/polytypes.ml})))))
 
 (rule
  (alias runtest)
@@ -4660,7 +7359,7 @@
  (action
   (with-stdout-to polytypes-janestreet.ml.stdout
    (with-stderr-to polytypes-janestreet.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/polytypes.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/polytypes.ml})))))
 
 (rule
  (alias runtest)
@@ -4764,6 +7463,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/print_config.ml.err print_config.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat tests/dir1/dir2/.ocamlformat tests/dir1/dir2/print_config.ml)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to print_config.ml.js-stdout
+   (with-stderr-to print_config.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/dir1/dir2/print_config.ml} --print-config --config=max-iters=2 %{dep:tests/print_config.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/print_config.ml.js-ref print_config.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/print_config.ml.js-err print_config.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -4879,7 +7599,7 @@
  (action
   (with-stdout-to record-402.ml.stdout
    (with-stderr-to record-402.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.02 %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.02 --max-iters=5 %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -4895,9 +7615,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to record-402.ml.js-stdout
+   (with-stderr-to record-402.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --ocaml-version=4.02 --max-iters=5 %{dep:tests/record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-402.ml.js-ref record-402.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-402.ml.js-err record-402.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to record-loose.ml.stdout
    (with-stderr-to record-loose.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --field-space=loose %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --margin-check --field-space=loose --max-iters=5 %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -4913,9 +7651,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to record-loose.ml.js-stdout
+   (with-stderr-to record-loose.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --field-space=loose --max-iters=5 %{dep:tests/record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-loose.ml.js-ref record-loose.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-loose.ml.js-err record-loose.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to record-tight_decl.ml.stdout
    (with-stderr-to record-tight_decl.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --field-space=tight-decl %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --margin-check --field-space=tight-decl --max-iters=5 %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -4931,9 +7687,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to record-tight_decl.ml.js-stdout
+   (with-stderr-to record-tight_decl.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --field-space=tight-decl --max-iters=5 %{dep:tests/record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-tight_decl.ml.js-ref record-tight_decl.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record-tight_decl.ml.js-err record-tight_decl.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to record.ml.stdout
    (with-stderr-to record.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --field-space=tight %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --margin-check --field-space=tight --max-iters=5 %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -4949,9 +7723,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to record.ml.js-stdout
+   (with-stderr-to record.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --field-space=tight --max-iters=5 %{dep:tests/record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record.ml.js-ref record.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record.ml.js-err record.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to record_punning-js.ml.stdout
    (with-stderr-to record_punning-js.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iter=4 %{dep:tests/record_punning.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=5 %{dep:tests/record_punning.ml})))))
 
 (rule
  (alias runtest)
@@ -4969,7 +7761,7 @@
  (action
   (with-stdout-to record_punning.ml.stdout
    (with-stderr-to record_punning.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/record_punning.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/record_punning.ml})))))
 
 (rule
  (alias runtest)
@@ -4983,12 +7775,30 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to record_punning.ml.js-stdout
+   (with-stderr-to record_punning.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/record_punning.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record_punning.ml.js-ref record_punning.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/record_punning.ml.js-err record_punning.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
   (with-stdout-to reformat_string.ml.stdout
    (with-stderr-to reformat_string.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iter=2 %{dep:tests/reformat_string.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/reformat_string.ml})))))
 
 (rule
  (alias runtest)
@@ -5001,6 +7811,27 @@
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (diff tests/reformat_string.ml.err reformat_string.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to reformat_string.ml.js-stdout
+   (with-stderr-to reformat_string.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/reformat_string.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/reformat_string.ml.js-ref reformat_string.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/reformat_string.ml.js-err reformat_string.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5042,6 +7873,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to remove_extra_parens.ml.js-stdout
+   (with-stderr-to remove_extra_parens.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/remove_extra_parens.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/remove_extra_parens.ml.js-ref remove_extra_parens.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/remove_extra_parens.ml.js-err remove_extra_parens.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to repl.ml.stdout
    (with-stderr-to repl.ml.stderr
      (run %{bin:ocamlformat} --margin-check --parse-toplevel-phrases --repl-file %{dep:tests/repl.ml})))))
@@ -5060,6 +7909,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to repl.ml.js-stdout
+   (with-stderr-to repl.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --parse-toplevel-phrases --repl-file %{dep:tests/repl.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/repl.ml.js-ref repl.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/repl.ml.js-err repl.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to repl.mli.stdout
    (with-stderr-to repl.mli.stderr
      (run %{bin:ocamlformat} --margin-check --parse-toplevel-phrases %{dep:tests/repl.mli})))))
@@ -5073,6 +7940,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/repl.mli.err repl.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to repl.mli.js-stdout
+   (with-stderr-to repl.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --parse-toplevel-phrases %{dep:tests/repl.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/repl.mli.js-ref repl.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/repl.mli.js-err repl.mli.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5132,6 +8017,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to sequence-preserve.ml.js-stdout
+   (with-stderr-to sequence-preserve.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --sequence-blank-line=preserve-one --max-iter=3 %{dep:tests/sequence.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sequence-preserve.ml.js-ref sequence-preserve.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sequence-preserve.ml.js-err sequence-preserve.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to sequence.ml.stdout
    (with-stderr-to sequence.ml.stderr
      (run %{bin:ocamlformat} --margin-check --sequence-blank-line=compact %{dep:tests/sequence.ml})))))
@@ -5145,6 +8048,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/sequence.ml.err sequence.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to sequence.ml.js-stdout
+   (with-stderr-to sequence.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --sequence-blank-line=compact %{dep:tests/sequence.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sequence.ml.js-ref sequence.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sequence.ml.js-err sequence.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5204,6 +8125,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to sig_value.mli.js-stdout
+   (with-stderr-to sig_value.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/sig_value.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sig_value.mli.js-ref sig_value.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/sig_value.mli.js-err sig_value.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to single_line.mli.stdout
    (with-stderr-to single_line.mli.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/single_line.mli})))))
@@ -5258,6 +8197,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to source.ml.js-stdout
+   (with-stderr-to source.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=3 %{dep:tests/source.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/source.ml.js-ref source.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/source.ml.js-err source.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to str_value.ml.stdout
    (with-stderr-to str_value.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/str_value.ml})))))
@@ -5278,7 +8235,7 @@
  (action
   (with-stdout-to string.ml.stdout
    (with-stderr-to string.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/string.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/string.ml})))))
 
 (rule
  (alias runtest)
@@ -5289,6 +8246,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/string.ml.err string.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to string.ml.js-stdout
+   (with-stderr-to string.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/string.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/string.ml.js-ref string.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/string.ml.js-err string.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5510,6 +8485,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to types-compact-space_around-docked.ml.js-stdout
+   (with-stderr-to types-compact-space_around-docked.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl=compact --space-around-arrays --space-around-lists --space-around-records --space-around-variants --break-separators=after --dock-collection-brackets %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact-space_around-docked.ml.js-ref types-compact-space_around-docked.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact-space_around-docked.ml.js-err types-compact-space_around-docked.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to types-compact-space_around.ml.stdout
    (with-stderr-to types-compact-space_around.ml.stderr
      (run %{bin:ocamlformat} --margin-check --type-decl=compact --space-around-arrays --space-around-lists --space-around-records --space-around-variants %{dep:tests/types.ml})))))
@@ -5523,6 +8516,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/types-compact-space_around.ml.err types-compact-space_around.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to types-compact-space_around.ml.js-stdout
+   (with-stderr-to types-compact-space_around.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl=compact --space-around-arrays --space-around-lists --space-around-records --space-around-variants %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact-space_around.ml.js-ref types-compact-space_around.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact-space_around.ml.js-err types-compact-space_around.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5546,9 +8557,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to types-compact.ml.js-stdout
+   (with-stderr-to types-compact.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl=compact %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact.ml.js-ref types-compact.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-compact.ml.js-err types-compact.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to types-indent.ml.stdout
    (with-stderr-to types-indent.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --type-decl-indent=6 %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --margin-check --type-decl-indent=6 --max-iters=5 %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -5564,9 +8593,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to types-indent.ml.js-stdout
+   (with-stderr-to types-indent.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl-indent=6 --max-iters=5 %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-indent.ml.js-ref types-indent.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-indent.ml.js-err types-indent.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to types-sparse-space_around.ml.stdout
    (with-stderr-to types-sparse-space_around.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --type-decl=sparse --space-around-arrays --space-around-lists --space-around-records --space-around-variants %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --margin-check --type-decl=sparse --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -5582,9 +8629,27 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to types-sparse-space_around.ml.js-stdout
+   (with-stderr-to types-sparse-space_around.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl=sparse --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-sparse-space_around.ml.js-ref types-sparse-space_around.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-sparse-space_around.ml.js-err types-sparse-space_around.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to types-sparse.ml.stdout
    (with-stderr-to types-sparse.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --type-decl=sparse %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --margin-check --type-decl=sparse --max-iters=5 %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -5595,6 +8660,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/types-sparse.ml.err types-sparse.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to types-sparse.ml.js-stdout
+   (with-stderr-to types-sparse.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --type-decl=sparse --max-iters=5 %{dep:tests/types.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-sparse.ml.js-ref types-sparse.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/types-sparse.ml.js-err types-sparse.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5631,6 +8714,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unary.ml.err unary.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unary.ml.js-stdout
+   (with-stderr-to unary.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/unary.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unary.ml.js-ref unary.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unary.ml.js-err unary.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5674,7 +8775,7 @@
  (action
   (with-stdout-to unboxed_types2.ml.stdout
    (with-stderr-to unboxed_types2.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_types2.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/unboxed_types2.ml})))))
 
 (rule
  (alias runtest)
@@ -5685,6 +8786,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unboxed_types2.ml.err unboxed_types2.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_types2.ml.js-stdout
+   (with-stderr-to unboxed_types2.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --max-iters=5 %{dep:tests/unboxed_types2.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types2.ml.js-ref unboxed_types2.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_types2.ml.js-err unboxed_types2.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5703,6 +8822,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unicode.ml.err unicode.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unicode.ml.js-stdout
+   (with-stderr-to unicode.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --margin=80 --wrap-comments %{dep:tests/unicode.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unicode.ml.js-ref unicode.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unicode.ml.js-err unicode.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5762,6 +8899,24 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to verbatim_comments-wrap.ml.js-stdout
+   (with-stderr-to verbatim_comments-wrap.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --wrap-comments %{dep:tests/verbatim_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/verbatim_comments-wrap.ml.js-ref verbatim_comments-wrap.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/verbatim_comments-wrap.ml.js-err verbatim_comments-wrap.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to verbatim_comments.ml.stdout
    (with-stderr-to verbatim_comments.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/verbatim_comments.ml})))))
@@ -5775,6 +8930,24 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/verbatim_comments.ml.err verbatim_comments.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to verbatim_comments.ml.js-stdout
+   (with-stderr-to verbatim_comments.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check %{dep:tests/verbatim_comments.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/verbatim_comments.ml.js-ref verbatim_comments.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/verbatim_comments.ml.js-err verbatim_comments.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -5799,6 +8972,27 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action
+  (with-stdout-to verbose1.ml.js-stdout
+   (with-stderr-to verbose1.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --print-config --doc-comments=before --config=doc-comments=before %{dep:tests/verbose1.ml})))))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/verbose1.ml.js-ref verbose1.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
+ (package ocamlformat)
+ (action (diff tests/verbose1.ml.js-err verbose1.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
   (with-stdout-to w50.ml.stdout
@@ -5817,12 +9011,30 @@
 
 (rule
  (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to w50.ml.js-stdout
+   (with-stderr-to w50.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --margin-check --no-comment-check -q --max-iters=3 %{dep:tests/w50.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/w50.ml.js-ref w50.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/w50.ml.js-err w50.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
   (with-stdout-to wrap_comments.ml.stdout
    (with-stderr-to wrap_comments.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=ocamlformat --max-iters=3 %{dep:tests/wrap_comments.ml})))))
+     (run %{bin:ocamlformat} --margin-check --profile=ocamlformat --max-iters=5 %{dep:tests/wrap_comments.ml})))))
 
 (rule
  (alias runtest)

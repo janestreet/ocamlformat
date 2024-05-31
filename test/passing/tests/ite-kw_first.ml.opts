@@ -1,1 +1,2 @@
 --if-then-else=keyword-first
+--max-iters=5

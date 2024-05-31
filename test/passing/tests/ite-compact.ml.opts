@@ -1,1 +1,2 @@
 --if-then-else=compact
+--max-iters=5

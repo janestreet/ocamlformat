@@ -1,2 +1,3 @@
 --if-then-else=keyword-first
 --indicate-multiline-delimiters=no
+--max-iters=5

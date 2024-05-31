@@ -1,0 +1,6 @@
+Warning: tests/break_string_literals.ml:5 exceeds the margin
+Warning: tests/break_string_literals.ml:9 exceeds the margin
+Warning: tests/break_string_literals.ml:36 exceeds the margin
+Warning: tests/break_string_literals.ml:40 exceeds the margin
+Warning: tests/break_string_literals.ml:50 exceeds the margin
+Warning: tests/break_string_literals.ml:58 exceeds the margin
