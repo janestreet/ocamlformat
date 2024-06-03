@@ -183,7 +183,11 @@ let emit_test test_name setup =
       ~test_name
       ~base_test_name
       ~should_fail:setup.should_fail
-      ~opts:("--profile=janestreet" :: opts)
+      ~opts:
+        ("--profile=janestreet"
+         :: "--enable-outside-detected-project"
+         :: "--disable-conf-files"
+         :: opts)
       ~output_name:js_ref_name
       ~extra_suffix:"js-"
     |> print_string;
