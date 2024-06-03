@@ -260,7 +260,7 @@ let _ =
   and* () =
     (* yyy *)
     yyy
-in
+  in
   zzz
 ;;
 
@@ -285,7 +285,7 @@ let copy from ~into : unit =
        } [@warning "+9"])
     =
     ()
-in
+  in
   ()
 ;;
 

@@ -1,5 +1,5 @@
-module A = B
 (** test *)
+module A = B
 
 include A (** @open *)
 
@@ -10,8 +10,8 @@ include A
 type t = C of int (** docstring comment *)
 type t = C of int [@ocaml.doc " docstring attribute "]
 
-include Mod
 (** comment *)
+include Mod
 
 (** before *)
 let x = 2
@@ -29,8 +29,8 @@ let a = 0
 (** A' *)
 
 module Comment_placement : sig
-  type t
   (** Type *)
+  type t
 
   (** Variant declaration *)
   type t = T
@@ -38,8 +38,8 @@ module Comment_placement : sig
   (** Type extension *)
   type t += T
 
-  module A : B
   (** Module *)
+  module A : B
 
   (** Module *)
   module A : sig
@@ -47,14 +47,14 @@ module Comment_placement : sig
     type b
   end
 
-  val a : b
   (** Val *)
+  val a : b
 
-  exception E
   (** Exception *)
+  exception E
 
-  include M
   (** Include *)
+  include M
 
   (** Include *)
   include sig
@@ -62,14 +62,14 @@ module Comment_placement : sig
     type b
   end
 
-  open M
   (** Open *)
+  open M
 
-  external a : b = "c"
   (** External *)
+  external a : b = "c"
 
-  module rec A : B
   (** Rec module *)
+  module rec A : B
 
   (** Rec module *)
   module rec A : sig
@@ -77,8 +77,8 @@ module Comment_placement : sig
     type b
   end
 
-  module type A
   (** Module type *)
+  module type A
 
   (** Module type *)
   module type A = sig
@@ -86,17 +86,17 @@ module Comment_placement : sig
     type b
   end
 
-  class a : b
   (** Class *)
+  class a : b
 
-  class type a = b
   (** Class type *)
+  class type a = b
 
   (* [@@@some attribute] *)
   (* (** Attribute *) *)
 
+  (** Extension *)
   [%%some extension]
-    (** Extension *)
 
   (** A *)
   external a : b = "double_comment"
@@ -107,8 +107,8 @@ module Comment_placement : sig
     type t
   end
 
-  module Index : Index.S
   (** This one goes after *)
+  module Index : Index.S
 
   (** This one _still_ goes after *)
   module Index2
@@ -126,11 +126,11 @@ module Comment_placement : sig
       (* this could be a really long signature *)
     end) : S
 
-  module Gen () : S
   (** Generative functor *)
+  module Gen () : S
 end = struct
-  type t = { a : int }
   (** Type *)
+  type t = { a : int }
 
   (** Variant declaration *)
   type t = T
@@ -138,8 +138,8 @@ end = struct
   (** Type extension *)
   type t += T
 
-  module A = B
   (** Module *)
+  module A = B
 
   (** Module *)
   module A = struct
@@ -157,11 +157,11 @@ end = struct
   (** Let *)
   let a = b
 
-  exception E
   (** Exception *)
+  exception E
 
-  include M
   (** Include *)
+  include M
 
   (** Include *)
   include struct
@@ -169,14 +169,14 @@ end = struct
     type b = B
   end
 
-  open M
   (** Open *)
+  open M
 
-  external a : b = "c"
   (** External *)
+  external a : b = "c"
 
-  module rec A : B = C
   (** Rec module *)
+  module rec A : B = C
 
   (** Rec module *)
   module rec A : B = struct
@@ -184,8 +184,8 @@ end = struct
     type b = B
   end
 
-  module type A = B
   (** Module type *)
+  module type A = B
 
   (** Module type *)
   module type A = sig
@@ -193,36 +193,36 @@ end = struct
     type b
   end
 
-  class a = b
   (** Class *)
+  class a = b
 
   (** Class *)
   class b =
     object
-      method f = 0
       (** Method *)
+      method f = 0
 
-      inherit a
       (** Inherit *)
+      inherit a
 
-      val x = 1
       (** Val *)
+      val x = 1
 
-      constraint 'a = [> ]
       (** Constraint *)
+      constraint 'a = [> ]
 
-      initializer do_init ()
       (** Initialiser *)
+      initializer do_init ()
     end
 
-  class type a = b
   (** Class type *)
+  class type a = b
 
   (* [@@@some attribute] *)
   (* (** Attribute *) *)
 
+  (** Extension *)
   [%%some extension]
-    (** Extension *)
 
   (* ;; *)
   (* (** Eval *) *)

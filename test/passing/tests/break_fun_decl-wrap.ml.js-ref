@@ -1,17 +1,29 @@
 class t =
   object
-    method meth aaaaaaaaaaa bbbbbbbbbbbbbb ccccccccccccccccccc ddddddddddddddddddddd
+    method meth
+      aaaaaaaaaaa
+      bbbbbbbbbbbbbb
+      ccccccccccccccccccc
+      ddddddddddddddddddddd
       eeeeeeeeeeeeeee =
       body
   end
 
-let func aaaaaaaaaaa bbbbbbbbbbbbbb ccccccccccccccccccc ddddddddddddddddddddd
+let func
+  aaaaaaaaaaa
+  bbbbbbbbbbbbbb
+  ccccccccccccccccccc
+  ddddddddddddddddddddd
   eeeeeeeeeeeeeee
   =
   body
 ;;
 
-let rec func aaaaaaaaaaa bbbbbbbbbbbbbb ccccccccccccccccccc ddddddddddddddddddddd
+let rec func
+  aaaaaaaaaaa
+  bbbbbbbbbbbbbb
+  ccccccccccccccccccc
+  ddddddddddddddddddddd
   eeeeeeeeeeeeeee
   =
   body
@@ -19,25 +31,35 @@ let rec func aaaaaaaaaaa bbbbbbbbbbbbbb ccccccccccccccccccc dddddddddddddddddddd
 
 let ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb = g
 
-let ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
+let ffffffffffffffffffff
+  aaaaaaaaaaaaaaaaaaaaaa
+  bbbbbbbbbbbbbbbbbbbbbb
   cccccccccccccccccccccc
   =
   g
 ;;
 
-let ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
-  cccccccccccccccccccccc dddddddddddddddddddddd
+let ffffffffffffffffffff
+  aaaaaaaaaaaaaaaaaaaaaa
+  bbbbbbbbbbbbbbbbbbbbbb
+  cccccccccccccccccccccc
+  dddddddddddddddddddddd
   =
   g
 ;;
 
 class ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb = g
 
-class ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
+class ffffffffffffffffffff
+  aaaaaaaaaaaaaaaaaaaaaa
+  bbbbbbbbbbbbbbbbbbbbbb
   cccccccccccccccccccccc = g
 
-class ffffffffffffffffffff aaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbb
-  cccccccccccccccccccccc dddddddddddddddddddddd = g
+class ffffffffffffffffffff
+  aaaaaaaaaaaaaaaaaaaaaa
+  bbbbbbbbbbbbbbbbbbbbbb
+  cccccccccccccccccccccc
+  dddddddddddddddddddddd = g
 
 let ffffffffffffffffffff : aaaaaaaaaaaaaaaaaaaaaa -> bbbbbbbbbbbbbbbbbbbbbb = g
 
@@ -56,7 +78,9 @@ let ffffffffffffffffffff
 
 let fffffffffffffffffffffffffffffffffff x yyyyyyyyyyyyyyyyyyyyyyyyyyy = ()
 
-let fffffffffffffffffffffffffffffffffff x yyyyyyyyyyyyyyyyyyyyyyyyyyy
+let fffffffffffffffffffffffffffffffffff
+  x
+  yyyyyyyyyyyyyyyyyyyyyyyyyyy
   yyyyyyyyyyyyyyyyyyyyyyyyyyy
   =
   ()
@@ -116,7 +140,8 @@ let _ =
       -> body)
 ;;
 
-let f (module Store : Irmin.Generic_key.S with type repo = repo)
+let f
+  (module Store : Irmin.Generic_key.S with type repo = repo)
   (module Store : Irmin.Generic_key.S with type repo = repo)
   =
   body

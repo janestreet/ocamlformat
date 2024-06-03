@@ -49,8 +49,7 @@ match x with
 
 match x with
 | "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", yyyyyyyyyy when fffffffffffffff bbbbbbbbbb yyyyyyyyyy
-  ->
-  ()
+  -> ()
 | _ -> ()
 
 let is_sequence exp =
@@ -151,9 +150,11 @@ let rec loop items =
 
 let ffffff ~foo =
   match (foo : Fooooooooooooo.t) with
-  | Aaaaaaaaaaaaaaaaa | Bbbbbbbbbbbbbbbbb | Ccccccccccccccccc | Ddddddddddddddddd
-  | Eeeeeeeeeeeeeeeee ->
-    foooooooooooooooooooo
+  | Aaaaaaaaaaaaaaaaa
+  | Bbbbbbbbbbbbbbbbb
+  | Ccccccccccccccccc
+  | Ddddddddddddddddd
+  | Eeeeeeeeeeeeeeeee -> foooooooooooooooooooo
   | Fffffffffffffffff -> fooooooooooooooooo
 ;;
 
@@ -201,8 +202,7 @@ let handler =
       match x with
       | Call Thing
       (* isset($var::thing) but not isset($foo::$bar) *)
-      | Call OtherThing ->
-        Errors.isset_in_strict p
+      | Call OtherThing -> Errors.isset_in_strict p
       | _ -> ()
   end
 ;;
@@ -212,8 +212,7 @@ let _ =
   | Fooooooooooooooooo (* comment *)
   | Baaaaaaaaaaaaaaaar
   (* comment *)
-  | Baaaaaaaaaaaaaaaaz (* comment *) ->
-    ()
+  | Baaaaaaaaaaaaaaaaz (* comment *) -> ()
 ;;
 
 let _ =
@@ -221,8 +220,7 @@ let _ =
   | { y =
         (* _____________________________________________________________________ *)
         ( X _ | Y _ )
-    } ->
-    ()
+    } -> ()
 ;;
 
 let _ =
@@ -230,9 +228,9 @@ let _ =
   | { y =
         ( Z
         (* _____________________________________________________________________ *)
-        | X _ | Y _ )
-    } ->
-    ()
+        | X _
+        | Y _ )
+    } -> ()
 ;;
 
 let foooooooooooooo = function
@@ -245,7 +243,8 @@ let foooooooooooooo = function
      Foooooooooooooooooooooooooooooooooooooo foooooooooooooooooooo foooooooooooooooooo foooooooo.
      Foooooooooooo fooooooooooo fooooooooooooo foooooooooooooo foooooo.
   *)
-  | Foooooooooo | FooooFoooooFoooooo (* fooooooooooooooooooooooooooooooooooo *)
+  | Foooooooooo
+  | FooooFoooooFoooooo (* fooooooooooooooooooooooooooooooooooo *)
   | Foooo (* Fooo foooo fooooo foooooooo fooooooooo foooooooooooo fooooooooo fooo *) ->
     Foooooooooo.Foooooo
   | Foooo { foooo_fooo = { foooooooooo } } ->

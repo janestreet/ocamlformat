@@ -1,9 +1,5 @@
 let f x = function
-  | C
-  | P (this, test, [ is; wide; enough; _to; break ], [ the; line ])
-  | A
-  | K ->
-    1
+  | C | P (this, test, [ is; wide; enough; _to; break ], [ the; line ]) | A | K -> 1
   | D ->
     let a = "this" in
     let b = "breaks" in
@@ -13,17 +9,12 @@ let f x = function
 let f =
   let g = function
     | H when x y <> k -> 2
-    | T
-    | P
-    | U ->
-      3
+    | T | P | U -> 3
   in
   fun x g t h y u ->
     match x with
     | E -> 4
-    | Z
-    | P
-    | M ->
+    | Z | P | M ->
       (match y with
        | O -> 5
        | P when h x ->
@@ -35,9 +26,7 @@ let foo =
   List.map ~f:(fun x g t h y u ->
     match x with
     | E -> 4
-    | Z
-    | P
-    | M ->
+    | Z | P | M ->
       (match y with
        | O -> 5
        | P when h x ->
@@ -60,8 +49,7 @@ match x with
 
 match x with
 | "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", yyyyyyyyyy when fffffffffffffff bbbbbbbbbb yyyyyyyyyy
-  ->
-  ()
+  -> ()
 | _ -> ()
 
 let is_sequence exp =
@@ -92,14 +80,8 @@ let () =
 
 let () =
   match foooo with
-  | x
-  | x
-  | x ->
-    x
-  | y
-  | foooooooooo
-  | fooooooooo ->
-    y
+  | x | x | x -> x
+  | y | foooooooooo | fooooooooo -> y
   | foooooo when ff fff fooooooooooooooooooo ->
     foooooooooooooooooooooo foooooooooooooooooo
 ;;
@@ -124,16 +106,12 @@ let mod_int c1 c2 is_safe dbg =
   match c1, c2 with
   | c1, Cconst_int (0, _) -> Csequence (c1, raise_symbol dbg "caml_exn_Division_by_zero")
   | c1, Cconst_int ((1 | -1), _) -> Csequence (c1, Cconst_int (0, dbg))
-  | x
-  | -1 ->
-    ()
+  | x | -1 -> ()
 ;;
 
 let merge_columns l old_table =
   let rec aux = function
-    | []
-    | [ None ] ->
-      [], []
+    | [] | [ None ] -> [], []
   in
   foooooooooooooooooooooooooo fooooooooooooooooooooo
 ;;
@@ -151,14 +129,8 @@ let is_sequence exp =
 
 let () =
   match foooo with
-  | x
-  | x
-  | x ->
-    x
-  | y
-  | foooooooooo
-  | fooooooooo ->
-    y
+  | x | x | x -> x
+  | y | foooooooooo | fooooooooo -> y
   | foooooo when ff fff fooooooooooooooooooo ->
     foooooooooooooooooooooo foooooooooooooooooo
 ;;
@@ -182,8 +154,7 @@ let ffffff ~foo =
   | Bbbbbbbbbbbbbbbbb
   | Ccccccccccccccccc
   | Ddddddddddddddddd
-  | Eeeeeeeeeeeeeeeee ->
-    foooooooooooooooooooo
+  | Eeeeeeeeeeeeeeeee -> foooooooooooooooooooo
   | Fffffffffffffffff -> fooooooooooooooooo
 ;;
 
@@ -200,24 +171,18 @@ let () =
 ;;
 
 let _ = function
-  | (exception A)
-  | B ->
-    1
+  | (exception A) | B -> 1
   | C -> 2
 ;;
 
 let _ = function
-  | A
-  | (exception B) ->
-    1
+  | A | (exception B) -> 1
   | C -> 2
 ;;
 
 let _ =
   match x with
-  | (exception A)
-  | (exception B) ->
-    1
+  | (exception A) | (exception B) -> 1
   | C -> 2
 ;;
 
@@ -237,8 +202,7 @@ let handler =
       match x with
       | Call Thing
       (* isset($var::thing) but not isset($foo::$bar) *)
-      | Call OtherThing ->
-        Errors.isset_in_strict p
+      | Call OtherThing -> Errors.isset_in_strict p
       | _ -> ()
   end
 ;;
@@ -248,8 +212,7 @@ let _ =
   | Fooooooooooooooooo (* comment *)
   | Baaaaaaaaaaaaaaaar
   (* comment *)
-  | Baaaaaaaaaaaaaaaaz (* comment *) ->
-    ()
+  | Baaaaaaaaaaaaaaaaz (* comment *) -> ()
 ;;
 
 let _ =
@@ -257,8 +220,7 @@ let _ =
   | { y =
         (* _____________________________________________________________________ *)
         ( X _ | Y _ )
-    } ->
-    ()
+    } -> ()
 ;;
 
 let _ =
@@ -266,9 +228,9 @@ let _ =
   | { y =
         ( Z
         (* _____________________________________________________________________ *)
-        | X _ | Y _ )
-    } ->
-    ()
+        | X _
+        | Y _ )
+    } -> ()
 ;;
 
 let foooooooooooooo = function
@@ -290,8 +252,7 @@ let foooooooooooooo = function
 ;;
 
 let get_nullability = function
-  | ArrayAccess
-  | OptimisticFallback (* non-null is the most optimistic type *)
+  | ArrayAccess | OptimisticFallback (* non-null is the most optimistic type *)
   | Undef (* This is a very special case, assigning non-null is a technical trick *) ->
     Nullability.Nonnull
 ;;

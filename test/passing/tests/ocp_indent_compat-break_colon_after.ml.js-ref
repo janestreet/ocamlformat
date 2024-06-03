@@ -5,21 +5,21 @@ module type M = sig
   (** Formatting action: input type and source, and output destination. *)
   val action : action
 
-  val doc_atrs :
-     (string Location.loc * payload) list
+  val doc_atrs
+    :  (string Location.loc * payload) list
     -> (string Location.loc * bool) list option * (string Location.loc * payload) list
 
   val transl_modtype_longident
-    (* from Typemod *) :
-    (Location.t -> Env.t -> Longident.t -> Path.t) ref
+    (* from Typemod *)
+    : (Location.t -> Env.t -> Longident.t -> Path.t) ref
 
   val transl_modtype_longident
     (* foooooooooo fooooooooooooo foooooooooooo foooooooooooooo
-       foooooooooooooo foooooooooooo *) :
-    (Location.t -> Env.t -> Longident.t -> Path.t) ref
+       foooooooooooooo foooooooooooo *)
+    : (Location.t -> Env.t -> Longident.t -> Path.t) ref
 
-  val imported_sets_of_closures_table :
-    Simple_value_approx.function_declarations option Set_of_closures_id.Tbl.t
+  val imported_sets_of_closures_table
+    : Simple_value_approx.function_declarations option Set_of_closures_id.Tbl.t
 
   type 'a option_decl =
     names:string list
@@ -30,9 +30,9 @@ module type M = sig
     -> (config -> 'a)
     -> 'a t
 
-  val select :
-     (* The fsevents context *)
-     env
+  val select
+    :  (* The fsevents context *)
+       env
     -> (* Additional file descriptor to select for reading *)
        ?read_fdl:fd_select list
     -> (* Additional file descriptor to select for writing *)
@@ -43,32 +43,32 @@ module type M = sig
        (event list -> unit)
     -> unit
 
-  val f :
-     x:t
-       (** an extremely long comment about [x] that does not fit on the
+  val f
+    :  x:t
+         (** an extremely long comment about [x] that does not fit on the
              same line with [x] *)
     -> unit
 
-  val f :
-     fooooooooooooooooo:
-       (fooooooooooooooo
-        -> fooooooooooooooooooo
-        -> foooooooooooooo
-        -> foooooooooooooo * fooooooooooooooooo
-        -> foooooooooooooooo)
-       (** an extremely long comment about [x] that does not fit on the
+  val f
+    :  fooooooooooooooooo:
+         (fooooooooooooooo
+          -> fooooooooooooooooooo
+          -> foooooooooooooo
+          -> foooooooooooooo * fooooooooooooooooo
+          -> foooooooooooooooo)
+         (** an extremely long comment about [x] that does not fit on the
              same line with [x] *)
     -> unit
 end
 
-let ssmap :
-  (module MapT with type key = string and type data = string and type map = SSMap.map)
+let ssmap
+  : (module MapT with type key = string and type data = string and type map = SSMap.map)
   =
   ()
 ;;
 
-let ssmap :
-   (module MapT with type key = string and type data = string and type map = SSMap.map)
+let ssmap
+  :  (module MapT with type key = string and type data = string and type map = SSMap.map)
   -> unit
   =
   ()
@@ -99,8 +99,8 @@ let add_edge target dep =
     if not (Hashtbl.mem edge_count dep) then Hashtbl.add edge_count dep 0)
 ;;
 
-let iarray_fold_transf (f : numbering -> 'a -> numbering * 'b) n (a : 'a iarray) :
-  numbering * 'b iarray
+let iarray_fold_transf (f : numbering -> 'a -> numbering * 'b) n (a : 'a iarray)
+  : numbering * 'b iarray
   =
   match Iarray.length a with
   | 0 -> n, [::]

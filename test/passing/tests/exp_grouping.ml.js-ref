@@ -1,11 +1,9 @@
 let () =
   Lwt_main.run
-    begin
-      let a = "a" in
-      let b = "b" in
-      let c = "c" in
-      Lwt.return "test"
-    end
+    (let a = "a" in
+     let b = "b" in
+     let c = "c" in
+     Lwt.return "test")
 ;;
 
 let () =
@@ -18,14 +16,12 @@ let () =
 
 let () =
   List.iter
-    begin
-      fun v ->
-        (* do a lot of things *)
-        let a = "a" in
-        let b = "b" in
-        let c = "c" in
-        ()
-    end
+    (fun v ->
+      (* do a lot of things *)
+      let a = "a" in
+      let b = "b" in
+      let c = "c" in
+      ())
     values
 ;;
 
@@ -42,12 +38,10 @@ let () =
 
 let () =
   foooooooo
-    begin
-      fooooooooooooo;
-      foooooooo foooooooooooo;
-      fooooooooooo foooooooooo;
-      foooooooooooooooo
-    end
+    (fooooooooooooo;
+     foooooooo foooooooooooo;
+     fooooooooooo foooooooooo;
+     foooooooooooooooo)
 ;;
 
 let () =
@@ -60,31 +54,27 @@ let () =
 
 let () =
   foooooooo
-    begin
-      if foooooooooooooooooooooooooooo
-      then
-        if foooooooooooooooooooooooooooo
-        then foooooooooooooooooo
-        else foooooooooooooooooooooooooo
-      else if foooooooooooooooooooooooooooooooo
-      then
-        foooooooooooooooooo
-          begin
+    (if foooooooooooooooooooooooooooo
+     then
+       if foooooooooooooooooooooooooooo
+       then foooooooooooooooooo
+       else foooooooooooooooooooooooooo
+     else if foooooooooooooooooooooooooooooooo
+     then
+       foooooooooooooooooo
+         (if foooooooooooooooooooooooooooo
+          then
             if foooooooooooooooooooooooooooo
-            then
-              if foooooooooooooooooooooooooooo
-              then foooooooooooooooooooooooo
-              else foooooooooooooooooooooooooo
-            else if foooooooooooooooooooooooooooooooo
-            then fooooooooooooooooooooooooooooooooooo
-            else if foooooooooooooooooo
-            then foooooooooooooooooooooooooooooooooo
-            else fooooooooooooooooooooo
-          end
-      else if foooooooooooooooooo
-      then foooooooooooooooooooooooooooooooooo
-      else fooooooooooooooooooooo
-    end
+            then foooooooooooooooooooooooo
+            else foooooooooooooooooooooooooo
+          else if foooooooooooooooooooooooooooooooo
+          then fooooooooooooooooooooooooooooooooooo
+          else if foooooooooooooooooo
+          then foooooooooooooooooooooooooooooooooo
+          else fooooooooooooooooooooo)
+     else if foooooooooooooooooo
+     then foooooooooooooooooooooooooooooooooo
+     else fooooooooooooooooooooo)
 ;;
 
 let () =
@@ -266,164 +256,112 @@ let _ =
   :]
 ;;
 
-let () =
-  if a
-  then begin b
-    (* asd *)
-  end
-;;
+let () = if a then b (* asd *)
 
 [@@@ocamlformat "if-then-else=compact"]
 
 let _ =
-  if x then begin
+  if x then (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
-  else if y then begin
+    Fooo fooo)
+  else if y then (
     f 0;
-    f 2
-  end
-  else begin
+    f 2)
+  else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
+    Fooo fooo)
 ;;
 
-let () =
-  if a then begin b
-    (* asd *)
-  end
-;;
+let () = if a then b (* asd *)
 
 [@@@ocamlformat "if-then-else=fit-or-vertical"]
 
 let _ =
-  if x then begin
+  if x then (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
-  else if y then begin
+    Fooo fooo)
+  else if y then (
     f 0;
-    f 2
-  end
-  else begin
+    f 2)
+  else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
+    Fooo fooo)
 ;;
 
 let () =
-  if a then begin
-    b
-  (* asd *)
-  end
+  if a then
+    b (* asd *)
 ;;
 
 [@@@ocamlformat "if-then-else=keyword-first"]
 
 let _ =
   if x
-  then begin
+  then (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
+    Fooo fooo)
   else if y
-  then begin
+  then (
     f 0;
-    f 2
-  end
-  else begin
+    f 2)
+  else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
-    Fooo fooo
-  end
+    Fooo fooo)
 ;;
 
-let () =
-  if a
-  then begin b
-    (* asd *)
-  end
-;;
+let () = if a then b (* asd *)
 
 [@@@ocamlformat "if-then-else=k-r"]
 
 let _ =
-  if x then begin
+  if x then (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
     Fooo fooo
-  end else if y then begin
+  ) else if y then (
     f 0;
     f 2
-  end else begin
+  ) else (
     foo.fooooo <- Fooo.foo fooo foo.fooooo;
     Fooo fooo
-  end
+  )
 ;;
 
 let _ =
   match x with
-  | A -> begin
-    match B with
-    | A -> fooooooooooooo
-  end
-  | A -> begin
-    match B with
-    | A -> fooooooooooooo
-    | B -> fooooooooooooo
-  end
-  | A -> begin
-    match B with
-    | A -> fooooooooooooo
-    | B -> fooooooooooooo
-    | C -> fooooooooooooo
-    | D -> fooooooooooooo
-  end
+  | A ->
+    (match B with
+     | A -> fooooooooooooo)
+  | A ->
+    (match B with
+     | A -> fooooooooooooo
+     | B -> fooooooooooooo)
+  | A ->
+    (match B with
+     | A -> fooooooooooooo
+     | B -> fooooooooooooo
+     | C -> fooooooooooooo
+     | D -> fooooooooooooo)
 ;;
 
 let () =
-  begin
-    add_test
-    @@
-    let test_name = "Test 1" in
-    test_name >:: fun _ -> assert_equal "a" "a"
-  end;
-  begin
-    add_test
-    @@
-    let test_name = "Test 2" in
-    test_name >:: fun _ -> assert_equal "b" "b"
-  end
+  (add_test
+   @@
+   let test_name = "Test 1" in
+   test_name >:: fun _ -> assert_equal "a" "a");
+  add_test
+  @@
+  let test_name = "Test 2" in
+  test_name >:: fun _ -> assert_equal "b" "b"
 ;;
 
 let _ = ()
 let _ = ( (* foo *) )
 let _ = [%ext ()]
 let _ = [%ext (* foo *) ()]
-
-let _ =
-  begin
-    x y
-  end
-;;
-
-let _ =
-  begin
-    (* foo *) x y
-  end
-;;
-
-let _ =
-  begin%ext
-    x y
-  end
-;;
-
-let _ =
-  begin%ext
-    (* foo *) x y
-  end
-;;
+let _ = x y
+let _ = (* foo *) x y
+let _ = [%ext x y]
+let _ = [%ext (* foo *) x y]
 
 let _ =
   begin
@@ -431,12 +369,7 @@ let _ =
   end [@landmark "parse_constant_dividends"]
 ;;
 
-let () =
-  if a then begin
-    b
-  (* asd *)
-  end
-;;
+let () = if a then b (* asd *)
 
 let x =
   let get_path_and_distance pv1 pv2 =

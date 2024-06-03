@@ -11,7 +11,7 @@ let _ =
   let x : int = x in
   let (_ : int) = x in
   let _ : int = x in
-      ()
+  ()
 ;;
 
 let%ext (_ : int) = x1
@@ -24,7 +24,7 @@ let%ext _ =
   let%ext x : int = x in
   let%ext (_ : int) = x in
   let%ext (_ : int) = x in
-      ()
+  ()
 ;;
 
 let [%ext let x = 3] = 2
@@ -70,7 +70,7 @@ let (_ : t -> t -> int) = (compare : int list -> int list -> int)
 
 let _ =
   let[@test] rec f = x in
-      y
+  y
 ;;
 
 module Let_and_compact = struct
@@ -81,12 +81,12 @@ module Let_and_compact = struct
 
   let _ =
     let x = 2 and y = 2 in
-        3
+    3
   ;;
 
   let _ =
     let%ext x = 2 and y = 2 in
-        3
+    3
   ;;
 end
 
@@ -99,13 +99,13 @@ module Let_and_sparse = struct
   let _ =
     let x = 2
     and y = 2 in
-        3
+    3
   ;;
 
   let _ =
     let%ext x = 2
     and y = 2 in
-        3
+    3
   ;;
 end
 
@@ -137,7 +137,7 @@ let _ =
   let%ext x : int = x in
   let%ext (_ : int) = x in
   let%ext _ : int = x in
-      ()
+  ()
 ;;
 
 let fooo = fooooooooooo [@@foo]
@@ -147,7 +147,7 @@ and fooo = fooooooooooo [@@foo]
 ;;
 
 let foooo = fooooooooo [@@foo] in
-    fooooooooooooooooooooo
+fooooooooooooooooooooo
 
 let[@foo] fooo = fooooooooooo
 
@@ -156,20 +156,20 @@ and[@foo] fooo = fooooooooooo
 ;;
 
 let[@foo] foooo = fooooooooo in
-    fooooooooooooooooooooo
+fooooooooooooooooooooo
 
 let a : int = 0
 let b = (0 : int)
 
 let _ =
   let+ a = b in
-      c
+  c
 ;;
 
 let _ =
   let+ a = b
   and+ c = d in
-      e
+  e
 ;;
 
 let _ =
@@ -177,14 +177,14 @@ let _ =
   then a
   else
     let+ a = b in
-        c
+    c
 ;;
 
 let _ =
   if true
   then
     let+ a = b in
-        c
+    c
   else d
 ;;
 
@@ -194,8 +194,8 @@ let _ =
     (match a with
      | a ->
        let+ a = b in
-           (match a with
-            | a -> a))
+       (match a with
+        | a -> a))
 ;;
 
 let _ =
@@ -204,27 +204,27 @@ let _ =
     (match a with
      | a ->
        let+ a = b in
-           (match a with
-            | a -> a)
+       (match a with
+        | a -> a)
      | b -> c)
 ;;
 
 let _ =
   let+ a b = c in
-      d
+  d
 ;;
 
 let _ =
   f
     (let+ a b = c in
-         d)
+     d)
 ;;
 
 let () =
   let* x = 1
   (* blah *)
   and* y = 2 in
-      ()
+  ()
 ;;
 
 let x = ()
@@ -261,7 +261,7 @@ let _ =
     (* yyy *)
     yyy
   in
-      zzz
+  zzz
 ;;
 
 [@@@ocamlformat "let-binding-spacing=double-semicolon"]
@@ -286,7 +286,7 @@ let copy from ~into : unit =
     =
     ()
   in
-      ()
+  ()
 ;;
 
 let { x; y } : foo = bar

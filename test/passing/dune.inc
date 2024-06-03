@@ -41,7 +41,7 @@
  (action
   (with-stdout-to alignment.ml.js-stdout
    (with-stderr-to alignment.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/alignment.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/alignment.ml})))))
 
 (rule
  (alias runtest)
@@ -167,7 +167,7 @@
  (action
   (with-stdout-to assignment_operator-op_begin_line.ml.js-stdout
    (with-stderr-to assignment_operator-op_begin_line.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --assignment-operator=begin-line %{dep:tests/assignment_operator.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/assignment_operator.ml})))))
 
 (rule
  (alias runtest)
@@ -203,7 +203,7 @@
  (action
   (with-stdout-to assignment_operator.ml.js-stdout
    (with-stderr-to assignment_operator.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/assignment_operator.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/assignment_operator.ml})))))
 
 (rule
  (alias runtest)
@@ -293,7 +293,7 @@
  (action
   (with-stdout-to attributes.mli.js-stdout
    (with-stderr-to attributes.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/attributes.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/attributes.mli})))))
 
 (rule
  (alias runtest)
@@ -347,7 +347,7 @@
  (action
   (with-stdout-to break_before_in-auto.ml.js-stdout
    (with-stderr-to break_before_in-auto.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-before-in=auto %{dep:tests/break_before_in.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_before_in.ml})))))
 
 (rule
  (alias runtest)
@@ -405,7 +405,7 @@
  (action
   (with-stdout-to break_cases-align.ml.js-stdout
    (with-stderr-to break_cases-align.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --nested-match=align --break-cases=all %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -447,7 +447,7 @@
  (action
   (with-stdout-to break_cases-all.ml.js-stdout
    (with-stderr-to break_cases-all.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=all %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -489,7 +489,7 @@
  (action
   (with-stdout-to break_cases-closing_on_separate_line.ml.js-stdout
    (with-stderr-to break_cases-closing_on_separate_line.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -531,7 +531,7 @@
  (action
   (with-stdout-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stdout
    (with-stderr-to break_cases-closing_on_separate_line_leading_nested_match_parens.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line --leading-nested-match-parens %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -573,7 +573,7 @@
  (action
   (with-stdout-to break_cases-cosl_lnmp_cmei.ml.js-stdout
    (with-stderr-to break_cases-cosl_lnmp_cmei.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=all --indicate-multiline-delimiters=closing-on-separate-line --leading-nested-match-parens --cases-matching-exp-indent=normal %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -615,7 +615,7 @@
  (action
   (with-stdout-to break_cases-fit_or_vertical.ml.js-stdout
    (with-stderr-to break_cases-fit_or_vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=fit-or-vertical %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -657,7 +657,7 @@
  (action
   (with-stdout-to break_cases-nested.ml.js-stdout
    (with-stderr-to break_cases-nested.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=nested --max-iters=5 %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -699,7 +699,7 @@
  (action
   (with-stdout-to break_cases-normal_indent.ml.js-stdout
    (with-stderr-to break_cases-normal_indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --cases-matching-exp-indent=normal --break-cases=all %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -737,7 +737,7 @@
  (action
   (with-stdout-to break_cases-toplevel.ml.js-stdout
    (with-stderr-to break_cases-toplevel.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=toplevel --max-iter=4 %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -777,7 +777,7 @@
  (action
   (with-stdout-to break_cases-vertical.ml.js-stdout
    (with-stderr-to break_cases-vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=vertical %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -815,7 +815,7 @@
  (action
   (with-stdout-to break_cases.ml.js-stdout
    (with-stderr-to break_cases.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-cases=fit --max-iter=4 %{dep:tests/break_cases.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_cases.ml})))))
 
 (rule
  (alias runtest)
@@ -851,7 +851,7 @@
  (action
   (with-stdout-to break_collection_expressions-wrap.ml.js-stdout
    (with-stderr-to break_collection_expressions-wrap.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-collection-expressions=wrap --max-iters=3 %{dep:tests/break_collection_expressions.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_collection_expressions.ml})))))
 
 (rule
  (alias runtest)
@@ -887,7 +887,7 @@
  (action
   (with-stdout-to break_collection_expressions.ml.js-stdout
    (with-stderr-to break_collection_expressions.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-collection-expressions=fit-or-vertical --max-iters=3 %{dep:tests/break_collection_expressions.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_collection_expressions.ml})))))
 
 (rule
  (alias runtest)
@@ -923,7 +923,7 @@
  (action
   (with-stdout-to break_colon-before.ml.js-stdout
    (with-stderr-to break_colon-before.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-colon=before %{dep:tests/break_colon.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_colon.ml})))))
 
 (rule
  (alias runtest)
@@ -977,7 +977,7 @@
  (action
   (with-stdout-to break_fun_decl-fit_or_vertical.ml.js-stdout
    (with-stderr-to break_fun_decl-fit_or_vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-fun-decl=fit-or-vertical --break-fun-sig=fit-or-vertical %{dep:tests/break_fun_decl.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_fun_decl.ml})))))
 
 (rule
  (alias runtest)
@@ -1013,7 +1013,7 @@
  (action
   (with-stdout-to break_fun_decl-smart.ml.js-stdout
    (with-stderr-to break_fun_decl-smart.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-fun-decl=smart --break-fun-sig=smart %{dep:tests/break_fun_decl.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_fun_decl.ml})))))
 
 (rule
  (alias runtest)
@@ -1049,7 +1049,7 @@
  (action
   (with-stdout-to break_fun_decl-wrap.ml.js-stdout
    (with-stderr-to break_fun_decl-wrap.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-fun-decl=wrap --break-fun-sig=wrap %{dep:tests/break_fun_decl.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_fun_decl.ml})))))
 
 (rule
  (alias runtest)
@@ -1103,7 +1103,7 @@
  (action
   (with-stdout-to break_infix-fit-or-vertical.ml.js-stdout
    (with-stderr-to break_infix-fit-or-vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=fit-or-vertical %{dep:tests/break_infix.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_infix.ml})))))
 
 (rule
  (alias runtest)
@@ -1139,7 +1139,7 @@
  (action
   (with-stdout-to break_infix-wrap.ml.js-stdout
    (with-stderr-to break_infix-wrap.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=wrap %{dep:tests/break_infix.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_infix.ml})))))
 
 (rule
  (alias runtest)
@@ -1175,7 +1175,7 @@
  (action
   (with-stdout-to break_infix.ml.js-stdout
    (with-stderr-to break_infix.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=wrap-or-vertical %{dep:tests/break_infix.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_infix.ml})))))
 
 (rule
  (alias runtest)
@@ -1229,7 +1229,7 @@
  (action
   (with-stdout-to break_separators-after.ml.js-stdout
    (with-stderr-to break_separators-after.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-separators=after --max-iter=3 %{dep:tests/break_separators.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_separators.ml})))))
 
 (rule
  (alias runtest)
@@ -1265,7 +1265,7 @@
  (action
   (with-stdout-to break_separators-after_docked.ml.js-stdout
    (with-stderr-to break_separators-after_docked.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-separators=after --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_separators.ml})))))
 
 (rule
  (alias runtest)
@@ -1301,7 +1301,7 @@
  (action
   (with-stdout-to break_separators-before_docked.ml.js-stdout
    (with-stderr-to break_separators-before_docked.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-separators=before --dock-collection-brackets --max-iter=3 %{dep:tests/break_separators.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_separators.ml})))))
 
 (rule
  (alias runtest)
@@ -1373,7 +1373,7 @@
  (action
   (with-stdout-to break_string_literals-never.ml.js-stdout
    (with-stderr-to break_string_literals-never.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-string-literals=never %{dep:tests/break_string_literals.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_string_literals.ml})))))
 
 (rule
  (alias runtest)
@@ -1409,7 +1409,7 @@
  (action
   (with-stdout-to break_string_literals.ml.js-stdout
    (with-stderr-to break_string_literals.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-string-literals=auto %{dep:tests/break_string_literals.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_string_literals.ml})))))
 
 (rule
  (alias runtest)
@@ -1445,7 +1445,7 @@
  (action
   (with-stdout-to break_struct.ml.js-stdout
    (with-stderr-to break_struct.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/break_struct.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/break_struct.ml})))))
 
 (rule
  (alias runtest)
@@ -1481,7 +1481,7 @@
  (action
   (with-stdout-to cases_exp_grouping.ml.js-stdout
    (with-stderr-to cases_exp_grouping.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --exp-grouping=preserve %{dep:tests/cases_exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/cases_exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -1521,7 +1521,7 @@
  (action
   (with-stdout-to cinaps.ml.js-stdout
    (with-stderr-to cinaps.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/cinaps.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/cinaps.ml})))))
 
 (rule
  (alias runtest)
@@ -1577,7 +1577,7 @@
  (action
   (with-stdout-to class_sig-after.mli.js-stdout
    (with-stderr-to class_sig-after.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-separators=after %{dep:tests/class_sig.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/class_sig.mli})))))
 
 (rule
  (alias runtest)
@@ -1613,7 +1613,7 @@
  (action
   (with-stdout-to class_sig.mli.js-stdout
    (with-stderr-to class_sig.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/class_sig.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/class_sig.mli})))))
 
 (rule
  (alias runtest)
@@ -1649,7 +1649,7 @@
  (action
   (with-stdout-to class_type.ml.js-stdout
    (with-stderr-to class_type.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=3 %{dep:tests/class_type.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/class_type.ml})))))
 
 (rule
  (alias runtest)
@@ -1761,7 +1761,7 @@
  (action
   (with-stdout-to comment_header.ml.js-stdout
    (with-stderr-to comment_header.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/comment_header.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comment_header.ml})))))
 
 (rule
  (alias runtest)
@@ -1817,7 +1817,7 @@
  (action
   (with-stdout-to comment_in_modules.ml.js-stdout
    (with-stderr-to comment_in_modules.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/comment_in_modules.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comment_in_modules.ml})))))
 
 (rule
  (alias runtest)
@@ -1889,7 +1889,7 @@
  (action
   (with-stdout-to comments-no-wrap.ml.js-stdout
    (with-stderr-to comments-no-wrap.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --no-wrap-comments --max-iters=5 %{dep:tests/comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comments.ml})))))
 
 (rule
  (alias runtest)
@@ -1925,7 +1925,7 @@
  (action
   (with-stdout-to comments.ml.js-stdout
    (with-stderr-to comments.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=4 %{dep:tests/comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comments.ml})))))
 
 (rule
  (alias runtest)
@@ -1979,7 +1979,7 @@
  (action
   (with-stdout-to comments_args.ml.js-stdout
    (with-stderr-to comments_args.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=4 %{dep:tests/comments_args.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comments_args.ml})))))
 
 (rule
  (alias runtest)
@@ -2015,7 +2015,7 @@
  (action
   (with-stdout-to comments_around_disabled.ml.js-stdout
    (with-stderr-to comments_around_disabled.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/comments_around_disabled.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comments_around_disabled.ml})))))
 
 (rule
  (alias runtest)
@@ -2051,7 +2051,7 @@
  (action
   (with-stdout-to comments_in_record.ml.js-stdout
    (with-stderr-to comments_in_record.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/comments_in_record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/comments_in_record.ml})))))
 
 (rule
  (alias runtest)
@@ -2105,7 +2105,7 @@
  (action
   (with-stdout-to crlf_to_crlf.ml.js-stdout
    (with-stderr-to crlf_to_crlf.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --line-endings=crlf %{dep:tests/crlf_to_crlf.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/crlf_to_crlf.ml})))))
 
 (rule
  (alias runtest)
@@ -2141,7 +2141,7 @@
  (action
   (with-stdout-to crlf_to_lf.ml.js-stdout
    (with-stderr-to crlf_to_lf.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --line-endings=lf %{dep:tests/crlf_to_lf.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/crlf_to_lf.ml})))))
 
 (rule
  (alias runtest)
@@ -2195,7 +2195,7 @@
  (action
   (with-stdout-to directives.mlt.js-stdout
    (with-stderr-to directives.mlt.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/directives.mlt})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/directives.mlt})))))
 
 (rule
  (alias runtest)
@@ -2249,7 +2249,7 @@
  (action
   (with-stdout-to disable_conf_attrs.ml.js-stdout
    (with-stderr-to disable_conf_attrs.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --disable-conf-attrs %{dep:tests/disable_conf_attrs.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/disable_conf_attrs.ml})))))
 
 (rule
  (alias runtest)
@@ -2357,7 +2357,7 @@
  (action
   (with-stdout-to doc.mld.js-stdout
    (with-stderr-to doc.mld.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/doc.mld})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc.mld})))))
 
 (rule
  (alias runtest)
@@ -2393,7 +2393,7 @@
  (action
   (with-stdout-to doc_comments-after.ml.js-stdout
    (with-stderr-to doc_comments-after.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --doc-comments=after-when-possible %{dep:tests/doc_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -2429,7 +2429,7 @@
  (action
   (with-stdout-to doc_comments-before-except-val.ml.js-stdout
    (with-stderr-to doc_comments-before-except-val.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --doc-comments=before-except-val %{dep:tests/doc_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -2465,7 +2465,7 @@
  (action
   (with-stdout-to doc_comments-before.ml.js-stdout
    (with-stderr-to doc_comments-before.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --doc-comments=before %{dep:tests/doc_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -2501,7 +2501,7 @@
  (action
   (with-stdout-to doc_comments-no-parse-docstrings.mli.js-stdout
    (with-stderr-to doc_comments-no-parse-docstrings.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --no-parse-docstrings --max-iters=3 %{dep:tests/doc_comments.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.mli})))))
 
 (rule
  (alias runtest)
@@ -2541,7 +2541,7 @@
  (action
   (with-stdout-to doc_comments-no-wrap.mli.js-stdout
    (with-stderr-to doc_comments-no-wrap.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --no-wrap-comments %{dep:tests/doc_comments.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.mli})))))
 
 (rule
  (alias runtest)
@@ -2579,7 +2579,7 @@
  (action
   (with-stdout-to doc_comments.ml.js-stdout
    (with-stderr-to doc_comments.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/doc_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -2619,7 +2619,7 @@
  (action
   (with-stdout-to doc_comments.mli.js-stdout
    (with-stderr-to doc_comments.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/doc_comments.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_comments.mli})))))
 
 (rule
  (alias runtest)
@@ -2675,7 +2675,7 @@
  (action
   (with-stdout-to doc_repl.mld.js-stdout
    (with-stderr-to doc_repl.mld.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --parse-toplevel-phrases %{dep:tests/doc_repl.mld})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/doc_repl.mld})))))
 
 (rule
  (alias runtest)
@@ -2821,7 +2821,7 @@
   (with-stdout-to error1.ml.js-stdout
    (with-stderr-to error1.ml.js-stderr
      (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/error1.ml}))))))
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/error1.ml}))))))
 
 (rule
  (alias runtest)
@@ -2859,7 +2859,7 @@
   (with-stdout-to error2.ml.js-stdout
    (with-stderr-to error2.ml.js-stderr
      (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/error2.ml}))))))
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/error2.ml}))))))
 
 (rule
  (alias runtest)
@@ -2897,7 +2897,7 @@
   (with-stdout-to error3.ml.js-stdout
    (with-stderr-to error3.ml.js-stderr
      (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/error3.ml}))))))
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/error3.ml}))))))
 
 (rule
  (alias runtest)
@@ -2929,24 +2929,6 @@
 
 (rule
  (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to error4.ml.js-stdout
-   (with-stderr-to error4.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --no-comment-check %{dep:tests/error4.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/error4.ml.js-ref error4.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/error4.ml.js-err error4.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
  (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action
@@ -2973,7 +2955,7 @@
  (action
   (with-stdout-to escaped_nl.ml.js-stdout
    (with-stderr-to escaped_nl.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/escaped_nl.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/escaped_nl.ml})))))
 
 (rule
  (alias runtest)
@@ -3047,7 +3029,7 @@
  (action
   (with-stdout-to exp_grouping-parens.ml.js-stdout
    (with-stderr-to exp_grouping-parens.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --exp-grouping=parens --max-iters=5 %{dep:tests/exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -3083,7 +3065,7 @@
  (action
   (with-stdout-to exp_grouping.ml.js-stdout
    (with-stderr-to exp_grouping.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -3155,7 +3137,7 @@
  (action
   (with-stdout-to extensions-indent.ml.js-stdout
    (with-stderr-to extensions-indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=3 --extension-indent=5 --stritem-extension-indent=3 %{dep:tests/extensions.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/extensions.ml})))))
 
 (rule
  (alias runtest)
@@ -3191,7 +3173,7 @@
  (action
   (with-stdout-to extensions-indent.mli.js-stdout
    (with-stderr-to extensions-indent.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --extension-indent=5 --stritem-extension-indent=3 %{dep:tests/extensions.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/extensions.mli})))))
 
 (rule
  (alias runtest)
@@ -3227,7 +3209,7 @@
  (action
   (with-stdout-to extensions.ml.js-stdout
    (with-stderr-to extensions.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=3 %{dep:tests/extensions.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/extensions.ml})))))
 
 (rule
  (alias runtest)
@@ -3281,7 +3263,7 @@
  (action
   (with-stdout-to extensions_exp_grouping.ml.js-stdout
    (with-stderr-to extensions_exp_grouping.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --exp-grouping=preserve --max-iters=5 %{dep:tests/extensions_exp_grouping.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/extensions_exp_grouping.ml})))))
 
 (rule
  (alias runtest)
@@ -3317,7 +3299,7 @@
  (action
   (with-stdout-to field-op_begin_line.ml.js-stdout
    (with-stderr-to field-op_begin_line.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --assignment-operator=begin-line %{dep:tests/field.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/field.ml})))))
 
 (rule
  (alias runtest)
@@ -3371,7 +3353,7 @@
  (action
   (with-stdout-to first_class_module.ml.js-stdout
    (with-stderr-to first_class_module.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/first_class_module.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/first_class_module.ml})))))
 
 (rule
  (alias runtest)
@@ -3479,7 +3461,7 @@
  (action
   (with-stdout-to function_indent-never.ml.js-stdout
    (with-stderr-to function_indent-never.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --function-indent=4 --function-indent-nested=never %{dep:tests/function_indent.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/function_indent.ml})))))
 
 (rule
  (alias runtest)
@@ -3515,7 +3497,7 @@
  (action
   (with-stdout-to function_indent.ml.js-stdout
    (with-stderr-to function_indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --function-indent=4 --function-indent-nested=always %{dep:tests/function_indent.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/function_indent.ml})))))
 
 (rule
  (alias runtest)
@@ -3605,7 +3587,7 @@
  (action
   (with-stdout-to generative.ml.js-stdout
    (with-stderr-to generative.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=3 %{dep:tests/generative.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/generative.ml})))))
 
 (rule
  (alias runtest)
@@ -3677,7 +3659,7 @@
  (action
   (with-stdout-to holes.ml.js-stdout
    (with-stderr-to holes.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/holes.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/holes.ml})))))
 
 (rule
  (alias runtest)
@@ -3713,7 +3695,7 @@
  (action
   (with-stdout-to ifand.ml.js-stdout
    (with-stderr-to ifand.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/ifand.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ifand.ml})))))
 
 (rule
  (alias runtest)
@@ -3767,7 +3749,7 @@
  (action
   (with-stdout-to implicit_source_position-erased.ml.js-stdout
    (with-stderr-to implicit_source_position-erased.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/implicit_source_position.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/implicit_source_position.ml})))))
 
 (rule
  (alias runtest)
@@ -3803,7 +3785,7 @@
  (action
   (with-stdout-to implicit_source_position.ml.js-stdout
    (with-stderr-to implicit_source_position.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/implicit_source_position.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/implicit_source_position.ml})))))
 
 (rule
  (alias runtest)
@@ -3875,7 +3857,7 @@
  (action
   (with-stdout-to indicate_multiline_delimiters-cosl.ml.js-stdout
    (with-stderr-to indicate_multiline_delimiters-cosl.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/indicate_multiline_delimiters.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/indicate_multiline_delimiters.ml})))))
 
 (rule
  (alias runtest)
@@ -3911,7 +3893,7 @@
  (action
   (with-stdout-to indicate_multiline_delimiters-space.ml.js-stdout
    (with-stderr-to indicate_multiline_delimiters-space.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --indicate-multiline-delimiters=space %{dep:tests/indicate_multiline_delimiters.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/indicate_multiline_delimiters.ml})))))
 
 (rule
  (alias runtest)
@@ -3983,7 +3965,7 @@
  (action
   (with-stdout-to infix_bind-break.ml.js-stdout
    (with-stderr-to infix_bind-break.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=wrap --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -4019,7 +4001,7 @@
  (action
   (with-stdout-to infix_bind-fit_or_vertical-break.ml.js-stdout
    (with-stderr-to infix_bind-fit_or_vertical-break.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=fit-or-vertical --break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -4055,7 +4037,7 @@
  (action
   (with-stdout-to infix_bind-fit_or_vertical.ml.js-stdout
    (with-stderr-to infix_bind-fit_or_vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --break-infix=fit-or-vertical --no-break-infix-before-func --max-iters=5 %{dep:tests/infix_bind.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/infix_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -4145,7 +4127,7 @@
  (action
   (with-stdout-to into_infix.ml.js-stdout
    (with-stderr-to into_infix.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/into_infix.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/into_infix.ml})))))
 
 (rule
  (alias runtest)
@@ -4199,7 +4181,7 @@
  (action
   (with-stdout-to invalid_docstring.ml.js-stdout
    (with-stderr-to invalid_docstring.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/invalid_docstring.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/invalid_docstring.ml})))))
 
 (rule
  (alias runtest)
@@ -4239,7 +4221,7 @@
  (action
   (with-stdout-to invalid_docstrings.mli.js-stdout
    (with-stderr-to invalid_docstrings.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/invalid_docstrings.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/invalid_docstrings.mli})))))
 
 (rule
  (alias runtest)
@@ -4457,7 +4439,7 @@
  (action
   (with-stdout-to ite-compact.ml.js-stdout
    (with-stderr-to ite-compact.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4493,7 +4475,7 @@
  (action
   (with-stdout-to ite-compact_closing.ml.js-stdout
    (with-stderr-to ite-compact_closing.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=compact --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4529,7 +4511,7 @@
  (action
   (with-stdout-to ite-fit_or_vertical.ml.js-stdout
    (with-stderr-to ite-fit_or_vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=fit-or-vertical --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4565,7 +4547,7 @@
  (action
   (with-stdout-to ite-fit_or_vertical_closing.ml.js-stdout
    (with-stderr-to ite-fit_or_vertical_closing.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else fit-or-vertical --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4601,7 +4583,7 @@
  (action
   (with-stdout-to ite-fit_or_vertical_no_indicate.ml.js-stdout
    (with-stderr-to ite-fit_or_vertical_no_indicate.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=fit-or-vertical --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4637,7 +4619,7 @@
  (action
   (with-stdout-to ite-kr.ml.js-stdout
    (with-stderr-to ite-kr.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=k-r --max-iters=3 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4673,7 +4655,7 @@
  (action
   (with-stdout-to ite-kr_closing.ml.js-stdout
    (with-stderr-to ite-kr_closing.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=k-r --max-iters=3 --indicate-multiline-delimiters=closing-on-separate-line %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4709,7 +4691,7 @@
  (action
   (with-stdout-to ite-kw_first.ml.js-stdout
    (with-stderr-to ite-kw_first.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=keyword-first --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4745,7 +4727,7 @@
  (action
   (with-stdout-to ite-kw_first_closing.ml.js-stdout
    (with-stderr-to ite-kw_first_closing.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else keyword-first --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4781,7 +4763,7 @@
  (action
   (with-stdout-to ite-kw_first_no_indicate.ml.js-stdout
    (with-stderr-to ite-kw_first_no_indicate.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=keyword-first --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4817,7 +4799,7 @@
  (action
   (with-stdout-to ite-no_indicate.ml.js-stdout
    (with-stderr-to ite-no_indicate.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=compact --indicate-multiline-delimiters=no --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4853,7 +4835,7 @@
  (action
   (with-stdout-to ite-vertical.ml.js-stdout
    (with-stderr-to ite-vertical.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=vertical --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4889,7 +4871,7 @@
  (action
   (with-stdout-to ite.ml.js-stdout
    (with-stderr-to ite.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --if-then-else=compact --max-iters=5 %{dep:tests/ite.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ite.ml})))))
 
 (rule
  (alias runtest)
@@ -4925,7 +4907,7 @@
  (action
   (with-stdout-to js_args.ml.js-stdout
    (with-stderr-to js_args.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/js_args.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_args.ml})))))
 
 (rule
  (alias runtest)
@@ -4961,7 +4943,7 @@
  (action
   (with-stdout-to js_begin.ml.js-stdout
    (with-stderr-to js_begin.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/js_begin.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_begin.ml})))))
 
 (rule
  (alias runtest)
@@ -4997,7 +4979,7 @@
  (action
   (with-stdout-to js_bind.ml.js-stdout
    (with-stderr-to js_bind.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/js_bind.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_bind.ml})))))
 
 (rule
  (alias runtest)
@@ -5033,7 +5015,7 @@
  (action
   (with-stdout-to js_fun.ml.js-stdout
    (with-stderr-to js_fun.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/js_fun.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_fun.ml})))))
 
 (rule
  (alias runtest)
@@ -5069,7 +5051,7 @@
  (action
   (with-stdout-to js_map.ml.js-stdout
    (with-stderr-to js_map.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/js_map.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_map.ml})))))
 
 (rule
  (alias runtest)
@@ -5105,7 +5087,7 @@
  (action
   (with-stdout-to js_pattern.ml.js-stdout
    (with-stderr-to js_pattern.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/js_pattern.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_pattern.ml})))))
 
 (rule
  (alias runtest)
@@ -5141,7 +5123,7 @@
  (action
   (with-stdout-to js_poly.ml.js-stdout
    (with-stderr-to js_poly.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/js_poly.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_poly.ml})))))
 
 (rule
  (alias runtest)
@@ -5177,7 +5159,7 @@
  (action
   (with-stdout-to js_record.ml.js-stdout
    (with-stderr-to js_record.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/js_record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_record.ml})))))
 
 (rule
  (alias runtest)
@@ -5261,7 +5243,7 @@
  (action
   (with-stdout-to js_syntax.ml.js-stdout
    (with-stderr-to js_syntax.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/js_syntax.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_syntax.ml})))))
 
 (rule
  (alias runtest)
@@ -5301,7 +5283,7 @@
  (action
   (with-stdout-to js_to_do.ml.js-stdout
    (with-stderr-to js_to_do.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/js_to_do.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_to_do.ml})))))
 
 (rule
  (alias runtest)
@@ -5339,7 +5321,7 @@
  (action
   (with-stdout-to js_upon.ml.js-stdout
    (with-stderr-to js_upon.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/js_upon.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_upon.ml})))))
 
 (rule
  (alias runtest)
@@ -5393,7 +5375,7 @@
  (action
   (with-stdout-to label_option_default_args.ml.js-stdout
    (with-stderr-to label_option_default_args.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=4 %{dep:tests/label_option_default_args.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/label_option_default_args.ml})))))
 
 (rule
  (alias runtest)
@@ -5537,7 +5519,7 @@
  (action
   (with-stdout-to labelled_args-414.ml.js-stdout
    (with-stderr-to labelled_args-414.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --ocaml-version=4.14.0 %{dep:tests/labelled_args.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/labelled_args.ml})))))
 
 (rule
  (alias runtest)
@@ -5591,7 +5573,7 @@
  (action
   (with-stdout-to layout_annotation-erased.ml.js-stdout
    (with-stderr-to layout_annotation-erased.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --erase-jane-syntax --max-iter=4 %{dep:tests/layout_annotation.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_annotation.ml})))))
 
 (rule
  (alias runtest)
@@ -5627,7 +5609,7 @@
  (action
   (with-stdout-to layout_annotation.ml.js-stdout
    (with-stderr-to layout_annotation.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/layout_annotation.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_annotation.ml})))))
 
 (rule
  (alias runtest)
@@ -5699,7 +5681,7 @@
  (action
   (with-stdout-to let_binding-in_indent.ml.js-stdout
    (with-stderr-to let_binding-in_indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --indent-after-in=4 --max-iters=5 %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -5735,7 +5717,7 @@
  (action
   (with-stdout-to let_binding-indent.ml.js-stdout
    (with-stderr-to let_binding-indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --let-binding-indent=6 --max-iters=5 %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -5771,7 +5753,7 @@
  (action
   (with-stdout-to let_binding.ml.js-stdout
    (with-stderr-to let_binding.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/let_binding.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_binding.ml})))))
 
 (rule
  (alias runtest)
@@ -5807,7 +5789,7 @@
  (action
   (with-stdout-to let_binding_spacing-double-semicolon.ml.js-stdout
    (with-stderr-to let_binding_spacing-double-semicolon.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --let-binding-spacing=double-semicolon --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_binding_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -5843,7 +5825,7 @@
  (action
   (with-stdout-to let_binding_spacing-sparse.ml.js-stdout
    (with-stderr-to let_binding_spacing-sparse.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --let-binding-spacing=sparse --max-iters=5 %{dep:tests/let_binding_spacing.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_binding_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -5915,7 +5897,7 @@
  (action
   (with-stdout-to let_module-sparse.ml.js-stdout
    (with-stderr-to let_module-sparse.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --let-module=sparse %{dep:tests/let_module.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_module.ml})))))
 
 (rule
  (alias runtest)
@@ -5951,7 +5933,7 @@
  (action
   (with-stdout-to let_module.ml.js-stdout
    (with-stderr-to let_module.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --let-module=compact %{dep:tests/let_module.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/let_module.ml})))))
 
 (rule
  (alias runtest)
@@ -6007,7 +5989,7 @@
   (with-stdout-to line_directives.ml.js-stdout
    (with-stderr-to line_directives.ml.js-stderr
      (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/line_directives.ml}))))))
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/line_directives.ml}))))))
 
 (rule
  (alias runtest)
@@ -6043,7 +6025,7 @@
  (action
   (with-stdout-to list-space_around.ml.js-stdout
    (with-stderr-to list-space_around.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/list.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/list.ml})))))
 
 (rule
  (alias runtest)
@@ -6097,7 +6079,7 @@
  (action
   (with-stdout-to list_and_comments.ml.js-stdout
    (with-stderr-to list_and_comments.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/list_and_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/list_and_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -6133,7 +6115,7 @@
  (action
   (with-stdout-to list_normalized.ml.js-stdout
    (with-stderr-to list_normalized.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=4 %{dep:tests/list_normalized.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/list_normalized.ml})))))
 
 (rule
  (alias runtest)
@@ -6169,7 +6151,7 @@
  (action
   (with-stdout-to loc_stack.ml.js-stdout
    (with-stderr-to loc_stack.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check -n 3 %{dep:tests/loc_stack.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/loc_stack.ml})))))
 
 (rule
  (alias runtest)
@@ -6205,7 +6187,7 @@
  (action
   (with-stdout-to local.ml.js-stdout
    (with-stderr-to local.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/local.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/local.ml})))))
 
 (rule
  (alias runtest)
@@ -6241,7 +6223,7 @@
  (action
   (with-stdout-to local_erased.ml.js-stdout
    (with-stderr-to local_erased.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/local_erased.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/local_erased.ml})))))
 
 (rule
  (alias runtest)
@@ -6295,7 +6277,7 @@
  (action
   (with-stdout-to margin_80.ml.js-stdout
    (with-stderr-to margin_80.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --margin=80 %{dep:tests/margin_80.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/margin_80.ml})))))
 
 (rule
  (alias runtest)
@@ -6367,7 +6349,7 @@
  (action
   (with-stdout-to match_indent-never.ml.js-stdout
    (with-stderr-to match_indent-never.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --match-indent=4 --match-indent-nested=never %{dep:tests/match_indent.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/match_indent.ml})))))
 
 (rule
  (alias runtest)
@@ -6403,7 +6385,7 @@
  (action
   (with-stdout-to match_indent.ml.js-stdout
    (with-stderr-to match_indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --match-indent=4 --match-indent-nested=always %{dep:tests/match_indent.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/match_indent.ml})))))
 
 (rule
  (alias runtest)
@@ -6511,7 +6493,7 @@
  (action
   (with-stdout-to module_attributes.ml.js-stdout
    (with-stderr-to module_attributes.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/module_attributes.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_attributes.ml})))))
 
 (rule
  (alias runtest)
@@ -6547,7 +6529,7 @@
  (action
   (with-stdout-to module_item_spacing-preserve.ml.js-stdout
    (with-stderr-to module_item_spacing-preserve.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 --module-item-spacing=preserve %{dep:tests/module_item_spacing.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_item_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -6583,7 +6565,7 @@
  (action
   (with-stdout-to module_item_spacing-sparse.ml.js-stdout
    (with-stderr-to module_item_spacing-sparse.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 --module-item-spacing=sparse %{dep:tests/module_item_spacing.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_item_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -6619,7 +6601,7 @@
  (action
   (with-stdout-to module_item_spacing.ml.js-stdout
    (with-stderr-to module_item_spacing.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 --module-item-spacing=compact %{dep:tests/module_item_spacing.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_item_spacing.ml})))))
 
 (rule
  (alias runtest)
@@ -6655,7 +6637,7 @@
  (action
   (with-stdout-to module_item_spacing.mli.js-stdout
    (with-stderr-to module_item_spacing.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iter=3 %{dep:tests/module_item_spacing.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_item_spacing.mli})))))
 
 (rule
  (alias runtest)
@@ -6709,7 +6691,7 @@
  (action
   (with-stdout-to module_type.mli.js-stdout
    (with-stderr-to module_type.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/module_type.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_type.mli})))))
 
 (rule
  (alias runtest)
@@ -6816,25 +6798,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to need_format.ml.js-stdout
-   (with-stderr-to need_format.ml.js-stderr
-     (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=1 %{dep:tests/need_format.ml}))))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/need_format.ml.js-ref need_format.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/need_format.ml.js-err need_format.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to new.ml.stdout
    (with-stderr-to new.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/new.ml})))))
@@ -6891,7 +6854,7 @@
  (action
   (with-stdout-to object2.ml.js-stdout
    (with-stderr-to object2.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/object2.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/object2.ml})))))
 
 (rule
  (alias runtest)
@@ -6927,7 +6890,7 @@
  (action
   (with-stdout-to object_expr-414.ml.js-stdout
    (with-stderr-to object_expr-414.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --ocaml-version=4.14.0 --max-iters=5 %{dep:tests/object_expr.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/object_expr.ml})))))
 
 (rule
  (alias runtest)
@@ -6963,7 +6926,7 @@
  (action
   (with-stdout-to object_expr.ml.js-stdout
    (with-stderr-to object_expr.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/object_expr.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/object_expr.ml})))))
 
 (rule
  (alias runtest)
@@ -6999,7 +6962,7 @@
  (action
   (with-stdout-to object_type.ml.js-stdout
    (with-stderr-to object_type.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/object_type.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/object_type.ml})))))
 
 (rule
  (alias runtest)
@@ -7035,7 +6998,7 @@
  (action
   (with-stdout-to obuild.ml.js-stdout
    (with-stderr-to obuild.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/obuild.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/obuild.ml})))))
 
 (rule
  (alias runtest)
@@ -7071,7 +7034,7 @@
  (action
   (with-stdout-to ocp_indent_compat-break_colon_after.ml.js-stdout
    (with-stderr-to ocp_indent_compat-break_colon_after.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --ocp-indent-compat --break-colon=after %{dep:tests/ocp_indent_compat.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ocp_indent_compat.ml})))))
 
 (rule
  (alias runtest)
@@ -7125,7 +7088,7 @@
  (action
   (with-stdout-to ocp_indent_options.ml.js-stdout
    (with-stderr-to ocp_indent_options.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --ocp-indent-config %{dep:tests/ocp_indent_options.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/ocp_indent_options.ml})))))
 
 (rule
  (alias runtest)
@@ -7161,7 +7124,7 @@
  (action
   (with-stdout-to open-closing-on-separate-line.ml.js-stdout
    (with-stderr-to open-closing-on-separate-line.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --indicate-multiline-delimiters=closing-on-separate-line --max-iters=5 %{dep:tests/open.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/open.ml})))))
 
 (rule
  (alias runtest)
@@ -7197,7 +7160,7 @@
  (action
   (with-stdout-to open.ml.js-stdout
    (with-stderr-to open.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/open.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/open.ml})))))
 
 (rule
  (alias runtest)
@@ -7251,7 +7214,7 @@
  (action
   (with-stdout-to option.ml.js-stdout
    (with-stderr-to option.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/option.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/option.ml})))))
 
 (rule
  (alias runtest)
@@ -7287,7 +7250,7 @@
  (action
   (with-stdout-to override.ml.js-stdout
    (with-stderr-to override.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/override.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/override.ml})))))
 
 (rule
  (alias runtest)
@@ -7471,7 +7434,7 @@
  (action
   (with-stdout-to print_config.ml.js-stdout
    (with-stderr-to print_config.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/dir1/dir2/print_config.ml} --print-config --config=max-iters=2 %{dep:tests/print_config.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/print_config.ml})))))
 
 (rule
  (alias runtest)
@@ -7617,7 +7580,7 @@
  (action
   (with-stdout-to record-402.ml.js-stdout
    (with-stderr-to record-402.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --ocaml-version=4.02 --max-iters=5 %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -7653,7 +7616,7 @@
  (action
   (with-stdout-to record-loose.ml.js-stdout
    (with-stderr-to record-loose.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --field-space=loose --max-iters=5 %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -7689,7 +7652,7 @@
  (action
   (with-stdout-to record-tight_decl.ml.js-stdout
    (with-stderr-to record-tight_decl.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --field-space=tight-decl --max-iters=5 %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -7725,7 +7688,7 @@
  (action
   (with-stdout-to record.ml.js-stdout
    (with-stderr-to record.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --field-space=tight --max-iters=5 %{dep:tests/record.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/record.ml})))))
 
 (rule
  (alias runtest)
@@ -7779,7 +7742,7 @@
  (action
   (with-stdout-to record_punning.ml.js-stdout
    (with-stderr-to record_punning.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/record_punning.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/record_punning.ml})))))
 
 (rule
  (alias runtest)
@@ -7819,7 +7782,7 @@
  (action
   (with-stdout-to reformat_string.ml.js-stdout
    (with-stderr-to reformat_string.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/reformat_string.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/reformat_string.ml})))))
 
 (rule
  (alias runtest)
@@ -7875,7 +7838,7 @@
  (action
   (with-stdout-to remove_extra_parens.ml.js-stdout
    (with-stderr-to remove_extra_parens.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/remove_extra_parens.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/remove_extra_parens.ml})))))
 
 (rule
  (alias runtest)
@@ -7909,24 +7872,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to repl.ml.js-stdout
-   (with-stderr-to repl.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --parse-toplevel-phrases --repl-file %{dep:tests/repl.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/repl.ml.js-ref repl.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/repl.ml.js-err repl.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to repl.mli.stdout
    (with-stderr-to repl.mli.stderr
      (run %{bin:ocamlformat} --margin-check --parse-toplevel-phrases %{dep:tests/repl.mli})))))
@@ -7947,7 +7892,7 @@
  (action
   (with-stdout-to repl.mli.js-stdout
    (with-stderr-to repl.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --parse-toplevel-phrases %{dep:tests/repl.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/repl.mli})))))
 
 (rule
  (alias runtest)
@@ -8019,7 +7964,7 @@
  (action
   (with-stdout-to sequence-preserve.ml.js-stdout
    (with-stderr-to sequence-preserve.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --sequence-blank-line=preserve-one --max-iter=3 %{dep:tests/sequence.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/sequence.ml})))))
 
 (rule
  (alias runtest)
@@ -8055,7 +8000,7 @@
  (action
   (with-stdout-to sequence.ml.js-stdout
    (with-stderr-to sequence.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --sequence-blank-line=compact %{dep:tests/sequence.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/sequence.ml})))))
 
 (rule
  (alias runtest)
@@ -8127,7 +8072,7 @@
  (action
   (with-stdout-to sig_value.mli.js-stdout
    (with-stderr-to sig_value.mli.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/sig_value.mli})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/sig_value.mli})))))
 
 (rule
  (alias runtest)
@@ -8199,7 +8144,7 @@
  (action
   (with-stdout-to source.ml.js-stdout
    (with-stderr-to source.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=3 %{dep:tests/source.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/source.ml})))))
 
 (rule
  (alias runtest)
@@ -8253,7 +8198,7 @@
  (action
   (with-stdout-to string.ml.js-stdout
    (with-stderr-to string.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/string.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/string.ml})))))
 
 (rule
  (alias runtest)
@@ -8487,7 +8432,7 @@
  (action
   (with-stdout-to types-compact-space_around-docked.ml.js-stdout
    (with-stderr-to types-compact-space_around-docked.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl=compact --space-around-arrays --space-around-lists --space-around-records --space-around-variants --break-separators=after --dock-collection-brackets %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8523,7 +8468,7 @@
  (action
   (with-stdout-to types-compact-space_around.ml.js-stdout
    (with-stderr-to types-compact-space_around.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl=compact --space-around-arrays --space-around-lists --space-around-records --space-around-variants %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8559,7 +8504,7 @@
  (action
   (with-stdout-to types-compact.ml.js-stdout
    (with-stderr-to types-compact.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl=compact %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8595,7 +8540,7 @@
  (action
   (with-stdout-to types-indent.ml.js-stdout
    (with-stderr-to types-indent.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl-indent=6 --max-iters=5 %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8631,7 +8576,7 @@
  (action
   (with-stdout-to types-sparse-space_around.ml.js-stdout
    (with-stderr-to types-sparse-space_around.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl=sparse --space-around-arrays --space-around-lists --space-around-records --space-around-variants --max-iters=5 %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8667,7 +8612,7 @@
  (action
   (with-stdout-to types-sparse.ml.js-stdout
    (with-stderr-to types-sparse.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --type-decl=sparse --max-iters=5 %{dep:tests/types.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/types.ml})))))
 
 (rule
  (alias runtest)
@@ -8721,7 +8666,7 @@
  (action
   (with-stdout-to unary.ml.js-stdout
    (with-stderr-to unary.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/unary.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unary.ml})))))
 
 (rule
  (alias runtest)
@@ -8793,7 +8738,7 @@
  (action
   (with-stdout-to unboxed_types2.ml.js-stdout
    (with-stderr-to unboxed_types2.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --max-iters=5 %{dep:tests/unboxed_types2.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unboxed_types2.ml})))))
 
 (rule
  (alias runtest)
@@ -8829,7 +8774,7 @@
  (action
   (with-stdout-to unicode.ml.js-stdout
    (with-stderr-to unicode.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --margin=80 --wrap-comments %{dep:tests/unicode.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unicode.ml})))))
 
 (rule
  (alias runtest)
@@ -8901,7 +8846,7 @@
  (action
   (with-stdout-to verbatim_comments-wrap.ml.js-stdout
    (with-stderr-to verbatim_comments-wrap.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --wrap-comments %{dep:tests/verbatim_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/verbatim_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -8937,7 +8882,7 @@
  (action
   (with-stdout-to verbatim_comments.ml.js-stdout
    (with-stderr-to verbatim_comments.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check %{dep:tests/verbatim_comments.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/verbatim_comments.ml})))))
 
 (rule
  (alias runtest)
@@ -8977,7 +8922,7 @@
  (action
   (with-stdout-to verbose1.ml.js-stdout
    (with-stderr-to verbose1.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --print-config --doc-comments=before --config=doc-comments=before %{dep:tests/verbose1.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/verbose1.ml})))))
 
 (rule
  (alias runtest)
@@ -9008,24 +8953,6 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/w50.ml.err w50.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to w50.ml.js-stdout
-   (with-stderr-to w50.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files --margin-check --no-comment-check -q --max-iters=3 %{dep:tests/w50.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/w50.ml.js-ref w50.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/w50.ml.js-err w50.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )

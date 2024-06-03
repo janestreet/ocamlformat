@@ -4,30 +4,14 @@ type t =
    ]
   [@js.enum])
 
-let _ =
-  aa
-    (bbbbbbbbb
-       cccccccccccc
-       dddddddddddddddddddddddddddddddddddddddddddddddddddd)
-;;
+let _ = aa (bbbbbbbbb cccccccccccc dddddddddddddddddddddddddddddddddddddddddddddddddddd)
+let _ = aa (bbbbbbbbb cccccccccccc dddddddddddddddddddddddddddddddddddddd [@dddddddddd])
 
 let _ =
   aa
     (bbbbbbbbb
        cccccccccccc
-       dddddddddddddddddddddddddddddddddddddd [@dddddddddd])
+       ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd [@dddddddddd])
 ;;
 
-let _ =
-  aa
-    (bbbbbbbbb
-       cccccccccccc
-       ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-     [@dddddddddd])
-;;
-
-let _ =
-  aa
-    (bbbbbbbbb cccccccccccc dddddddddddddddddddddddddddddddddddddd)
-  [@dddddddddd]
-;;
+let _ = aa (bbbbbbbbb cccccccccccc dddddddddddddddddddddddddddddddddddddd) [@dddddddddd]

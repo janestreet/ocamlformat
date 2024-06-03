@@ -65,7 +65,7 @@ let _ =
   }
 ;;
 
-let a () = A { A.a = (a : t) }
+let a () = A { A.a : t }
 let x = { aaaaaaaaaa (* b *); b }
 let x = { aaaaaaaaaa (* b *); b }
 
@@ -76,4 +76,4 @@ type t =
 
 let _ = { a = (module M : S); b = (module M : S) }
 let to_string { x; _ (* we should print y *) } = string_of_int x
-let { x = (x : t) } = x
+let { x : t } = x

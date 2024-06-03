@@ -1,17 +1,36 @@
-type uu = A of int | B of (< leq : 'a > as 'a)
-type uu = A of int | B of (< leq : 'a > as 'a) * 'a
-type uu = A of (int as 'a) | B of 'a * (< leq : 'a > as 'a)
+type uu =
+  | A of int
+  | B of (< leq : 'a > as 'a)
+
+type uu =
+  | A of int
+  | B of (< leq : 'a > as 'a) * 'a
+
+type uu =
+  | A of (int as 'a)
+  | B of 'a * (< leq : 'a > as 'a)
+
 type uu += A of (int as 'a)
 type uu += B of 'a * (< leq : 'a > as 'a)
 
 let _ = ignore Async_unix.Fd.(([ stdin (); stdout (); stderr () ] : t list))
 
 type t = { x : int }
-type t = { a : int; b : int }
-type t = [ `A | `B ]
+
+type t =
+  { a : int
+  ; b : int
+  }
+
+type t =
+  [ `A
+  | `B
+  ]
 
 type loooooooooong_type =
-  { looooooooooooong_field : looooooooooooong_type; field2 : type2 }
+  { looooooooooooong_field : looooooooooooong_type
+  ; field2 : type2
+  }
 
 type t = A of (int * int) * int
 type t = A of int * int
@@ -33,18 +52,35 @@ type 'a foo += A : (int -> 'a) -> int foo
 type t = [ | a ]
 type t = private [< a ]
 type t = private [> a ]
-type t = [ a | b ]
-type t = [ a | b | `C ]
-type t = [ `a | b ]
+
+type t =
+  [ a
+  | b
+  ]
+
+type t =
+  [ a
+  | b
+  | `C
+  ]
+
+type t =
+  [ `a
+  | b
+  ]
+
 type t = |
 type t = [> ]
 
 type loooooooooooooong_type =
-  [ `Looooooooooooooooooong_type of int | `Looooooooooooooooooooong_variant of string ]
+  [ `Looooooooooooooooooong_type of int
+  | `Looooooooooooooooooooong_variant of string
+  ]
 
 type loooooooooooooong_type =
   [ `Looooooooooooooooooong_type of int (** Doc *)
-  | `Looooooooooooooooooooong_variant of string (* Comment *) ]
+  | `Looooooooooooooooooooong_variant of string (* Comment *)
+  ]
 
 let (`A | `B) [@bar] = ()
 
@@ -151,17 +187,33 @@ module type A = sig
   type a := A.a
   and b := A.b
 
-  type t := A.t = A | B
-  type t := A | B
+  type t := A.t =
+    | A
+    | B
 
-  type t := A.t = { a : int; b : int }
-  and t := { a : int; b : int }
+  type t :=
+    | A
+    | B
+
+  type t := A.t =
+    { a : int
+    ; b : int
+    }
+
+  and t :=
+    { a : int
+    ; b : int
+    }
 
   type t := A.t = ..
   type t := ..
 end
 
-type t = [ `A (** A *) | `B [@b] (** B *) | (p[@p]) (* P *) ]
+type t =
+  [ `A (** A *)
+  | `B [@b] (** B *)
+  | (p[@p]) (* P *)
+  ]
 
 type foooooooooooooooo =
   ?fooooooooo:(string -> unit)
@@ -184,5 +236,9 @@ type t =
 
 type t =
   | Foo
-  | Store of { exp1 : Exp.t; typ : Typ.t option; exp2 : Exp.t; loc : Location.t }
-  (** *exp1 <- exp2 with exp2:typ *)
+  | Store of
+      { exp1 : Exp.t
+      ; typ : Typ.t option
+      ; exp2 : Exp.t
+      ; loc : Location.t
+      } (** *exp1 <- exp2 with exp2:typ *)

@@ -7,21 +7,35 @@ let f x = function
 ;;
 
 let f =
-  let g = function H when x y <> k -> 2 | T | P | U -> 3 in
+  let g = function
+    | H when x y <> k -> 2
+    | T | P | U -> 3
+  in
   fun x g t h y u ->
     match x with
     | E -> 4
-    | Z | P | M -> (match y with O -> 5 | P when h x -> (function A -> 6))
+    | Z | P | M ->
+      (match y with
+       | O -> 5
+       | P when h x ->
+         (function
+           | A -> 6))
 ;;
 
 let foo =
   List.map ~f:(fun x g t h y u ->
     match x with
     | E -> 4
-    | Z | P | M -> (match y with O -> 5 | P when h x -> (function A -> 6)));
+    | Z | P | M ->
+      (match y with
+       | O -> 5
+       | P when h x ->
+         (function
+           | A -> 6)));
   List.map ~f:(fun x g t h y u ->
     fooooooooooooo foooooooo;
-    (match k with foooo -> foooooooo);
+    (match k with
+     | foooo -> foooooooo);
     fooooooooooooooo fooooooooooooo)
 ;;
 
@@ -35,8 +49,7 @@ match x with
 
 match x with
 | "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", yyyyyyyyyy when fffffffffffffff bbbbbbbbbb yyyyyyyyyy
-  ->
-  ()
+  -> ()
 | _ -> ()
 
 let is_sequence exp =
@@ -53,12 +66,17 @@ let _ =
     match x with
     | None -> false
     | Some looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong ->
-      (match y with Some _ -> true | None -> false)
+      (match y with
+       | Some _ -> true
+       | None -> false)
   in
   ()
 ;;
 
-let () = match fooooo with x -> x
+let () =
+  match fooooo with
+  | x -> x
+;;
 
 let () =
   match foooo with
@@ -92,7 +110,9 @@ let mod_int c1 c2 is_safe dbg =
 ;;
 
 let merge_columns l old_table =
-  let rec aux = function [] | [ None ] -> [], [] in
+  let rec aux = function
+    | [] | [ None ] -> [], []
+  in
   foooooooooooooooooooooooooo fooooooooooooooooooooo
 ;;
 
@@ -130,9 +150,11 @@ let rec loop items =
 
 let ffffff ~foo =
   match (foo : Fooooooooooooo.t) with
-  | Aaaaaaaaaaaaaaaaa | Bbbbbbbbbbbbbbbbb | Ccccccccccccccccc | Ddddddddddddddddd
-  | Eeeeeeeeeeeeeeeee ->
-    foooooooooooooooooooo
+  | Aaaaaaaaaaaaaaaaa
+  | Bbbbbbbbbbbbbbbbb
+  | Ccccccccccccccccc
+  | Ddddddddddddddddd
+  | Eeeeeeeeeeeeeeeee -> foooooooooooooooooooo
   | Fffffffffffffffff -> fooooooooooooooooo
 ;;
 
@@ -140,12 +162,29 @@ let () =
   match v with
   | None -> None
   | Some x ->
-    (match x with None -> None | Some x -> (match x with None -> None | Some x -> x))
+    (match x with
+     | None -> None
+     | Some x ->
+       (match x with
+        | None -> None
+        | Some x -> x))
 ;;
 
-let _ = function (exception A) | B -> 1 | C -> 2
-let _ = function A | (exception B) -> 1 | C -> 2
-let _ = match x with (exception A) | (exception B) -> 1 | C -> 2
+let _ = function
+  | (exception A) | B -> 1
+  | C -> 2
+;;
+
+let _ = function
+  | A | (exception B) -> 1
+  | C -> 2
+;;
+
+let _ =
+  match x with
+  | (exception A) | (exception B) -> 1
+  | C -> 2
+;;
 
 let _ =
   match x with
@@ -163,8 +202,7 @@ let handler =
       match x with
       | Call Thing
       (* isset($var::thing) but not isset($foo::$bar) *)
-      | Call OtherThing ->
-        Errors.isset_in_strict p
+      | Call OtherThing -> Errors.isset_in_strict p
       | _ -> ()
   end
 ;;
@@ -174,8 +212,7 @@ let _ =
   | Fooooooooooooooooo (* comment *)
   | Baaaaaaaaaaaaaaaar
   (* comment *)
-  | Baaaaaaaaaaaaaaaaz (* comment *) ->
-    ()
+  | Baaaaaaaaaaaaaaaaz (* comment *) -> ()
 ;;
 
 let _ =
@@ -183,8 +220,7 @@ let _ =
   | { y =
         (* _____________________________________________________________________ *)
         ( X _ | Y _ )
-    } ->
-    ()
+    } -> ()
 ;;
 
 let _ =
@@ -192,9 +228,9 @@ let _ =
   | { y =
         ( Z
         (* _____________________________________________________________________ *)
-        | X _ | Y _ )
-    } ->
-    ()
+        | X _
+        | Y _ )
+    } -> ()
 ;;
 
 let foooooooooooooo = function
@@ -207,7 +243,8 @@ let foooooooooooooo = function
      Foooooooooooooooooooooooooooooooooooooo foooooooooooooooooooo foooooooooooooooooo foooooooo.
      Foooooooooooo fooooooooooo fooooooooooooo foooooooooooooo foooooo.
   *)
-  | Foooooooooo | FooooFoooooFoooooo (* fooooooooooooooooooooooooooooooooooo *)
+  | Foooooooooo
+  | FooooFoooooFoooooo (* fooooooooooooooooooooooooooooooooooo *)
   | Foooo (* Fooo foooo fooooo foooooooo fooooooooo foooooooooooo fooooooooo fooo *) ->
     Foooooooooo.Foooooo
   | Foooo { foooo_fooo = { foooooooooo } } ->
