@@ -1,2 +1,2 @@
 --no-wrap-comments
---max-iters=5
+--max-iter=3
