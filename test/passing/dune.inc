@@ -1581,7 +1581,7 @@
  (action
   (with-stdout-to break_record.ml.stdout
    (with-stderr-to break_record.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --margin=58 %{dep:tests/break_record.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/break_record.ml})))))
 
 (rule
  (alias runtest)
@@ -2529,6 +2529,29 @@
  (alias runtest)
  (package ocamlformat)
  (action (system "if [ -f tests/comment_last.ml.why-no-js ]; then echo 'comment_last.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to comment_long_js_only.ml.stdout
+   (with-stderr-to comment_long_js_only.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/comment_long_js_only.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comment_long_js_only.ml comment_long_js_only.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/comment_long_js_only.ml.err comment_long_js_only.ml.stderr)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (system "if [ ! -f tests/comment_long_js_only.ml.why-no-js ]; then echo 'comment_long_js_only.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
 (rule
  (deps tests/.ocamlformat )
@@ -7309,7 +7332,7 @@
  (action
   (with-stdout-to js_sig.mli.stdout
    (with-stderr-to js_sig.mli.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/js_sig.mli})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/js_sig.mli})))))
 
 (rule
  (alias runtest)
@@ -7343,59 +7366,6 @@
  (alias runtest)
  (package ocamlformat)
  (action (system "if [ -f tests/js_sig.mli.why-no-js ]; then echo 'js_sig.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to js_source.ml.stdout
-   (with-stderr-to js_source.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iters=3 --profile=janestreet %{dep:tests/js_source.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/js_source.ml.ref js_source.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/js_source.ml.err js_source.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to js_source.ml.js-stdout
-   (with-stderr-to js_source.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/js_source.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/js_source.ml.js-ref js_source.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/js_source.ml.js-err js_source.ml.js-stderr)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (system "if [ -f tests/js_source.ml.why-no-js ]; then echo 'js_source.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
-
-(rule
- (deps tests/.ocp-indent )
- (package ocamlformat)
- (action
-   (with-outputs-to js_source.ml.ocp.output
-     (run %{bin:ocp-indent} --config JaneStreet %{dep:js_source.ml.stdout}))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/js_source.ml.ocp js_source.ml.ocp.output)))
 
 (rule
  (deps tests/.ocamlformat )
@@ -7614,12 +7584,12 @@
  (action
   (with-stdout-to labeled_tuple_patterns.ml.stdout
    (with-stderr-to labeled_tuple_patterns.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuple_patterns.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuple_patterns.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/labeled_tuple_patterns.ml labeled_tuple_patterns.ml.stdout)))
+ (action (diff tests/labeled_tuple_patterns.ml.ref labeled_tuple_patterns.ml.stdout)))
 
 (rule
  (alias runtest)
@@ -7655,12 +7625,12 @@
  (action
   (with-stdout-to labeled_tuples.ml.stdout
    (with-stderr-to labeled_tuples.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuples.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/labeled_tuples.ml labeled_tuples.ml.stdout)))
+ (action (diff tests/labeled_tuples.ml.ref labeled_tuples.ml.stdout)))
 
 (rule
  (alias runtest)
@@ -7696,12 +7666,12 @@
  (action
   (with-stdout-to labeled_tuples_cmts_attrs.ml.stdout
    (with-stderr-to labeled_tuples_cmts_attrs.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples_cmts_attrs.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuples_cmts_attrs.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/labeled_tuples_cmts_attrs.ml labeled_tuples_cmts_attrs.ml.stdout)))
+ (action (diff tests/labeled_tuples_cmts_attrs.ml.ref labeled_tuples_cmts_attrs.ml.stdout)))
 
 (rule
  (alias runtest)
@@ -7737,7 +7707,7 @@
  (action
   (with-stdout-to labeled_tuples_cmts_attrs_move.ml.stdout
    (with-stderr-to labeled_tuples_cmts_attrs_move.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples_cmts_attrs_move.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuples_cmts_attrs_move.ml})))))
 
 (rule
  (alias runtest)
@@ -7778,12 +7748,12 @@
  (action
   (with-stdout-to labeled_tuples_regressions.ml.stdout
    (with-stderr-to labeled_tuples_regressions.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples_regressions.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuples_regressions.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/labeled_tuples_regressions.ml labeled_tuples_regressions.ml.stdout)))
+ (action (diff tests/labeled_tuples_regressions.ml.ref labeled_tuples_regressions.ml.stdout)))
 
 (rule
  (alias runtest)
@@ -7819,12 +7789,12 @@
  (action
   (with-stdout-to labeled_tuples_regressions.mli.stdout
    (with-stderr-to labeled_tuples_regressions.mli.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet --max-iters=3 %{dep:tests/labeled_tuples_regressions.mli})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/labeled_tuples_regressions.mli})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/labeled_tuples_regressions.mli labeled_tuples_regressions.mli.stdout)))
+ (action (diff tests/labeled_tuples_regressions.mli.ref labeled_tuples_regressions.mli.stdout)))
 
 (rule
  (alias runtest)
@@ -8024,7 +7994,7 @@
  (action
   (with-stdout-to layout_annotation_immediate_rewrite.ml.stdout
    (with-stderr-to layout_annotation_immediate_rewrite.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iter=4 --profile=janestreet %{dep:tests/layout_annotation_immediate_rewrite.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iter 4 %{dep:tests/layout_annotation_immediate_rewrite.ml})))))
 
 (rule
  (alias runtest)
@@ -10662,7 +10632,7 @@
  (action
   (with-stdout-to profiles.ml.stdout
    (with-stderr-to profiles.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --config=margin=20 --profile=janestreet --module-item-spacing=sparse %{dep:tests/profiles.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/profiles.ml})))))
 
 (rule
  (alias runtest)
@@ -10703,7 +10673,7 @@
  (action
   (with-stdout-to profiles2.ml.stdout
    (with-stderr-to profiles2.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --profile=janestreet %{dep:tests/profiles2.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/profiles2.ml})))))
 
 (rule
  (alias runtest)
@@ -11675,7 +11645,7 @@
  (action
   (with-stdout-to source.ml.stdout
    (with-stderr-to source.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/source.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/source.ml})))))
 
 (rule
  (alias runtest)

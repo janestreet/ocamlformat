@@ -1,1 +1,6 @@
-let xxxxxxxxxxxxxxxxxxxxxx x = { xxxxxxxxxxxxxx; xxxxxxxxxxxxxxxxxx = x; xxxxxxxxxxxxx }
+let xxxxxxxxxxxxxxxxxxxxxx x =
+  { xxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ; xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx = x
+  ; xxxxxxxxxxxxxxxxxxxxxxxxxx
+  }
+;;
