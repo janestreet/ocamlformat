@@ -83,7 +83,7 @@ let register_file tests fname =
       | ["deps"] -> setup.extra_deps <- read_lines fname
       | ["should-fail"] -> setup.should_fail <- true
       | ["enabled-if"] -> setup.enabled_if <- Some (read_file fname)
-      | ["err" | "js-err"] -> ()
+      | [("err" | "js-err")] -> ()
       | ["why-no-js"] -> ()
       | _ -> invalid_arg fname )
   | _ -> ()
@@ -97,16 +97,8 @@ let cmd should_fail args =
        (run %s))|} cmd_string
   else spf {|(run %s)|} cmd_string
 
-let one_styling_test
-  ~extra_deps
-  ~enabled_if_line
-  ~test_name
-  ~base_test_name
-  ~should_fail
-  ~opts
-  ~output_name
-  ~extra_suffix
-  =
+let one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
+    ~should_fail ~opts ~output_name ~extra_suffix =
   Printf.sprintf
     {|
 (rule
@@ -127,33 +119,20 @@ let one_styling_test
  (package ocamlformat)
  (action (diff tests/%s.%serr %s.%sstderr)))
 |}
-    extra_deps
-    enabled_if_line
-    test_name
-    extra_suffix
-    test_name
-    extra_suffix
-    (cmd should_fail ([ "%{bin:ocamlformat}" ] @ opts @ [ dep base_test_name ]))
-    enabled_if_line
-    output_name
-    test_name
-    extra_suffix
-    enabled_if_line
-    test_name
-    extra_suffix
-    test_name
-    extra_suffix
-;;
+    extra_deps enabled_if_line test_name extra_suffix test_name extra_suffix
+    (cmd should_fail (["%{bin:ocamlformat}"] @ opts @ [dep base_test_name]))
+    enabled_if_line output_name test_name extra_suffix enabled_if_line
+    test_name extra_suffix test_name extra_suffix
 
 let one_js_coverage_test ~test_name ~should_test =
   let test_sigil, err_msg =
-    if should_test
-    then
-      "", Printf.sprintf "%s has both a [.js-ref] and a [.why-no-js]!" test_name
+    if should_test then
+      ( ""
+      , Printf.sprintf "%s has both a [.js-ref] and a [.why-no-js]!"
+          test_name )
     else
       ( " !"
-      , Printf.sprintf
-          "%s has neither a [.js-ref], nor a [.why-no-js]!"
+      , Printf.sprintf "%s has neither a [.js-ref], nor a [.why-no-js]!"
           test_name )
   in
   Printf.sprintf
@@ -163,10 +142,7 @@ let one_js_coverage_test ~test_name ~should_test =
  (package ocamlformat)
  (action (system "if [%s -f tests/%s.why-no-js ]; then echo '%s'; exit 1; fi")))
 |}
-    test_sigil
-    test_name
-    err_msg
-;;
+    test_sigil test_name err_msg
 
 let emit_test test_name setup =
   let opts =
@@ -189,33 +165,21 @@ let emit_test test_name setup =
     | Some clause -> spf "\n (enabled_if %s)" clause
   in
   let output_fname = test_name ^ ".stdout" in
-  one_styling_test
-    ~extra_deps
-    ~enabled_if_line
-    ~test_name
-    ~base_test_name
-    ~should_fail:setup.should_fail
-    ~opts
-    ~output_name:ref_name
+  one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
+    ~should_fail:setup.should_fail ~opts ~output_name:ref_name
     ~extra_suffix:""
-  |> print_string;
-  if setup.has_js_ref
-  then
-    one_styling_test
-      ~extra_deps
-      ~enabled_if_line
-      ~test_name
-      ~base_test_name
+  |> print_string ;
+  if setup.has_js_ref then
+    one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
       ~should_fail:setup.should_fail
       ~opts:
         [ "--profile=janestreet"
         ; "--enable-outside-detected-project"
-        ; "--disable-conf-files"
-        ]
-      ~output_name:js_ref_name
-      ~extra_suffix:"js-"
-    |> print_string;
-  one_js_coverage_test ~test_name ~should_test:setup.has_js_ref |> print_string;
+        ; "--disable-conf-files" ]
+      ~output_name:js_ref_name ~extra_suffix:"js-"
+    |> print_string ;
+  one_js_coverage_test ~test_name ~should_test:setup.has_js_ref
+  |> print_string ;
   if setup.has_ocp then
     let ocp_cmd =
       "%{bin:ocp-indent}" :: (setup.ocp_opts @ [dep output_fname])
@@ -242,4 +206,4 @@ let emit_test test_name setup =
 let () =
   let map = ref StringMap.empty in
   Sys.readdir "./tests" |> Array.iter (register_file map) ;
-  StringMap.iter emit_test !map;
+  StringMap.iter emit_test !map
