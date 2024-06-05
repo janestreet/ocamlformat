@@ -125,20 +125,16 @@ let one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
     test_name extra_suffix test_name extra_suffix
 
 let one_js_coverage_test ~test_name ~should_test =
-  let test_sigil, err_msg =
-    if should_test then
-      ( ""
-      , Printf.sprintf "%s has both a [.js-ref] and a [.why-no-js]!"
-          test_name )
-    else
-      ( " !"
-      , Printf.sprintf "%s has neither a [.js-ref], nor a [.why-no-js]!"
-          test_name )
+  let test_sigil, (err_msg : _ format) =
+    if should_test then ("", "%s has both a [.js-ref] and a [.why-no-js]!")
+    else (" !", "%s has neither a [.js-ref], nor a [.why-no-js]!")
   in
+  let err_msg = Printf.sprintf err_msg test_name in
   Printf.sprintf
     {|
 (rule
  (alias runtest)
+ (enabled_if (<> %%{os_type} Win32))
  (package ocamlformat)
  (action (system "if [%s -f tests/%s.why-no-js ]; then echo '%s'; exit 1; fi")))
 |}

@@ -37,6 +37,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/align_infix.ml.why-no-js ]; then echo 'align_infix.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -78,6 +79,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/alignment.ml.why-no-js ]; then echo 'alignment.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -119,6 +121,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/apply.ml.why-no-js ]; then echo 'apply.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -160,6 +163,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/apply_functor.ml.why-no-js ]; then echo 'apply_functor.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -183,6 +187,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/args_grouped-conventional.ml.why-no-js ]; then echo 'args_grouped-conventional.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -224,6 +229,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/args_grouped.ml.why-no-js ]; then echo 'args_grouped.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -265,6 +271,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/array.ml.why-no-js ]; then echo 'array.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -306,6 +313,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/assignment_operator-op_begin_line.ml.why-no-js ]; then echo 'assignment_operator-op_begin_line.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -347,6 +355,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/assignment_operator.ml.why-no-js ]; then echo 'assignment_operator.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -388,6 +397,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/attr_parens.ml.why-no-js ]; then echo 'attr_parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -429,6 +439,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/attribute_and_expression.ml.why-no-js ]; then echo 'attribute_and_expression.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -452,6 +463,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/attributes.ml.why-no-js ]; then echo 'attributes.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -493,6 +505,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/attributes.mli.why-no-js ]; then echo 'attributes.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -534,6 +547,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/binders.ml.why-no-js ]; then echo 'binders.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -575,6 +589,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_before_in-auto.ml.why-no-js ]; then echo 'break_before_in-auto.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -616,6 +631,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_before_in.ml.why-no-js ]; then echo 'break_before_in.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -663,6 +679,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-align.ml.why-no-js ]; then echo 'break_cases-align.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -710,6 +727,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-all.ml.why-no-js ]; then echo 'break_cases-all.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -757,6 +775,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-closing_on_separate_line.ml.why-no-js ]; then echo 'break_cases-closing_on_separate_line.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -804,6 +823,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-closing_on_separate_line_leading_nested_match_parens.ml.why-no-js ]; then echo 'break_cases-closing_on_separate_line_leading_nested_match_parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -851,6 +871,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-cosl_lnmp_cmei.ml.why-no-js ]; then echo 'break_cases-cosl_lnmp_cmei.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -898,6 +919,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-fit_or_vertical.ml.why-no-js ]; then echo 'break_cases-fit_or_vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -945,6 +967,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-nested.ml.why-no-js ]; then echo 'break_cases-nested.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -992,6 +1015,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-normal_indent.ml.why-no-js ]; then echo 'break_cases-normal_indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1033,6 +1057,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-toplevel.ml.why-no-js ]; then echo 'break_cases-toplevel.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1080,6 +1105,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases-vertical.ml.why-no-js ]; then echo 'break_cases-vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1121,6 +1147,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_cases.ml.why-no-js ]; then echo 'break_cases.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1162,6 +1189,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_collection_expressions-wrap.ml.why-no-js ]; then echo 'break_collection_expressions-wrap.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1203,6 +1231,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_collection_expressions.ml.why-no-js ]; then echo 'break_collection_expressions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1244,6 +1273,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_colon-before.ml.why-no-js ]; then echo 'break_colon-before.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1285,6 +1315,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_colon.ml.why-no-js ]; then echo 'break_colon.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1326,6 +1357,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_fun_decl-fit_or_vertical.ml.why-no-js ]; then echo 'break_fun_decl-fit_or_vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1367,6 +1399,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_fun_decl-smart.ml.why-no-js ]; then echo 'break_fun_decl-smart.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1408,6 +1441,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_fun_decl-wrap.ml.why-no-js ]; then echo 'break_fun_decl-wrap.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1449,6 +1483,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_fun_decl.ml.why-no-js ]; then echo 'break_fun_decl.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1490,6 +1525,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_infix-fit-or-vertical.ml.why-no-js ]; then echo 'break_infix-fit-or-vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1531,6 +1567,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_infix-wrap.ml.why-no-js ]; then echo 'break_infix-wrap.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1572,6 +1609,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_infix.ml.why-no-js ]; then echo 'break_infix.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1613,6 +1651,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_record.ml.why-no-js ]; then echo 'break_record.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1654,6 +1693,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_separators-after.ml.why-no-js ]; then echo 'break_separators-after.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1695,6 +1735,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_separators-after_docked.ml.why-no-js ]; then echo 'break_separators-after_docked.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1736,6 +1777,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_separators-before_docked.ml.why-no-js ]; then echo 'break_separators-before_docked.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1777,6 +1819,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_separators.ml.why-no-js ]; then echo 'break_separators.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1818,6 +1861,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_sequence_before.ml.why-no-js ]; then echo 'break_sequence_before.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1859,6 +1903,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_string_literals-never.ml.why-no-js ]; then echo 'break_string_literals-never.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1900,6 +1945,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_string_literals.ml.why-no-js ]; then echo 'break_string_literals.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1941,6 +1987,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/break_struct.ml.why-no-js ]; then echo 'break_struct.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -1982,6 +2029,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/cases_exp_grouping.ml.why-no-js ]; then echo 'cases_exp_grouping.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2029,6 +2077,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/cinaps.ml.why-no-js ]; then echo 'cinaps.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2070,6 +2119,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/class_expr.ml.why-no-js ]; then echo 'class_expr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2111,6 +2161,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/class_sig-after.mli.why-no-js ]; then echo 'class_sig-after.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2152,6 +2203,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/class_sig.mli.why-no-js ]; then echo 'class_sig.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2193,6 +2245,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/class_type.ml.why-no-js ]; then echo 'class_type.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2234,6 +2287,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/cmdline_override.ml.why-no-js ]; then echo 'cmdline_override.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2275,6 +2329,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/cmdline_override2.ml.why-no-js ]; then echo 'cmdline_override2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2316,6 +2371,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/coerce.ml.why-no-js ]; then echo 'coerce.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2357,6 +2413,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_breaking.ml.why-no-js ]; then echo 'comment_breaking.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2404,6 +2461,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_header.ml.why-no-js ]; then echo 'comment_header.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2445,6 +2503,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_in_empty.ml.why-no-js ]; then echo 'comment_in_empty.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2486,6 +2545,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_in_modules.ml.why-no-js ]; then echo 'comment_in_modules.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2527,6 +2587,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_last.ml.why-no-js ]; then echo 'comment_last.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2550,6 +2611,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/comment_long_js_only.ml.why-no-js ]; then echo 'comment_long_js_only.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -2591,6 +2653,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comment_sparse.ml.why-no-js ]; then echo 'comment_sparse.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2632,6 +2695,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments-no-wrap.ml.why-no-js ]; then echo 'comments-no-wrap.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2673,6 +2737,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments.ml.why-no-js ]; then echo 'comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2714,6 +2779,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments.mli.why-no-js ]; then echo 'comments.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2755,6 +2821,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments_args.ml.why-no-js ]; then echo 'comments_args.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2796,6 +2863,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments_around_disabled.ml.why-no-js ]; then echo 'comments_around_disabled.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2837,6 +2905,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comments_in_record.ml.why-no-js ]; then echo 'comments_in_record.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2878,6 +2947,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/comprehensions.ml.why-no-js ]; then echo 'comprehensions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2919,6 +2989,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/crlf_to_crlf.ml.why-no-js ]; then echo 'crlf_to_crlf.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -2960,6 +3031,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/crlf_to_lf.ml.why-no-js ]; then echo 'crlf_to_lf.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3001,6 +3073,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/custom_list.ml.why-no-js ]; then echo 'custom_list.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3042,6 +3115,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/directives.mlt.why-no-js ]; then echo 'directives.mlt has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3083,6 +3157,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/disable_attr.ml.why-no-js ]; then echo 'disable_attr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3124,6 +3199,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/disable_conf_attrs.ml.why-no-js ]; then echo 'disable_conf_attrs.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3147,6 +3223,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/disabled.ml.why-no-js ]; then echo 'disabled.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -3188,6 +3265,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/disabled_attr.ml.why-no-js ]; then echo 'disabled_attr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3229,6 +3307,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/disambiguate.ml.why-no-js ]; then echo 'disambiguate.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3270,6 +3349,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/disambiguated_types.ml.why-no-js ]; then echo 'disambiguated_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3311,6 +3391,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc.mld.why-no-js ]; then echo 'doc.mld has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3352,6 +3433,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments-after.ml.why-no-js ]; then echo 'doc_comments-after.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3393,6 +3475,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments-before-except-val.ml.why-no-js ]; then echo 'doc_comments-before-except-val.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3434,6 +3517,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments-before.ml.why-no-js ]; then echo 'doc_comments-before.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3475,6 +3559,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments-no-parse-docstrings.mli.why-no-js ]; then echo 'doc_comments-no-parse-docstrings.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3522,6 +3607,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments-no-wrap.mli.why-no-js ]; then echo 'doc_comments-no-wrap.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3563,6 +3649,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments.ml.why-no-js ]; then echo 'doc_comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3610,6 +3697,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments.mli.why-no-js ]; then echo 'doc_comments.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3651,6 +3739,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_comments_padding.ml.why-no-js ]; then echo 'doc_comments_padding.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3692,6 +3781,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/doc_repl.mld.why-no-js ]; then echo 'doc_repl.mld has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3733,6 +3823,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/docstrings_toplevel_directives.mlt.why-no-js ]; then echo 'docstrings_toplevel_directives.mlt has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3756,6 +3847,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/eliom_ext.eliom.why-no-js ]; then echo 'eliom_ext.eliom has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -3797,6 +3889,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/empty.ml.why-no-js ]; then echo 'empty.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3838,6 +3931,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/empty_ml.ml.why-no-js ]; then echo 'empty_ml.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3879,6 +3973,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/empty_mli.mli.why-no-js ]; then echo 'empty_mli.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3920,6 +4015,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/empty_mlt.mlt.why-no-js ]; then echo 'empty_mlt.mlt has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -3963,6 +4059,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/error1.ml.why-no-js ]; then echo 'error1.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4006,6 +4103,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/error2.ml.why-no-js ]; then echo 'error2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4049,6 +4147,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/error3.ml.why-no-js ]; then echo 'error3.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4072,6 +4171,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/error4.ml.why-no-js ]; then echo 'error4.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -4119,6 +4219,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/escaped_nl.ml.why-no-js ]; then echo 'escaped_nl.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4160,6 +4261,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/exceptions.ml.why-no-js ]; then echo 'exceptions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4201,6 +4303,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/exceptions.mli.why-no-js ]; then echo 'exceptions.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4242,6 +4345,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/exp_grouping-parens.ml.why-no-js ]; then echo 'exp_grouping-parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4283,6 +4387,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/exp_grouping.ml.why-no-js ]; then echo 'exp_grouping.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4324,6 +4429,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/exp_record.ml.why-no-js ]; then echo 'exp_record.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4365,6 +4471,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/expect_test.ml.why-no-js ]; then echo 'expect_test.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4406,6 +4513,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/extensions-indent.ml.why-no-js ]; then echo 'extensions-indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4447,6 +4555,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/extensions-indent.mli.why-no-js ]; then echo 'extensions-indent.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4488,6 +4597,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/extensions.ml.why-no-js ]; then echo 'extensions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4529,6 +4639,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/extensions.mli.why-no-js ]; then echo 'extensions.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4570,6 +4681,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/extensions_exp_grouping.ml.why-no-js ]; then echo 'extensions_exp_grouping.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4611,6 +4723,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/field-op_begin_line.ml.why-no-js ]; then echo 'field-op_begin_line.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4652,6 +4765,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/field.ml.why-no-js ]; then echo 'field.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4693,6 +4807,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/first_class_module.ml.why-no-js ]; then echo 'first_class_module.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4734,6 +4849,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/floating_doc.ml.why-no-js ]; then echo 'floating_doc.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4775,6 +4891,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/for_while.ml.why-no-js ]; then echo 'for_while.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4816,6 +4933,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/fun_decl.ml.why-no-js ]; then echo 'fun_decl.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4857,6 +4975,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/fun_function.ml.why-no-js ]; then echo 'fun_function.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4898,6 +5017,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/function_indent-never.ml.why-no-js ]; then echo 'function_indent-never.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4939,6 +5059,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/function_indent.ml.why-no-js ]; then echo 'function_indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -4980,6 +5101,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/functor.ml.why-no-js ]; then echo 'functor.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5021,6 +5143,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/funsig.ml.why-no-js ]; then echo 'funsig.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5062,6 +5185,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/gadt.ml.why-no-js ]; then echo 'gadt.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5103,6 +5227,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/generative.ml.why-no-js ]; then echo 'generative.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5144,6 +5269,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/hash_bang.ml.why-no-js ]; then echo 'hash_bang.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5185,6 +5311,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/hash_types.ml.why-no-js ]; then echo 'hash_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5226,6 +5353,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/holes.ml.why-no-js ]; then echo 'holes.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5267,6 +5395,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ifand.ml.why-no-js ]; then echo 'ifand.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5308,6 +5437,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/immutable_arrays.ml.why-no-js ]; then echo 'immutable_arrays.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5349,6 +5479,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/implicit_source_position-erased.ml.why-no-js ]; then echo 'implicit_source_position-erased.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5390,6 +5521,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/implicit_source_position.ml.why-no-js ]; then echo 'implicit_source_position.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5431,6 +5563,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/include_functor.ml.why-no-js ]; then echo 'include_functor.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5472,6 +5605,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/index_op.ml.why-no-js ]; then echo 'index_op.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5513,6 +5647,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/indicate_multiline_delimiters-cosl.ml.why-no-js ]; then echo 'indicate_multiline_delimiters-cosl.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5554,6 +5689,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/indicate_multiline_delimiters-space.ml.why-no-js ]; then echo 'indicate_multiline_delimiters-space.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5595,6 +5731,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/indicate_multiline_delimiters.ml.why-no-js ]; then echo 'indicate_multiline_delimiters.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5636,6 +5773,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_arg_grouping.ml.why-no-js ]; then echo 'infix_arg_grouping.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5677,6 +5815,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_bind-break.ml.why-no-js ]; then echo 'infix_bind-break.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5718,6 +5857,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_bind-fit_or_vertical-break.ml.why-no-js ]; then echo 'infix_bind-fit_or_vertical-break.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5759,6 +5899,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_bind-fit_or_vertical.ml.why-no-js ]; then echo 'infix_bind-fit_or_vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5800,6 +5941,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_bind.ml.why-no-js ]; then echo 'infix_bind.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5841,6 +5983,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/infix_precedence.ml.why-no-js ]; then echo 'infix_precedence.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5882,6 +6025,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/injectivity.ml.why-no-js ]; then echo 'injectivity.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5923,6 +6067,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/into_infix.ml.why-no-js ]; then echo 'into_infix.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -5964,6 +6109,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/invalid.ml.why-no-js ]; then echo 'invalid.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6005,6 +6151,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/invalid_docstring.ml.why-no-js ]; then echo 'invalid_docstring.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6052,6 +6199,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/invalid_docstrings.mli.why-no-js ]; then echo 'invalid_docstrings.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6093,6 +6241,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue114.ml.why-no-js ]; then echo 'issue114.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6134,6 +6283,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue1750.ml.why-no-js ]; then echo 'issue1750.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6175,6 +6325,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue289.ml.why-no-js ]; then echo 'issue289.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6216,6 +6367,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue48.ml.why-no-js ]; then echo 'issue48.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6257,6 +6409,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue51.ml.why-no-js ]; then echo 'issue51.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6298,6 +6451,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue57.ml.why-no-js ]; then echo 'issue57.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6339,6 +6493,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue60.ml.why-no-js ]; then echo 'issue60.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6380,6 +6535,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue77.ml.why-no-js ]; then echo 'issue77.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6421,6 +6577,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue85.ml.why-no-js ]; then echo 'issue85.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6462,6 +6619,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/issue89.ml.why-no-js ]; then echo 'issue89.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6503,6 +6661,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-compact.ml.why-no-js ]; then echo 'ite-compact.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6544,6 +6703,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-compact_closing.ml.why-no-js ]; then echo 'ite-compact_closing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6585,6 +6745,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-fit_or_vertical.ml.why-no-js ]; then echo 'ite-fit_or_vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6626,6 +6787,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-fit_or_vertical_closing.ml.why-no-js ]; then echo 'ite-fit_or_vertical_closing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6667,6 +6829,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-fit_or_vertical_no_indicate.ml.why-no-js ]; then echo 'ite-fit_or_vertical_no_indicate.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6708,6 +6871,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-kr.ml.why-no-js ]; then echo 'ite-kr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6749,6 +6913,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-kr_closing.ml.why-no-js ]; then echo 'ite-kr_closing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6790,6 +6955,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-kw_first.ml.why-no-js ]; then echo 'ite-kw_first.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6831,6 +6997,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-kw_first_closing.ml.why-no-js ]; then echo 'ite-kw_first_closing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6872,6 +7039,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-kw_first_no_indicate.ml.why-no-js ]; then echo 'ite-kw_first_no_indicate.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6913,6 +7081,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-no_indicate.ml.why-no-js ]; then echo 'ite-no_indicate.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6954,6 +7123,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite-vertical.ml.why-no-js ]; then echo 'ite-vertical.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -6995,6 +7165,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ite.ml.why-no-js ]; then echo 'ite.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7036,6 +7207,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_args.ml.why-no-js ]; then echo 'js_args.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7077,6 +7249,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_begin.ml.why-no-js ]; then echo 'js_begin.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7118,6 +7291,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_bind.ml.why-no-js ]; then echo 'js_bind.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7159,6 +7333,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_fun.ml.why-no-js ]; then echo 'js_fun.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7200,6 +7375,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_map.ml.why-no-js ]; then echo 'js_map.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7241,6 +7417,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_pattern.ml.why-no-js ]; then echo 'js_pattern.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7282,6 +7459,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_poly.ml.why-no-js ]; then echo 'js_poly.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7323,6 +7501,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_record.ml.why-no-js ]; then echo 'js_record.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7364,6 +7543,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_sig.mli.why-no-js ]; then echo 'js_sig.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7405,6 +7585,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_syntax.ml.why-no-js ]; then echo 'js_syntax.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7452,6 +7633,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_to_do.ml.why-no-js ]; then echo 'js_to_do.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7493,6 +7675,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/js_upon.ml.why-no-js ]; then echo 'js_upon.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7534,6 +7717,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/kw_extentions.ml.why-no-js ]; then echo 'kw_extentions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7575,6 +7759,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/label_option_default_args.ml.why-no-js ]; then echo 'label_option_default_args.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7616,6 +7801,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuple_patterns.ml.why-no-js ]; then echo 'labeled_tuple_patterns.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7657,6 +7843,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuples.ml.why-no-js ]; then echo 'labeled_tuples.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7698,6 +7885,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuples_cmts_attrs.ml.why-no-js ]; then echo 'labeled_tuples_cmts_attrs.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7739,6 +7927,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuples_cmts_attrs_move.ml.why-no-js ]; then echo 'labeled_tuples_cmts_attrs_move.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7780,6 +7969,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuples_regressions.ml.why-no-js ]; then echo 'labeled_tuples_regressions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7821,6 +8011,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labeled_tuples_regressions.mli.why-no-js ]; then echo 'labeled_tuples_regressions.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7862,6 +8053,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labelled_args-414.ml.why-no-js ]; then echo 'labelled_args-414.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7903,6 +8095,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/labelled_args.ml.why-no-js ]; then echo 'labelled_args.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7944,6 +8137,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/layout_annotation-erased.ml.why-no-js ]; then echo 'layout_annotation-erased.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -7985,6 +8179,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/layout_annotation.ml.why-no-js ]; then echo 'layout_annotation.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8026,6 +8221,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/layout_annotation_immediate_rewrite.ml.why-no-js ]; then echo 'layout_annotation_immediate_rewrite.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8067,6 +8263,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/lazy.ml.why-no-js ]; then echo 'lazy.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8108,6 +8305,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding-in_indent.ml.why-no-js ]; then echo 'let_binding-in_indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8149,6 +8347,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding-indent.ml.why-no-js ]; then echo 'let_binding-indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8190,6 +8389,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding.ml.why-no-js ]; then echo 'let_binding.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8231,6 +8431,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding_spacing-double-semicolon.ml.why-no-js ]; then echo 'let_binding_spacing-double-semicolon.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8272,6 +8473,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding_spacing-sparse.ml.why-no-js ]; then echo 'let_binding_spacing-sparse.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8313,6 +8515,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_binding_spacing.ml.why-no-js ]; then echo 'let_binding_spacing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8354,6 +8557,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_in_constr.ml.why-no-js ]; then echo 'let_in_constr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8395,6 +8599,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_module-sparse.ml.why-no-js ]; then echo 'let_module-sparse.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8436,6 +8641,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_module.ml.why-no-js ]; then echo 'let_module.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8477,6 +8683,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/let_punning.ml.why-no-js ]; then echo 'let_punning.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8520,6 +8727,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/line_directives.ml.why-no-js ]; then echo 'line_directives.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8561,6 +8769,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/list-space_around.ml.why-no-js ]; then echo 'list-space_around.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8602,6 +8811,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/list.ml.why-no-js ]; then echo 'list.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8643,6 +8853,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/list_and_comments.ml.why-no-js ]; then echo 'list_and_comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8684,6 +8895,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/list_normalized.ml.why-no-js ]; then echo 'list_normalized.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8725,6 +8937,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/loc_stack.ml.why-no-js ]; then echo 'loc_stack.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8766,6 +8979,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/local.ml.why-no-js ]; then echo 'local.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8807,6 +9021,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/local_erased.ml.why-no-js ]; then echo 'local_erased.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8848,6 +9063,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/locally_abtract_types.ml.why-no-js ]; then echo 'locally_abtract_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8889,6 +9105,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/margin_80.ml.why-no-js ]; then echo 'margin_80.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8930,6 +9147,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/match.ml.why-no-js ]; then echo 'match.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -8971,6 +9189,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/match2.ml.why-no-js ]; then echo 'match2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9012,6 +9231,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/match_indent-never.ml.why-no-js ]; then echo 'match_indent-never.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9053,6 +9273,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/match_indent.ml.why-no-js ]; then echo 'match_indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9094,6 +9315,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/max_indent.ml.why-no-js ]; then echo 'max_indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9135,6 +9357,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/mod_type_subst.ml.why-no-js ]; then echo 'mod_type_subst.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9176,6 +9399,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module.ml.why-no-js ]; then echo 'module.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9217,6 +9441,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_anonymous.ml.why-no-js ]; then echo 'module_anonymous.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9258,6 +9483,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_attributes.ml.why-no-js ]; then echo 'module_attributes.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9299,6 +9525,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_item_spacing-preserve.ml.why-no-js ]; then echo 'module_item_spacing-preserve.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9340,6 +9567,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_item_spacing-sparse.ml.why-no-js ]; then echo 'module_item_spacing-sparse.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9381,6 +9609,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_item_spacing.ml.why-no-js ]; then echo 'module_item_spacing.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9422,6 +9651,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_item_spacing.mli.why-no-js ]; then echo 'module_item_spacing.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9463,6 +9693,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_type.ml.why-no-js ]; then echo 'module_type.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9504,6 +9735,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_type.mli.why-no-js ]; then echo 'module_type.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9545,6 +9777,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/module_type_strengthening.ml.why-no-js ]; then echo 'module_type_strengthening.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9586,6 +9819,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/monadic_binding.ml.why-no-js ]; then echo 'monadic_binding.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9627,6 +9861,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/multi_index_op.ml.why-no-js ]; then echo 'multi_index_op.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9668,6 +9903,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/named_existentials.ml.why-no-js ]; then echo 'named_existentials.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9692,6 +9928,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/need_format.ml.why-no-js ]; then echo 'need_format.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -9733,6 +9970,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/new.ml.why-no-js ]; then echo 'new.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9774,6 +10012,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/object.ml.why-no-js ]; then echo 'object.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9815,6 +10054,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/object2.ml.why-no-js ]; then echo 'object2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9856,6 +10096,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/object_expr-414.ml.why-no-js ]; then echo 'object_expr-414.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9897,6 +10138,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/object_expr.ml.why-no-js ]; then echo 'object_expr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9938,6 +10180,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/object_type.ml.why-no-js ]; then echo 'object_type.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -9979,6 +10222,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/obuild.ml.why-no-js ]; then echo 'obuild.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10020,6 +10264,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ocp_indent_compat-break_colon_after.ml.why-no-js ]; then echo 'ocp_indent_compat-break_colon_after.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10061,6 +10306,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ocp_indent_compat.ml.why-no-js ]; then echo 'ocp_indent_compat.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10102,6 +10348,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/ocp_indent_options.ml.why-no-js ]; then echo 'ocp_indent_options.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10143,6 +10390,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/open-closing-on-separate-line.ml.why-no-js ]; then echo 'open-closing-on-separate-line.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10184,6 +10432,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/open.ml.why-no-js ]; then echo 'open.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10225,6 +10474,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/open_types.ml.why-no-js ]; then echo 'open_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10266,6 +10516,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/option.ml.why-no-js ]; then echo 'option.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10307,6 +10558,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/override.ml.why-no-js ]; then echo 'override.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10348,6 +10600,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/parens_tuple_patterns.ml.why-no-js ]; then echo 'parens_tuple_patterns.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10389,6 +10642,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/polyparams.ml.why-no-js ]; then echo 'polyparams.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10412,6 +10666,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/polytypes-default.ml.why-no-js ]; then echo 'polytypes-default.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -10453,6 +10708,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/polytypes.ml.why-no-js ]; then echo 'polytypes.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10494,6 +10750,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/pre_post_extensions.ml.why-no-js ]; then echo 'pre_post_extensions.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10535,6 +10792,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/precedence.ml.why-no-js ]; then echo 'precedence.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10576,6 +10834,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/prefix_infix.ml.why-no-js ]; then echo 'prefix_infix.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10623,6 +10882,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/print_config.ml.why-no-js ]; then echo 'print_config.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10664,6 +10924,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/profiles.ml.why-no-js ]; then echo 'profiles.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10705,6 +10966,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/profiles2.ml.why-no-js ]; then echo 'profiles2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10746,6 +11008,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/protected_object_types.ml.why-no-js ]; then echo 'protected_object_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10787,6 +11050,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/qtest.ml.why-no-js ]; then echo 'qtest.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10828,6 +11092,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/quoted_strings.ml.why-no-js ]; then echo 'quoted_strings.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10869,6 +11134,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/recmod.mli.why-no-js ]; then echo 'recmod.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10910,6 +11176,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/record-402.ml.why-no-js ]; then echo 'record-402.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10951,6 +11218,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/record-loose.ml.why-no-js ]; then echo 'record-loose.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -10992,6 +11260,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/record-tight_decl.ml.why-no-js ]; then echo 'record-tight_decl.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11033,6 +11302,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/record.ml.why-no-js ]; then echo 'record.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11074,6 +11344,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/record_punning.ml.why-no-js ]; then echo 'record_punning.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11121,6 +11392,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/reformat_string.ml.why-no-js ]; then echo 'reformat_string.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11162,6 +11434,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/refs.ml.why-no-js ]; then echo 'refs.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11203,6 +11476,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/remove_extra_parens.ml.why-no-js ]; then echo 'remove_extra_parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11226,6 +11500,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/repl.ml.why-no-js ]; then echo 'repl.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -11267,6 +11542,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/repl.mli.why-no-js ]; then echo 'repl.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11308,6 +11584,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/revapply_ext.ml.why-no-js ]; then echo 'revapply_ext.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11349,6 +11626,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/send.ml.why-no-js ]; then echo 'send.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11390,6 +11668,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/sequence-preserve.ml.why-no-js ]; then echo 'sequence-preserve.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11431,6 +11710,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/sequence.ml.why-no-js ]; then echo 'sequence.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11472,6 +11752,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/shebang.ml.why-no-js ]; then echo 'shebang.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11513,6 +11794,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/shortcut_ext_attr.ml.why-no-js ]; then echo 'shortcut_ext_attr.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11554,6 +11836,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/sig_value.mli.why-no-js ]; then echo 'sig_value.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11595,6 +11878,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/single_line.mli.why-no-js ]; then echo 'single_line.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11636,6 +11920,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/skip.ml.why-no-js ]; then echo 'skip.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11677,6 +11962,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/source.ml.why-no-js ]; then echo 'source.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11718,6 +12004,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/str_value.ml.why-no-js ]; then echo 'str_value.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11759,6 +12046,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/string.ml.why-no-js ]; then echo 'string.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11800,6 +12088,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/string_array.ml.why-no-js ]; then echo 'string_array.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11841,6 +12130,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/string_wrapping.ml.why-no-js ]; then echo 'string_wrapping.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11882,6 +12172,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/symbol.ml.why-no-js ]; then echo 'symbol.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11923,6 +12214,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/tag_only.ml.why-no-js ]; then echo 'tag_only.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -11964,6 +12256,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/tag_only.mli.why-no-js ]; then echo 'tag_only.mli has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12005,6 +12298,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/try_with_or_pattern.ml.why-no-js ]; then echo 'try_with_or_pattern.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12046,6 +12340,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/tuple.ml.why-no-js ]; then echo 'tuple.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12087,6 +12382,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/tuple_less_parens.ml.why-no-js ]; then echo 'tuple_less_parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12128,6 +12424,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/tuple_type_parens.ml.why-no-js ]; then echo 'tuple_type_parens.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12169,6 +12466,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/type_and_constraint.ml.why-no-js ]; then echo 'type_and_constraint.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12210,6 +12508,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/type_annotations.ml.why-no-js ]; then echo 'type_annotations.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12251,6 +12550,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-compact-space_around-docked.ml.why-no-js ]; then echo 'types-compact-space_around-docked.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12292,6 +12592,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-compact-space_around.ml.why-no-js ]; then echo 'types-compact-space_around.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12333,6 +12634,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-compact.ml.why-no-js ]; then echo 'types-compact.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12374,6 +12676,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-indent.ml.why-no-js ]; then echo 'types-indent.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12415,6 +12718,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-sparse-space_around.ml.why-no-js ]; then echo 'types-sparse-space_around.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12456,6 +12760,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types-sparse.ml.why-no-js ]; then echo 'types-sparse.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12497,6 +12802,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/types.ml.why-no-js ]; then echo 'types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12538,6 +12844,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/unary.ml.why-no-js ]; then echo 'unary.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12579,6 +12886,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/unary_hash.ml.why-no-js ]; then echo 'unary_hash.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12620,6 +12928,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/unboxed_types.ml.why-no-js ]; then echo 'unboxed_types.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12661,6 +12970,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/unboxed_types2.ml.why-no-js ]; then echo 'unboxed_types2.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12702,6 +13012,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/unicode.ml.why-no-js ]; then echo 'unicode.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12743,6 +13054,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/use_file.mlt.why-no-js ]; then echo 'use_file.mlt has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12784,6 +13096,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/variants.ml.why-no-js ]; then echo 'variants.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12825,6 +13138,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/verbatim_comments-wrap.ml.why-no-js ]; then echo 'verbatim_comments-wrap.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12866,6 +13180,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/verbatim_comments.ml.why-no-js ]; then echo 'verbatim_comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12913,6 +13228,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/verbose1.ml.why-no-js ]; then echo 'verbose1.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -12936,6 +13252,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ ! -f tests/w50.ml.why-no-js ]; then echo 'w50.ml has neither a [.js-ref], nor a [.why-no-js]!'; exit 1; fi")))
 
@@ -12983,6 +13300,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/wrap_comments.ml.why-no-js ]; then echo 'wrap_comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -13024,6 +13342,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/wrap_comments_break.ml.why-no-js ]; then echo 'wrap_comments_break.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -13065,6 +13384,7 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/wrap_invalid_doc_comments.ml.why-no-js ]; then echo 'wrap_invalid_doc_comments.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
 
@@ -13106,5 +13426,6 @@
 
 (rule
  (alias runtest)
+ (enabled_if (<> %{os_type} Win32))
  (package ocamlformat)
  (action (system "if [ -f tests/wrapping_functor_args.ml.why-no-js ]; then echo 'wrapping_functor_args.ml has both a [.js-ref] and a [.why-no-js]!'; exit 1; fi")))
