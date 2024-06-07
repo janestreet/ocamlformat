@@ -7,6 +7,7 @@ let dep fname = spf "%%{dep:%s}" fname
 type setup =
   { mutable has_ref: bool
   ; mutable has_js_ref: bool
+  ; mutable has_why_no_js: bool
   ; mutable has_opts: bool
   ; mutable has_ocp: bool
   ; mutable ocp_opts: string list
@@ -43,6 +44,7 @@ let add_test ?base_file map src_test_name =
   let s =
     { has_ref= false
     ; has_js_ref= false
+    ; has_why_no_js= false
     ; has_opts= false
     ; has_ocp= false
     ; ocp_opts= []
@@ -78,13 +80,13 @@ let register_file tests fname =
       | ["opts"] -> setup.has_opts <- true
       | ["ref"] -> setup.has_ref <- true
       | ["js-ref"] -> setup.has_js_ref <- true
+      | ["why-no-js"] -> setup.has_why_no_js <- true
       | ["ocp"] -> setup.has_ocp <- true
       | ["ocp-opts"] -> setup.ocp_opts <- read_lines fname
       | ["deps"] -> setup.extra_deps <- read_lines fname
       | ["should-fail"] -> setup.should_fail <- true
       | ["enabled-if"] -> setup.enabled_if <- Some (read_file fname)
       | [("err" | "js-err")] -> ()
-      | ["why-no-js"] -> ()
       | _ -> invalid_arg fname )
   | _ -> ()
 
@@ -124,21 +126,26 @@ let one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
     enabled_if_line output_name test_name extra_suffix enabled_if_line
     test_name extra_suffix test_name extra_suffix
 
-let one_js_coverage_test ~test_name ~should_test =
-  let test_sigil, (err_msg : _ format) =
-    if should_test then ("", "%s has both a [.js-ref] and a [.why-no-js]!")
-    else (" !", "%s has neither a [.js-ref], nor a [.why-no-js]!")
+let one_js_coverage_test ~test_name ~has_js_ref ~has_why_no_js =
+  let (err_msg : _ format option) =
+    match (has_js_ref, has_why_no_js) with
+    | true, true -> Some "%s has both a [.js-ref] and a [.why-no-js]!"
+    | false, false -> Some "%s has neither a [.js-ref], nor a [.why-no-js]!"
+    | true, false | false, true -> None
   in
-  let err_msg = Printf.sprintf err_msg test_name in
-  Printf.sprintf
-    {|
+  match err_msg with
+  | Some err_msg ->
+      let err_msg = Printf.sprintf err_msg test_name in
+      Printf.sprintf
+        {|
 (rule
  (alias runtest)
  (enabled_if (<> %%{os_type} Win32))
  (package ocamlformat)
- (action (system "if [%s -f tests/%s.why-no-js ]; then echo '%s'; exit 1; fi")))
+ (action (system "echo '%s'; exit 1")))
 |}
-    test_sigil test_name err_msg
+        err_msg
+  | None -> ""
 
 let emit_test test_name setup =
   let opts =
@@ -174,7 +181,8 @@ let emit_test test_name setup =
         ; "--disable-conf-files" ]
       ~output_name:js_ref_name ~extra_suffix:"js-"
     |> print_string ;
-  one_js_coverage_test ~test_name ~should_test:setup.has_js_ref
+  one_js_coverage_test ~test_name ~has_js_ref:setup.has_js_ref
+    ~has_why_no_js:setup.has_why_no_js
   |> print_string ;
   if setup.has_ocp then
     let ocp_cmd =
