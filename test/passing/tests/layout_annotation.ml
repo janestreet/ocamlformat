@@ -105,7 +105,6 @@ let f : ('a, _ : value, bool) t4 -> int = fun _ -> 42;;
 
 type ('a, 'b, 'c) t6 = ('a, 'b, 'c : bits32) t4;;
 
-
 (********************************************)
 (* Test 3: Annotation on types in functions *)
 
