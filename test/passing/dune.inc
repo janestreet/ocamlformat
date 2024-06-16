@@ -4415,12 +4415,12 @@
  (action
   (with-stdout-to gadt.ml.stdout
    (with-stderr-to gadt.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/gadt.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/gadt.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/gadt.ml gadt.ml.stdout)))
+ (action (diff tests/gadt.ml.ref gadt.ml.stdout)))
 
 (rule
  (alias runtest)
