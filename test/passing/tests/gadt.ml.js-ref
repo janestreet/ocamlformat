@@ -20,3 +20,5 @@ type t =
       
       { x : 'a * 'b * 'c * 'd }
       -> t
+
+type t = T : 'a. { x : 'a } -> t
