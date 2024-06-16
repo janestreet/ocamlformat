@@ -22,3 +22,5 @@ type _ g = MkG : 'a. 'a g
 
 type t =
   | T : (* this comment is too long to fix on same line as the record......... *) { x : 'a * 'b * 'c * 'd } -> t
+
+type t = T : 'a . { x : 'a } -> t
