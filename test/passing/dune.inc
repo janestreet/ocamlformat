@@ -6983,7 +6983,7 @@
  (action
   (with-stdout-to layout_annotation.ml.stdout
    (with-stderr-to layout_annotation.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_annotation.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation.ml})))))
 
 (rule
  (alias runtest)
