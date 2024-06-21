@@ -111,6 +111,10 @@ type 'a r =
   | Bar of 'a * (* e *) (* f *)global_ (* g *) (* h *)'a
   | Baz of global_ int * string * (* i *) (* j *) global_ (* k *) (* l *)'a
 
-let foo (local_ _ : int) = 10
+let () =
+  let foo (local_ _ : int) = 10 in
+  let bar (local_ Some x : _) = Some 10 in
+  let baz (local_ Some x) = Some 10 in
+  ()
 
 type t : value
