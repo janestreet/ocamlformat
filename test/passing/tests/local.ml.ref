@@ -172,3 +172,7 @@ type 'a r =
                 (* k *)
                 (* l *)
       'a
+
+let foo (local_ (_ : int)) = 10
+
+type t : value

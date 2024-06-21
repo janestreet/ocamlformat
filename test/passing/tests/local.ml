@@ -110,3 +110,7 @@ type 'a r =
   | Foo of (* a *) (* b *)global_(* c *) (* d *) 'a
   | Bar of 'a * (* e *) (* f *)global_ (* g *) (* h *)'a
   | Baz of global_ int * string * (* i *) (* j *) global_ (* k *) (* l *)'a
+
+let foo (local_ _ : int) = 10
+
+type t : value
