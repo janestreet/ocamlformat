@@ -103,3 +103,7 @@ let u =
 let v =
   let%foo x[@bar] = x and y = y[@baz] in
   ()
+
+let w =
+  let%foo local_ x = x and local_ y = y in
+  ()
