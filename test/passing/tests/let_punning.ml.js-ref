@@ -129,3 +129,9 @@ let v =
   and y = y [@baz] in
   ()
 ;;
+
+let w =
+  let%foo local_ x = x
+  and local_ y = y in
+  ()
+;;
