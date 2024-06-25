@@ -986,7 +986,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
       impossible "produced by the parser, handled elsewhere"
   | Ptyp_poly (a1N, t) ->
       hovbox_if box 0
-        ( list a1N "@ " (fmt_type_var_with_parenze ~have_tick:true c)
+        ( hovbox_if (not box) (-2)
+            (list a1N "@ " (fmt_type_var_with_parenze ~have_tick:true c))
         $ fmt ".@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx t) )
   | Ptyp_tuple typs ->

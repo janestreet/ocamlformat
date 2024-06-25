@@ -1,11 +1,7 @@
 external f : 'a -> 'a = "asdf"
 
 external g
-  : 'aaaaaaa
-  'aaaaaaaaaaaaaaa
-  'aaaaaaaaaaaaaaaaaaaaaa
-  'aaaaaaaaaaaaaa
-  'aaaaaaa
+  : 'aaaaaaa 'aaaaaaaaaaaaaaa 'aaaaaaaaaaaaaaaaaaaaaa 'aaaaaaaaaaaaaa 'aaaaaaa
   'fooooo_foooooo.
   'a -> 'a -> 'a
   = "asdf"
