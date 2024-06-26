@@ -985,8 +985,12 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_poly ([], _) ->
       impossible "produced by the parser, handled elsewhere"
   | Ptyp_poly (a1N, t) ->
+      let dedent_type_vars =
+        Option.is_some pro && Poly.(c.conf.fmt_opts.break_colon.v = `Before)
+      in
       hovbox_if box 0
-        ( hovbox_if (not box) (-2)
+        ( hovbox_if (not box)
+            (if dedent_type_vars then -2 else 0)
             (list a1N "@ " (fmt_type_var_with_parenze ~have_tick:true c))
         $ fmt ".@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx t) )

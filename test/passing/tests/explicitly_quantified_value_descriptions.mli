@@ -75,3 +75,9 @@ external f :
   -> long_argument_1234567890
   -> long_argument_1234567890
   -> long_result_1234567890 = ""
+
+val state_float :
+  ('a : float64) 'e 'f.
+     name:string
+  -> on_event:(local_ 'e -> 'a -> 'a)
+  -> ('e Event.t -> ('a, 'f) t) Unregistered.t
