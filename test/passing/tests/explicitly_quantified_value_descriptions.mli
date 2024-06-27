@@ -38,9 +38,10 @@ val f :
    that the type and layout may be split onto multiple lines in the middle of
    wrapping *)
 val f :
-  ('long_quantified_variable_a : layout) ('long_quantified_variable_b :
-  layout) ('long_quantified_variable_c : layout) ('long_quantified_variable_d
-  : layout).
+  ('long_quantified_variable_a : layout)
+  ('long_quantified_variable_b : layout)
+  ('long_quantified_variable_c : layout)
+  ('long_quantified_variable_d : layout).
      long_argument_1234567890
   -> long_argument_1234567890
   -> long_argument_1234567890
@@ -63,9 +64,10 @@ val f :
 
 (* wrapping behavior of layouts when the main type doesn't need to wrap *)
 val f :
-  ('long_quantified_variable_a : layout) ('long_quantified_variable_b :
-  layout) ('long_quantified_variable_c : layout) ('long_quantified_variable_d
-  : layout). short_argument -> short_result
+  ('long_quantified_variable_a : layout)
+  ('long_quantified_variable_b : layout)
+  ('long_quantified_variable_c : layout)
+  ('long_quantified_variable_d : layout). short_argument -> short_result
 
 (* behavior is the same between [val] and [external] descriptions *)
 external f :

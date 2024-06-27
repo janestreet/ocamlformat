@@ -27,7 +27,7 @@ val f
 (* uncommon case where quantified types have to line wrap *)
 val f
   : 'long_quantified_variable_a 'long_quantified_variable_b 'long_quantified_variable_c
-  'long_quantified_variable_d.
+    'long_quantified_variable_d.
   long_argument_1234567890
   -> long_argument_1234567890
   -> long_argument_1234567890
@@ -39,7 +39,7 @@ val f
    wrapping *)
 val f
   : ('long_quantified_variable_a : layout) ('long_quantified_variable_b : layout)
-  ('long_quantified_variable_c : layout) ('long_quantified_variable_d : layout).
+    ('long_quantified_variable_c : layout) ('long_quantified_variable_d : layout).
   long_argument_1234567890
   -> long_argument_1234567890
   -> long_argument_1234567890
@@ -48,21 +48,22 @@ val f
 
 (* same as above, but for janestreet profile *)
 val f
-  : ('even_longer_quantified_variable_a : layout) ('even_longer_quantified_variable_b :
-  layout) ('even_longer_quantified_variable_c : layout)
-  ('even_longer_quantified_variable_d : layout).
+  : ('even_longer_quantified_variable_a : layout)
+    ('even_longer_quantified_variable_b : layout)
+    ('even_longer_quantified_variable_c : layout)
+    ('even_longer_quantified_variable_d : layout).
   short_argument -> short_result
 
 (* wrapping behavior when the main type doesn't need to wrap *)
 val f
   : 'long_quantified_variable_a 'long_quantified_variable_b 'long_quantified_variable_c
-  'long_quantified_variable_d.
+    'long_quantified_variable_d.
   short_argument -> short_result
 
 (* wrapping behavior of layouts when the main type doesn't need to wrap *)
 val f
   : ('long_quantified_variable_a : layout) ('long_quantified_variable_b : layout)
-  ('long_quantified_variable_c : layout) ('long_quantified_variable_d : layout).
+    ('long_quantified_variable_c : layout) ('long_quantified_variable_d : layout).
   short_argument -> short_result
 
 (* behavior is the same between [val] and [external] descriptions *)
