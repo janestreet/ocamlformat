@@ -55,6 +55,14 @@ let q =
 
 (* Line breaks *)
 
+let mixed =
+  let%foo a
+  and b
+  and c
+  and d = e + f in
+  ()
+;;
+
 let long =
   let%foo a and b and c and d and e and f and g and h and i and j and k and l in
   ()

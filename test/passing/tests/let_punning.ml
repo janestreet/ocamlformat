@@ -42,6 +42,14 @@ let q =
 
 (* Line breaks *)
 
+let mixed =
+  let%foo a = a
+  and b = b
+  and c = c
+  and d = e + f
+  in 
+  ()
+
 let long =
   let%foo a = a
   and b = b
