@@ -946,7 +946,7 @@ module Formatting = struct
           "$(b,sparse) will always break between them."
       ; Decl.Value.make ~name:"compact-puns" `Compact_only_in_let_pun
           "$(b,compact-puns) will only try to format `let p and p` in a \
-           single line" ]
+           single line." ]
     in
     Decl.choice ~names ~all ~default ~doc ~kind
       (fun conf elt -> update conf ~f:(fun f -> {f with let_and= elt}))
