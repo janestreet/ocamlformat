@@ -577,7 +577,7 @@ let split_global_flags_from_attrs atrs =
   | [global_attr], atrs -> (Some global_attr, atrs)
   | _ -> (None, atrs)
 
-let let_binding_can_be_punned ~binding ~parsed_ext =
+let let_binding_can_be_punned ~binding ~is_ext =
   let ({ lb_op= _
        ; lb_pat
        ; lb_args
@@ -592,7 +592,7 @@ let let_binding_can_be_punned ~binding ~parsed_ext =
     binding
   in
   match
-    ( parsed_ext
+    ( is_ext
     , lb_pat.ast.ppat_desc
     , lb_exp.ast.pexp_desc
     , lb_typ
@@ -602,7 +602,7 @@ let let_binding_can_be_punned ~binding ~parsed_ext =
     , lb_modes )
   with
   | ( (* Binding must be inside an extension node (we do not pun operators) *)
-      Some _
+      true
       (* LHS must be just a variable *)
     , Ppat_var {txt= left; _}
     , (* RHS must be just an identifier with no dots *)
@@ -4839,7 +4839,7 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
 
 and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
     ~has_attr ~indent_after_in =
-  let parsed_ext = ext in
+  let is_ext = Option.is_some ext in
   let parens = parens || has_attr in
   let fmt_in indent =
     match c.conf.fmt_opts.break_before_in.v with
@@ -4855,7 +4855,7 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
                 compare c.conf.opr_opts.ocaml_version.v Releases.v4_13_0 >= 0 )
               && binding.lb_pun
           | `Always_pun_if_possible ->
-              let_binding_can_be_punned ~binding ~parsed_ext
+              let_binding_can_be_punned ~binding ~is_ext
         in
         (binding, punned_in_output) )
   in
