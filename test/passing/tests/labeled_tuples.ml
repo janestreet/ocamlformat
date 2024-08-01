@@ -269,3 +269,16 @@ let _ = f (Foo (~x:5, 1))
 let _ = f (Foo (5, 1))
 let _ = f (Foo (5, ~x:1))
 let _ = f (Foo (5, ~y:1))
+
+(* As a result of labeled tuples, we've decided to add parens around labeled function
+   argument types when they are tuples, for disambiguation. *)
+type t = x:(int * bool) -> string
+type t = x:(int * y:bool) -> string
+type t = x:(y:int * z:bool) -> string
+
+type t =
+  x:
+    (long_type_name_for_multiline1
+    * long_type_name_for_multiline2
+    * long_type_name_for_multiline3)
+  -> string
