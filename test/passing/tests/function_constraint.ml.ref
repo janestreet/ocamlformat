@@ -32,3 +32,12 @@ let (f @ local) (type a) : unit = ()
 let (f @ local) (type a : value) : unit = ()
 
 let (f @ local) x y : unit = ()
+
+(* Nested funs *)
+let _ = f (fun x y -> z)
+
+let _ = f (fun x : unit -> fun y -> z)
+
+let _ = f (fun x y : unit -> z)
+
+let _ = f (fun x : unit -> fun y : unit -> z)

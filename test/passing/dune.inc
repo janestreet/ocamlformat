@@ -4307,7 +4307,7 @@
  (action
   (with-stdout-to function_constraint.ml.stdout
    (with-stderr-to function_constraint.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/function_constraint.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/function_constraint.ml})))))
 
 (rule
  (alias runtest)

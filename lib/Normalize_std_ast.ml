@@ -223,6 +223,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
            expression into a non-jane syntax expression, since jkind
            annotations are in the parsetree for [Pparam_newtype] but not
            [Pexp_newtype] *)
+        (* See comment on [Pexp_newtype] below *)
         m.expr m
           { exp with
             pexp_attributes= attrs
@@ -265,6 +266,11 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           m.expr m {exp with pexp_desc= Pexp_function (ps @ ps', c, b')}
       | Pexp_newtype (l, {pexp_desc= Pexp_constraint (exp1, Some ty, []); _})
         ->
+          (* It's strange that this creates an illegal [Pexp_function] node
+             (with a single [Pparam_newtype] parameter and a
+             [Pfunction_body]), but it's necessary to normalize against a
+             strange ast change in [source.ml]. This can probably be deleted
+             when we merge with 5.2 ocamlformat *)
           m.expr m
             { exp with
               pexp_desc=
