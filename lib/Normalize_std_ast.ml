@@ -216,11 +216,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | Some
         ( Jexp_layout
             (Lexp_newtype
-              (l, jkind, {pexp_desc= Pexp_constraint (exp1, Some ty, []); _}) )
+              (l, jkind, {pexp_desc= Pexp_constraint (exp1, Some ty, []); _})
+              )
         , attrs ) ->
-      (* CR jane-syntax: Special case where we transform a jane syntax expression into a
-         non-jane syntax expression, since jkind annotations are in the parsetree for
-         [Pparam_newtype] but not [Pexp_newtype] *)
+        (* CR jane-syntax: Special case where we transform a jane syntax
+           expression into a non-jane syntax expression, since jkind
+           annotations are in the parsetree for [Pparam_newtype] but not
+           [Pexp_newtype] *)
         m.expr m
           { exp with
             pexp_attributes= attrs
