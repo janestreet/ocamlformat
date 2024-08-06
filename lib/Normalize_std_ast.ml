@@ -284,12 +284,10 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           ( ps
           , c
           , Pfunction_body {pexp_desc= Pexp_constraint (exp1, Some ty, []); _}
-          ) ->
+          )
+        when Option.is_none c ->
           let c =
-            match c with
-            | Some c -> Some {c with type_constraint= Pconstraint ty}
-            | None ->
-                Some {mode_annotations= []; type_constraint= Pconstraint ty}
+            Some {mode_annotations= []; type_constraint= Pconstraint ty}
           in
           m.expr m
             {exp with pexp_desc= Pexp_function (ps, c, Pfunction_body exp1)}
