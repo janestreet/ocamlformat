@@ -266,11 +266,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           m.expr m {exp with pexp_desc= Pexp_function (ps @ ps', c, b')}
       | Pexp_newtype (l, {pexp_desc= Pexp_constraint (exp1, Some ty, []); _})
         ->
-          (* It's strange that this creates an illegal [Pexp_function] node
-             (with a single [Pparam_newtype] parameter and a
-             [Pfunction_body]), but it's necessary to normalize against a
-             strange ast change in [source.ml]. This can probably be deleted
-             when we merge with 5.2 ocamlformat *)
+          (* This is a hack. Our version of ocamlformat rewrites [fun (type
+             a) -> (function x -> x)] into [fun (type a) -> function x -> x],
+             but these two things parse differently by design. We shouldn't
+             do this, but have decided to avoid making ocamlformat work
+             sanely for syntactic function arity until upstream does. We
+             should delete this, and other similar bits of normalization,
+             when we merge with 5.2 ocamlforamt. *)
           m.expr m
             { exp with
               pexp_desc=
