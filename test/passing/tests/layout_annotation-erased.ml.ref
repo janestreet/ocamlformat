@@ -94,6 +94,18 @@ let f : _ -> _ = fun _ -> assert false
 
 let g : _ -> _ = fun _ -> assert false
 
+let f : (_, _) t = ()
+
+let g : (_, _) t = ()
+
+let f : (_, _) t -> t = ()
+
+let g : (_, _) t -> t = ()
+
+let f : (_, _, _, _, _, _, _, _) t -> t = ()
+
+let g : (_, _, _, _, _, _, _, _, _) t -> t = ()
+
 (********************************************)
 (* Test 3: Annotation on types in functions *)
 
