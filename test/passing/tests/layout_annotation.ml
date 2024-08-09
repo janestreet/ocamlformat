@@ -97,6 +97,18 @@ let f : (_ : immediate) -> (_ : value) = fun _ -> assert false
 
 let g : (_ : value) -> (_ : immediate) = fun _ -> assert false
 
+let f : (_ : any, _) t = ()
+
+let g : (_, _ : any) t = ()
+
+let f : (_ : any, _) t -> t = ()
+
+let g : (_, _ : any) t -> t = ()
+
+let f : (_, _ : any, _ : any, _ : any, _ : any, _ : any, _ : any, _ : any) t -> t = ()
+
+let g : (_, _, _, _, _, _, _, _, _ : any) t -> t = ()
+
 (********************************************)
 (* Test 3: Annotation on types in functions *)
 
