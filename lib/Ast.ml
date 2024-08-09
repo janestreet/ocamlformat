@@ -1957,8 +1957,13 @@ end = struct
     | { ast= {ptyp_desc= Ptyp_poly _; _}
       ; ctx= Typ {ptyp_desc= Ptyp_arrow _; _} } ->
         true
-    | {ast= {ptyp_desc= Ptyp_var (_, l); _}; ctx= _} when Option.is_some l ->
-        true
+    | {ast= {ptyp_desc= Ptyp_var (_, l); _}; ctx} when Option.is_some l -> (
+      match ctx with
+      | Typ {ptyp_desc= Ptyp_constr (_, _ :: _ :: _); _} ->
+          (* annotations on one of multiple arguments to a type do not
+             warrant parens *)
+          false
+      | _ -> true )
     | { ast= {ptyp_desc= Ptyp_tuple ((Some _, _) :: _); _}
       ; ctx= Typ {ptyp_desc= Ptyp_arrow (args, _, _); _} }
       when List.exists args ~f:(fun arg -> arg.pap_type == typ) ->

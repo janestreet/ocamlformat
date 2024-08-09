@@ -63,19 +63,12 @@ let f : (_ : immediate) -> unit = fun _ -> ()
 let g : (_ : value) -> unit = fun _ -> ()
 let f : (_ : immediate) -> (_ : value) = fun _ -> assert false
 let g : (_ : value) -> (_ : immediate) = fun _ -> assert false
-let f : ((_ : any), _) t = ()
-let g : (_, (_ : any)) t = ()
-let f : ((_ : any), _) t -> t = ()
-let g : (_, (_ : any)) t -> t = ()
-
-let f
-  :  (_, (_ : any), (_ : any), (_ : any), (_ : any), (_ : any), (_ : any), (_ : any)) t
-  -> t
-  =
-  ()
-;;
-
-let g : (_, _, _, _, _, _, _, _, (_ : any)) t -> t = ()
+let f : (_ : any, _) t = ()
+let g : (_, _ : any) t = ()
+let f : (_ : any, _) t -> t = ()
+let g : (_, _ : any) t -> t = ()
+let f : (_, _ : any, _ : any, _ : any, _ : any, _ : any, _ : any, _ : any) t -> t = ()
+let g : (_, _, _, _, _, _, _, _, _ : any) t -> t = ()
 
 (********************************************)
 (* Test 3: Annotation on types in functions *)
@@ -211,7 +204,7 @@ let f_val : ('a : value). 'a -> 'a = fun x -> f_imm x
 
 type (_ : value) g = MkG : ('a : immediate). 'a g
 type t = int as (_ : immediate)
-type t = (('a : value), ('b : value)) t2
+type t = ('a : value, 'b : value) t2
 type ('a, 'b) t = ('a : value) * ('b : value)
 
 class c : object
