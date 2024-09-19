@@ -73,6 +73,7 @@ type mapper = {
   typ: mapper -> core_type -> core_type;
   type_declaration: mapper -> type_declaration -> type_declaration;
   type_extension: mapper -> type_extension -> type_extension;
+  kind_abbreviation: mapper -> kind_abbreviation -> kind_abbreviation;
   type_exception: mapper -> type_exception -> type_exception;
   type_kind: mapper -> type_kind -> type_kind;
   value_binding: mapper -> value_binding -> value_binding;
@@ -419,6 +420,9 @@ module MT = struct
     | Psig_typesubst l ->
         type_subst ~loc (List.map (sub.type_declaration sub) l)
     | Psig_typext te -> type_extension ~loc (sub.type_extension sub te)
+    | Psig_kind_abbrev (name, jkind) ->
+        let name, jkind = sub.kind_abbreviation sub (name, jkind) in
+        kind_abbreviation ~loc name jkind
     | Psig_exception ed -> exception_ ~loc (sub.type_exception sub ed)
     | Psig_module x -> module_ ~loc (sub.module_declaration sub x)
     | Psig_modsubst x -> mod_subst ~loc (sub.module_substitution sub x)
@@ -428,7 +432,9 @@ module MT = struct
     | Psig_modtypesubst x ->
         modtype_subst ~loc (sub.module_type_declaration sub x)
     | Psig_open x -> open_ ~loc (sub.open_description sub x)
-    | Psig_include x -> include_ ~loc (sub.include_description sub x)
+    | Psig_include (x, moda) ->
+        include_ ~loc ~modalities:(sub.modalities sub moda)
+          (sub.include_description sub x)
     | Psig_class l -> class_ ~loc (List.map (sub.class_description sub) l)
     | Psig_class_type l ->
         class_type ~loc (List.map (sub.class_type_declaration sub) l)
@@ -479,6 +485,9 @@ module M = struct
     | Pstr_primitive vd -> primitive ~loc (sub.value_description sub vd)
     | Pstr_type (rf, l) -> type_ ~loc rf (List.map (sub.type_declaration sub) l)
     | Pstr_typext te -> type_extension ~loc (sub.type_extension sub te)
+    | Pstr_kind_abbrev (name, jkind) ->
+        let name, jkind = sub.kind_abbreviation sub (name, jkind) in
+        kind_abbreviation ~loc name jkind
     | Pstr_exception ed -> exception_ ~loc (sub.type_exception sub ed)
     | Pstr_module x -> module_ ~loc (sub.module_binding sub x)
     | Pstr_recmodule l -> rec_module ~loc (List.map (sub.module_binding sub) l)
@@ -492,6 +501,8 @@ module M = struct
         let attrs = sub.attributes sub attrs in
         extension ~loc ~attrs (sub.extension sub x)
     | Pstr_attribute x -> attribute ~loc (sub.attribute sub x)
+
+  let map_kind_abbreviation _ (name, jkind) = (name, jkind)
 end
 
 module Comprehension = struct
@@ -657,6 +668,7 @@ module E = struct
     | Pexp_extension x -> extension ~loc ~attrs (sub.extension sub x)
     | Pexp_unreachable -> unreachable ~loc ~attrs ()
     | Pexp_hole -> hole ~loc ~attrs ()
+    | Pexp_stack e -> stack ~loc ~attrs (sub.expr sub e)
     | Pexp_beginend e -> beginend ~loc ~attrs (sub.expr sub e)
     | Pexp_parens e -> parens ~loc ~attrs (sub.expr sub e)
     | Pexp_cons l -> cons ~loc ~attrs (List.map (sub.expr sub) l)
@@ -839,6 +851,7 @@ let default_mapper =
     typ = T.map;
     type_extension = T.map_type_extension;
     type_exception = T.map_type_exception;
+    kind_abbreviation = M.map_kind_abbreviation;
     extension_constructor = T.map_extension_constructor;
     value_description =
       (fun this {pval_name; pval_type; pval_prim; pval_loc;
@@ -912,15 +925,15 @@ let default_mapper =
       );
 
     include_description =
-      (fun this {pincl_mod; pincl_attributes; pincl_loc} ->
-         Incl.mk (this.module_type this pincl_mod)
+      (fun this {pincl_mod; pincl_attributes; pincl_loc; pincl_kind} ->
+         Incl.mk ~kind:pincl_kind (this.module_type this pincl_mod)
            ~loc:(this.location this pincl_loc)
            ~attrs:(this.attributes this pincl_attributes)
       );
 
     include_declaration =
-      (fun this {pincl_mod; pincl_attributes; pincl_loc} ->
-         Incl.mk (this.module_expr this pincl_mod)
+      (fun this {pincl_mod; pincl_attributes; pincl_loc; pincl_kind} ->
+         Incl.mk ~kind:pincl_kind (this.module_expr this pincl_mod)
            ~loc:(this.location this pincl_loc)
            ~attrs:(this.attributes this pincl_attributes)
       );

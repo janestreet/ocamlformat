@@ -77,8 +77,6 @@ let pstr_type ((nr, ext), tys) =
   (Pstr_type (nr, tys), ext)
 let pstr_exception (te, ext) =
   (Pstr_exception te, ext)
-let pstr_include (body, ext) =
-  (Pstr_include body, ext)
 
 let psig_typext (te, ext) =
   (Psig_typext te, ext)
@@ -91,8 +89,6 @@ let psig_typesubst ((nr, ext), tys) =
   (Psig_typesubst tys, ext)
 let psig_exception (te, ext) =
   (Psig_exception te, ext)
-let psig_include (body, ext) =
-  (Psig_include body, ext)
 
 let mkctf ~loc ?attrs ?docs d =
   Ctf.mk ~loc:(make_loc loc) ?attrs ?docs d
@@ -709,8 +705,8 @@ let mk_directive ~loc name arg =
 let convert_jkind_to_legacy_attr =
   let mk ~loc name = [Attr.mk ~loc (mkloc name loc) (PStr [])] in
   function
-  | {txt = Layout "immediate"; loc} -> mk ~loc "immediate"
-  | {txt = Layout "immediate64"; loc} -> mk ~loc "immediate64"
+  | {txt = Abbreviation {txt = "immediate"; loc}; loc = _} -> mk ~loc "immediate"
+  | {txt = Abbreviation {txt = "immediate64"; loc}; loc = _} -> mk ~loc "immediate64"
   | _ -> []
 
 (* NOTE: An alternate approach for performing the erasure of %call_pos and %src_pos
@@ -804,6 +800,8 @@ let transl_label ~pattern ~arg_label ~loc =
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
 %token <string * char option> INT "42"  (* just an example *)
+%token KIND_ABBREV            "kind_abbrev_"
+%token KIND_OF                "kind_of_"
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
 %token LBRACE                 "{"
@@ -829,6 +827,7 @@ let transl_label ~pattern ~arg_label ~loc =
 %token MINUS                  "-"
 %token MINUSDOT               "-."
 %token MINUSGREATER           "->"
+%token MOD                    "mod"
 %token MODULE                 "module"
 %token MUTABLE                "mutable"
 %token NEW                    "new"
@@ -933,6 +932,7 @@ The precedences must be listed from low to high.
 %nonassoc FUNCTOR                       /* include functor M */
 %right    MINUSGREATER                  /* function_type (t -> t -> t) */
 %right    OR BARBAR                     /* expr (e || e || e) */
+%nonassoc below_AMPERSAND
 %right    AMPERSAND AMPERAMPER          /* expr (e && e && e) */
 %nonassoc below_EQUAL
 %left     INFIXOP0 EQUAL LESS GREATER   /* expr (e OP e OP e) */
@@ -941,7 +941,7 @@ The precedences must be listed from low to high.
 %nonassoc LBRACKETAT
 %right    COLONCOLON                    /* expr (e :: e :: e) */
 %left     INFIXOP2 PLUS PLUSDOT MINUS MINUSDOT PLUSEQ /* expr (e OP e OP e) */
-%left     PERCENT SLASH INFIXOP3 STAR                 /* expr (e OP e OP e) */
+%left     PERCENT SLASH INFIXOP3 MOD STAR                 /* expr (e OP e OP e) */
 %right    INFIXOP4                      /* expr (e OP e OP e) */
 %nonassoc prec_unary_minus prec_unary_plus /* unary - */
 %nonassoc prec_constant_constructor     /* cf. simple_expr (C versus C x) */
@@ -1576,10 +1576,16 @@ structure_item:
         { let (ext, l) = $1 in (Pstr_class l, ext) }
     | class_type_declarations
         { let (ext, l) = $1 in (Pstr_class_type l, ext) }
-    | include_statement(module_expr)
-        { pstr_include $1 }
     )
     { $1 }
+  | include_statement(module_expr)
+      { let incl, ext = $1 in
+        let item = mkstr ~loc:$sloc (Pstr_include incl) in
+        wrap_str_ext ~loc:$sloc item ext
+      }
+  | kind_abbreviation_decl
+      { let name, jkind = $1 in
+        mkstr ~loc:$sloc (Pstr_kind_abbrev (name, jkind)) }
 ;
 
 (* A single module binding. *)
@@ -1841,14 +1847,20 @@ signature_item:
         { psig_exception $1 }
     | open_description
         { let (body, ext) = $1 in (Psig_open body, ext) }
-    | include_statement(module_type)
-        { psig_include $1 }
     | class_descriptions
         { let (ext, l) = $1 in (Psig_class l, ext) }
     | class_type_declarations
         { let (ext, l) = $1 in (Psig_class_type l, ext) }
     )
     { $1 }
+  | include_statement(module_type) modalities = optional_atat_modalities_expr
+      { let incl, ext = $1 in
+        let item = mksig ~loc:$sloc (Psig_include (incl, modalities)) in
+        wrap_sig_ext ~loc:$sloc item ext
+      }
+  | kind_abbreviation_decl
+      { let name, jkind = $1 in
+        mksig ~loc:$sloc (Psig_kind_abbrev (name, jkind)) }
 
 (* A module declaration. *)
 %inline module_declaration:
@@ -3611,12 +3623,48 @@ type_parameters:
       { ps }
 ;
 
-jkind_annotation_gen:
-  ident
-    {
-      let loc = make_loc $sloc in
-      (mkloc (Layout $1) loc)
+jkind:
+    jkind MOD mkrhs(LIDENT)+ { (* LIDENTs here are for modes *)
+      let modes =
+        List.map
+          (fun {txt; loc} -> {txt = Mode txt; loc})
+          $3
+      in
+      Mod ($1, modes)
     }
+  | jkind WITH core_type {
+      With ($1, $3)
+    }
+  | mkrhs(ident) {
+      let {txt; loc} = $1 in
+      Abbreviation ({ txt; loc })
+    }
+  | KIND_OF ty=core_type {
+      Kind_of ty
+    }
+  | UNDERSCORE {
+      Default
+    }
+  | reverse_product_jkind %prec below_AMPERSAND {
+      Product (List.rev $1)
+    }
+  | LPAREN jkind RPAREN {
+      $2
+    }
+;
+
+reverse_product_jkind :
+  | jkind1 = jkind AMPERSAND jkind2 = jkind %prec below_EQUAL
+      { [jkind2; jkind1] }
+  | jkinds = reverse_product_jkind
+    AMPERSAND
+    jkind = jkind %prec below_EQUAL
+    { jkind :: jkinds }
+;
+
+jkind_annotation_gen: (* : jkind_annotation *)
+  mkrhs(jkind) { $1 }
+;
 
 jkind_annotation: (* : jkind_annotation *)
   jkind_annotation_gen
@@ -3635,6 +3683,12 @@ jkind_attr_opt:
       then None, convert_jkind_to_legacy_attr $2
       else Some $2, []
     }
+;
+
+kind_abbreviation_decl:
+  KIND_ABBREV abbrev=mkrhs(LIDENT) EQUAL jkind=jkind_annotation_gen {
+    (abbrev, jkind)
+  }
 ;
 
 %inline type_param_with_jkind:
@@ -4520,6 +4574,10 @@ operator:
   | BANG                                        { "!" }
   | infix_operator                              { $1 }
 ;
+%inline infixop3:
+  | op = INFIXOP3 { op }
+  | MOD           { "mod" }
+;
 %inline infix_operator:
   | op = INFIXOP0 { op }
   /* Still support the two symbols as infix operators */
@@ -4527,7 +4585,7 @@ operator:
   | ATAT           {"@@"}
   | op = INFIXOP1 { op }
   | op = INFIXOP2 { op }
-  | op = INFIXOP3 { op }
+  | op = infixop3 { op }
   | op = INFIXOP4 { op }
   | PLUS           {"+"}
   | PLUSDOT       {"+."}
