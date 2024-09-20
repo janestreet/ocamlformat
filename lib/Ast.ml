@@ -393,6 +393,7 @@ module Structure_item = struct
         || List.exists ~f:Attr.is_doc pmod_attributes
     | Pstr_value {pvbs_bindings= []; _}
      |Pstr_type (_, [])
+     |Pstr_kind_abbrev _
      |Pstr_recmodule []
      |Pstr_class_type []
      |Pstr_class [] ->
@@ -480,7 +481,8 @@ module Signature_item = struct
      |Psig_modsubst {pms_ext_attrs= ea; _} ->
         Ext_attrs.has_doc ea
     | Psig_include
-        {pincl_mod= {pmty_attributes= atrs1; _}; pincl_attributes= atrs2; _}
+        ({pincl_mod= {pmty_attributes= atrs1; _}; pincl_attributes= atrs2; _}
+         , _)
      |Psig_exception
         { ptyexn_attributes= atrs1
         ; ptyexn_constructor= {pext_attributes= atrs2; _}
@@ -493,6 +495,7 @@ module Signature_item = struct
         Ext_attrs.has_doc ea || (List.exists ~f:Attr.is_doc) atrs
     | Psig_type (_, [])
      |Psig_typesubst []
+     |Psig_kind_abbrev (_, _)
      |Psig_recmodule []
      |Psig_class_type []
      |Psig_class [] ->
@@ -1367,7 +1370,7 @@ end = struct
        |Pexp_unboxed_tuple _ | Pexp_unreachable | Pexp_variant _
        |Pexp_while _ | Pexp_hole | Pexp_beginend _ | Pexp_parens _
        |Pexp_cons _ | Pexp_letopen _ | Pexp_indexop_access _
-       |Pexp_prefix _ | Pexp_infix _ ->
+       |Pexp_prefix _ | Pexp_infix _ | Pexp_stack _ ->
           assert false
       | Pexp_extension (_, ext) -> assert (check_extensions ext)
       | Pexp_object {pcstr_self; _} ->
@@ -1498,6 +1501,7 @@ end = struct
          |Pexp_beginend e
          |Pexp_parens e
          |Pexp_constraint (e, _, _)
+         |Pexp_stack e
          |Pexp_coerce (e, _, _)
          |Pexp_field (e, _)
          |Pexp_lazy e
@@ -1533,7 +1537,7 @@ end = struct
             List.exists pvbs_bindings ~f:(fun {pvb_expr; _} ->
                 pvb_expr == exp ) )
       | Pstr_extension ((_, ext), _) -> assert (check_extensions ext)
-      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_exception _
+      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_kind_abbrev _ | Pstr_exception _
        |Pstr_module _ | Pstr_recmodule _ | Pstr_modtype _ | Pstr_open _
        |Pstr_class _ | Pstr_class_type _ | Pstr_include _ | Pstr_attribute _
         ->
@@ -2164,6 +2168,7 @@ end = struct
         in
         match exp.pexp_desc with
         | Pexp_assert e
+         |Pexp_stack e
          |Pexp_construct (_, Some e)
          |Pexp_fun (_, e)
          |Pexp_ifthenelse (_, Some e)
@@ -2249,6 +2254,7 @@ end = struct
       in
       match exp.pexp_desc with
       | Pexp_assert e
+       |Pexp_stack e 
        |Pexp_construct (_, Some e)
        |Pexp_ifthenelse (_, Some e)
        |Pexp_prefix (_, e)
@@ -2651,3 +2657,12 @@ end
 
 include In_ctx
 include Requires_sub_terms
+
+
+type jkind_context =
+  | Constraint_rhs 
+  | Mod_lhs 
+  | With_lhs 
+  | Product_lhs 
+  | Product_rhs 
+

@@ -542,11 +542,11 @@ let type_var_has_jkind_annot (_, jkind_opt) = Option.is_some jkind_opt
 
 let jkind_to_string = function Layout s -> s
 
-let fmt_jkind_str ~c ~loc string = fmt "@ :@ " $ Cmts.fmt c loc @@ str string
+let fmt_jkind_constr ~c ~loc string = fmt "@ :@ " $ Cmts.fmt c loc @@ str string
 
 let fmt_jkind c l = fmt_jkind_str ~c ~loc:l.loc (jkind_to_string l.txt)
 
-let fmt_type_var ~have_tick c s =
+let fmt_type_var ~have_tick c (s : ty_var) =
   let {txt= name_opt; loc= name_loc}, jkind_opt = s in
   ( Cmts.fmt c name_loc
   @@
@@ -563,7 +563,7 @@ let fmt_type_var ~have_tick c s =
       $ str var_name )
   $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind c)
 
-let fmt_type_var_with_parenze ~have_tick c s =
+let fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
   let jkind_annot = type_var_has_jkind_annot s in
   cbox_if jkind_annot 0
     (wrap_if jkind_annot "(" ")" (fmt_type_var ~have_tick c s))
@@ -823,9 +823,17 @@ and fmt_modes ~ats c modes =
   if List.is_empty modes then noop
   else
     let fmt_ats =
-      match ats with `One -> fmt "@ @@ " | `Two -> fmt "@ @@@@ "
+      match ats with `Zero -> noop | `One -> fmt "@ @@ " | `Two -> fmt "@ @@@@ "
     in
-    fmt_ats $ list modes " " fmt_mode
+    fmt_ats $ list modes "@ " fmt_mode
+
+and fmt_jkind c (ctx : jkind_context) = function
+  | Default -> fmt "_"
+  | Abbreviation abbrev -> fmt_str_loc c abbrev
+  | Mod (jkind, modes) -> fmt_jkind c jkind $ fmt " mod@ " $ hvbox (fmt_modes modes)
+  | With (jkind, type_) -> fmt_jkind c jkind $ fmt " with@ " $ fmt_core_type c ~box:true type_
+  | Kind_of type_ -> fmt "kind_of_@ " $ fmt_core_type c ~box:true type_
+  | Product
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
