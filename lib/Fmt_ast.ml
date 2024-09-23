@@ -809,7 +809,7 @@ and fmt_type_var ~have_tick c (s : ty_var) =
             (String.length var_name > 1 && Char.equal var_name.[1] '\'')
             " " )
       $ str var_name )
-  $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind c)
+  $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind_constr c)
 
 and fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
   let jkind_annot = type_var_has_jkind_annot s in
@@ -837,6 +837,9 @@ and fmt_jkind c {txt; _} =
     | Product kinds -> list kinds " @& " (fmt_no_loc ~in_product:true)
   in
   fmt_no_loc txt ~in_product:false
+
+and fmt_jkind_constr c jkind =
+  fmt "@ :@ " $ Cmts.fmt c jkind.loc (fmt_jkind c jkind)
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -3720,7 +3723,7 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
           0
           ( fmt_tydcl_params c ctx ptype_params
           $ Option.value_map name ~default:(str txt) ~f:(fmt_longident_loc c)
-          $ fmt_opt (Option.map ~f:(fmt_jkind c) ptype_jkind) )
+          $ fmt_opt (Option.map ~f:(fmt_jkind_constr c) ptype_jkind) )
       $ k )
   in
   let fmt_manifest_kind =
