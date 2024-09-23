@@ -481,8 +481,8 @@ module Signature_item = struct
      |Psig_modsubst {pms_ext_attrs= ea; _} ->
         Ext_attrs.has_doc ea
     | Psig_include
-        ({pincl_mod= {pmty_attributes= atrs1; _}; pincl_attributes= atrs2; _}
-         , _)
+        ( {pincl_mod= {pmty_attributes= atrs1; _}; pincl_attributes= atrs2; _}
+        , _ )
      |Psig_exception
         { ptyexn_attributes= atrs1
         ; ptyexn_constructor= {pext_attributes= atrs2; _}
@@ -1145,11 +1145,10 @@ end = struct
           | Pctf_attribute _ -> false
           | Pctf_extension _ -> false )
     | Jkd j ->
-      assert
-      (match j with
-       | Kind_of t | With (_, t) -> t == typ
-       | Default | Abbreviation _ | Mod _ | Product _ -> false
-      )
+        assert (
+          match j with
+          | Kind_of t | With (_, t) -> t == typ
+          | Default | Abbreviation _ | Mod _ | Product _ -> false )
     | Top | Tli _ | Rep -> assert false
 
   let assert_check_typ xtyp =
@@ -1549,10 +1548,10 @@ end = struct
             List.exists pvbs_bindings ~f:(fun {pvb_expr; _} ->
                 pvb_expr == exp ) )
       | Pstr_extension ((_, ext), _) -> assert (check_extensions ext)
-      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_kind_abbrev _ | Pstr_exception _
-       |Pstr_module _ | Pstr_recmodule _ | Pstr_modtype _ | Pstr_open _
-       |Pstr_class _ | Pstr_class_type _ | Pstr_include _ | Pstr_attribute _
-        ->
+      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_kind_abbrev _
+       |Pstr_exception _ | Pstr_module _ | Pstr_recmodule _
+       |Pstr_modtype _ | Pstr_open _ | Pstr_class _ | Pstr_class_type _
+       |Pstr_include _ | Pstr_attribute _ ->
           assert false )
     | Mod {pmod_desc= Pmod_unpack (e1, _, _); _} -> assert (e1 == exp)
     | Cl ctx ->
@@ -1605,7 +1604,8 @@ end = struct
           | Pcf_inherit _ -> false
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
-    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Pat _ | Mty _ | Sig _ | Td _ | Rep ->
+    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Pat _ | Mty _ | Sig _ | Td _
+     |Rep ->
         assert false
 
   let assert_check_exp xexp =
@@ -2266,7 +2266,7 @@ end = struct
       in
       match exp.pexp_desc with
       | Pexp_assert e
-       |Pexp_stack e 
+       |Pexp_stack e
        |Pexp_construct (_, Some e)
        |Pexp_ifthenelse (_, Some e)
        |Pexp_prefix (_, e)

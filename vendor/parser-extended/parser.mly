@@ -213,11 +213,6 @@ let local_attr =
 let local_extension =
   Exp.mk ~loc:Location.none (Pexp_extension(local_ext_loc, PStr []))
 
-let include_functor_ext_loc = mknoloc "extension.include_functor"
-
-let include_functor_attr =
-  Attr.mk ~loc:Location.none include_functor_ext_loc (PStr [])
-
 let mkexp_stack ~loc exp =
   if Erase_jane_syntax.should_erase () then exp else
   ghexp ~loc (Pexp_apply(local_extension, [Nolabel, exp]))
@@ -1666,26 +1661,26 @@ module_binding_body:
 
 (* Shared material between structures and signatures. *)
 
-include_and_functor_attr:
+include_kind:
   | INCLUDE %prec below_FUNCTOR
-      { [] }
+      { Structure }
   | INCLUDE FUNCTOR
-      { [include_functor_attr] }
+      { Functor }
 ;
 
 (* An [include] statement can appear in a structure or in a signature,
    which is why this definition is parameterized. *)
 %inline include_statement(thing):
-  attrs0 = include_and_functor_attr
+  include_kind
   ext = ext
   attrs1 = attributes
   thing = thing
   attrs2 = post_item_attributes
   {
-    let attrs = attrs0 @ attrs1 @ attrs2 in
+    let attrs = attrs1 @ attrs2 in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Incl.mk thing ~attrs ~loc ~docs, ext
+    Incl.mk thing ~kind:$1 ~attrs ~loc ~docs, ext
   }
 ;
 

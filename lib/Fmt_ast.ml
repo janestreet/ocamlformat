@@ -787,9 +787,12 @@ and fmt_modes ~ats c modes =
   if List.is_empty modes then noop
   else
     let fmt_ats =
-      match ats with `Zero -> noop | `One -> fmt "@ @@ " | `Two -> fmt "@ @@@@ "
+      match ats with
+      | `Zero -> fmt "@ "
+      | `One -> fmt "@ @@ "
+      | `Two -> fmt "@ @@@@ "
     in
-    fmt_ats $ list modes "@ " fmt_mode
+    fmt_ats $ hvbox 0 (list modes "@ " fmt_mode)
 
 and fmt_type_var ~have_tick c (s : ty_var) =
   let {txt= name_opt; loc= name_loc}, jkind_opt = s in
@@ -813,23 +816,27 @@ and fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
   cbox_if jkind_annot 0
     (wrap_if jkind_annot "(" ")" (fmt_type_var ~have_tick c s))
 
-and fmt_jkind c {txt;_ }= 
-  let rec fmt_no_loc ~in_product jkd = match jkd with
-  | Default -> fmt "_"
-  | Abbreviation abbrev -> fmt_str_loc c abbrev
-  | Mod (jkind, modes) ->
-    wrap_if in_product "(" ")" (
-    fmt_no_loc ~in_product:false jkind $ fmt " mod@ " $ hvbox 0 (fmt_modes ~ats:`Zero c modes))
-  | With (jkind, type_) ->
-    wrap_if in_product "(" ")" (
-    fmt_no_loc ~in_product:false jkind $ fmt " with@ " $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_)
-  )
-  | Kind_of type_ -> fmt "kind_of_@ " $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd)  type_)
-  | Product kinds ->
-    list kinds " @& " (fmt_no_loc  ~in_product:true)
-      in
-      fmt_no_loc txt ~in_product:false
-
+and fmt_jkind c {txt; _} =
+  let rec fmt_no_loc ~in_product jkd =
+    match jkd with
+    | Default -> fmt "_"
+    | Abbreviation abbrev -> fmt_str_loc c abbrev
+    | Mod (jkind, modes) ->
+        wrap_if in_product "(" ")"
+          ( fmt_no_loc ~in_product:false jkind
+          $ fmt " mod@ "
+          $ hvbox 0 (fmt_modes ~ats:`Zero c modes) )
+    | With (jkind, type_) ->
+        wrap_if in_product "(" ")"
+          ( fmt_no_loc ~in_product:false jkind
+          $ fmt " with@ "
+          $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_) )
+    | Kind_of type_ ->
+        fmt "kind_of_@ "
+        $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_)
+    | Product kinds -> list kinds " @& " (fmt_no_loc ~in_product:true)
+  in
+  fmt_no_loc txt ~in_product:false
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -2283,11 +2290,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro
       $ hvbox 2
           (Params.Exp.wrap c.conf ~parens
-          (
-              fmt_expression c ~box (sub_exp ~ctx e)
-                 $ fmt_atrs
-
-          ))
+             (fmt_expression c ~box (sub_exp ~ctx e) $ fmt_atrs) )
   | Pexp_apply (e0, e1N1) -> (
       let wrap =
         if c.conf.fmt_opts.wrap_fun_args.v then Fn.id else hvbox 2
@@ -3968,15 +3971,8 @@ and fmt_type_extension ?ext c ctx
        $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
 
 and fmt_kind_abbreviation c name kind =
-
-  hvbox c.conf.fmt_opts.type_decl_indent.v (
-  str "kind_abbrev_ " $ fmt_str_loc c name $ str " =@ "
-  $ 
-  fmt_jkind c kind
-)
-
-
-
+  hvbox c.conf.fmt_opts.type_decl_indent.v
+    (str "kind_abbrev_ " $ fmt_str_loc c name $ str " =@ " $ fmt_jkind c kind)
 
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =
@@ -4206,7 +4202,8 @@ and fmt_signature_item c ?ext {ast= si; _} =
         $ hvbox_if (not box) 0 (fmt_item_extension c ctx ext)
         $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs
         $ doc_after )
-  | Psig_include ({pincl_mod; pincl_attributes; pincl_loc; pincl_kind}, modalities) ->
+  | Psig_include
+      ({pincl_mod; pincl_attributes; pincl_loc; pincl_kind}, modalities) ->
       update_config_maybe_disabled c pincl_loc pincl_attributes
       @@ fun c ->
       let doc_before, doc_after, atrs =
@@ -4215,12 +4212,9 @@ and fmt_signature_item c ?ext {ast= si; _} =
       in
       let keyword, ({pro; psp; bdy; esp; epi; _} as blk) =
         let incl =
-          (match pincl_kind with
-           | Functor -> 
-          fmt "include@ functor"
-           | Structure -> 
-str "include"
-          )
+          match pincl_kind with
+          | Functor -> fmt "include@ functor"
+          | Structure -> str "include"
         in
         let kwd = incl $ fmt_extension_suffix c ext in
         match pincl_mod with
@@ -4239,8 +4233,7 @@ str "include"
                 ( hvbox 2 (keyword $ opt pro (fun pro -> str " " $ pro))
                 $ fmt_or_k (Option.is_some pro) psp (fmt "@;<1 2>")
                 $ bdy
-                $ fmt_modalities c modalities
-              )
+                $ fmt_modalities c modalities )
             $ esp $ fmt_opt epi
             $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
         $ doc_after )
@@ -4800,16 +4793,14 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
   | Pstr_exception extn_constr ->
       let pre = str "exception" $ fmt_extension_suffix c ext $ fmt "@ " in
       hvbox 2 ~name:"exn" (fmt_type_exception ~pre c ctx extn_constr)
-  | Pstr_include {pincl_mod; pincl_attributes= attributes; pincl_loc; pincl_kind} ->
+  | Pstr_include
+      {pincl_mod; pincl_attributes= attributes; pincl_loc; pincl_kind} ->
       update_config_maybe_disabled c pincl_loc attributes
       @@ fun c ->
       let incl =
-        (match pincl_kind with
-         | Functor -> 
-fmt "include@ functor" 
-         | Structure -> 
-str "include"
-        )
+        match pincl_kind with
+        | Functor -> fmt "include@ functor"
+        | Structure -> str "include"
       in
       let keyword = incl $ fmt_extension_suffix c ext $ fmt "@ " in
       fmt_module_statement c ~attributes ~keyword (sub_mod ~ctx pincl_mod)
