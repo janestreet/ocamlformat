@@ -61,8 +61,6 @@ type 'a loc = 'a Location.loc = {
   loc : Location.t;
 }
 
-type const_jkind = Layout of string [@@unboxed]
-
 type label = string
 
 type arg_label =
