@@ -697,6 +697,7 @@ module T = struct
     | Clf of class_field
     | Ctf of class_type_field
     | Tli of toplevel_item
+    | Jkd of jkind_annotation
     | Top
     | Rep
 
@@ -723,6 +724,7 @@ module T = struct
         Format.fprintf fs "Ctf:@\n%a@\n" Printast.class_type_field ctf
     | Tli (`Directive d) ->
         Format.fprintf fs "Dir:@\n%a" Printast.top_phrase (Ptop_dir d)
+    | Jkd j -> Format.fprintf fs "Jkd:@\n%a" (Printast.jkind_annotation 0) j
     | Top -> Format.pp_print_string fs "Top"
     | Rep -> Format.pp_print_string fs "Rep"
 end
@@ -754,6 +756,7 @@ let attributes = function
   | Ctf x -> x.pctf_attributes
   | Top -> []
   | Tli _ -> []
+  | Jkd _ -> []
   | Rep -> []
 
 let location = function
@@ -777,6 +780,7 @@ let location = function
   | Ctf x -> x.pctf_loc
   | Tli (`Item x) -> x.pstr_loc
   | Tli (`Directive x) -> x.pdir_loc
+  | Jkd _ -> Location.none
   | Top -> Location.none
   | Rep -> Location.none
 
@@ -1140,6 +1144,12 @@ end = struct
           | Pctf_inherit _ -> false
           | Pctf_attribute _ -> false
           | Pctf_extension _ -> false )
+    | Jkd j ->
+      assert
+      (match j with
+       | Kind_of t | With (_, t) -> t == typ
+       | Default | Abbreviation _ | Mod _ | Product _ -> false
+      )
     | Top | Tli _ | Rep -> assert false
 
   let assert_check_typ xtyp =
@@ -1216,6 +1226,7 @@ end = struct
           | Pctf_constraint _ -> false
           | Pctf_attribute _ -> false
           | Pctf_extension _ -> false )
+    | Jkd _ -> assert false
     | Mty _ -> assert false
     | Mod _ -> assert false
     | Rep -> assert false
@@ -1273,6 +1284,7 @@ end = struct
     | Mty _ -> assert false
     | Mod _ -> assert false
     | Rep -> assert false
+    | Jkd _ -> assert false
 
   let assert_check_cl xcl =
     let dump {ctx; ast= cl} = dump ctx (Cl cl) in
@@ -1423,7 +1435,7 @@ end = struct
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
     | Ctf _ -> assert false
-    | Top | Tli _ | Rep -> assert false
+    | Jkd _ | Top | Tli _ | Rep -> assert false
 
   let assert_check_pat xpat =
     let dump {ctx; ast= pat} = dump ctx (Pat pat) in
@@ -1593,7 +1605,7 @@ end = struct
           | Pcf_inherit _ -> false
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
-    | Mod _ | Top | Tli _ | Typ _ | Pat _ | Mty _ | Sig _ | Td _ | Rep ->
+    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Pat _ | Mty _ | Sig _ | Td _ | Rep ->
         assert false
 
   let assert_check_exp xexp =
@@ -1795,7 +1807,7 @@ end = struct
     | { ctx= Exp _
       ; ast=
           ( Pld _ | Top | Tli _ | Pat _ | Cl _ | Mty _ | Mod _ | Sig _
-          | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ ) }
+          | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
      |{ctx= Fp _; ast= _}
      |{ctx= _; ast= Fp _}
      |{ctx= Vc _; ast= _}
@@ -1807,13 +1819,13 @@ end = struct
      |{ ctx= Cl _
       ; ast=
           ( Pld _ | Top | Tli _ | Pat _ | Mty _ | Mod _ | Sig _ | Str _
-          | Clf _ | Ctf _ | Rep | Mb _ | Md _ ) }
+          | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
      |{ ctx=
           ( Pld _ | Top | Tli _ | Typ _ | Cty _ | Pat _ | Mty _ | Mod _
-          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ )
+          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ )
       ; ast=
           ( Pld _ | Top | Tli _ | Pat _ | Exp _ | Cl _ | Mty _ | Mod _
-          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ ) } ->
+          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) } ->
         None
 
   (** [prec_ast ast] is the precedence of [ast]. Meaningful for binary
@@ -1899,7 +1911,7 @@ end = struct
       | Pcl_structure _ -> Some Apply
       | _ -> None )
     | Top | Pat _ | Mty _ | Mod _ | Sig _ | Str _ | Tli _ | Clf _ | Ctf _
-     |Rep | Mb _ | Md _ ->
+     |Rep | Mb _ | Md _ | Jkd _ ->
         None
 
   (** [ambig_prec {ctx; ast}] holds when [ast] is ambiguous in its context
@@ -2657,12 +2669,3 @@ end
 
 include In_ctx
 include Requires_sub_terms
-
-
-type jkind_context =
-  | Constraint_rhs 
-  | Mod_lhs 
-  | With_lhs 
-  | Product_lhs 
-  | Product_rhs 
-

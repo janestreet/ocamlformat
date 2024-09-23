@@ -195,14 +195,6 @@ let update_items_config c items update_config =
   let _, items = List.fold_map items ~init:c ~f:with_config in
   items
 
-let check_include_functor_attr attrs =
-  match
-    List.partition_tf attrs ~f:(fun attr ->
-        String.equal attr.attr_name.txt "extension.include_functor" )
-  with
-  | [], _ -> (attrs, false)
-  | _ :: _, rest -> (rest, true)
-
 let box_semisemi c ~parent_ctx b k =
   let space = Poly.(c.conf.fmt_opts.sequence_style.v = `Separator) in
   match parent_ctx with
@@ -540,34 +532,6 @@ let fmt_quoted_string key ext s = function
 
 let type_var_has_jkind_annot (_, jkind_opt) = Option.is_some jkind_opt
 
-let jkind_to_string = function Layout s -> s
-
-let fmt_jkind_constr ~c ~loc string = fmt "@ :@ " $ Cmts.fmt c loc @@ str string
-
-let fmt_jkind c l = fmt_jkind_str ~c ~loc:l.loc (jkind_to_string l.txt)
-
-let fmt_type_var ~have_tick c (s : ty_var) =
-  let {txt= name_opt; loc= name_loc}, jkind_opt = s in
-  ( Cmts.fmt c name_loc
-  @@
-  match name_opt with
-  | None -> str "_"
-  | Some var_name ->
-      fmt_if_k have_tick
-        ( str "'"
-        (* [' a'] is a valid type variable, the space is required to not lex
-           as a char. https://github.com/ocaml/ocaml/pull/2034 *)
-        $ fmt_if
-            (String.length var_name > 1 && Char.equal var_name.[1] '\'')
-            " " )
-      $ str var_name )
-  $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind c)
-
-let fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
-  let jkind_annot = type_var_has_jkind_annot s in
-  cbox_if jkind_annot 0
-    (wrap_if jkind_annot "(" ")" (fmt_type_var ~have_tick c s))
-
 let split_global_flags_from_attrs atrs =
   match
     List.partition_map atrs ~f:(fun a ->
@@ -827,13 +791,45 @@ and fmt_modes ~ats c modes =
     in
     fmt_ats $ list modes "@ " fmt_mode
 
-and fmt_jkind c (ctx : jkind_context) = function
+and fmt_type_var ~have_tick c (s : ty_var) =
+  let {txt= name_opt; loc= name_loc}, jkind_opt = s in
+  ( Cmts.fmt c name_loc
+  @@
+  match name_opt with
+  | None -> str "_"
+  | Some var_name ->
+      fmt_if_k have_tick
+        ( str "'"
+        (* [' a'] is a valid type variable, the space is required to not lex
+           as a char. https://github.com/ocaml/ocaml/pull/2034 *)
+        $ fmt_if
+            (String.length var_name > 1 && Char.equal var_name.[1] '\'')
+            " " )
+      $ str var_name )
+  $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind c)
+
+and fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
+  let jkind_annot = type_var_has_jkind_annot s in
+  cbox_if jkind_annot 0
+    (wrap_if jkind_annot "(" ")" (fmt_type_var ~have_tick c s))
+
+and fmt_jkind c {txt;_ }= 
+  let rec fmt_no_loc ~in_product jkd = match jkd with
   | Default -> fmt "_"
   | Abbreviation abbrev -> fmt_str_loc c abbrev
-  | Mod (jkind, modes) -> fmt_jkind c jkind $ fmt " mod@ " $ hvbox (fmt_modes modes)
-  | With (jkind, type_) -> fmt_jkind c jkind $ fmt " with@ " $ fmt_core_type c ~box:true type_
-  | Kind_of type_ -> fmt "kind_of_@ " $ fmt_core_type c ~box:true type_
-  | Product
+  | Mod (jkind, modes) ->
+    wrap_if in_product "(" ")" (
+    fmt_no_loc ~in_product:false jkind $ fmt " mod@ " $ hvbox 0 (fmt_modes ~ats:`Zero c modes))
+  | With (jkind, type_) ->
+    wrap_if in_product "(" ")" (
+    fmt_no_loc ~in_product:false jkind $ fmt " with@ " $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_)
+  )
+  | Kind_of type_ -> fmt "kind_of_@ " $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd)  type_)
+  | Product kinds ->
+    list kinds " @& " (fmt_no_loc  ~in_product:true)
+      in
+      fmt_no_loc txt ~in_product:false
+
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -2283,6 +2279,15 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
              ( fmt_str_loc c op $ fmt_if has_cmts "@,"
              $ fmt_expression c ~box (sub_exp ~ctx e)
              $ fmt_atrs ) )
+  | Pexp_stack e ->
+      pro
+      $ hvbox 2
+          (Params.Exp.wrap c.conf ~parens
+          (
+              fmt_expression c ~box (sub_exp ~ctx e)
+                 $ fmt_atrs
+
+          ))
   | Pexp_apply (e0, e1N1) -> (
       let wrap =
         if c.conf.fmt_opts.wrap_fun_args.v then Fn.id else hvbox 2
@@ -3962,6 +3967,17 @@ and fmt_type_extension ?ext c ctx
                  $ fmt_ctor x ) )
        $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
 
+and fmt_kind_abbreviation c name kind =
+
+  hvbox c.conf.fmt_opts.type_decl_indent.v (
+  str "kind_abbrev_ " $ fmt_str_loc c name $ str " =@ "
+  $ 
+  fmt_jkind c kind
+)
+
+
+
+
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =
   let doc1, atrs = doc_atrs ptyexn_attributes in
@@ -4190,10 +4206,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
         $ hvbox_if (not box) 0 (fmt_item_extension c ctx ext)
         $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs
         $ doc_after )
-  | Psig_include {pincl_mod; pincl_attributes; pincl_loc} ->
-      let pincl_attributes, isfunctor =
-        check_include_functor_attr pincl_attributes
-      in
+  | Psig_include ({pincl_mod; pincl_attributes; pincl_loc; pincl_kind}, modalities) ->
       update_config_maybe_disabled c pincl_loc pincl_attributes
       @@ fun c ->
       let doc_before, doc_after, atrs =
@@ -4202,7 +4215,12 @@ and fmt_signature_item c ?ext {ast= si; _} =
       in
       let keyword, ({pro; psp; bdy; esp; epi; _} as blk) =
         let incl =
-          if isfunctor then fmt "include@ functor" else str "include"
+          (match pincl_kind with
+           | Functor -> 
+          fmt "include@ functor"
+           | Structure -> 
+str "include"
+          )
         in
         let kwd = incl $ fmt_extension_suffix c ext in
         match pincl_mod with
@@ -4220,7 +4238,9 @@ and fmt_signature_item c ?ext {ast= si; _} =
             ( box
                 ( hvbox 2 (keyword $ opt pro (fun pro -> str " " $ pro))
                 $ fmt_or_k (Option.is_some pro) psp (fmt "@;<1 2>")
-                $ bdy )
+                $ bdy
+                $ fmt_modalities c modalities
+              )
             $ esp $ fmt_opt epi
             $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
         $ doc_after )
@@ -4236,6 +4256,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
       fmt_recmodule c ctx mds fmt_module_declaration (fun x -> Md x) sub_md
   | Psig_type (rec_flag, decls) -> fmt_type c ?ext rec_flag decls ctx
   | Psig_typext te -> fmt_type_extension ?ext c ctx te
+  | Psig_kind_abbrev (name, kind) -> fmt_kind_abbreviation c name kind
   | Psig_value vd -> fmt_value_description ?ext c ctx vd
   | Psig_class cl -> fmt_class_types ?ext c ctx ~pre:"class" ~sep:":" cl
   | Psig_class_type cl ->
@@ -4779,12 +4800,16 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
   | Pstr_exception extn_constr ->
       let pre = str "exception" $ fmt_extension_suffix c ext $ fmt "@ " in
       hvbox 2 ~name:"exn" (fmt_type_exception ~pre c ctx extn_constr)
-  | Pstr_include {pincl_mod; pincl_attributes= attributes; pincl_loc} ->
-      let attributes, isfunctor = check_include_functor_attr attributes in
+  | Pstr_include {pincl_mod; pincl_attributes= attributes; pincl_loc; pincl_kind} ->
       update_config_maybe_disabled c pincl_loc attributes
       @@ fun c ->
       let incl =
-        if isfunctor then fmt "include@ functor" else str "include"
+        (match pincl_kind with
+         | Functor -> 
+fmt "include@ functor" 
+         | Structure -> 
+str "include"
+        )
       in
       let keyword = incl $ fmt_extension_suffix c ext $ fmt "@ " in
       fmt_module_statement c ~attributes ~keyword (sub_mod ~ctx pincl_mod)
@@ -4809,6 +4834,7 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
       fmt_recmodule c ctx mbs fmt_module_binding (fun x -> Mb x) sub_mb
   | Pstr_type (rec_flag, decls) -> fmt_type c ?ext rec_flag decls ctx
   | Pstr_typext te -> fmt_type_extension ?ext c ctx te
+  | Pstr_kind_abbrev (name, kind) -> fmt_kind_abbreviation c name kind
   | Pstr_value {pvbs_rec= rec_flag; pvbs_bindings= bindings; pvbs_extension}
     ->
       let update_config c i = update_config ~quiet:true c i.pvb_attributes in

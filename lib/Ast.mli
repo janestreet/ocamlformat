@@ -123,6 +123,7 @@ type t =
   | Clf of class_field
   | Ctf of class_type_field
   | Tli of toplevel_item
+  | Jkd of jkind_annotation
   | Top
   | Rep  (** Repl phrase *)
 
@@ -141,14 +142,6 @@ val dump : Format.formatter -> t -> unit
 (** Term-in-context [{ctx; ast}] records that [ast] is (considered to be) an
     immediate sub-term of [ctx]. *)
 type 'a xt = private {ctx: t; ast: 'a}
-
-(** Context for jkind language *)
-type jkind_context =
-  | Constraint_rhs (** [type T : <HERE>] *)
-  | Mod_lhs (** [<HERE> mod M] *)
-  | With_lhs (** [<HERE> with T] *)
-  | Product_lhs (** [<HERE> & J] *)
-  | Product_rhs (** [J & <HERE>] *)
 
 val sub_typ : ctx:t -> core_type -> core_type xt
 (** Construct a core_type-in-context. *)
