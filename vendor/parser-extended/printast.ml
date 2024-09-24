@@ -629,7 +629,7 @@ and jkind_annotation i ppf (jkind : jkind_annotation) =
   match jkind with
   | Default -> line i ppf "Default\n"
   | Abbreviation jkind ->
-      line i ppf "Abbreviation \"%s\"\n" jkind.txt
+      line i ppf "Abbreviation \"%s\" %a\n" jkind.txt fmt_location jkind.loc
   | Mod (jkind, m) ->
       line i ppf "Mod\n";
       jkind_annotation (i+1) ppf jkind;
@@ -1323,7 +1323,7 @@ and row_field i ppf x =
       core_type i ppf ct
 
 and typevar i ppf (var, jkind) =
-  option i (fun _ ppf -> fprintf ppf "%s\n") ppf var.txt;
+  option i (fun _ ppf -> line (i+1) ppf "%s\n") ppf var.txt;
   option i jkind_annotation ppf (Option.map (fun {txt; _} -> txt) jkind);
 
 and typevars i ppf vs =

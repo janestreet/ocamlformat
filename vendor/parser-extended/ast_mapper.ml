@@ -53,6 +53,8 @@ type mapper = {
                          -> extension_constructor;
   include_declaration: mapper -> include_declaration -> include_declaration;
   include_description: mapper -> include_description -> include_description;
+  jkind_annotation:
+    mapper -> jkind_annotation -> jkind_annotation;
   label_declaration: mapper -> label_declaration -> label_declaration;
   location: mapper -> Location.t -> Location.t;
   module_binding: mapper -> module_binding -> module_binding;
@@ -93,8 +95,11 @@ let map_tuple3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
 let map_opt f = function None -> None | Some x -> Some (f x)
 
 let map_loc sub {loc; txt} = {loc = sub.location sub loc; txt}
+let map_loc_txt sub f {loc; txt} =
+  {loc = sub.location sub loc; txt = f sub txt}
 
-let map_type_var sub (n, l) = map_loc sub n, map_opt (map_loc sub) l
+let map_type_var sub (n, l) =
+  map_loc sub n, map_opt (map_loc_txt sub sub.jkind_annotation) l
 
 let variant_var sub x =
   {loc = sub.location sub x.loc; txt= map_loc sub x.txt}
@@ -501,8 +506,6 @@ module M = struct
         let attrs = sub.attributes sub attrs in
         extension ~loc ~attrs (sub.extension sub x)
     | Pstr_attribute x -> attribute ~loc (sub.attribute sub x)
-
-  let map_kind_abbreviation _ (name, jkind) = (name, jkind)
 end
 
 module Comprehension = struct
@@ -851,7 +854,8 @@ let default_mapper =
     typ = T.map;
     type_extension = T.map_type_extension;
     type_exception = T.map_type_exception;
-    kind_abbreviation = M.map_kind_abbreviation;
+    kind_abbreviation =
+      (fun this (a, k) -> (map_loc this a, map_loc_txt this this.jkind_annotation k));
     extension_constructor = T.map_extension_constructor;
     value_description =
       (fun this {pval_name; pval_type; pval_prim; pval_loc;
@@ -1022,6 +1026,21 @@ let default_mapper =
          | PTyp x -> PTyp (this.typ this x)
          | PPat (x, g) -> PPat (this.pat this x, map_opt (this.expr this) g)
       );
+
+    jkind_annotation = (fun this ->
+      function
+      | Default -> Default
+      | Abbreviation s ->
+        let {txt; loc} =
+          map_loc this s
+        in
+        Abbreviation ({ txt; loc })
+      | Mod (t, mode_list) ->
+        Mod (this.jkind_annotation this t, this.modes this mode_list)
+      | With (t, ty) ->
+        With (this.jkind_annotation this t, this.typ this ty)
+      | Kind_of ty -> Kind_of (this.typ this ty)
+      | Product ts -> Product (List.map (this.jkind_annotation this) ts));
 
     directive_argument =
       (fun this a ->
