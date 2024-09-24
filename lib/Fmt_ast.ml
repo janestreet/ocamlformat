@@ -824,7 +824,7 @@ and fmt_jkind c {txt; _} =
     | Mod (jkind, modes) ->
         wrap_if in_product "(" ")"
           ( fmt_no_loc ~in_product:false jkind
-          $ fmt " mod@ "
+          $ fmt " mod"
           $ hvbox 0 (fmt_modes ~ats:`Zero c modes) )
     | With (jkind, type_) ->
         wrap_if in_product "(" ")"
