@@ -4,8 +4,8 @@ val foo
   -> 'k Jane_symbol.Map.t
   -> ('k, Sockaddr.t, 'cmp) Map.t
 
-type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
-  : value with type_
+type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt :
+  value with type_
 
 type t_value : value with type_
 type t_imm : immediate with type_
@@ -239,8 +239,8 @@ type a =
   b (* comment 0 *)
   as
   ((* comment 1 *)
-  'k (* comment 2 *)
-  : (* comment 3 *)
+  'k (* comment 2 *) :
+  (* comment 3 *)
   immediate64 (* comment 4 *) with (* comment 5 *)
                                    mode (* comment 6 *))
 (* comment 7 *)

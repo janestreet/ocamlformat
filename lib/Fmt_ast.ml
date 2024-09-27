@@ -824,23 +824,27 @@ and fmt_jkind c {txt; _} =
     | Mod (jkind, modes) ->
         wrap_if in_product "(" ")"
           ( fmt_no_loc ~in_product:false jkind
-          $ fmt " mod"
+          $ fmt "@ mod"
           $ hvbox 0 (fmt_modes ~ats:`Zero c modes) )
     | With (jkind, type_) ->
         wrap_if in_product "(" ")"
           ( fmt_no_loc ~in_product:false jkind
-          $ fmt " with@ "
+          $ fmt "@ with "
           $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_) )
     | Kind_of type_ ->
         fmt "kind_of_@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_)
-    | Product kinds -> list kinds " @& " (fmt_no_loc ~in_product:true)
+    | Product kinds ->
+      wrap_if in_product "(" ")"
+        (hvbox 0 (
+        (list kinds "@ & "
+           (fun kind -> hvbox 2 (fmt_no_loc ~in_product:true kind)))
+      ))
   in
   fmt_no_loc txt ~in_product:false
 
 and fmt_jkind_constr c jkind =
-  fmt "@ " $ hvbox 0 (fmt ":@ "
-$ Cmts.fmt c jkind.loc (fmt_jkind c jkind)
+  fmt " :@ " $ hvbox 0 ( Cmts.fmt c jkind.loc (fmt_jkind c jkind)
     )
 
 (* Jane street: This is used to print both arrow param types and arrow return

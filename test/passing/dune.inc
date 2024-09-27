@@ -7089,6 +7089,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_annotation_composed.ml.stdout
+   (with-stderr-to layout_annotation_composed.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation_composed.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_composed.ml.ref layout_annotation_composed.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_composed.ml.err layout_annotation_composed.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to layout_annotation_composed.ml.js-stdout
+   (with-stderr-to layout_annotation_composed.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_annotation_composed.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_composed.ml.js-ref layout_annotation_composed.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_composed.ml.js-err layout_annotation_composed.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to layout_annotation_immediate_rewrite.ml.stdout
    (with-stderr-to layout_annotation_immediate_rewrite.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation_immediate_rewrite.ml})))))

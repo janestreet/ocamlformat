@@ -1,18 +1,43 @@
 val foo
-  : ('k : immediate64 mod mode) 'cmp.
+  : ('k :
+    kind1
+    & ((kind2 mod mode1 mode2 mode3 with type1) & kind3)
+    & kind4
+    & _
+    & (kind_of_ type2 mod mode4)
+    mod mode5) 'cmp.
   (module S with type Id_and_repr.t = 'k and type Id_and_repr.comparator_witness = 'cmp)
   -> 'k Jane_symbol.Map.t
   -> ('k, Sockaddr.t, 'cmp) Map.t
 
 type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt :
-  value mod mode
+  kind1
+  & ((kind2
+       mod moooooooooooooooooooode1 moooooooooooooooooooode2 moooooooooooooooooooode3
+       with type1)
+     & (kiiiiiiiiiiiiiiiiiiiind3 & kiiiiiiiiiiiiiiiiiiiind4))
+  & kind5
+  & _
+  & (kind_of_
+      ('a : kiiiiiiiiiiiiiiiiiiiind6 & kind_of_ int mod moooooooooooooooooooode4) -> 'b
+      mod moooooooooooooooooooode5)
+  mod mode5
 
-type t_value : value mod mode
-type t_imm : immediate mod mode
-type t_imm64 : immediate64
-type t_float64 : float64 mod mode
-type t_any : any mod mode
-type t_void : void mod mode
+type t_value :
+  kind1
+  & ((kind2 mod mode1 mode2 mode3 with type1) & kind3)
+  & kind4
+  & _
+  & (kind_of_ type2 mod mode4)
+  mod mode5
+
+type t_imm :
+  kind1
+  & ((kind2 mod mode1 mode2 mode3 with type1) & kind3)
+  & kind4
+  & _
+  & (kind_of_ type2 mod mode4)
+  mod mode5
 
 (***************************************)
 (* Test 1: annotation on type variable *)
