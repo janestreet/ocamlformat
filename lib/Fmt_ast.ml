@@ -775,12 +775,16 @@ and type_constr_and_body c xbody =
       , sub_exp ~ctx:exp_ctx exp )
   | _ -> (None, xbody)
 
-and fmt_modalities c modalities =
+and fmt_modalities ?(break = true) c modalities =
   let fmt_modality {txt= Modality modality; loc} =
     Cmts.fmt c loc (str modality)
   in
   if List.is_empty modalities then noop
-  else fmt "@ @@@@ " $ (hvbox 0 (list modalities "@ " fmt_modality))
+  else (
+    fmt (if break then "@ " else " ") $
+    fmt "@@@@ "
+    $ (hvbox 0 (list modalities "@ " fmt_modality))
+  )
 
 and fmt_modes ~ats c modes =
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
@@ -4235,6 +4239,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
         | _ -> (kwd, fmt_module_type c (sub_mty ~ctx pincl_mod))
       in
       let box = blk_box blk in
+      let has_attrs = not (List.is_empty atrs) in 
       hvbox 0
         ( doc_before
         $ hvbox 0
@@ -4244,7 +4249,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
                 $ bdy )
             $ esp $ fmt_opt epi
             $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs
-            $ fmt_modalities c modalities )
+            $ fmt_modalities ~break:has_attrs c modalities )
         $ doc_after )
   | Psig_modtype mtd -> fmt_module_type_declaration c ctx mtd
   | Psig_modtypesubst mtd -> fmt_module_type_declaration ~eqty:":=" c ctx mtd
