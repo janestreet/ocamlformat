@@ -780,7 +780,7 @@ and fmt_modalities c modalities =
     Cmts.fmt c loc (str modality)
   in
   if List.is_empty modalities then noop
-  else fmt "@ @@@@ " $ list modalities " " fmt_modality
+  else fmt "@ @@@@ " $ (hvbox 0 (list modalities "@ " fmt_modality))
 
 and fmt_modes ~ats c modes =
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
@@ -4241,10 +4241,10 @@ and fmt_signature_item c ?ext {ast= si; _} =
             ( box
                 ( hvbox 2 (keyword $ opt pro (fun pro -> str " " $ pro))
                 $ fmt_or_k (Option.is_some pro) psp (fmt "@;<1 2>")
-                $ bdy
-                $ fmt_modalities c modalities )
+                $ bdy )
             $ esp $ fmt_opt epi
-            $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
+            $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs
+            $ fmt_modalities c modalities )
         $ doc_after )
   | Psig_modtype mtd -> fmt_module_type_declaration c ctx mtd
   | Psig_modtypesubst mtd -> fmt_module_type_declaration ~eqty:":=" c ctx mtd

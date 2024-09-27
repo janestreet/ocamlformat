@@ -4809,6 +4809,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to include_at.ml.stdout
+   (with-stderr-to include_at.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/include_at.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_at.ml.ref include_at.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_at.ml.err include_at.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to include_at.ml.js-stdout
+   (with-stderr-to include_at.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/include_at.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_at.ml.js-ref include_at.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/include_at.ml.js-err include_at.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to include_functor.ml.stdout
    (with-stderr-to include_functor.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/include_functor.ml})))))
