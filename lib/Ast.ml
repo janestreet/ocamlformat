@@ -677,34 +677,38 @@ type toplevel_item =
 
 (** Ast terms of various forms. *)
 module T = struct
-  type t =
-    | Pld of payload
-    | Typ of core_type
-    | Td of type_declaration
-    | Cty of class_type
-    | Pat of pattern
-    | Exp of expression
-    | Fp of function_param
-    | Vc of value_constraint
-    | Lb of value_binding
-    | Mb of module_binding
-    | Md of module_declaration
-    | Cl of class_expr
-    | Mty of module_type
-    | Mod of module_expr
-    | Sig of signature_item
-    | Str of structure_item
-    | Clf of class_field
-    | Ctf of class_type_field
-    | Tli of toplevel_item
-    | Jkd of jkind_annotation
-    | Top
-    | Rep
+type t =
+  | Pld of payload
+  | Typ of core_type
+  | Td of type_declaration
+  | Kab of kind_abbreviation
+  | Tyv of ty_var
+  | Cty of class_type
+  | Pat of pattern
+  | Exp of expression
+  | Fp of function_param
+  | Vc of value_constraint
+  | Lb of value_binding
+  | Mb of module_binding
+  | Md of module_declaration
+  | Cl of class_expr
+  | Mty of module_type
+  | Mod of module_expr
+  | Sig of signature_item
+  | Str of structure_item
+  | Clf of class_field
+  | Ctf of class_type_field
+  | Tli of toplevel_item
+  | Jkd of jkind_annotation
+  | Top
+  | Rep 
 
   let dump fs = function
     | Pld l -> Format.fprintf fs "Pld:@\n%a" Printast.payload l
     | Typ t -> Format.fprintf fs "Typ:@\n%a" Printast.core_type t
     | Td t -> Format.fprintf fs "Td:@\n%a" Printast.type_declaration t
+    | Kab k -> Format.fprintf fs "Kab:@\n%a" (Printast.kind_abbreviation 0) k
+    | Tyv v -> Format.fprintf fs "Tyv:@\n%a" (Printast.typevar 0) v
     | Pat p -> Format.fprintf fs "Pat:@\n%a" Printast.pattern p
     | Exp e -> Format.fprintf fs "Exp:@\n%a" Printast.expression e
     | Fp p -> Format.fprintf fs "Fp:@\n%a" Printast.function_param p
@@ -739,6 +743,8 @@ let attributes = function
   | Pld _ -> []
   | Typ x -> x.ptyp_attributes
   | Td x -> x.ptype_attributes
+  | Kab _ -> []
+  | Tyv _ -> []
   | Cty x -> x.pcty_attributes
   | Pat x -> x.ppat_attributes
   | Exp x -> x.pexp_attributes
@@ -763,6 +769,8 @@ let location = function
   | Pld _ -> Location.none
   | Typ x -> x.ptyp_loc
   | Td x -> x.ptype_loc
+  | Kab _ -> Location.none
+  | Tyv _ -> Location.none
   | Cty x -> x.pcty_loc
   | Pat x -> x.ppat_loc
   | Exp x -> x.pexp_loc
@@ -1012,6 +1020,8 @@ end = struct
                  List.exists ld1N ~f:(fun {pld_type; _} -> typ == pld_type)
              | _ -> false )
           || Option.exists ptype_manifest ~f )
+    | Kab _ -> assert false
+    | Tyv _ -> assert false
     | Cty {pcty_desc; _} ->
         assert (
           match pcty_desc with
@@ -1203,6 +1213,8 @@ end = struct
     | Tli _ -> assert false
     | Typ _ -> assert false
     | Td _ -> assert false
+    | Kab _ -> assert false
+    | Tyv _ -> assert false
     | Pat _ -> assert false
     | Cl ctx ->
         assert (
@@ -1264,6 +1276,8 @@ end = struct
     | Tli _ -> assert false
     | Typ _ -> assert false
     | Td _ -> assert false
+    | Kab _ -> assert false
+    | Tyv _ -> assert false
     | Pat _ -> assert false
     | Cl {pcl_desc; _} ->
         assert (
@@ -1343,6 +1357,8 @@ end = struct
       | Ptyp_extension (_, ext) -> assert (check_extensions ext)
       | _ -> assert false )
     | Td _ -> assert false
+    | Kab _ -> assert false
+    | Tyv _ -> assert false
     | Pat ctx -> (
         let f pI = pI == pat in
         match ctx.ppat_desc with
@@ -1604,7 +1620,7 @@ end = struct
           | Pcf_inherit _ -> false
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
-    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Pat _ | Mty _ | Sig _ | Td _
+    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Tyv _ | Pat _ | Mty _ | Sig _ | Td _ | Kab _
      |Rep ->
         assert false
 
@@ -1806,7 +1822,7 @@ end = struct
       match pcl_desc with Pcl_apply _ -> Some (Apply, Non) | _ -> None )
     | { ctx= Exp _
       ; ast=
-          ( Pld _ | Top | Tli _ | Pat _ | Cl _ | Mty _ | Mod _ | Sig _
+          ( Pld _ | Top | Tli _ | Kab _ | Tyv _ |   Pat _ | Cl _ | Mty _ | Mod _ | Sig _
           | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
      |{ctx= Fp _; ast= _}
      |{ctx= _; ast= Fp _}
@@ -1818,13 +1834,13 @@ end = struct
      |{ctx= _; ast= Td _}
      |{ ctx= Cl _
       ; ast=
-          ( Pld _ | Top | Tli _ | Pat _ | Mty _ | Mod _ | Sig _ | Str _
+          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Mty _ | Mod _ | Sig _ | Str _
           | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
      |{ ctx=
-          ( Pld _ | Top | Tli _ | Typ _ | Cty _ | Pat _ | Mty _ | Mod _
+          ( Pld _ | Top | Tli _ | Typ _ | Tyv _ | Kab _ |  Cty _ | Pat _ | Mty _ | Mod _
           | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ )
       ; ast=
-          ( Pld _ | Top | Tli _ | Pat _ | Exp _ | Cl _ | Mty _ | Mod _
+          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Exp _ | Cl _ | Mty _ | Mod _
           | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) } ->
         None
 
@@ -1845,6 +1861,8 @@ end = struct
           None
       | Ptyp_constr_unboxed _ -> None )
     | Td _ -> None
+    | Tyv _ -> None
+    | Kab _ -> None
     | Cty {pcty_desc; _} -> (
       match pcty_desc with Pcty_arrow _ -> Some MinusGreater | _ -> None )
     | Exp {pexp_desc; _} -> (

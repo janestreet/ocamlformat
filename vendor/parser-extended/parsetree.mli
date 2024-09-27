@@ -1042,7 +1042,7 @@ and signature_item_desc =
   | Psig_typesubst of type_declaration list
       (** [type t1 := ... and ... and tn := ...]  *)
   | Psig_typext of type_extension  (** [type t1 += ...] *)
-  | Psig_kind_abbrev of string loc * jkind_annotation loc
+  | Psig_kind_abbrev of kind_abbreviation
   | Psig_exception of type_exception  (** [exception C of T] *)
   | Psig_module of module_declaration  (** [module X = M] and [module X : MT] *)
   | Psig_modsubst of module_substitution  (** [module X := M] *)
@@ -1196,7 +1196,7 @@ and structure_item_desc =
   | Pstr_type of rec_flag * type_declaration list
       (** [type t1 = ... and ... and tn = ...] *)
   | Pstr_typext of type_extension  (** [type t1 += ...] *)
-  | Pstr_kind_abbrev of string loc * jkind_annotation loc
+  | Pstr_kind_abbrev of kind_abbreviation
   | Pstr_exception of type_exception
       (** - [exception C of T]
             - [exception C = M.X] *)

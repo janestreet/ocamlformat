@@ -107,6 +107,8 @@ type t =
   | Pld of payload
   | Typ of core_type
   | Td of type_declaration
+  | Kab of kind_abbreviation
+  | Tyv of ty_var
   | Cty of class_type
   | Pat of pattern
   | Exp of expression

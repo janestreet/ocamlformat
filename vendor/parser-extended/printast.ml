@@ -625,6 +625,12 @@ and if_branch i ppf { if_cond; if_body } =
   expression i ppf if_cond;
   expression i ppf if_body
 
+and kind_abbreviation i ppf (a, k) =
+
+      line i ppf "kind_abbreviation %s\n" a.txt;
+      jkind_annotation i ppf k.txt
+
+
 and jkind_annotation i ppf (jkind : jkind_annotation) =
   match jkind with
   | Default -> line i ppf "Default\n"
@@ -1005,9 +1011,8 @@ and signature_item i ppf x =
   | Psig_typext te ->
       line i ppf "Psig_typext\n";
       type_extension i ppf te
-  | Psig_kind_abbrev (a, k) ->
-      line i ppf "Psig_kind_abbrev %s\n" a.txt;
-      jkind_annotation i ppf k.txt
+  | Psig_kind_abbrev ab ->
+      line i ppf "Psig_kind_abbrev %a\n" (kind_abbreviation i) ab
   | Psig_exception te ->
       line i ppf "Psig_exception\n";
       type_exception i ppf te
@@ -1138,9 +1143,8 @@ and structure_item i ppf x =
   | Pstr_typext te ->
       line i ppf "Pstr_typext\n";
       type_extension i ppf te
-  | Pstr_kind_abbrev (a, k) ->
-      line i ppf "Pstr_kind_abbrev %s\n" a.txt;
-      jkind_annotation i ppf k.txt
+  | Pstr_kind_abbrev ab ->
+      line i ppf "Pstr_kind_abbrev %a\n" (kind_abbreviation i) ab
   | Pstr_exception te ->
       line i ppf "Pstr_exception\n";
       type_exception i ppf te
