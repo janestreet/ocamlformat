@@ -7053,6 +7053,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_abbreviation.ml.stdout
+   (with-stderr-to layout_abbreviation.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/layout_abbreviation.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_abbreviation.ml.ref layout_abbreviation.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_abbreviation.ml.err layout_abbreviation.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to layout_abbreviation.ml.js-stdout
+   (with-stderr-to layout_abbreviation.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_abbreviation.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_abbreviation.ml.js-ref layout_abbreviation.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_abbreviation.ml.js-err layout_abbreviation.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to layout_annotation-erased.ml.stdout
    (with-stderr-to layout_annotation-erased.ml.stderr
      (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=4 %{dep:tests/layout_annotation.ml})))))

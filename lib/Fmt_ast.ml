@@ -4001,7 +4001,7 @@ and fmt_type_extension ?ext c ctx
 
 and fmt_kind_abbreviation c ((name, kind) as ab) =
   hvbox c.conf.fmt_opts.type_decl_indent.v
-    (str "kind_abbrev_ " $ fmt_str_loc c name $ str " =@ " $ fmt_jkind c ~ctx:(Kab ab) kind)
+    (str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ " $ fmt_jkind c ~ctx:(Kab ab) kind)
 
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =
