@@ -28,10 +28,11 @@ module type S = sig
     type t = int
 
     let x = 5
-  end [@attr1] [@attr2] @@ moooooooooooooooooooode1
-                           moooooooooooooooooooode2
-                           moooooooooooooooooooode3
-                           moooooooooooooooooooode4
+  end [@attr1] [@attr2]
+  @@ moooooooooooooooooooode1
+     moooooooooooooooooooode2
+     moooooooooooooooooooode3
+     moooooooooooooooooooode4
 
   include module type of struct
     type t = int

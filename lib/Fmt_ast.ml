@@ -4220,7 +4220,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
         let force_before = not (Mty.is_simple pincl_mod) in
         fmt_docstring_around_item c ~force_before ~fit:true pincl_attributes
       in
-      let keyword, ({pro; psp; bdy; esp; epi; _} as blk) =
+      let keyword, has_attrs, ({pro; psp; bdy; esp; epi; _} as blk) =
         let incl =
           match pincl_kind with
           | Functor -> fmt "include@ functor"
@@ -4228,15 +4228,17 @@ and fmt_signature_item c ?ext {ast= si; _} =
         in
         let kwd = incl $ fmt_extension_suffix c ext in
         match pincl_mod with
-        | {pmty_desc= Pmty_typeof me; pmty_loc; pmty_attributes= _} ->
+        | {pmty_desc= Pmty_typeof ({pmod_attributes; _} as me); pmty_loc; pmty_attributes} ->
             ( kwd
               $ Cmts.fmt c ~pro:(str " ") ~epi:noop pmty_loc
                   (fmt "@ module type of")
+              , 
+              not (List.is_empty pmod_attributes && List.is_empty pmty_attributes)
             , fmt_module_expr c (sub_mod ~ctx me) )
-        | _ -> (kwd, fmt_module_type c (sub_mty ~ctx pincl_mod))
+        | {pmty_attributes;_} -> (kwd, not (List.is_empty pmty_attributes), fmt_module_type c (sub_mty ~ctx pincl_mod))
       in
       let box = blk_box blk in
-      let has_attrs = not (List.is_empty atrs) in
+      let has_attrs = not (List.is_empty atrs) || has_attrs in
       hvbox 0
         ( doc_before
         $ hvbox 0
