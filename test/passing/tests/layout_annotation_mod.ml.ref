@@ -7,8 +7,7 @@ val foo :
   -> ('k, Sockaddr.t, 'cmp) Map.t
 
 type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
-  :
-  value mod mode
+  : value mod mode
 
 type t_value : value mod mode
 
@@ -294,8 +293,8 @@ let f_gadt : ('a : value mod mode). 'a -> 'a g -> 'a = fun x MkG -> f_imm x
 
 (* comments *)
 val foo :
-  ((* comment 1 *) 'k (* comment 2 *) : (* comment 3 *) immediate64
-  (* comment 4 *)) (* comment 5 *)
+  ((* comment 1 *) 'k (* comment 2 *)
+  : (* comment 3 *) immediate64 (* comment 4 *)) (* comment 5 *)
   'cmp.
      (module S
         with type Id_and_repr.t = 'k
@@ -307,9 +306,12 @@ type a =
   b (* comment 0 *)
   as
   ((* comment 1 *)
-  'k (* comment 2 *) : (* comment 3 *)
-  immediate64 (* comment 4 *) mod (* comment 5 *)
-                                  mode
+  'k (* comment 2 *)
+  :
+  (* comment 3 *)
+  immediate64
+  (* comment 4 *) mod (* comment 5 *)
+                      mode
   (* comment 6 *))
 (* comment 7 *)
 

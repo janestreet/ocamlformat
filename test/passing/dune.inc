@@ -7161,6 +7161,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to layout_annotation_with.ml.stdout
+   (with-stderr-to layout_annotation_with.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation_with.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_with.ml.ref layout_annotation_with.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_with.ml.err layout_annotation_with.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to layout_annotation_with.ml.js-stdout
+   (with-stderr-to layout_annotation_with.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_annotation_with.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_with.ml.js-ref layout_annotation_with.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/layout_annotation_with.ml.js-err layout_annotation_with.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to lazy.ml.stdout
    (with-stderr-to lazy.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/lazy.ml})))))

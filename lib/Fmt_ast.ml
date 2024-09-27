@@ -839,7 +839,9 @@ and fmt_jkind c {txt; _} =
   fmt_no_loc txt ~in_product:false
 
 and fmt_jkind_constr c jkind =
-  fmt "@ :@ " $ Cmts.fmt c jkind.loc (fmt_jkind c jkind)
+  fmt "@ " $ hvbox 0 (fmt ":@ "
+$ Cmts.fmt c jkind.loc (fmt_jkind c jkind)
+    )
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)

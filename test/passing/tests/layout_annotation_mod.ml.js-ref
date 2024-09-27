@@ -5,8 +5,7 @@ val foo
   -> ('k, Sockaddr.t, 'cmp) Map.t
 
 type ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
-  :
-  value mod mode
+  : value mod mode
 
 type t_value : value mod mode
 type t_imm : immediate mod mode
@@ -239,10 +238,10 @@ type a =
   b (* comment 0 *)
   as
   ((* comment 1 *)
-  'k (* comment 2 *) : (* comment 3 *)
+  'k (* comment 2 *)
+  : (* comment 3 *)
   immediate64 (* comment 4 *) mod (* comment 5 *)
-                                  mode
-  (* comment 6 *))
+                                  mode (* comment 6 *))
 (* comment 7 *)
 
 let f (type a : immediate mod mode) x = x
