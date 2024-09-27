@@ -780,11 +780,10 @@ and fmt_modalities ?(break = true) c modalities =
     Cmts.fmt c loc (str modality)
   in
   if List.is_empty modalities then noop
-  else (
-    fmt (if break then "@ " else " ") $
-    fmt "@@@@ "
-    $ (hvbox 0 (list modalities "@ " fmt_modality))
-  )
+  else
+    fmt (if break then "@ " else " ")
+    $ fmt "@@@@ "
+    $ hvbox 0 (list modalities "@ " fmt_modality)
 
 and fmt_modes ~ats c modes =
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
@@ -839,17 +838,15 @@ and fmt_jkind c {txt; _} =
         fmt "kind_of_@ "
         $ fmt_core_type c ~box:true (sub_typ ~ctx:(Jkd jkd) type_)
     | Product kinds ->
-      wrap_if in_product "(" ")"
-        (hvbox 0 (
-        (list kinds "@ & "
-           (fun kind -> hvbox 2 (fmt_no_loc ~in_product:true kind)))
-      ))
+        wrap_if in_product "(" ")"
+          (hvbox 0
+             (list kinds "@ & " (fun kind ->
+                  hvbox 2 (fmt_no_loc ~in_product:true kind) ) ) )
   in
   fmt_no_loc txt ~in_product:false
 
 and fmt_jkind_constr c jkind =
-  fmt " :@ " $ hvbox 0 ( Cmts.fmt c jkind.loc (fmt_jkind c jkind)
-    )
+  fmt " :@ " $ hvbox 0 (Cmts.fmt c jkind.loc (fmt_jkind c jkind))
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -4239,7 +4236,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
         | _ -> (kwd, fmt_module_type c (sub_mty ~ctx pincl_mod))
       in
       let box = blk_box blk in
-      let has_attrs = not (List.is_empty atrs) in 
+      let has_attrs = not (List.is_empty atrs) in
       hvbox 0
         ( doc_before
         $ hvbox 0
