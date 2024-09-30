@@ -677,31 +677,31 @@ type toplevel_item =
 
 (** Ast terms of various forms. *)
 module T = struct
-type t =
-  | Pld of payload
-  | Typ of core_type
-  | Td of type_declaration
-  | Kab of kind_abbreviation
-  | Tyv of ty_var
-  | Cty of class_type
-  | Pat of pattern
-  | Exp of expression
-  | Fp of function_param
-  | Vc of value_constraint
-  | Lb of value_binding
-  | Mb of module_binding
-  | Md of module_declaration
-  | Cl of class_expr
-  | Mty of module_type
-  | Mod of module_expr
-  | Sig of signature_item
-  | Str of structure_item
-  | Clf of class_field
-  | Ctf of class_type_field
-  | Tli of toplevel_item
-  | Jkd of jkind_annotation
-  | Top
-  | Rep 
+  type t =
+    | Pld of payload
+    | Typ of core_type
+    | Td of type_declaration
+    | Kab of kind_abbreviation
+    | Tyv of ty_var
+    | Cty of class_type
+    | Pat of pattern
+    | Exp of expression
+    | Fp of function_param
+    | Vc of value_constraint
+    | Lb of value_binding
+    | Mb of module_binding
+    | Md of module_declaration
+    | Cl of class_expr
+    | Mty of module_type
+    | Mod of module_expr
+    | Sig of signature_item
+    | Str of structure_item
+    | Clf of class_field
+    | Ctf of class_type_field
+    | Tli of toplevel_item
+    | Jkd of jkind_annotation
+    | Top
+    | Rep
 
   let dump fs = function
     | Pld l -> Format.fprintf fs "Pld:@\n%a" Printast.payload l
@@ -1620,8 +1620,8 @@ end = struct
           | Pcf_inherit _ -> false
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
-    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Tyv _ | Pat _ | Mty _ | Sig _ | Td _ | Kab _
-     |Rep ->
+    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Tyv _ | Pat _ | Mty _ | Sig _
+     |Td _ | Kab _ | Rep ->
         assert false
 
   let assert_check_exp xexp =
@@ -1822,8 +1822,9 @@ end = struct
       match pcl_desc with Pcl_apply _ -> Some (Apply, Non) | _ -> None )
     | { ctx= Exp _
       ; ast=
-          ( Pld _ | Top | Tli _ | Kab _ | Tyv _ |   Pat _ | Cl _ | Mty _ | Mod _ | Sig _
-          | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
+          ( Pld _ | Top | Tli _ | Kab _ | Tyv _ | Pat _ | Cl _ | Mty _
+          | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _
+            ) }
      |{ctx= Fp _; ast= _}
      |{ctx= _; ast= Fp _}
      |{ctx= Vc _; ast= _}
@@ -1834,14 +1835,16 @@ end = struct
      |{ctx= _; ast= Td _}
      |{ ctx= Cl _
       ; ast=
-          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Mty _ | Mod _ | Sig _ | Str _
-          | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
+          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Mty _ | Mod _
+          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
      |{ ctx=
-          ( Pld _ | Top | Tli _ | Typ _ | Tyv _ | Kab _ |  Cty _ | Pat _ | Mty _ | Mod _
-          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ )
+          ( Pld _ | Top | Tli _ | Typ _ | Tyv _ | Kab _ | Cty _ | Pat _
+          | Mty _ | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _
+          | Jkd _ )
       ; ast=
-          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Exp _ | Cl _ | Mty _ | Mod _
-          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) } ->
+          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Exp _ | Cl _
+          | Mty _ | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _
+          | Jkd _ ) } ->
         None
 
   (** [prec_ast ast] is the precedence of [ast]. Meaningful for binary

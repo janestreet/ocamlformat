@@ -8279,6 +8279,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to modes-erased.ml.stdout
+   (with-stderr-to modes-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/modes.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modes-erased.ml.ref modes-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modes-erased.ml.err modes-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to modes-erased.ml.js-stdout
+   (with-stderr-to modes-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/modes.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modes-erased.ml.js-ref modes-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modes-erased.ml.js-err modes-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to modes-ocaml_version.ml.stdout
    (with-stderr-to modes-ocaml_version.ml.stderr
      (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 %{dep:tests/modes.ml})))))

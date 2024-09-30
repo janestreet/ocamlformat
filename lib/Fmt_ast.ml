@@ -557,6 +557,9 @@ let let_binding_can_be_punned ~binding ~is_ext =
         : Sugar.Let_binding.t ) =
     binding
   in
+  let lb_modes =
+    if Erase_jane_syntax.should_erase () then [] else lb_modes
+  in
   match
     ( is_ext
     , lb_pat.ast.ppat_desc
@@ -779,7 +782,7 @@ and fmt_modalities ?(break = true) c modalities =
   let fmt_modality {txt= Modality modality; loc} =
     Cmts.fmt c loc (str modality)
   in
-  if List.is_empty modalities then noop
+  if List.is_empty modalities || Erase_jane_syntax.should_erase () then noop
   else
     fmt (if break then "@ " else " ")
     $ fmt "@@@@ "
@@ -787,7 +790,7 @@ and fmt_modalities ?(break = true) c modalities =
 
 and fmt_modes ~ats c modes =
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
-  if List.is_empty modes then noop
+  if List.is_empty modes || Erase_jane_syntax.should_erase () then noop
   else
     let fmt_ats =
       match ats with
@@ -812,7 +815,8 @@ and fmt_type_var ~have_tick c (s : ty_var) =
             (String.length var_name > 1 && Char.equal var_name.[1] '\'')
             " " )
       $ str var_name )
-  $ Option.value_map jkind_opt ~default:noop ~f:(fmt_jkind_constr ~ctx:(Tyv s) c)
+  $ Option.value_map jkind_opt ~default:noop
+      ~f:(fmt_jkind_constr ~ctx:(Tyv s) c)
 
 and fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
   let jkind_annot = type_var_has_jkind_annot s in
@@ -823,44 +827,47 @@ and fmt_jkind c ~ctx {txt; _} =
   let rec fmt_no_loc ~ctx jkd =
     let inner_ctx = Jkd jkd in
     let parens, fmt =
-    match jkd with
-    | Default -> false, fmt "_"
-    | Abbreviation abbrev -> false, fmt_str_loc c abbrev
-    | Mod (jkind, modes) ->
-      let parens = (match ctx with
-        | Jkd (Product _) -> true
-        | _ -> false
-      )in 
-      let fmt =
-         fmt_no_loc ~ctx:inner_ctx jkind
-          $ fmt "@ mod"
-          $ hvbox 0 (fmt_modes ~ats:`Zero c modes) 
-      in parens, fmt
-    | With (jkind, type_) ->
-      let parens = (match ctx with
-        | Jkd (Product _) -> true
-        | _ -> false
-      ) in
-      let fmt =
- fmt_no_loc ~ctx:inner_ctx jkind
-          $ fmt "@ with "
-          $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_) 
-      in parens, fmt
-    | Kind_of type_ ->
-      false,
-        fmt "kind_of_@ "
-        $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
-    | Product kinds ->
-      let parens = (match ctx with | Jkd (Product _ | Mod _ | With _) -> true
-        | _ -> false)in 
-      let fmt =
-          hvbox 0
-             (list kinds "@ & " (fun kind ->
-                  hvbox 2 (fmt_no_loc ~ctx:inner_ctx kind) ) ) 
-      in
-      parens, fmt
-      in
-      wrap_if parens "(" ")" fmt
+      match jkd with
+      | Default -> (false, fmt "_")
+      | Abbreviation abbrev -> (false, fmt_str_loc c abbrev)
+      | Mod (jkind, modes) ->
+          let parens =
+            match ctx with Jkd (Product _) -> true | _ -> false
+          in
+          let fmt =
+            fmt_no_loc ~ctx:inner_ctx jkind
+            $ fmt "@ mod"
+            $ hvbox 0 (fmt_modes ~ats:`Zero c modes)
+          in
+          (parens, fmt)
+      | With (jkind, type_) ->
+          let parens =
+            match ctx with Jkd (Product _) -> true | _ -> false
+          in
+          let fmt =
+            fmt_no_loc ~ctx:inner_ctx jkind
+            $ fmt "@ with "
+            $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
+          in
+          (parens, fmt)
+      | Kind_of type_ ->
+          ( false
+          , fmt "kind_of_@ "
+            $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_) )
+      | Product kinds ->
+          let parens =
+            match ctx with
+            | Jkd (Product _ | Mod _ | With _) -> true
+            | _ -> false
+          in
+          let fmt =
+            hvbox 0
+              (list kinds "@ & " (fun kind ->
+                   hvbox 2 (fmt_no_loc ~ctx:inner_ctx kind) ) )
+          in
+          (parens, fmt)
+    in
+    wrap_if parens "(" ")" fmt
   in
   fmt_no_loc txt ~ctx
 
@@ -1004,6 +1011,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            $ fmt_type_var_with_parenze ~have_tick:true c str ) )
   | Ptyp_any -> str "_"
   | Ptyp_arrow (args, ret_typ, modes) ->
+      let modes = if Erase_jane_syntax.should_erase () then [] else modes in
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
       let args, ret_typ, ctx =
@@ -3749,7 +3757,9 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
           0
           ( fmt_tydcl_params c ctx ptype_params
           $ Option.value_map name ~default:(str txt) ~f:(fmt_longident_loc c)
-          $ fmt_opt (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind) )
+          $ fmt_opt
+              (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
+          )
       $ k )
   in
   let fmt_manifest_kind =
@@ -4001,7 +4011,8 @@ and fmt_type_extension ?ext c ctx
 
 and fmt_kind_abbreviation c ((name, kind) as ab) =
   hvbox c.conf.fmt_opts.type_decl_indent.v
-    (str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ " $ fmt_jkind c ~ctx:(Kab ab) kind)
+    ( str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ "
+    $ fmt_jkind c ~ctx:(Kab ab) kind )
 
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =
@@ -4247,17 +4258,23 @@ and fmt_signature_item c ?ext {ast= si; _} =
         in
         let kwd = incl $ fmt_extension_suffix c ext in
         match pincl_mod with
-        | {pmty_desc= Pmty_typeof ({pmod_attributes; _} as me); pmty_loc; pmty_attributes} ->
+        | { pmty_desc= Pmty_typeof ({pmod_attributes; _} as me)
+          ; pmty_loc
+          ; pmty_attributes } ->
             ( kwd
               $ Cmts.fmt c ~pro:(str " ") ~epi:noop pmty_loc
                   (fmt "@ module type of")
-              , 
-              not (List.is_empty pmod_attributes && List.is_empty pmty_attributes)
+            , not
+                ( List.is_empty pmod_attributes
+                && List.is_empty pmty_attributes )
             , fmt_module_expr c (sub_mod ~ctx me) )
-        | {pmty_attributes;_} -> (kwd, not (List.is_empty pmty_attributes), fmt_module_type c (sub_mty ~ctx pincl_mod))
+        | {pmty_attributes; _} ->
+            ( kwd
+            , not (List.is_empty pmty_attributes)
+            , fmt_module_type c (sub_mty ~ctx pincl_mod) )
       in
       let box = blk_box blk in
-      let has_attrs = not (List.is_empty atrs) || has_attrs in
+      let has_attrs = (not (List.is_empty atrs)) || has_attrs in
       hvbox 0
         ( doc_before
         $ hvbox 0
@@ -4992,6 +5009,9 @@ and fmt_value_binding c ~rec_flag ?(punned_in_output = false) ?ext ?in_ ?epi
     ; lb_modes
     ; lb_loc
     ; lb_pun= punned_in_source } =
+  let lb_modes =
+    if Erase_jane_syntax.should_erase () then [] else lb_modes
+  in
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let doc1, atrs = doc_atrs lb_attrs in
