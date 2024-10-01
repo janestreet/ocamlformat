@@ -1262,10 +1262,10 @@ and jkind_const_annotation  = string Location.loc
 and jkind_annotation =
   | Default
   | Abbreviation of jkind_const_annotation
-  | Mod of jkind_annotation * modes
-  | With of jkind_annotation * core_type
+  | Mod of jkind_annotation loc * modes
+  | With of jkind_annotation loc * core_type
   | Kind_of of core_type
-  | Product of jkind_annotation list
+  | Product of jkind_annotation loc list
 
 and ty_var = string option loc * jkind_annotation loc option
 

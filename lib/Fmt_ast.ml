@@ -823,56 +823,52 @@ and fmt_type_var_with_parenze ~have_tick c (s : ty_var) =
   cbox_if jkind_annot 0
     (wrap_if jkind_annot "(" ")" (fmt_type_var ~have_tick c s))
 
-and fmt_jkind c ~ctx {txt; _} =
-  let rec fmt_no_loc ~ctx jkd =
-    let inner_ctx = Jkd jkd in
-    let parens, fmt =
-      match jkd with
-      | Default -> (false, fmt "_")
-      | Abbreviation abbrev -> (false, fmt_str_loc c abbrev)
-      | Mod (jkind, modes) ->
-          let parens =
-            match ctx with Jkd (Product _) -> true | _ -> false
-          in
-          let fmt =
-            fmt_no_loc ~ctx:inner_ctx jkind
-            $ fmt "@ mod"
-            $ hvbox 0 (fmt_modes ~ats:`Zero c modes)
-          in
-          (parens, fmt)
-      | With (jkind, type_) ->
-          let parens =
-            match ctx with Jkd (Product _) -> true | _ -> false
-          in
-          let fmt =
-            fmt_no_loc ~ctx:inner_ctx jkind
-            $ fmt "@ with "
-            $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
-          in
-          (parens, fmt)
-      | Kind_of type_ ->
-          ( false
-          , fmt "kind_of_@ "
-            $ fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_) )
-      | Product kinds ->
-          let parens =
-            match ctx with
-            | Jkd (Product _ | Mod _ | With _) -> true
-            | _ -> false
-          in
-          let fmt =
-            hvbox 0
-              (list kinds "@ & " (fun kind ->
-                   hvbox 2 (fmt_no_loc ~ctx:inner_ctx kind) ) )
-          in
-          (parens, fmt)
-    in
-    wrap_if parens "(" ")" fmt
+and fmt_jkind c ~ctx {txt= jkd; loc} =
+  let inner_ctx = Jkd jkd in
+  let parens, fmt =
+    match jkd with
+    | Default -> (false, fmt "_")
+    | Abbreviation abbrev -> (false, fmt_str_loc c abbrev)
+    | Mod (jkind, modes) ->
+        let parens = match ctx with Jkd (Product _) -> true | _ -> false in
+        let mode_fmt = hvbox 0 (fmt_modes ~ats:`Zero c modes) in
+        let fmt =
+          fmt_jkind c ~ctx:inner_ctx jkind
+          $ fmt "@ mod" $ Cmts.fmt_within c loc $ mode_fmt
+        in
+        (parens, fmt)
+    | With (jkind, type_) ->
+        let parens = match ctx with Jkd (Product _) -> true | _ -> false in
+        let types_fmt =
+          fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
+        in
+        let fmt =
+          fmt_jkind c ~ctx:inner_ctx jkind
+          $ fmt "@ with " $ Cmts.fmt_within c loc $ types_fmt
+        in
+        (parens, fmt)
+    | Kind_of type_ ->
+        let type_fmt =
+          fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
+        in
+        (false, fmt "kind_of_@ " $ Cmts.fmt_within c loc $ type_fmt)
+    | Product kinds ->
+        let parens =
+          match ctx with
+          | Jkd (Product _ | Mod _ | With _) -> true
+          | _ -> false
+        in
+        let fmt =
+          hvbox 0
+            (list kinds "@ & " (fun kind ->
+                 hvbox 2 (fmt_jkind c ~ctx:inner_ctx kind) ) )
+        in
+        (parens, fmt)
   in
-  fmt_no_loc txt ~ctx
+  wrap_if parens "(" ")" (Cmts.fmt c loc fmt)
 
 and fmt_jkind_constr c ~ctx jkind =
-  fmt " :@ " $ hvbox 0 (Cmts.fmt c jkind.loc (fmt_jkind ~ctx c jkind))
+  fmt " :@ " $ hvbox 0 (fmt_jkind ~ctx c jkind)
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -3747,6 +3743,9 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
         $ str " =" $ fmt_private_flag c priv
     | None -> str " " $ str eq $ fmt_private_flag c priv
   in
+  let kind_fmt =
+    fmt_opt (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
+  in
   let box_manifest k =
     hvbox c.conf.fmt_opts.type_decl_indent.v
       ( str pre
@@ -3757,9 +3756,7 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
           0
           ( fmt_tydcl_params c ctx ptype_params
           $ Option.value_map name ~default:(str txt) ~f:(fmt_longident_loc c)
-          $ fmt_opt
-              (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
-          )
+          $ kind_fmt )
       $ k )
   in
   let fmt_manifest_kind =
@@ -4010,9 +4007,11 @@ and fmt_type_extension ?ext c ctx
        $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
 
 and fmt_kind_abbreviation c ((name, kind) as ab) =
-  hvbox c.conf.fmt_opts.type_decl_indent.v
-    ( str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ "
-    $ fmt_jkind c ~ctx:(Kab ab) kind )
+  if Erase_jane_syntax.should_erase () then noop
+  else
+    hvbox c.conf.fmt_opts.type_decl_indent.v
+      ( str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ "
+      $ fmt_jkind c ~ctx:(Kab ab) kind )
 
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =

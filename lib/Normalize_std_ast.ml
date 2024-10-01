@@ -407,20 +407,34 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     Ast_mapper.default_mapper.typ m typ
   in
   let structure =
+    let structure m str =
+      List.filter str ~f:(fun stri ->
+          match Jane_syntax.Structure_item.of_ast stri with
+          | Some (Jstr_layout (Lstr_kind_abbrev _)) -> false
+          | _ -> true )
+      |> Ast_mapper.default_mapper.structure m
+    in
     if ignore_doc_comments then fun (m : Ast_mapper.mapper) l ->
       List.filter l ~f:(function
         | {pstr_desc= Pstr_attribute a; _} -> not (is_doc a)
         | _ -> true )
-      |> Ast_mapper.default_mapper.structure m
-    else Ast_mapper.default_mapper.structure
+      |> structure m
+    else structure
   in
   let signature =
+    let signature m sig_ =
+      List.filter sig_ ~f:(fun sigi ->
+          match Jane_syntax.Signature_item.of_ast sigi with
+          | Some (Jsig_layout (Lsig_kind_abbrev _)) -> false
+          | _ -> true )
+      |> Ast_mapper.default_mapper.signature m
+    in
     if ignore_doc_comments then fun (m : Ast_mapper.mapper) l ->
       List.filter l ~f:(function
         | {psig_desc= Psig_attribute a; _} -> not (is_doc a)
         | _ -> true )
-      |> Ast_mapper.default_mapper.signature m
-    else Ast_mapper.default_mapper.signature
+      |> signature m
+    else signature
   in
   let class_structure =
     if ignore_doc_comments then fun (m : Ast_mapper.mapper) x ->

@@ -3623,7 +3623,7 @@ type_parameters:
 ;
 
 jkind:
-    jkind MOD mkrhs(LIDENT)+ { (* LIDENTs here are for modes *)
+    mkrhs(jkind) MOD mkrhs(LIDENT)+ { (* LIDENTs here are for modes *)
       let modes =
         List.map
           (fun {txt; loc} -> {txt = Mode txt; loc})
@@ -3631,7 +3631,7 @@ jkind:
       in
       Mod ($1, modes)
     }
-  | jkind WITH core_type {
+  | mkrhs(jkind) WITH core_type {
       With ($1, $3)
     }
   | mkrhs(ident) {
@@ -3653,11 +3653,11 @@ jkind:
 ;
 
 reverse_product_jkind :
-  | jkind1 = jkind AMPERSAND jkind2 = jkind %prec prec_unboxed_product_kind
+  | jkind1 = mkrhs(jkind) AMPERSAND jkind2 = mkrhs(jkind) %prec prec_unboxed_product_kind
       { [jkind2; jkind1] }
   | jkinds = reverse_product_jkind
     AMPERSAND
-    jkind = jkind %prec prec_unboxed_product_kind
+    jkind = mkrhs(jkind) %prec prec_unboxed_product_kind
     { jkind :: jkinds }
 ;
 
