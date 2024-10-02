@@ -350,6 +350,37 @@ let mkexp_desc_constraint ~modes e t =
 let mkexp_constraint ~loc ~modes e t =
   mkexp ~loc (mkexp_desc_constraint ~modes e t)
 
+let erase_str_items str =
+  if not (Erase_jane_syntax.should_erase ())
+  then str
+  else (
+    List.filter
+      (function
+        | { pstr_desc = Pstr_kind_abbrev _; _ } -> false
+        | _ -> true)
+      str
+  )
+
+let erase_sig_items sig_ =
+  if not (Erase_jane_syntax.should_erase ())
+  then sig_
+  else
+    List.filter
+      (function
+        | { psig_desc = Psig_kind_abbrev _; _ } -> false
+        | _ -> true)
+      sig_
+
+let erase_toplevel_phrases phrases =
+  if not (Erase_jane_syntax.should_erase ())
+  then phrases
+  else
+    List.map
+      (function
+        | Ptop_def str -> Ptop_def (erase_str_items str)
+        | Ptop_dir _ as phrase -> phrase)
+      phrases
+
 (*
 let mkexp_opt_constraint ~loc e = function
   | None -> e
@@ -1284,7 +1315,7 @@ toplevel_phrase:
 | (* A list of structure items, ended by a double semicolon. *)
   extra_str(flatten(text_str(structure_item)*))
   SEMISEMI
-    { Ptop_def $1 }
+    { Ptop_def (erase_str_items $1) }
 | (* A directive, ended by a double semicolon. *)
   toplevel_directive
   SEMISEMI
@@ -1304,7 +1335,7 @@ use_file:
     flatten(use_file_element*)
   ))
   EOF
-    { $1 }
+    { erase_toplevel_phrases $1 }
 ;
 
 (* An optional standalone expression is just an expression with attributes
@@ -1513,7 +1544,7 @@ structure:
     optional_structure_standalone_expression,
     flatten(structure_element*)
   ))
-  { $1 }
+  { erase_str_items $1 }
 ;
 
 (* An optional standalone expression is just an expression with attributes
@@ -1795,7 +1826,7 @@ module_type:
    is a list of signature elements. *)
 signature:
   extra_sig(flatten(signature_element*))
-    { $1 }
+    { erase_sig_items $1 }
 ;
 
 (* A signature element is one of the following:

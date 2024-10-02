@@ -1,3 +1,5 @@
+(* Top-level *)
+
 (** Doc comment 1 *)
 
 kind_abbrev_ k =
@@ -541,676 +543,6 @@ kind_abbrev_ k =
         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm )
   -> tttttttttttttttttttttttttt
 
-kind_abbrev_ k =
-  (((kkkkkkkkkkkkkkkkkkkkkkkk
-     & ((_
-         & kind_of_
-             ( ttttttttttttttttttttttt -> tttttttttttttttttttttttt
-             , t
-             , ttt
-               * t
-               * ( (ttt, tttttttt) ttttttttttttttttttttttttttttttttt
-                 , tttttttttttttttttttttttttttt
-                 , ttttttttttttttttttttttttttttttttttt
-                 , t )
-                 tttttttttttttttttt
-             , ('aaaaaaaaaaaaaaa : kkkkkk) -> t )
-             tttttttttttttttt)
-         mod mmmmmmmmmmmmmmmmmm m mmmmmmmmmmmmmmmmmmm
-         with tttttttttttttttttttt tttttttttttttt))
-    & kind_of_ ttttt -> ttttttttttttttttttttttttttttttttttt
-    & (_ with ttttttttttttttttttttttttttttttttt))
-   & kkkkkkkkkkkkkk
-   & kkkkkkkkkkkkkkkkkkkkk)
-  with tttttttttttttttttttttttttt
-  mod
-     mmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmm
-     mmmmmmmmmmmmmmmmmmmmm
-
-kind_abbrev_ k =
-  kind_of_
-  ttttttttttttttttttttttttttttttttttt
-  * t
-  * t
-  * ttttttttttttttt
-  * tttttttttttttttttttttttttttt
-  * tttttttttttttt
-  * ttttttttttttttttttttttttttttttttttt
-  * tttttttttttttt
-  * (ttttttttttttttttttttt -> ttttt)
-  * ttttttttttttttttttttttt
-  * ttttttttttttttt
-  * (   ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-        kind_of_
-           ('aaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-           kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk )
-        -> ttttttttttttttttttttt )
-     -> tttttttttttttttttttttttttt )
-  * ttttttttttttttttttttttttttttttt
-  * t
-  * (ttttttttttt -> ttttttttttttttttttttt)
-  * ( tttttttttttt
-    , ttt
-    , ttttttttttttttttttttttttttttttttttt
-    , ( tttttttttttttttttttttttt
-      , ('aaaaaaa : _) -> tttt
-      , t )
-      tttttttttttttttttttttttttt
-    , tttt )
-    ttttttttttttttttttttttttttttt
-  * (('aaaaaaaaaaa : _) -> tttttt)
-  * t
-  * tttttt
-
-kind_abbrev_ k =
-  (((kind_of_
-      tttttttttttttttttttt
-      with tttttttttttttttt
-      mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-    & _
-    & kkkkkkkkkkkkkkkk
-    & _
-    & kind_of_ ttttttttttttttttt)
-   & (_
-       with ttttttttttttttttttt ttttttttt
-       mod mmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmm))
-  & _
-
-kind_abbrev_ k =
-  kind_of_
-  tttttttttttttttttttttttttttttttttt -> tttttttt
-  mod
-     m
-     mmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmm
-
-kind_abbrev_ k =
-  (_ & kkkkkkkkkk & _ & kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk)
-  mod mmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmm mmmmmmmmm
-
-kind_abbrev_ k =
-  kkkkkkkkkkkkkkkkkkkkkk
-  & ((_ with tttttttttttttttttttttttttt)
-     & kkkk
-     & (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk mod mmmm mmmm)
-     & (kkkkkkkkkkkkkk
-        & kkkkkkkkkkkkkkkkkkkkk
-        & kkkkkkkkkkkkkkkkkkkkkk
-        & kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk))
-  & ((kkk mod m m)
-     & (_ with tttttttttttttttttttttttttt)
-     & (kkkkkkkkkkkkkkkkkkkkkkk with tttttttttttt)
-     & (kkkkkkkkkkkkkkkk with ttttttttttttttttttttttttttttt))
-
-kind_abbrev_ k =
-  ((kkkkkkkkkkkkkkkkk & _ & kind_of_ ttttttttttttttt)
-    mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-  & ((kind_of_ tttttttt ttttttttttttttttttttttttttttttt with tt)
-     & (_
-        & (kind_of_
-            ('aaaa : kkkkkkkkkkkkkkkkkkkkkkkkkkk with ttttttt) -> ttttttttt
-            mod mmmmmmmmmmmmmmmmmm mmmm mmmmmm)
-        & (((kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk with tttttttttt)
-            & (kkkkkkkkkkkkkkkkk & kkkkkkkkkkkkkkk & _)
-            & (_
-                mod
-                   mmmmmmmmmmmmmmm
-                   mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   mmmmmmmmmmmmmmmmmmmmm))
-            with ttt)
-        & kkkkk
-        & (kind_of_ ttttttttttttttttttttttttttt with ttttt))
-     & (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-         mod mmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-     & ((_
-         & (_ & k & kkkkkkkkkkkkkkkkkkkkkkkkk)
-         & (_
-             mod
-                mmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmmmm
-                mm
-                mmmm)
-         & kind_of_ ttttttttttttttt
-         & (_ with t))
-         mod mmmmmmmmmmmmmmmm
-         mod mmmmmmmmmmmmmmmmmmmmmm mmmm))
-  & kkkkkkkkkkkkkkkk
-  & _
-  & ((_ & _ & _ & _ & kkkkkkkkkkkkkk)
-      mod mmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmm
-      mod mmm mmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-      mod
-         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmm)
-
-kind_abbrev_ k =
-  _
-  with ( tttt -> ttttttttttttttttttttttt
-       , ttttttttttttttttttttttttttttttttttt
-       ,    ('aaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkkkk)
-         -> ttttttttttttttttttttttttttttttttttt
-       , tttttttttttttttttttttttttttttt )
-       ttttttttttttt
-
-kind_abbrev_ k =
-  _
-  with tttttttttttttttttttttttttttttttt * ttttttttttttttt * tttttt
-
-kind_abbrev_ k =
-  kind_of_
-  tttttttttttt
-  mod
-     mmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmm
-     mmmm
-     mmmmmmmm
-
-kind_abbrev_ k =
-  (kind_of_ ttttttttttttttttttttt
-   & (kkkkkkkkkkkkkkkk
-      & _
-      & ((kind_of_
-           ( ttttttttttttttttttttttttttttttt
-           , ttttttttttttttttttttttt
-           , ( ( t
-               , ttttttttttt
-               , ( tttttttttttt
-                 , tttttttttttttttttttttttttttttttt
-                 , t
-                 , ttttttttttttttttttttttt
-                 , tttttttttttt )
-                 tttttt
-               , tttttttttttttttttttttttttttt
-                 * tttttttt
-                 * t ttt
-                 * t
-                 * ttttttttttttttttttttttttttttttttttt
-               , ttttttt )
-               ttttttttttttttttt
-             , ttttttttttttttttttttttttttttttttt
-             , ( tttttttttttttttttttttt
-               , ( ttttttttttttttttttttttttt
-                 , tttttttttt
-                 , ttttttttttttttttttttttttttttttttttt
-                 , tttttttttttttttttt
-                 , ttttttttttttttttttt )
-                 tt
-               , tttttttttttttt
-               , ttttttttttttttttttttt -> tttttttttttttttttttttttttttttttttt
-               , (   ('aaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-                     (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                       mod
-                          mmmmmmmmmmmmm
-                          mmmmmmmmmmmm
-                          mmmmmmm
-                          mmmmmmmmm
-                          mmmmmmmmmmm
-                       with t)
-                     & (kind_of_
-                         ttttttttt
-                         mod
-                            mmmmmmmmmmmmmmmmmmmmmmmmmmm
-                            mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                         with ttttttttttttttttttt) )
-                  -> ttttttttttttttt )
-                 * tttttttttttttttttttttttttttttttt
-                 * ttttttttttttttttttttttttt
-                 * ( tttttttttt
-                   , ttttttt
-                   , ( tttttttttttt
-                     , tttttttttttttttt
-                     , ttttttttttttttttttt )
-                     ttttttttttttttttttttttt )
-                   tttttttttttttttttt
-                 * ttttttttttttttttttttttttttttttttttt )
-               tt )
-             tttttttttttttt
-           , ( ttttt
-             , ttttttttttttttttttttt
-             , ( tttttttttttt
-               , tttttttttttt -> tttttttttttttttttttttttttttt
-               , t
-               , tttttttttttttttttttttt )
-               ttttttttttt
-             , (tttttttttttt, ttttttttttttttt) tttttttt
-             , t )
-             ttttttttttttt
-           , (    ('aaaaaaaaaaa : kind_of_ ttttttttttttttttttt)
-               -> tttttttttttttttttt
-             , tttttttttttttttttttttttttt
-             , ( ttttttttt
-               , tttttttttttttttttttttttttttt
-               , tttttttttttttttt
-               , ( ttttttttttttt
-                 , tttttttttttttttttttttttttttt
-                 , tttttttt
-                 , ttttttttt )
-                 tttttttttttttt
-                 * tttttttttttttttttttttttttttttttttt
-                 * (   ttttttttttttttttttttttttt
-                    -> ttttttttttttttttttttttttttttttttttt )
-                 * tttttttttttttttttttttttttttttttttt
-                 * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkk) -> tt)
-                 * (   ('aaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkkkkkkkkkkkkkk)
-                    -> tttttttttttttttttttt )
-                 * tttttttttttttttttttttttttttttt
-               , ttttttttttttttttttttttt )
-               tttttttttttttttttttttttttt )
-             tttt )
-           tttttttttttttt
-           with ttttttttttt
-                * t
-                * (tttttttttttt -> ttttttttttttttttttttttttttttttttttt)
-                * ttttttttttttttttttttttt
-                * (tttttttttttt -> t)
-                * tttttttttttttttttttttttttt
-                * ttttttttttttt
-                * ttttttttttttttttttttttttttttttttttt
-                * ttttttttttt)
-         & kind_of_ tttttttttttttttttttttttttttttttttt
-         & ((kind_of_ ttttttttttttttttttttttttt
-             & (_ & kkkkkkkkkkkkkk)
-             & _
-             & _)
-             with ( tttttttttttttttttttttttttttt
-                  , tt
-                  , ttttttttttttttttttttttttttttt
-                  , ttttttttttttttttttttttttttttttttt
-                  , tttttttttttttttttttttttt )
-                  ttttttttttttttttttttttt
-             mod
-                mmmmmmmm
-                mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmm
-                mmmmmmmmmm
-             with ttttttttttttttttttttttttt)
-         & kind_of_
-                ('aa : kkkkkkkkkkkkkkkkkkkkkkkkkk with ttttttttttttttttttt)
-             -> ttttttttt
-         & kkkkkkkkk)
-      & _
-      & _)
-   & (kind_of_
-       tttttttttttttttttttt
-       with ttttttttttttttttt
-       mod mmmmmmmmmmmmmmmmmm mmmmmm
-       mod mmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmm mmmmmmmmmmmm m mmmmmmmmmm))
-  mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-
-kind_abbrev_ k =
-  ((kind_of_ tttttttttttttttttttttttttttt with t -> t)
-   & kind_of_ tttttttttttttttttttttttttttt)
-  with tttttttttt
-  mod m mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmm
-  mod mmmmmmmmmmmmmmmmmmmmmmm m mmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmm
-
-kind_abbrev_ k = kind_of_ ttttttttttttttt & kind_of_ ('aaaaaaa : _) -> tttttt
-
-kind_abbrev_ k =
-  (kk
-   & kind_of_
-       ( ttttttt -> tttttttttttttttttttttttttttttttttt
-       , tttttttttttttttttttttttttttttttttt
-       , ( t
-         , tttttt ttttttttttttttttttt
-         , tttttttttttttttttttttttttttttttt
-         , ttttttttttttttttttttttttttttttttt
-           * ttttttttttttttttttt
-           * ( ( ( tttttttttttttttttttttttttttttttttt
-                 , tttttttttttt
-                 , ('aaaaaaaaaa : kkkkkkkkkkk) -> ttttttttttttttttttttttttttt
-                 , t
-                 , ttttttttttttttttttttttttttttttttt )
-                 tttttttttttttttttttt
-               , t
-               , tttttttttttttt -> ttttttttttttttttttttttttttttttt )
-               ttttttttttttt
-             , tttttttttttttttttttttttttt
-             , ( tttttttttttttttttt
-               , ttttttttttt
-               , tttttttttttttt -> ttttttttttttttttt
-               , ttttttttttttttt )
-               ttttttttttttttttttttttttttttt
-             , tttttttttttttt )
-             tttttttttttttttttttttttttttttttt
-           * tttttttttttttttttttttttt
-           * tttttttttttttttttttttttttttttttt
-           * ttttttttttttttttttttttttttttttttt
-           * t
-           * tttttttttttttttttttttttttttttttt
-           * ( t
-             , (   ('aaa : kind_of_ tttttttttttttttttttt)
-                -> tttttttttttttttttttttttttttt )
-               * (('a : _) -> tttttttttttttttttttttttttttttt)
-             , ttttttttttttttttttttttttt )
-             tttttttttttttttttttttttt
-           * ttttttttttttttttttt )
-         t
-       , (tttttttttttt, t, ttttttttttttttttt) ttttttttttttttttttttttttt
-       , t )
-       tttttttt)
-  & ((kkkkkkkkkkkkkkkkkkkk
-      & kind_of_ t
-      & (_
-          with tttt
-          mod mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmm)
-      & (kind_of_
-          tttttttttttt -> ttttttttttttt
-          mod
-             mmmmm
-             mmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmmm)
-      & (_ with ttttttttttttttttttttttttttttttttttt))
-      mod mmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-
-kind_abbrev_ k =
-  kind_of_
-  ttttttt
-  * ( (    ('aaaaa :
-           _
-           & (k
-              & (kind_of_ ttttttttttttttttttttttttttttttttttt
-                 & (_
-                     mod
-                        mmmmmmmmmmmmmmmmmm
-                        mmmmmmmmmmmmmmmm
-                        mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)))
-           & _
-           & ((_ & _)
-               mod
-                  mmmmmmmmmmmmmmmmmmmmm
-                  mmmmmmmmmmmmmm
-                  mmmmmmmmmmmmmmmmmmmmmmmm
-                  mmmm
-                  m
-               mod mmmmmmmmmmmmmmmmm) )
-        -> ttttttttttttttttttttttt
-      ,    ('aaaaaaaaaaaaaaa :
-           ((_ & kkkkkkkkkkkkkkkk & kkkkkkkkkkkkkkkkkkkkkkkkkk)
-            & _
-            & (kkkkkk with tttttttttttt)
-            & (_
-                mod
-                   mmm
-                   mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   mmmmmmmmmm
-                   mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   mmm))
-           mod mmmm mmmmmmmmmmmmmmm
-           mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm m mmmmmmmmmmmmmmmmm )
-        -> t )
-      ttttttttttttttttttttttttt
-      * ttttttttttttttttttttttttttttttt
-      * (t, ttttttt, tttttttttttttt, ttttttttttttttttttttttt) ttttttt
-      * (ttttttttttttttttt -> tttttttttttttttttttt)
-    , ttttttttttttttttttttttttttttttttttt )
-    ttttttttttttttttttttttttttttt
-  * ttttttttttttttttttttttttttttttttttt
-  * ttttttttttttttttttttttttt
-  * ttttttttttttttttttttttttttttttttt
-  * (ttttttttttttt -> tttttttttttttttttttt)
-  * t
-  * ( ttttttttttttttttttttttt
-    , ( ( t
-        ,    ('aaaaaaaaaaaaaaaaaa :
-             kkkkkkkkkkkkkkkkkkkkkkkkkk
-             mod
-                mmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmm
-                mmmmmmmmmmmmmmmmmmmmmm )
-          -> tttttttttttttttttttttttttttttttttt )
-        tttttttttttttttttttttt
-      , tttttttttttttttt )
-      tttttttttttt
-    , t )
-    tttttttttttttttttttttttttttt
-  * tttttttttttt
-  * t
-  mod mmmmmmmmmmmmm mmmmmm mmmmmmmmmmmmm mmmmmmmmmmmmmmm
-
-kind_abbrev_ k =
-  kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  with ttttttttttttttttttttttttttt
-       * (('aaaaaaaaaaaaaaaaaaaaaaaaa : _) -> ttttttt)
-       * tttttttttt
-       * (ttt, tttttt, tttttttt) ttt
-       * (   ('aaaaaaaaaaaaaaaaaaaaaaa : kind_of_ tttttttttttttttttttttttt)
-          -> ttttttttttttttttttttt )
-       * ttttttttttttttttttttttttttt
-       * ( ( tttttttttttttttttttttttttt
-           , t
-           , ( tttttttttttttttttttttttttt
-             ,    ('aaaa : kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk)
-               -> tttttttttttttttttttttttttttt )
-             t
-           , ( ttttttttttttttttttttttttt
-             , ( ttttttttttttttttt
-               , tttttttttttttttttttttttt
-               , tttttttttt
-               , ttt
-               , t -> ttttttttttttttttttttttttttttttttttt )
-               tttttttttttttttttttttttttttttttt
-             , ttttttttttttttttttt
-             , tttttttt
-             , tt )
-             tttt )
-           tttt
-         , tttttttttttttttttttttttttttttt
-         , ttttttttttttttttttt )
-         tt
-       * tttttttttttttttt
-       * tttttttttttttttttttttttttttt
-       * t
-       * tttttttttttttttt
-       * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : k) -> t)
-       * tttttttttttttttttttttttttttttttttt
-       * ttttttttttttttttt
-       * ttttttttttttttttttttttttttttttttttt
-       * tttttttttttttttttttttttttttttttttt
-       * t
-
-kind_abbrev_ k =
-  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  mod mmmmmmmmmmm
-  with ( t
-         * ( ttttttttttttttttttttttttttttttttttt
-           , tttttttttttttttttttt * ttttttttttttttttttttttt )
-           tttttttttttttttttttttttttttt
-         * ttttttttttttttttttttttt
-         * ttttt
-         * tttttttt
-         * t
-         * tttttttttt
-       ,    ('aaaaaaaaaaaaaaaaaaaaaaaaaa : _)
-         -> ttttttttttttttttttttttttttttttttttt
-       , (('a : _) -> ttttttttttttttttttttttttttt)
-         * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttt)
-         * ttttt
-         * tttttttttttttttttttttttttttttt )
-       t
-
-kind_abbrev_ k =
-  kind_of_
-  (ttttttttttttttttttttttttttttttt -> ttttttttttttttttttttttttttttt)
-  * t
-  * ( ttttttttttttttttttttttttttttt
-    , tttttttttttttttttttttttt )
-    tttttttttttttttt
-  * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttttttttttt)
-  * ttttttttttttttttttttttttttttttttt
-  * ttttttttttttttttt
-  * tttttttttttttttttttttt
-  * ttttttttttttttttt
-  * tttttttttttttttttttttttttttttt
-  * tttttttt
-  * ( ttttttttttttttttttttt
-    , tt
-    , ttttttttttttttttttttttttttttttttttt )
-    tttttttttttttttttt
-  * tttttttttttttttttttttttt
-  * t
-  mod mmmmmmmmmmmmmm m mm
-  mod
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmmm
-
-kind_abbrev_ k = kkkkkkkkkkkkkkkkkkkkk
-
-kind_abbrev_ k = (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & kkkkkk & _) mod mmmmmm
-
-kind_abbrev_ k =
-  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  mod mmmmmmm mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm m
-
-kind_abbrev_ k =
-  (_ & _ & kkkkkkkkkkkkkkkkkk & kkkkkkkkkkkkkk & _)
-  & kk
-  & kkkkkkkkkkkkkkkkkkkkkkkkk
-  & _
-
-kind_abbrev_ k =
-  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  mod mmmmmmmmmmmmmmmmmmmmmmmm mmmmm m
-
-kind_abbrev_ k =
-  ((kkkkkkkkkkkkkk & kind_of_ ttttttttttttttttttttttttttttttttt)
-    mod
-       mmmmmmmmmmmmmmmmmmmmmmmmm
-       mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-       mmmmm
-       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-       mmmmmmmmmm)
-  & ((k
-      & (_
-          mod mmm mmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmm mmmmmmmmmmmmmm
-          mod
-             mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmmmmmmmmmmmm)
-      & _
-      & ((kkkkkkkkkkkkkkkkkkkk & _ & _ & _ & _)
-          with ttttttttttttttttttttttttttttt
-          mod mmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-      & (kkkkkkkkkkkkkkkkkkkkk
-          mod mmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmm
-          with tttttttttttttttttttttttttttt
-               * (ttttttttttttttttttttttttttttttttt -> tttttttttttttt)
-          mod
-             mmmmmmmmmmmmmmmmmm
-             m
-             mmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmm))
-      with ttttttttttttttttttttt
-      mod mmmmm
-      mod
-         mmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-      with tttt)
-  & ((((kkkkkkkkkkkkkkkkkkkkkkkkkkkk
-         mod mmmmmmmmmmmmm m mmmmmmmmmmmmmm mmmmmmmm)
-       & _
-       & _)
-       mod mmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmm
-       mod
-          mmmmmmmmmmmm
-          mmmmmmmmmmmmmmmmmmmmmmmmm
-          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-          mm
-          m)
-     & (kkkkkkkkkkkkkkkkkkkkkkkkkk
-        & kind_of_
-            ( tttttttttttttttttttttttttttttttt
-            , ( ttttttttttttttttttttttttttttttttttt
-              , ( ( ttttttttttttttttttt -> tttttttttttttttttttttttttttt
-                  , ttttttttttttttttttttttttttttttt
-                  , tttttttttttttttttttttt -> tt
-                  , ttttt )
-                  ttttttt
-                , ('aaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttttttttttttt
-                , tttttttttttttttttttttttt
-                , ( ttttttttt
-                  , ttttttttttttttttttttttt
-                  , ( tttttttt
-                    , ttttttttttttttttttttttttttttttttttt
-                    , tttttttttttttttttttttttttttttttttt
-                    , tt
-                    ,    ttttttttttttttttttttttttttt
-                      -> ttttttttttttttttttttttttttttt )
-                    tttttttttttttttt
-                  , ttttttttttttttttttttttt
-                    * tttttttttttttttttttttttttttt
-                    * t
-                    * tttt ttttttt
-                    * ttttttttttttttttttttttttttt )
-                  ttttttttttttttttttttttt
-                  * tttttttt
-                  * t
-                , ttttttttttttttttttttttttttttttttttt )
-                ttttttttttttttttttttttttttttttt )
-              tttttttttttttttttttttttttttttt
-            , ttttttttttttt * t * ttt * tttttttttttttttttttttt )
-            tttttttttt
-        & (kind_of_
-            ( t
-            , tttttttttttttttttttttttt
-            , tttttttttttttttttttttttttttttttt
-            , tttttttttttttttttttttttttttttt )
-            ttttttttttttttttttttttttttttttt
-            with ttttttttt -> tttttttttttttttttttttttt))
-     & kkkkkkkkkkkkkkkkkkkkkkkkkkkk
-     & (_
-         mod
-            mmmmmmmmmmmmmmmm
-            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm))
-  & (((_
-        mod
-           mmmmmmmmmmmmmmmmmmmm
-           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-           mmmmmmmmmmmmmmmmmmmmmmmmm
-           m
-           mmmm
-        mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
-      & _
-      & kind_of_ ttttttttttttttttt
-      & (kkkkkkkkkkkkkkkkkkk
-          mod
-             mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmmmmmmmmmmmmmm
-             mmmmmmmmmmmmmm))
-      with t)
-  & kkkkkkkkkkk
-
-kind_abbrev_ k =
-  kind_of_
-  ttttttttttttt
-  mod
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     mmmmmmmmmmmm
-  with ttttttttttttttttttttttttt
-
 (* Now with comments *)
 
 kind_abbrev_ k =
@@ -1595,1578 +927,1776 @@ kind_abbrev_ k =
      & (* 412 *) _ (* 411 *)
      & (* 413 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk)
 
-kind_abbrev_ k = (* 415 *) _ (* 414 *)
+(* struct *)
 
-kind_abbrev_ k = (* 416 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+module _ = struct
+  kind_abbrev_ k =
+    kind_of_
+    tttttttttttttttttttttttttttttttttt -> tttttttt
+    mod
+       m
+       mmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmm
 
-kind_abbrev_ k = (* 418 *) _ (* 417 *)
+  kind_abbrev_ k =
+    (_ & kkkkkkkkkk & _ & kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk)
+    mod mmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmm mmmmmmmmm
 
-kind_abbrev_ k =
-  (kind_of_
-     (* 422 *)
-     (* 423 *)
-     tttttttttttttttttt
-     (* 421 *)
-   & ((* 426 *)
-       kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-       (* 425 *)
-       mod
-          (* 427 *)
-          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-          (* 428 *)
-          mmmmmmmmmmmmmmm
-          (* 424 *))
-   & ((* 429 *) kkkkkkkkkkkkkkk
-      & ((* 433 *)
-          _
-          (* 432 *)
-          (* 431 *)
-          with (* 434 *)
-          ( (* 435 *) tttttttttttt
-          , (* 436 *)
-          ( (* 437 *) ttttttttttttt
-          , (* 438 *)
-          ( (* 439 *) ttttttttttttttttt
-          , (* 440 *) t
-          , (* 441 *) tttttttttttttttttttttttttttt
-          , (* 442 *) ttttttttttttttttttttttt )
-          (* 443 *)
-          tttttt )
-          (* 444 *)
-          ttttttttttttttttttttt )
-          (* 445 *)
-          t
-          (* 430 *))
-      & ((* 450 *)
-          kkkkkkkkkkkkkkkkkkkkkkkkkk
-          (* 449 *)
-          mod
-             (* 451 *)
-             mmmmmmmmmmmmmmmmmmmmmmm
-             (* 452 *)
-             m
-             (* 453 *)
-             mmmmmm
-             (* 454 *)
-             mmmmmm
-             (* 455 *)
-             mmmmmmmmmmm
-          (* 448 *)
-          (* 447 *)
-          with (* 456 *) ttttttttttt (* 446 *))
-      & kind_of_
-          (* 458 *)
-          (* 459 *)
-          tttttttttttttttttttttttttttt
-          (* 457 *)
-      & (* 461 *) _ (* 460 *))
-   & (* 463 *) _ (* 462 *)
-   & ((((* 468 *) kkkkkkkkkkkkkkkkkkkkk
-        & ((* 472 *)
-            _
-            (* 471 *)
-            (* 470 *)
-            with (* 473 *)
-            ( (* 474 *) tttttt
-            , (* 475 *) ttttttttttttttttttttttttt )
-            (* 476 *)
-            tttttttttttttttttttttttttttttttt
-            (* 469 *))
-        & (* 478 *) _ (* 477 *)
-        & (kind_of_
-            (* 482 *)
-            (* 483 *)
-            tttttttt
-            (* 481 *)
-            (* 480 *)
-            with (* 484 *)
-            tttttt
-            * (* 485 *) tttttttttttttttttttttttt
-            * (* 486 *) t
-            * (* 487 *) ttttttttttttttttttttttttt (* 479 *))
-        & ((((* 490 *) kkkkkkkkkkkkkk
-             & (kind_of_
-                 (* 494 *)
-                 (* 495 *)
-                 ttttttttttttttt
-                 (* 493 *)
-                 (* 492 *)
-                 mod
-                    (* 496 *)
-                    mmmmmmmmmmmmmmmmmmmmm
-                    (* 497 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 498 *)
-                    mmmmmmmmmmm
-                    (* 491 *))
-             & ((* 503 *)
-                 kkkk
-                 (* 502 *)
-                 with    ((* 504 *) 'aaaaaaaaaa : (* 506 *) _ (* 505 *))
-                      -> (* 507 *) ttttttttttt
-                 (* 501 *)
-                 (* 500 *)
-                 mod
-                    (* 508 *)
-                    m
-                    (* 509 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 510 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 499 *))
-             & ((* 515 *)
-                 kkkkkkk
-                 (* 514 *)
-                 mod
-                    (* 516 *)
-                    mmmmmmmmm
-                    (* 517 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                 (* 513 *)
-                 (* 512 *)
-                 with (* 518 *) ttttttttt (* 511 *))
-             & kind_of_
-                 (* 520 *)
-                 (* 521 *)
-                 (* 522 *)
-                 ttttttttttttttttttttttttttttttttttt
-                 (* 523 *)
-                 tttttttttttttttttttttttttt
-                 (* 519 *))
-            & (kind_of_
-                (* 529 *)
-                (* 530 *)
-                ttt
-                (* 528 *)
-                (* 527 *)
-                mod
-                   (* 531 *)
-                   mmmmmmmmmmmmm
-                   (* 532 *)
-                   mmmmmmmmmmmmmmmmmmmmm
-                   (* 533 *)
-                   mmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 534 *)
-                   mmmmmmmmmmmmmm
-                (* 526 *)
-                (* 525 *)
-                mod
-                   (* 535 *)
-                   mmmmmmmmmmmmmmmmmmmmmmm
-                   (* 536 *)
-                   mmmmmmmm
-                   (* 524 *))
-            & kind_of_
-                   (* 538 *)
-                   ((* 539 *)
-                   'aaaaaaa :
-                   ((* 545 *) _ (* 544 *)
-                    & (* 547 *) _ (* 546 *)
-                    & (((* 557 *)
-                         _
-                         (* 556 *)
-                         (* 555 *)
-                         mod
-                            (* 558 *)
-                            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                            (* 559 *)
-                            mmmmmmm
-                            (* 560 *)
-                            mmmmmmmmmmm
-                            (* 561 *)
-                            mmmmmmmmmmmmmm
-                            (* 562 *)
-                            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                         (* 554 *)
-                         (* 553 *)
-                         mod
-                            (* 563 *)
-                            m
-                            (* 564 *)
-                            mmmmmm
-                            (* 565 *)
-                            mmmmmmmmm
-                            (* 566 *)
-                            mmmmmmmmmmmm
-                         (* 552 *)
-                         (* 551 *)
-                         with (* 567 *) tttttttttttttt
-                         (* 550 *)
-                         (* 549 *)
-                         with (* 568 *) tttttttttttttttttttttttttt (* 548 *))
-                       & (* 569 *) kkkkkkkkkkkk
-                       & kind_of_
-                              (* 571 *)
-                              (* 572 *)
-                              tttttttttt
-                           -> (* 573 *) ttttttttttttttttttt
-                           (* 570 *)
-                       & (* 574 *) kkkkkkkkkkkkkkkk (* 543 *)))
-                   mod
-                      (* 575 *)
-                      mmm
-                      (* 576 *)
-                      mmmmmmmmm
-                      (* 577 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 578 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 542 *)
-                   (* 541 *)
-                   mod
-                      (* 579 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 580 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 581 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 582 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 583 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 540 *) )
-                -> (* 584 *) ttttttttttttttttttttt
-                (* 537 *)
-            & ((kind_of_
-                     (* 590 *)
-                     ((* 591 *)
-                     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-                     kind_of_
-                       (* 593 *)
-                       (* 594 *)
-                       tttttt
-                       (* 592 *)
-                     & (((* 598 *) _ (* 597 *)
-                         & ((* 604 *)
-                             _
-                             (* 603 *)
-                             (* 602 *)
-                             mod
-                                (* 605 *)
-                                mmmmmmmmmm
-                                (* 606 *)
-                                mmmmmmmmmmmmmmmmmmmmmmmmm
-                                (* 607 *)
-                                mmmm
-                             (* 601 *)
-                             (* 600 *)
-                             with (* 608 *)
-                                  tttttttttttttttt
-                                  (* 599 *)
-                                  (* 596 *)))
-                         mod (* 609 *) mmmmmmmmmmm (* 595 *))
-                     & (((* 614 *) kkkkk
-                         & kind_of_
-                             (* 616 *)
-                             (* 617 *)
-                             ttttttttttttttttttttttttttttttttttt
-                             (* 615 *)
-                             (* 613 *))
-                         with (* 618 *) tttttttttttttttttt
-                         (* 612 *)
-                         (* 611 *)
-                         mod
-                            (* 619 *)
-                            mmmmmmmmmm
-                            (* 620 *)
-                            mmmmmmmmmmmmmmmmmmmmmmm
-                            (* 621 *)
-                            mmmmmmm
-                            (* 622 *)
-                            m
-                            (* 623 *)
-                            m
-                            (* 610 *)) )
-                  -> (* 624 *) t (* 589 *)
-                & (* 626 *) _ (* 625 *)
-                & (* 627 *) kkkkkk
-                & (* 629 *)
-                    _
-                    (* 628 *)
-                    (* 588 *))
-                mod (* 630 *) mmmmmmmmmmmmm (* 631 *) mmmmmm
-                (* 587 *)
-                (* 586 *)
-                mod
-                   (* 632 *)
-                   mmmmmmmmmm
-                   (* 633 *)
-                   mmmmmmmm
-                   (* 634 *)
-                   mmmmmmmmmmmmmmm
-                   (* 635 *)
-                   mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 636 *)
-                   mmmmmmmmmmmmmmmmmmmmm
-                   (* 585 *))
-            & (((* 639 *)
-                 kkkkkkkkk
-                 (* 638 *)
-                 mod (* 640 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 637 *))
-               & ((((* 643 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                    & kind_of_
-                        (* 645 *)
-                        (* 646 *)
-                        tt
-                        (* 644 *)
-                    & (((* 656 *) _ (* 655 *)
-                        & ((* 661 *)
-                            kkkkkkkkkkkkkkkkk
-                            (* 660 *)
-                            mod (* 662 *) mmmmmmm
-                            (* 659 *)
-                            (* 658 *)
-                            with (* 663 *) ttttttttttttt (* 657 *))
-                        & (* 665 *) _ (* 664 *)
-                        & kind_of_
-                            (* 667 *)
-                            (* 668 *)
-                            ttttttttttttttttttttt
-                            (* 666 *)
-                            (* 654 *))
-                        mod
-                           (* 669 *)
-                           mmmm
-                           (* 670 *)
-                           mmmmmmmmmmmm
-                           (* 671 *)
-                           mmmmmmmmmmmmmmmmmm
-                           (* 672 *)
-                           mmmmmmmmmmmmmmmmmmmmmm
-                           (* 673 *)
-                           mmmmmmmmmmmmmm
-                        (* 653 *)
-                        (* 652 *)
-                        with (* 674 *) tt
-                        (* 651 *)
-                        (* 650 *)
-                        mod
-                           (* 675 *)
-                           m
-                           (* 676 *)
-                           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                           (* 677 *)
-                           mmmmmmmmmmm
-                           (* 678 *)
-                           mmmmmmmmmmmmmmmmmmmmmmmmm
-                        (* 649 *)
-                        (* 648 *)
-                        with (* 679 *)
-                             tttttttttttttttttttttttttttttttt
-                             (* 647 *))
-                    & ((* 681 *) _ (* 680 *)
-                       & ((* 687 *)
-                           _
-                           (* 686 *)
-                           (* 685 *)
-                           with (* 688 *)
-                                tttttttttttttttttttttttttttttttttt
-                           (* 684 *)
-                           (* 683 *)
-                           with (* 689 *) ttttttttttttttttttttttt (* 682 *))
-                       & kind_of_
-                           (* 691 *)
-                           (* 692 *)
-                           ttt
-                           (* 690 *)
-                           (* 642 *)))
-                    with (* 693 *) tttttttttttttttttttttttttttttt (* 641 *))
-                  & ((* 697 *)
-                      _
-                      (* 696 *)
-                      (* 695 *)
-                      with (* 698 *) ttttttttttttttttttttttttt (* 694 *))
-                  & (_
-                       (* 700 *)
-                       (* 699 *)
-                     & (((* 704 *)
-                          _
-                          (* 703 *)
-                          (* 702 *)
-                          with    ((* 705 *)
-                                  'aaaaaaaaaaaaaaaaaaaaaaaaaa :
-                                  (* 708 *)
-                                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                                  (* 707 *)
-                                  mod
-                                     (* 709 *)
-                                     mmm
-                                     (* 710 *)
-                                     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                     (* 711 *)
-                                     mmmmmmmmmmmmmm
-                                  (* 706 *) )
-                               -> (* 712 *) t (* 701 *))
-                        & ((* 719 *)
-                            kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                            (* 718 *)
-                            with (* 720 *)
-                            ttttttttttt
-                            * (* 721 *) tttttttttttttttt
-                            * (   (* 722 *) ttttttttttttt
-                               -> (* 723 *) tttttttttttttttttttttt )
-                            * (* 724 *) tttt
-                            * (* 725 *) ttttttttttttttttt
-                            (* 717 *)
-                            (* 716 *)
-                            mod
-                               (* 726 *)
-                               mmmm
-                               (* 727 *)
-                               mmmmmmmmmmmmmmmmmmmmmmm
-                               (* 728 *)
-                               mmmmmmmmmmmmmmmmmmmmmmm
-                            (* 715 *)
-                            (* 714 *)
-                            mod (* 729 *) mmmmmmmmmmmmmmmmmmm (* 713 *)))
-                     & ((* 732 *)
-                         k
-                         (* 731 *)
-                         mod (* 733 *) mmmmmmmmmm (* 730 *)))
-                  & (* 734 *) k
-                  & ((* 735 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                     & kind_of_
-                         (* 737 *)
-                         (* 738 *)
-                         tttttttttttttttttt
-                         (* 736 *)
-                     & (* 739 *) k
-                     & ((kind_of_
-                          (* 743 *)
-                          (* 744 *)
-                          t
-                          (* 742 *)
-                          (* 741 *)
-                          with (* 745 *) tttt (* 740 *))
-                        & ((* 748 *)
-                            kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                            (* 747 *)
-                            mod
-                               (* 749 *)
-                               mmmmmmmmmmmmmmmmmmmmmm
-                               (* 750 *)
-                               mmm
-                               (* 746 *))
-                        & ((* 756 *)
-                            _
-                            (* 755 *)
-                            (* 754 *)
-                            mod
-                               (* 757 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 758 *)
-                               mmmmmmmmmmmmmmmmmm
-                               (* 759 *)
-                               mmmmmmmmmmmmmmmmmmmmmm
-                               (* 760 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 761 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                            (* 753 *)
-                            (* 752 *)
-                            with (* 762 *)
-                            tttttttttttttt
-                            * (* 763 *) t
-                            * (* 764 *) tttttttttttt
-                            * (* 765 *) ttttttttttt
-                            * (* 766 *) tttttttttttttttt (* 751 *))
-                        & (* 767 *) kkkkkkkk
-                        & kind_of_
-                            (* 769 *)
-                            (* 770 *)
-                            ttttttttttttttt
-                            (* 768 *))
-                     & ((* 773 *)
-                         kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                         (* 772 *)
-                         with (* 774 *) t (* 771 *))))
-               & (* 775 *) k
-               & ((_
-                     (* 793 *)
-                     (* 792 *)
-                   & _
-                       (* 795 *)
-                       (* 794 *)
-                   & (* 796 *) kkkkkkkkkkkkkkkkkkkkkkkkkkk
-                   & (* 798 *)
-                       _
-                       (* 797 *)
-                       (* 791 *))
-                   mod (* 799 *) mmmmmmmmmmmmmmmmmmmmmm
-                   (* 790 *)
-                   (* 789 *)
-                   mod (* 800 *) mmmmmmmm (* 801 *) mmmmmm
-                   (* 788 *)
-                   (* 787 *)
-                   with (* 802 *)
-                   tttttttttt
-                   * (* 803 *) ttttttttttttttttttttttttttt
-                   * (* 804 *)
-                   ( (* 805 *) tttttttttttttttttttttttttttttt
-                   , (* 806 *) ttttttttttttttttttttttttttttt )
-                   (* 807 *)
-                   tttttttttt
-                   * (   ((* 808 *)
-                         'aaaaa :
-                         kind_of_
-                              (* 810 *)
-                              (* 811 *)
-                              tttttttttttttttttttttttttttttt
-                           -> (* 812 *) ttttttttttttttttttttttttttttt
-                           (* 809 *)
-                         & kind_of_
-                             (* 814 *)
-                             (* 815 *)
-                             ( (* 816 *) t
-                             , (* 817 *) ttttt
-                             , (* 818 *) tt
-                             , (* 819 *) tttttttttt )
-                             (* 820 *)
-                             tttttttttt
-                             (* 813 *)
-                         & (* 821 *) kkkkkkkkkkkkkkkkkkkkkkk
-                         & ((* 826 *)
-                             kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                             (* 825 *)
-                             mod (* 827 *)
-                                 mmmmmmmmmmmmmmmm (* 828 *) m
-                             (* 824 *)
-                             (* 823 *)
-                             mod
-                                (* 829 *)
-                                mmmmmmmmmmmmmm
-                                (* 830 *)
-                                mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                (* 831 *)
-                                mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                (* 822 *))
-                         & (kind_of_
-                             (* 835 *)
-                             (* 836 *)
-                             tttt
-                             (* 834 *)
-                             (* 833 *)
-                             with (* 837 *) ttt (* 832 *)) )
-                      -> (* 838 *) ttttttttttttttttttttttttttttttttt )
-                   (* 786 *)
-                   (* 785 *)
-                   mod
-                      (* 839 *)
-                      mmmmmmmmmmmmmmm
-                      (* 840 *)
-                      mmmmmmmmmmmmmm
-                      (* 841 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 784 *)
-                   (* 783 *)
-                   with (* 842 *) tttttttttttt
-                   (* 782 *)
-                   (* 781 *)
-                   mod (* 843 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                   (* 780 *)
-                   (* 779 *)
-                   with (* 844 *) t
-                   (* 778 *)
-                   (* 777 *)
-                   mod
-                      (* 845 *)
-                      mmm
-                      (* 846 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 847 *)
-                      mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                      (* 776 *)
-                      (* 489 *))))
-            with    (* 848 *) ttttttttttttttttttttttttttttttt
-                 -> (* 849 *)
-                    ttttttttttttttttttttt
-                    (* 488 *)
-                    (* 467 *)))
+  kind_abbrev_ k =
+    kkkkkkkkkkkkkkkkkkkkkk
+    & ((_ with tttttttttttttttttttttttttt)
+       & kkkk
+       & (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk mod mmmm mmmm)
+       & (kkkkkkkkkkkkkk
+          & kkkkkkkkkkkkkkkkkkkkk
+          & kkkkkkkkkkkkkkkkkkkkkk
+          & kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk))
+    & ((kkk mod m m)
+       & (_ with tttttttttttttttttttttttttt)
+       & (kkkkkkkkkkkkkkkkkkkkkkk with tttttttttttt)
+       & (kkkkkkkkkkkkkkkk with ttttttttttttttttttttttttttttt))
+
+  kind_abbrev_ k =
+    ((kkkkkkkkkkkkkkkkk & _ & kind_of_ ttttttttttttttt)
+      mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
+    & ((kind_of_ tttttttt ttttttttttttttttttttttttttttttt with tt)
+       & (_
+          & (kind_of_
+              ('aaaa : kkkkkkkkkkkkkkkkkkkkkkkkkkk with ttttttt) -> ttttttttt
+              mod mmmmmmmmmmmmmmmmmm mmmm mmmmmm)
+          & (((kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk with tttttttttt)
+              & (kkkkkkkkkkkkkkkkk & kkkkkkkkkkkkkkk & _)
+              & (_
+                  mod
+                     mmmmmmmmmmmmmmm
+                     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                     mmmmmmmmmmmmmmmmmmmmm))
+              with ttt)
+          & kkkkk
+          & (kind_of_ ttttttttttttttttttttttttttt with ttttt))
+       & (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+           mod mmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
+       & ((_
+           & (_ & k & kkkkkkkkkkkkkkkkkkkkkkkkk)
+           & (_
+               mod
+                  mmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmmmm
+                  mm
+                  mmmm)
+           & kind_of_ ttttttttttttttt
+           & (_ with t))
+           mod mmmmmmmmmmmmmmmm
+           mod mmmmmmmmmmmmmmmmmmmmmm mmmm))
+    & kkkkkkkkkkkkkkkk
+    & _
+    & ((_ & _ & _ & _ & kkkkkkkkkkkkkk)
+        mod mmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmm
+        mod mmm mmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
         mod
-           (* 850 *)
-           mmmmmmmmmmmmmmmmm
-           (* 851 *)
-           mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-           (* 852 *)
-           mmmmmmmmmmmmmm
-           (* 853 *)
-           mmmmmmmmmm
-        (* 466 *)
-        (* 465 *)
-        mod
-           (* 854 *)
-           mmmmmmmmmmmmmmmmmmmmmmmmmmm
-           (* 855 *)
-           m
-           (* 856 *)
-           mmmmmmmmm
-           (* 857 *)
+           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
            mmmmmmmmmmmmmmmmmmmmmmm
-           (* 464 *))
-      & (* 858 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-      & kind_of_
-          (* 860 *)
-          (* 861 *)
-          tttttttttttttttttttttttttttttt
-          (* 859 *)
-      & kind_of_
-          (* 863 *)
-          (* 864 *)
-          ttttttttttttttttttttttttttttttttttt
-          (* 862 *)
-      & kind_of_
-          (* 866 *)
-          (* 867 *)
-          (* 868 *)
-          tttttttttttttttttttttttttttttttttt
-          (* 869 *)
-          tttttttttttttttttttttttttttttttttt
-          * (* 870 *)
-            (* 871 *)
-          ttttttttttttttttttttttttttttttttttt (* 872 *) tttt
-          (* 865 *)
-          (* 420 *)))
-  mod (* 873 *)
-      mmmmmmmmmmmmm (* 874 *) mmm (* 875 *) mm (* 876 *) mmmmmmmmmmm
-(* 419 *)
+           mmmmmmmmmmmmmmmmmmmmmmmmm
+           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+           mmmmmm)
 
-kind_abbrev_ k =
-  kind_of_
-  (* 880 *)
-  (* 881 *)
-  t
-  (* 879 *)
-  (* 878 *)
-  with (* 882 *) ttttttttttttttttttttttttttttttttt (* 877 *)
+  kind_abbrev_ k =
+    _
+    with ( tttt -> ttttttttttttttttttttttt
+         , ttttttttttttttttttttttttttttttttttt
+         ,    ('aaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkkkk)
+           -> ttttttttttttttttttttttttttttttttttt
+         , tttttttttttttttttttttttttttttt )
+         ttttttttttttt
 
-kind_abbrev_ k =
-  kind_of_
-  (* 884 *)
-  (* 885 *)
-  tttttttttttttttttttttttttttt
-(* 883 *)
+  kind_abbrev_ k =
+    _
+    with tttttttttttttttttttttttttttttttt * ttttttttttttttt * tttttt
 
-kind_abbrev_ k =
-  (* 889 *)
-  _
-  (* 888 *)
-  (* 887 *)
-  mod
-     (* 890 *)
-     mmmmmmmmmmmmmmmmmm
-     (* 891 *)
-     m
-     (* 892 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 893 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 894 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-(* 886 *)
+  kind_abbrev_ k =
+    kind_of_
+    tttttttttttt
+    mod
+       mmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmm
+       mmmm
+       mmmmmmmm
 
-kind_abbrev_ k =
-  (* 899 *)
-  kkkkkkkkkk
-  (* 898 *)
-  mod
-     (* 900 *)
-     mmmmmmmmm
-     (* 901 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 902 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-  (* 897 *)
-  (* 896 *)
-  with (* 903 *) tttttttttt (* 895 *)
-
-kind_abbrev_ k =
-  ((* 906 *) kkkkkkkkkk
-   & kind_of_
-       (* 908 *)
-       (* 909 *)
-       t
-       (* 907 *)
-       (* 905 *))
-  with    ((* 910 *) 'aaaaaaaaaaaaaaa : (* 912 *) _ (* 911 *))
-       -> (* 913 *) tttttttttttttttttttttttt (* 904 *)
-
-kind_abbrev_ k =
-  (((* 920 *) kkkkkkkkkkkkkkkkkkkkkkk (* 919 *) with (* 921 *) t (* 918 *))
-   & kind_of_
-       (* 923 *)
-       (* 924 *)
-       tttttt
-       (* 922 *)
-   & ((* 927 *) kkkkkkkkkkkkkkkkkkk (* 926 *) with (* 928 *) ttttt (* 925 *))
-   & (* 930 *) _ (* 929 *)
-   & kind_of_
-       (* 932 *)
-       (* 933 *)
-       ttttttt
-       (* 931 *)
-       (* 917 *))
-  mod
-     (* 934 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 935 *)
-     m
-     (* 936 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-  (* 916 *)
-  (* 915 *)
-  with (* 937 *) tt -> (* 938 *) t (* 914 *)
-
-kind_abbrev_ k =
-  (* 944 *)
-  _
-  (* 943 *)
-  (* 942 *)
-  with (* 945 *) ttttttttttttttttttttttttttttttttttt
-  (* 941 *)
-  (* 940 *)
-  mod (* 946 *)
-      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 947 *) mmmmmmmmmm
-(* 939 *)
-
-kind_abbrev_ k = (* 949 *) _ (* 948 *)
-
-kind_abbrev_ k = (* 950 *) kkkkkkkkkkkkkkkkkkkkkk
-
-kind_abbrev_ k =
-  (((* 952 *) _ (* 951 *)
-    & (* 954 *) _ (* 953 *)
-    & (* 956 *) _ (* 955 *)
-    & ((* 961 *)
-        kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-        (* 960 *)
-        with (* 962 *) tttttttttttt
-        (* 959 *)
-        (* 958 *)
-        mod
-           (* 963 *)
-           mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-           (* 964 *)
-           mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-           (* 965 *)
-           mmmmmmmmmmmmmmmmmmmmmmmmmm
-           (* 966 *)
-           m
-           (* 957 *)))
-   & ((* 970 *)
-       _
-       (* 969 *)
-       (* 968 *)
-       mod
-          (* 971 *)
-          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-          (* 972 *)
-          mmmmmmmmmm
-          (* 973 *)
-          mmmmmmmmmmm
-          (* 974 *)
-          mmmmmmmmmmmmmmmmmmmmmmmm
-          (* 967 *))
-   & (((* 978 *)
-        _
-        (* 977 *)
-        (* 976 *)
-        mod (* 979 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 975 *))
-      & (((* 983 *)
-           _
-           (* 982 *)
-           (* 981 *)
-           with (* 984 *)
-           ( (* 985 *)
-           tttt
-           * (* 986 *) tttttttttttttttttttttttt
-           * (* 987 *) t
-           * (* 988 *)
-           ( (* 989 *) tttttttttttttttttttttttt
-           , (* 990 *) tttttttttttttttt )
-           (* 991 *)
-           ttttttt
-           * (* 992 *) t
-           , (* 993 *) t
-           , (* 994 *)
-           ( (* 995 *) tttttttttt
-           , (* 996 *) tttttttttttttt
-           , (* 997 *) tttttttttttttttttttttttt -> (* 998 *) ttttt
-           , (* 999 *) ttttttttttttttttttttttttttttttt
-           , (* 1000 *) tttttttttttttttttttttttttttttttttt )
-           (* 1001 *)
-           t
-           ,    ((* 1002 *)
-                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-                (* 1005 *)
-                kkkkkkkkkkkkkkk
-                (* 1004 *)
-                mod (* 1006 *) mmmmmmmmmmmmm (* 1003 *) )
-             -> (* 1007 *) ttttttttttttttttttttttttttttttttttt
-           , (* 1008 *) t )
-           (* 1009 *)
-           ttttttttttttt
-           (* 980 *))
-         & (* 1011 *) _ (* 1010 *)
-         & ((kind_of_
-               (* 1015 *)
-               (* 1016 *)
-               t
-               (* 1014 *)
-             & kind_of_
-                 (* 1018 *)
-                 (* 1019 *)
-                 tttt
-                 (* 1017 *)
-             & ((((* 1029 *)
-                   _
-                   (* 1028 *)
-                   (* 1027 *)
-                   with (* 1030 *)
-                   (    ((* 1031 *)
-                        'aaaaaaaaaaaa :
-                        (* 1032 *)
-                        kkkkkkkkkkkkkkkkkkkkkkk
-                        & ((* 1037 *)
-                            kkkkkkkkkkkkk
-                            (* 1036 *)
-                            mod
-                               (* 1038 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 1039 *)
-                               mmmm
-                               (* 1040 *)
-                               mmmm
-                               (* 1041 *)
-                               mmmmmmmmmm
-                               (* 1042 *)
-                               mmmmmmmmmmmmmm
-                            (* 1035 *)
-                            (* 1034 *)
-                            mod
-                               (* 1043 *)
-                               mmmmmmmmmmmmmmmmm
-                               (* 1044 *)
-                               mmmm
-                               (* 1045 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 1046 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 1047 *)
-                               mmmmmmmmmmmmmmmmmmmmmm
-                               (* 1033 *))
-                        & (((((((* 1055 *) _ (* 1054 *)
-                                & ((((kind_of_
-                                          (* 1063 *)
-                                          (* 1064 *)
-                                          tttttttttttttttttttttttttttttt
-                                       -> (* 1065 *) tttttttt
-                                       (* 1062 *)
-                                       (* 1061 *)
-                                       mod
-                                          (* 1066 *)
-                                          mmmmmmmmmmmmm
-                                          (* 1067 *)
-                                          mmmmmm
-                                          (* 1068 *)
-                                          mmmmmmmmmmmmmmm
-                                          (* 1069 *)
-                                          mmmmmmmmmmmmmmm
-                                       (* 1060 *)
-                                       (* 1059 *)
-                                       mod
-                                          (* 1070 *)
-                                          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                          (* 1071 *)
-                                          mm
-                                          (* 1072 *)
-                                          mmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                          (* 1073 *)
-                                          mmmmmmmmmmm
-                                          (* 1058 *))
-                                     & ((((* 1082 *)
-                                           kkkkkkkkkkkkkkkkkk
-                                           (* 1081 *)
-                                           mod
-                                              (* 1083 *)
-                                              mmmmmmmmmmmmm
-                                              (* 1080 *))
-                                         & (* 1085 *) _ (* 1084 *)
-                                         & (* 1086 *) kkkkkkkkkkkkkkkkkkkk
-                                         & ((* 1089 *)
-                                             kkkkkkkkkkkkkkkkkkkk
-                                             (* 1088 *)
-                                             with (* 1090 *)
-                                                  tttttttttttttttttttttttttttttttttt
-                                                  (* 1087 *))
-                                         & ((* 1094 *)
-                                             _
-                                             (* 1093 *)
-                                             (* 1092 *)
-                                             with (* 1095 *)
-                                                  tttttttttttttttttttt
-                                                  (* 1091 *)
-                                                  (* 1079 *)))
-                                         mod (* 1096 *)
-                                             mmmmmmmmmmmmmm
-                                         (* 1078 *)
-                                         (* 1077 *)
-                                         with (* 1097 *)
-                                              tttttttttttttttt
-                                         (* 1076 *)
-                                         (* 1075 *)
-                                         with (* 1098 *)
-                                         (    ((* 1099 *)
-                                              'aaaaaaaaaaaaaaaaaaaaaa :
-                                              (((* 1106 *)
-                                                 k
-                                                 (* 1105 *)
-                                                 with    ((* 1107 *)
-                                                         'aaaaaaaaaaaaaa :
-                                                         (* 1108 *) k )
-                                                      -> (* 1109 *)
-                                                         tttttttttttttttttt
-                                                 (* 1104 *)
-                                                 (* 1103 *)
-                                                 with (* 1110 *)
-                                                      ttttttttttttttttttttttt
-                                                      (* 1102 *))
-                                               & (* 1112 *) _ (* 1111 *)
-                                               & ((* 1117 *)
-                                                   kkkk
-                                                   (* 1116 *)
-                                                   mod
-                                                      (* 1118 *)
-                                                      mmmmmmmmmmm
-                                                      (* 1119 *)
-                                                      mmm
-                                                   (* 1115 *)
-                                                   (* 1114 *)
-                                                   mod
-                                                      (* 1120 *)
-                                                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                                      (* 1113 *))
-                                               & ((* 1122 *) _ (* 1121 *)
-                                                  & kind_of_
-                                                      (* 1124 *)
-                                                      (* 1125 *)
-                                                      tttttttttttttttttttt
-                                                      (* 1123 *)
-                                                  & ((* 1127 *) _ (* 1126 *)
-                                                     & (* 1128 *)
-                                                         kkkkkkkkkkkkkkk
-                                                     & (* 1129 *)
-                                                         kkkkkkkkkkkkkkk)
-                                                  & kind_of_
-                                                      (* 1131 *)
-                                                      (* 1132 *)
-                                                      ttttttttttttttttttttttttt
-                                                      (* 1130 *)
-                                                  & ((* 1136 *)
-                                                      _
-                                                      (* 1135 *)
-                                                      (* 1134 *)
-                                                      with (* 1137 *)
-                                                           tttttttttt
-                                                           (* 1133 *)
-                                                           (* 1101 *))))
-                                              mod
-                                                 (* 1138 *)
-                                                 mmmmmmmmmmmmmmmmmmmmm
-                                                 (* 1139 *)
-                                                 mmmmmmmmmmmmmmmmmm
-                                              (* 1100 *) )
-                                           -> (* 1140 *)
-                                              ttttttttttttttttttttttttttttttttttt
-                                         ,    ((* 1141 *)
-                                              'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-                                              kind_of_
-                                              (* 1143 *)
-                                              (* 1144 *)
-                                              t
-                                              (* 1142 *) )
-                                           -> (* 1145 *) tttttttttttt )
-                                         (* 1146 *)
-                                         ttttttttttttttttttttt
-                                         (* 1074 *))
-                                     & (* 1148 *) _ (* 1147 *))
-                                    & (* 1150 *) _ (* 1149 *)
-                                    & ((* 1153 *)
-                                        kkkkkkkk
-                                        (* 1152 *)
-                                        mod
-                                           (* 1154 *)
-                                           mmmmmmm
-                                           (* 1151 *)
-                                           (* 1057 *)))
-                                    mod
-                                       (* 1155 *)
-                                       mmmmmmmmmmmmmmmmmm
-                                       (* 1156 *)
-                                       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                       (* 1157 *)
-                                       mmmmmmmmmmmmmmmmmm
-                                       (* 1158 *)
-                                       mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                       (* 1056 *)))
-                               & ((((* 1161 *) kkkkkkkkkkkkkkkkkkkkkkkk
-                                    & (((* 1167 *) _ (* 1166 *)
-                                        & (kind_of_
-                                             (* 1169 *)
-                                             (* 1170 *)
-                                             tttttttttttttttt
-                                             (* 1168 *)
-                                           & ((* 1174 *)
-                                               _
-                                               (* 1173 *)
-                                               (* 1172 *)
-                                               mod
-                                                  (* 1175 *)
-                                                  mmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                                  (* 1176 *)
-                                                  mmmmmmmmmmmmm
-                                                  (* 1171 *))
-                                           & _
-                                               (* 1178 *)
-                                               (* 1177 *)
-                                           & kind_of_
-                                               (* 1180 *)
-                                               (* 1181 *)
-                                               tttttttttttttttttttttttttttttt
-                                               (* 1179 *)
-                                               (* 1165 *)))
-                                        mod
-                                           (* 1182 *)
-                                           mmmmmmmmmmmmmmmmmm
-                                           (* 1183 *)
-                                           m
-                                           (* 1184 *)
-                                           mmmmmmmmmmmmmmmmmmm
-                                        (* 1164 *)
-                                        (* 1163 *)
-                                        with (* 1185 *)
-                                             (* 1186 *)
-                                        tttttttttttttttttttt
-                                        (* 1187 *)
-                                        tttttttttttttt
-                                        (* 1162 *)))
-                                   & ((* 1193 *)
-                                       _
-                                       (* 1192 *)
-                                       (* 1191 *)
-                                       mod
-                                          (* 1194 *)
-                                          mmmmmmmmmmmmm
-                                          (* 1195 *)
-                                          mmmmmmmmmmmmm
-                                       (* 1190 *)
-                                       (* 1189 *)
-                                       with (* 1196 *) tt (* 1188 *))
-                                   & (* 1198 *)
-                                       _
-                                       (* 1197 *)
-                                       (* 1160 *))
-                                   with (* 1199 *)
-                                        (* 1200 *)
-                                   tttttttttttttttttttttttttt
-                                   (* 1201 *)
-                                   tttttttttttttttttttttttttttt
-                                   (* 1159 *))
-                               & kind_of_
-                                      (* 1203 *)
-                                      ((* 1204 *)
-                                      'a :
-                                      (* 1208 *)
-                                      _
-                                      (* 1207 *)
-                                      (* 1206 *)
-                                      mod
-                                         (* 1209 *)
-                                         mm
-                                         (* 1210 *)
-                                         mmmmmmmm
-                                         (* 1211 *)
-                                         mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                         (* 1212 *)
-                                         mmmm
-                                         (* 1213 *)
-                                         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                      (* 1205 *) )
-                                   -> (* 1214 *)
-                                      ttttttttttttttttttt
-                                   (* 1202 *)
-                               & ((kind_of_
-                                     (* 1218 *)
-                                     (* 1219 *)
-                                     ttttttttttttttt
-                                     (* 1217 *)
-                                   & kind_of_
-                                       (* 1221 *)
-                                       (* 1222 *)
-                                       ( (   (* 1223 *)
-                                             ttttttttttttttttttttttttttttttttt
-                                          -> (* 1224 *)
-                                             tttttttttttttttttttttttttttttttttt
-                                         )
-                                         * (* 1225 *) tttttttttttttt
-                                         * (* 1226 *) ttttttttttttttttttttt
-                                       ,    (* 1227 *)
-                                            ttttttttttttttttttttttttttttttt
-                                         -> (* 1228 *)
-                                            ttttttttttttttttttttttttt
-                                       ,    (* 1229 *)
-                                            ttttttttttttttttttttttttttttttttttt
-                                         -> (* 1230 *) ttttt
-                                       , (* 1231 *) ttttttttttttt
-                                       , (* 1232 *) ttttttttt )
-                                       (* 1233 *)
-                                       ttt
-                                       (* 1220 *)
-                                   & (* 1234 *)
-                                       kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                                       (* 1216 *))
-                                   mod
-                                      (* 1235 *)
-                                      mmm
-                                      (* 1236 *)
-                                      mmmmmmmmmmmmmmmmm
-                                      (* 1237 *)
-                                      mmmmmm
-                                      (* 1215 *)))
-                              & kind_of_
-                                     (* 1239 *)
-                                     (* 1240 *)
-                                     ttttttttttttttttttttttttttttt
-                                  -> (* 1241 *) tttttttttttttttttt (* 1238 *)
-                              & (((* 1245 *)
-                                   _
-                                   (* 1244 *)
-                                   (* 1243 *)
-                                   with (* 1246 *)
-                                        ttttttttttttttttttttttttttttttttttt
-                                        (* 1242 *))
-                                 & kind_of_
-                                     (* 1248 *)
-                                     (* 1249 *)
-                                     t
-                                     (* 1247 *)
-                                 & ((kind_of_
-                                          (* 1253 *)
-                                          (* 1254 *)
-                                          ttttttttttttttttttttttttt
-                                       -> (* 1255 *) t
-                                       (* 1252 *)
-                                     & kind_of_
-                                         (* 1257 *)
-                                         (* 1258 *)
-                                         (    ((* 1259 *)
-                                              'aaaaaaaaaaaaaaaa :
-                                              kind_of_
-                                              (* 1261 *)
-                                              (* 1262 *)
-                                              ttt
-                                              (* 1260 *) )
-                                           -> (* 1263 *)
-                                              ttttttttttttttttttttt
-                                         , (* 1264 *) ttttttttttttttttttttttt
-                                         )
-                                         (* 1265 *)
-                                         tttttttttttttttttttttttttttttttt
-                                         (* 1256 *)
-                                         (* 1251 *))
-                                     with (* 1266 *)
-                                          ttttttttttttttttttttttttttttttttt
-                                          (* 1250 *))
-                                 & kind_of_
-                                     (* 1268 *)
-                                     (* 1269 *)
-                                     ttttttttttttttttttttttttttttttt
-                                     (* 1267 *)
-                                     (* 1053 *)))
-                              with (* 1270 *) ttttt
-                              (* 1052 *)
-                              (* 1051 *)
-                              mod
-                                 (* 1271 *)
-                                 mmmmmmmmmmmmmmmmmmmmmmmm
-                                 (* 1272 *)
-                                 mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                 (* 1273 *)
-                                 mmmmm
-                                 (* 1274 *)
-                                 mmmmmmmmmm
-                                 (* 1050 *))
-                            & (* 1276 *)
-                                _
-                                (* 1275 *)
-                                (* 1049 *))
-                            mod
-                               (* 1277 *)
-                               mmmmmmmmmmmmmmmmmmmmmmmmmm
-                               (* 1048 *))
-                        & (* 1279 *) _ (* 1278 *)
-                        & kind_of_
-                            (* 1281 *)
-                            (* 1282 *)
-                            tttttttttttttttttttttttttttttttttt
-                        (* 1280 *) )
-                     -> (* 1283 *) ttttttttttttttttt
-                   ,    ((* 1284 *)
-                        'aaaaaaaaaaaaaaaaa :
-                        (((kind_of_
-                             (* 1292 *)
-                             (* 1293 *)
-                             tttttttttttttttttttttttttttttttttt
-                             (* 1291 *)
-                           & (* 1295 *) _ (* 1294 *)
-                           & ((* 1299 *)
-                               _
-                               (* 1298 *)
-                               (* 1297 *)
-                               with (* 1300 *)
-                                    ttttttttttt
-                                    (* 1296 *)
-                                    (* 1290 *)))
-                           with    ((* 1301 *)
-                                   'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-                                   (* 1305 *)
-                                   _
-                                   (* 1304 *)
-                                   (* 1303 *)
-                                   with (* 1306 *) ttttttttt (* 1302 *) )
-                                -> (* 1307 *) t
-                           (* 1289 *)
-                           (* 1288 *)
+  kind_abbrev_ k =
+    (kind_of_ ttttttttttttttttttttt
+     & (kkkkkkkkkkkkkkkk
+        & _
+        & ((kind_of_
+             ( ttttttttttttttttttttttttttttttt
+             , ttttttttttttttttttttttt
+             , ( ( t
+                 , ttttttttttt
+                 , ( tttttttttttt
+                   , tttttttttttttttttttttttttttttttt
+                   , t
+                   , ttttttttttttttttttttttt
+                   , tttttttttttt )
+                   tttttt
+                 , tttttttttttttttttttttttttttt
+                   * tttttttt
+                   * t ttt
+                   * t
+                   * ttttttttttttttttttttttttttttttttttt
+                 , ttttttt )
+                 ttttttttttttttttt
+               , ttttttttttttttttttttttttttttttttt
+               , ( tttttttttttttttttttttt
+                 , ( ttttttttttttttttttttttttt
+                   , tttttttttt
+                   , ttttttttttttttttttttttttttttttttttt
+                   , tttttttttttttttttt
+                   , ttttttttttttttttttt )
+                   tt
+                 , tttttttttttttt
+                 ,    ttttttttttttttttttttt
+                   -> tttttttttttttttttttttttttttttttttt
+                 , (   ('aaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+                       (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+                         mod
+                            mmmmmmmmmmmmm
+                            mmmmmmmmmmmm
+                            mmmmmmm
+                            mmmmmmmmm
+                            mmmmmmmmmmm
+                         with t)
+                       & (kind_of_
+                           ttttttttt
                            mod
-                              (* 1308 *)
                               mmmmmmmmmmmmmmmmmmmmmmmmmmm
-                              (* 1309 *)
-                              m
-                              (* 1310 *)
-                              mmmmmmm
-                              (* 1311 *)
-                              m
-                              (* 1312 *)
-                              m
-                              (* 1287 *))
-                         & ((((* 1313 *) kkkkkkkkkkkk
-                              & ((* 1318 *)
-                                  kkkkkkkkkkkkkkkkkkk
-                                  (* 1317 *)
-                                  with    (* 1319 *) tttt
-                                       -> (* 1320 *)
-                                          tttttttttttttttttttttttttttttt
-                                  (* 1316 *)
-                                  (* 1315 *)
-                                  mod
-                                     (* 1321 *)
-                                     mmmmmmmmmmmm
-                                     (* 1322 *)
-                                     mmmmmmmmmmmmmmmmmmmmmmmm
-                                     (* 1323 *)
-                                     mmmm
-                                     (* 1314 *)))
-                             & (* 1325 *) _ (* 1324 *)
-                             & ((* 1328 *)
-                                 k
-                                 (* 1327 *)
-                                 mod
-                                    (* 1329 *)
-                                    mmm
-                                    (* 1330 *)
-                                    mmmmmmmmmmmmm
-                                    (* 1326 *))
-                             & (((* 1333 *) kkkkkkkkkkkkkkkk
-                                 & ((* 1336 *)
-                                     kkkkkkkkkkkkkkkk
-                                     (* 1335 *)
-                                     mod
-                                        (* 1337 *)
-                                        mmmmmmmmmmmmmmmmmmmm
-                                        (* 1338 *)
-                                        mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                        (* 1339 *)
-                                        m
-                                        (* 1340 *)
-                                        m
-                                        (* 1334 *))
-                                 & _
-                                     (* 1342 *)
-                                     (* 1341 *)
-                                 & kind_of_
-                                     (* 1344 *)
-                                     (* 1345 *)
-                                     ttttttttttttttttt
-                                     (* 1343 *)
-                                 & (* 1347 *)
-                                     _
-                                     (* 1346 *)
-                                     (* 1332 *))
-                                 mod
-                                    (* 1348 *)
-                                    m
-                                    (* 1349 *)
-                                    mm
-                                    (* 1350 *)
-                                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                                    (* 1351 *)
-                                    mmmmmmmm
-                                    (* 1352 *)
-                                    mmm
-                                    (* 1331 *)))
-                            & kind_of_
-                                (* 1354 *)
-                                (* 1355 *)
-                                ttttttttttttt
-                                (* 1353 *)
-                            & kind_of_
-                                (* 1357 *)
-                                (* 1358 *)
-                                tttttttttt
-                                (* 1356 *))
-                         & ((* 1362 *)
-                             _
-                             (* 1361 *)
-                             (* 1360 *)
-                             with (* 1363 *)
-                                  (* 1364 *)
-                             ttttttttttttttttttt (* 1365 *) ttttttttt
-                             (* 1359 *)
-                             (* 1286 *)))
-                        mod
-                           (* 1366 *)
-                           mmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                           (* 1367 *)
-                           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                           (* 1368 *)
-                           mmmmmmmmmmm
-                           (* 1369 *)
-                           mmmmmmmmmmmmmmmmmmmmmm
-                           (* 1370 *)
-                           mmmmmmmmmmmmmmmmmmmmmmmm
-                        (* 1285 *) )
-                     -> (* 1371 *) ttttttttttttttttttttttttttttttttttt
-                   , (* 1372 *) ttt
-                   , (* 1373 *) tttttttttttttttttttttttttt
-                   , (* 1374 *)
-                   t
-                   * (* 1375 *) tttttttttttttttttttttttttt
-                   * (   ((* 1376 *)
-                         'aaaaaaaa :
-                         (* 1377 *) kkkkkkkkkkkkkkkkkkkk )
-                      -> (* 1378 *) ttttttttttttttttttttttttt )
-                   * (   (* 1379 *) tttt
-                      -> (* 1380 *) tttttttttttttttttttttttttttttttttt )
-                   * (* 1381 *) ttttttttttttttttttttttttttttttttttt )
-                   (* 1382 *)
-                   ttttttttt
-                   (* 1026 *))
-                 & (* 1384 *) _ (* 1383 *)
-                 & (* 1385 *) k (* 1025 *))
-                 mod
-                    (* 1386 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 1387 *)
-                    mmmmmmmm
-                    (* 1388 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 1389 *)
-                    mmmmmmmmm
-                 (* 1024 *)
-                 (* 1023 *)
-                 with (* 1390 *) tttttttttttttttttttttttttttttt
-                 (* 1022 *)
-                 (* 1021 *)
-                 mod (* 1391 *) mmmmmmmmmmmmmmmmmmmm (* 1020 *))
-             & (* 1392 *) kkkkkkkkkkkkkkkkkk
-             & ((kind_of_
-                   (* 1396 *)
-                   (* 1397 *)
-                   ttttttttttttttttttttttttttttttttttt
-                   (* 1395 *)
-                 & kind_of_
-                     (* 1399 *)
-                     (* 1400 *)
-                     tttt
-                     (* 1398 *)
-                 & (* 1401 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                 & (* 1403 *)
-                     _
-                     (* 1402 *)
-                     (* 1394 *))
-                 mod
-                    (* 1404 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 1405 *)
-                    mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-                    (* 1393 *)
-                    (* 1013 *)))
-             mod (* 1406 *) m (* 1012 *))
-         & ((* 1410 *)
-             _
-             (* 1409 *)
-             (* 1408 *)
-             with (* 1411 *) tttttttttttttttttttttttt (* 1407 *))
-         & kind_of_
-             (* 1413 *)
-             (* 1414 *)
-             ttttttttttttttttttttttttttttt
-             (* 1412 *))
-      & kind_of_
-          (* 1416 *)
-          (* 1417 *)
-          tttt
-          (* 1415 *))
-   & (kind_of_
-       (* 1421 *)
-       (* 1422 *)
-       ttttttttttttttttttttttttttttttttttt
-       (* 1420 *)
-       (* 1419 *)
-       mod (* 1423 *) mmmm (* 1424 *) mmmm (* 1418 *))
-   & kind_of_
-          (* 1426 *)
-          (* 1427 *)
-          tttttt
-       -> (* 1428 *) tttttttttttttttttttttttttttttttt (* 1425 *))
-  & (((* 1431 *)
-       kkkkkkkkkkkkkkkkkkkkkkkkkk
-       (* 1430 *)
-       mod (* 1432 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 1429 *))
+                              mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                           with ttttttttttttttttttt) )
+                    -> ttttttttttttttt )
+                   * tttttttttttttttttttttttttttttttt
+                   * ttttttttttttttttttttttttt
+                   * ( tttttttttt
+                     , ttttttt
+                     , ( tttttttttttt
+                       , tttttttttttttttt
+                       , ttttttttttttttttttt )
+                       ttttttttttttttttttttttt )
+                     tttttttttttttttttt
+                   * ttttttttttttttttttttttttttttttttttt )
+                 tt )
+               tttttttttttttt
+             , ( ttttt
+               , ttttttttttttttttttttt
+               , ( tttttttttttt
+                 , tttttttttttt -> tttttttttttttttttttttttttttt
+                 , t
+                 , tttttttttttttttttttttt )
+                 ttttttttttt
+               , (tttttttttttt, ttttttttttttttt) tttttttt
+               , t )
+               ttttttttttttt
+             , (    ('aaaaaaaaaaa : kind_of_ ttttttttttttttttttt)
+                 -> tttttttttttttttttt
+               , tttttttttttttttttttttttttt
+               , ( ttttttttt
+                 , tttttttttttttttttttttttttttt
+                 , tttttttttttttttt
+                 , ( ttttttttttttt
+                   , tttttttttttttttttttttttttttt
+                   , tttttttt
+                   , ttttttttt )
+                   tttttttttttttt
+                   * tttttttttttttttttttttttttttttttttt
+                   * (   ttttttttttttttttttttttttt
+                      -> ttttttttttttttttttttttttttttttttttt )
+                   * tttttttttttttttttttttttttttttttttt
+                   * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkk) -> tt)
+                   * (   ('aaaaaaaaaaaaaaaaaaaaaaaa : kkkkkkkkkkkkkkkkkkkkk)
+                      -> tttttttttttttttttttt )
+                   * tttttttttttttttttttttttttttttt
+                 , ttttttttttttttttttttttt )
+                 tttttttttttttttttttttttttt )
+               tttt )
+             tttttttttttttt
+             with ttttttttttt
+                  * t
+                  * (tttttttttttt -> ttttttttttttttttttttttttttttttttttt)
+                  * ttttttttttttttttttttttt
+                  * (tttttttttttt -> t)
+                  * tttttttttttttttttttttttttt
+                  * ttttttttttttt
+                  * ttttttttttttttttttttttttttttttttttt
+                  * ttttttttttt)
+           & kind_of_ tttttttttttttttttttttttttttttttttt
+           & ((kind_of_ ttttttttttttttttttttttttt
+               & (_ & kkkkkkkkkkkkkk)
+               & _
+               & _)
+               with ( tttttttttttttttttttttttttttt
+                    , tt
+                    , ttttttttttttttttttttttttttttt
+                    , ttttttttttttttttttttttttttttttttt
+                    , tttttttttttttttttttttttt )
+                    ttttttttttttttttttttttt
+               mod
+                  mmmmmmmm
+                  mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmm
+                  mmmmmmmmmm
+               with ttttttttttttttttttttttttt)
+           & kind_of_
+                  ('aa : kkkkkkkkkkkkkkkkkkkkkkkkkk with ttttttttttttttttttt)
+               -> ttttttttt
+           & kkkkkkkkk)
+        & _
+        & _)
+     & (kind_of_
+         tttttttttttttttttttt
+         with ttttttttttttttttt
+         mod mmmmmmmmmmmmmmmmmm mmmmmm
+         mod mmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmm mmmmmmmmmmmm m mmmmmmmmmm))
+    mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+  kind_abbrev_ k =
+    ((kind_of_ tttttttttttttttttttttttttttt with t -> t)
+     & kind_of_ tttttttttttttttttttttttttttt)
+    with tttttttttt
+    mod m mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmm
+    mod
+       mmmmmmmmmmmmmmmmmmmmmmm
+       m
+       mmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmm
+
+  kind_abbrev_ k =
+    kind_of_ ttttttttttttttt & kind_of_ ('aaaaaaa : _) -> tttttt
+
+  kind_abbrev_ k =
+    (kk
      & kind_of_
-         (* 1434 *)
-         (* 1435 *)
-         ttttttttt
-         (* 1433 *))
-
-kind_abbrev_ k =
-  (* 1441 *)
-  _
-  (* 1440 *)
-  (* 1439 *)
-  mod (* 1442 *) mmmm (* 1443 *) mmmmmmmmmmmmmm
-  (* 1438 *)
-  (* 1437 *)
-  with (* 1444 *) tttttttttttttttttttttttttt (* 1436 *)
-
-kind_abbrev_ k = (* 1445 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-
-kind_abbrev_ k =
-  (* 1448 *)
-  kkkkkkkkkkkkkkkkkkkkkkk
-  (* 1447 *)
-  mod
-     (* 1449 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1450 *)
-     m
-     (* 1451 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1452 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-(* 1446 *)
-
-kind_abbrev_ k =
-  (* 1455 *)
-  kkkkkkkk
-  (* 1454 *)
-  mod
-     (* 1456 *)
-     mmmmmmmmmmmmmmmmmmmmm
-     (* 1457 *)
-     mm
-     (* 1458 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1459 *)
-     mmmmmmmmmmmmmmmmmmmmm
-     (* 1460 *)
-     mmmmmmmmmmmmmmmmm
-(* 1453 *)
-
-kind_abbrev_ k =
-  kind_of_
-  (* 1462 *)
-  (* 1463 *)
-  ttttttttttttttt
-(* 1461 *)
-
-kind_abbrev_ k = (* 1464 *) kkkkkkkkkkkkkkkkkkkkkkkkkkk
-
-kind_abbrev_ k =
-  kind_of_
-  (* 1468 *)
-  (* 1469 *)
-  ttttttttttttttttttttttttttttttt
-  (* 1467 *)
-  (* 1466 *)
-  with (* 1470 *) tt (* 1465 *)
-
-kind_abbrev_ k = (* 1472 *) _ (* 1471 *)
-
-kind_abbrev_ k =
-  ((* 1479 *)
-    kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-    (* 1478 *)
-    mod (* 1480 *) mmmmmmmmmmmmmmmmmmmmmmmm
-    (* 1477 *)
-    (* 1476 *)
-    with    ((* 1481 *)
-            'aaaaaaaaaaaaaaaaaaaaaaa :
-            kind_of_
-            (* 1485 *)
-            (* 1486 *)
-            ( (* 1487 *) ttttttttttttttttttttttttt
-            ,    (* 1488 *) ttttttttttttttttttttttttttt
-              -> (* 1489 *) ttttttttttttttttttttttttttt )
-            (* 1490 *)
-            ttttttttt
-            (* 1484 *)
-            (* 1483 *)
+         ( ttttttt -> tttttttttttttttttttttttttttttttttt
+         , tttttttttttttttttttttttttttttttttt
+         , ( t
+           , tttttt ttttttttttttttttttt
+           , tttttttttttttttttttttttttttttttt
+           , ttttttttttttttttttttttttttttttttt
+             * ttttttttttttttttttt
+             * ( ( ( tttttttttttttttttttttttttttttttttt
+                   , tttttttttttt
+                   ,    ('aaaaaaaaaa : kkkkkkkkkkk)
+                     -> ttttttttttttttttttttttttttt
+                   , t
+                   , ttttttttttttttttttttttttttttttttt )
+                   tttttttttttttttttttt
+                 , t
+                 , tttttttttttttt -> ttttttttttttttttttttttttttttttt )
+                 ttttttttttttt
+               , tttttttttttttttttttttttttt
+               , ( tttttttttttttttttt
+                 , ttttttttttt
+                 , tttttttttttttt -> ttttttttttttttttt
+                 , ttttttttttttttt )
+                 ttttttttttttttttttttttttttttt
+               , tttttttttttttt )
+               tttttttttttttttttttttttttttttttt
+             * tttttttttttttttttttttttt
+             * tttttttttttttttttttttttttttttttt
+             * ttttttttttttttttttttttttttttttttt
+             * t
+             * tttttttttttttttttttttttttttttttt
+             * ( t
+               , (   ('aaa : kind_of_ tttttttttttttttttttt)
+                  -> tttttttttttttttttttttttttttt )
+                 * (('a : _) -> tttttttttttttttttttttttttttttt)
+               , ttttttttttttttttttttttttt )
+               tttttttttttttttttttttttt
+             * ttttttttttttttttttt )
+           t
+         , (tttttttttttt, t, ttttttttttttttttt) ttttttttttttttttttttttttt
+         , t )
+         tttttttt)
+    & ((kkkkkkkkkkkkkkkkkkkk
+        & kind_of_ t
+        & (_
+            with tttt
+            mod mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmm)
+        & (kind_of_
+            tttttttttttt -> ttttttttttttt
             mod
-               (* 1491 *)
-               mmmmmmmmmmmmmmmmmm (* 1492 *) mmmm (* 1493 *) mmmmmm
-            (* 1482 *) )
-         -> (* 1494 *) tttttttttttttt
-    (* 1475 *)
-    (* 1474 *)
-    with (* 1495 *) t (* 1473 *))
-  & (* 1496 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  & (* 1498 *) _ (* 1497 *)
-  & kind_of_
-         (* 1500 *)
-         ((* 1501 *)
-         'aaaaaaaaaaaaaaa :
-         kind_of_
-         (* 1503 *)
-         (* 1504 *)
-         ttttttttttttttttt
-         (* 1502 *) )
-      -> (* 1505 *) ttttttttttttttttttttttttttttttttttt
-(* 1499 *)
+               mmmmm
+               mmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmmm)
+        & (_ with ttttttttttttttttttttttttttttttttttt))
+        mod mmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
 
-kind_abbrev_ k =
-  (* 1510 *)
-  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-  (* 1509 *)
-  mod
-     (* 1511 *)
-     mmmmm
-     (* 1512 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1513 *)
-     mmmmmmmmmmmmmmmmmm
-     (* 1514 *)
-     m
-     (* 1515 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-  (* 1508 *)
-  (* 1507 *)
-  mod
-     (* 1516 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1517 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1518 *)
-     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-     (* 1519 *)
-     mmmmmmmmmmmmmmmmmmmmm
-(* 1506 *)
+  kind_abbrev_ k = (* 415 *) _ (* 414 *)
+
+  kind_abbrev_ k = (* 416 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+
+  kind_abbrev_ k = (* 418 *) _ (* 417 *)
+
+  (* kind_abbrev_ k = ((kind_of_ (1* 422 *1) (1* 423 *1) tttttttttttttttttt
+     (1* 421 *1) & ((1* 426 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 425 *1)
+     mod (1* 427 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 428 *1)
+     mmmmmmmmmmmmmmm (1* 424 *1)) & ((1* 429 *1) kkkkkkkkkkkkkkk & ((1* 433
+     *1) _ (1* 432 *1) (1* 431 *1) with (1* 434 *1) ((1* 435 *1)
+     tttttttttttt, (1* 436 *1) ((1* 437 *1) ttttttttttttt, (1* 438 *1) ((1*
+     439 *1) ttttttttttttttttt, (1* 440 *1) t, (1* 441 *1)
+     tttttttttttttttttttttttttttt, (1* 442 *1) ttttttttttttttttttttttt) (1*
+     443 *1) tttttt) (1* 444 *1) ttttttttttttttttttttt) (1* 445 *1) t (1* 430
+     *1)) & (((1* 450 *1) kkkkkkkkkkkkkkkkkkkkkkkkkk (1* 449 *1) mod (1* 451
+     *1) mmmmmmmmmmmmmmmmmmmmmmm (1* 452 *1) m (1* 453 *1) mmmmmm (1* 454 *1)
+     mmmmmm (1* 455 *1) mmmmmmmmmmm (1* 448 *1)) (1* 447 *1) with (1* 456 *1)
+     ttttttttttt (1* 446 *1)) & kind_of_ (1* 458 *1) (1* 459 *1)
+     tttttttttttttttttttttttttttt (1* 457 *1) & (1* 461 *1) _ (1* 460 *1)) &
+     (1* 463 *1) _ (1* 462 *1) & (((((1* 468 *1) kkkkkkkkkkkkkkkkkkkkk & ((1*
+     472 *1) _ (1* 471 *1) (1* 470 *1) with (1* 473 *1) ((1* 474 *1) tttttt,
+     (1* 475 *1) ttttttttttttttttttttttttt) (1* 476 *1)
+     tttttttttttttttttttttttttttttttt (1* 469 *1)) & (1* 478 *1) _ (1* 477
+     *1) & (kind_of_ (1* 482 *1) (1* 483 *1) tttttttt (1* 481 *1) (1* 480 *1)
+     with (1* 484 *1) tttttt * (1* 485 *1) tttttttttttttttttttttttt * (1* 486
+     *1) t * (1* 487 *1) ttttttttttttttttttttttttt (1* 479 *1)) & ((((1* 490
+     *1) kkkkkkkkkkkkkk & (kind_of_ (1* 494 *1) (1* 495 *1) ttttttttttttttt
+     (1* 493 *1) (1* 492 *1) mod (1* 496 *1) mmmmmmmmmmmmmmmmmmmmm (1* 497
+     *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 498 *1) mmmmmmmmmmm (1* 491
+     *1)) & (((1* 503 *1) kkkk (1* 502 *1) with (('(1* 504 *1) aaaaaaaaaa :
+     (1* 506 *1) _ (1* 505 *1)) -> (1* 507 *1) ttttttttttt) (1* 501 *1)) (1*
+     500 *1) mod (1* 508 *1) m (1* 509 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmm (1*
+     510 *1) mmmmmmmmmmmmmmmmmmmmmmmmm (1* 499 *1)) & (((1* 515 *1) kkkkkkk
+     (1* 514 *1) mod (1* 516 *1) mmmmmmmmm (1* 517 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 513 *1)) (1* 512 *1) with (1* 518
+     *1) ttttttttt (1* 511 *1)) & kind_of_ (1* 520 *1) (1* 521 *1) ((1* 522
+     *1) ttttttttttttttttttttttttttttttttttt) (1* 523 *1)
+     tttttttttttttttttttttttttt (1* 519 *1)) & ((kind_of_ (1* 529 *1) (1* 530
+     *1) ttt (1* 528 *1) (1* 527 *1) mod (1* 531 *1) mmmmmmmmmmmmm (1* 532
+     *1) mmmmmmmmmmmmmmmmmmmmm (1* 533 *1) mmmmmmmmmmmmmmmmmmmmmmmm (1* 534
+     *1) mmmmmmmmmmmmmm (1* 526 *1)) (1* 525 *1) mod (1* 535 *1)
+     mmmmmmmmmmmmmmmmmmmmmmm (1* 536 *1) mmmmmmmm (1* 524 *1)) & kind_of_ (1*
+     538 *1) (('(1* 539 *1) aaaaaaa : ((((((1* 545 *1) _ (1* 544 *1) & (1*
+     547 *1) _ (1* 546 *1) & ((((((1* 557 *1) _ (1* 556 *1) (1* 555 *1) mod
+     (1* 558 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 559 *1) mmmmmmm (1*
+     560 *1) mmmmmmmmmmm (1* 561 *1) mmmmmmmmmmmmmm (1* 562 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 554 *1)) (1* 553 *1) mod (1* 563 *1)
+     m (1* 564 *1) mmmmmm (1* 565 *1) mmmmmmmmm (1* 566 *1) mmmmmmmmmmmm (1*
+     552 *1)) (1* 551 *1) with (1* 567 *1) tttttttttttttt (1* 550 *1)) (1*
+     549 *1) with (1* 568 *1) tttttttttttttttttttttttttt (1* 548 *1)) & (1*
+     569 *1) kkkkkkkkkkkk & kind_of_ (1* 571 *1) ((1* 572 *1) tttttttttt ->
+     (1* 573 *1) ttttttttttttttttttt) (1* 570 *1) & (1* 574 *1)
+     kkkkkkkkkkkkkkkk))) (1* 543 *1) mod (1* 575 *1) mmm (1* 576 *1)
+     mmmmmmmmm (1* 577 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 578 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 542 *1)) (1* 541 *1) mod (1* 579
+     *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 580 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 581 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 582 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 583 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmm (1* 540 *1)))) -> (1* 584 *1)
+     ttttttttttttttttttttt) (1* 537 *1) & ((((kind_of_ (1* 590 *1) (('(1* 591
+     *1) aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : (kind_of_ (1* 593 *1) (1* 594
+     *1) tttttt (1* 592 *1) & (((1* 598 *1) _ (1* 597 *1) & (((1* 604 *1) _
+     (1* 603 *1) (1* 602 *1) mod (1* 605 *1) mmmmmmmmmm (1* 606 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmm (1* 607 *1) mmmm (1* 601 *1)) (1* 600 *1) with
+     (1* 608 *1) tttttttttttttttt (1* 599 *1))) (1* 596 *1) mod (1* 609 *1)
+     mmmmmmmmmmm (1* 595 *1)) & ((((1* 614 *1) kkkkk & kind_of_ (1* 616 *1)
+     (1* 617 *1) ttttttttttttttttttttttttttttttttttt (1* 615 *1)) (1* 613 *1)
+     with (1* 618 *1) tttttttttttttttttt (1* 612 *1)) (1* 611 *1) mod (1* 619
+     *1) mmmmmmmmmm (1* 620 *1) mmmmmmmmmmmmmmmmmmmmmmm (1* 621 *1) mmmmmmm
+     (1* 622 *1) m (1* 623 *1) m (1* 610 *1)))) -> (1* 624 *1) t) (1* 589
+     *1)) & (1* 626 *1) _ (1* 625 *1) & (1* 627 *1) kkkkkk & (1* 629 *1) _
+     (1* 628 *1)) (1* 588 *1) mod (1* 630 *1) mmmmmmmmmmmmm (1* 631 *1)
+     mmmmmm (1* 587 *1)) (1* 586 *1) mod (1* 632 *1) mmmmmmmmmm (1* 633 *1)
+     mmmmmmmm (1* 634 *1) mmmmmmmmmmmmmmm (1* 635 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 636 *1) mmmmmmmmmmmmmmmmmmmmm (1*
+     585 *1)) & (((1* 639 *1) kkkkkkkkk (1* 638 *1) mod (1* 640 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 637 *1)) & ((((1* 643 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & kind_of_ (1* 645 *1) (1* 646 *1) tt (1*
+     644 *1) & ((((((1* 656 *1) _ (1* 655 *1) & (((1* 661 *1)
+     kkkkkkkkkkkkkkkkk (1* 660 *1) mod (1* 662 *1) mmmmmmm (1* 659 *1)) (1*
+     658 *1) with (1* 663 *1) ttttttttttttt (1* 657 *1)) & (1* 665 *1) _ (1*
+     664 *1) & kind_of_ (1* 667 *1) (1* 668 *1) ttttttttttttttttttttt (1* 666
+     *1)) (1* 654 *1) mod (1* 669 *1) mmmm (1* 670 *1) mmmmmmmmmmmm (1* 671
+     *1) mmmmmmmmmmmmmmmmmm (1* 672 *1) mmmmmmmmmmmmmmmmmmmmmm (1* 673 *1)
+     mmmmmmmmmmmmmm (1* 653 *1)) (1* 652 *1) with (1* 674 *1) tt (1* 651 *1))
+     (1* 650 *1) mod (1* 675 *1) m (1* 676 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 677 *1) mmmmmmmmmmm (1* 678 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmm (1* 649 *1)) (1* 648 *1) with (1* 679 *1)
+     tttttttttttttttttttttttttttttttt (1* 647 *1)) & ((1* 681 *1) _ (1* 680
+     *1) & (((1* 687 *1) _ (1* 686 *1) (1* 685 *1) with (1* 688 *1)
+     tttttttttttttttttttttttttttttttttt (1* 684 *1)) (1* 683 *1) with (1* 689
+     *1) ttttttttttttttttttttttt (1* 682 *1)) & kind_of_ (1* 691 *1) (1* 692
+     *1) ttt (1* 690 *1))) (1* 642 *1) with (1* 693 *1)
+     tttttttttttttttttttttttttttttt (1* 641 *1)) & ((1* 697 *1) _ (1* 696 *1)
+     (1* 695 *1) with (1* 698 *1) ttttttttttttttttttttttttt (1* 694 *1)) &
+     (((1* 700 *1) _ (1* 699 *1)) & (((1* 704 *1) _ (1* 703 *1) (1* 702 *1)
+     with (('(1* 705 *1) aaaaaaaaaaaaaaaaaaaaaaaaaa : ((1* 708 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 707 *1) mod (1* 709 *1) mmm (1*
+     710 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 711 *1) mmmmmmmmmmmmmm
+     (1* 706 *1))) -> (1* 712 *1) t) (1* 701 *1)) & ((((1* 719 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 718 *1) with (1* 720 *1) ttttttttttt
+     * (1* 721 *1) tttttttttttttttt * ((1* 722 *1) ttttttttttttt -> (1* 723
+     *1) tttttttttttttttttttttt) * (1* 724 *1) tttt * (1* 725 *1)
+     ttttttttttttttttt (1* 717 *1)) (1* 716 *1) mod (1* 726 *1) mmmm (1* 727
+     *1) mmmmmmmmmmmmmmmmmmmmmmm (1* 728 *1) mmmmmmmmmmmmmmmmmmmmmmm (1* 715
+     *1)) (1* 714 *1) mod (1* 729 *1) mmmmmmmmmmmmmmmmmmm (1* 713 *1))) &
+     ((1* 732 *1) k (1* 731 *1) mod (1* 733 *1) mmmmmmmmmm (1* 730 *1))) &
+     (1* 734 *1) k & ((1* 735 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk &
+     kind_of_ (1* 737 *1) (1* 738 *1) tttttttttttttttttt (1* 736 *1) & (1*
+     739 *1) k & ((kind_of_ (1* 743 *1) (1* 744 *1) t (1* 742 *1) (1* 741 *1)
+     with (1* 745 *1) tttt (1* 740 *1)) & ((1* 748 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 747 *1) mod (1* 749 *1)
+     mmmmmmmmmmmmmmmmmmmmmm (1* 750 *1) mmm (1* 746 *1)) & (((1* 756 *1) _
+     (1* 755 *1) (1* 754 *1) mod (1* 757 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 758 *1) mmmmmmmmmmmmmmmmmm (1*
+     759 *1) mmmmmmmmmmmmmmmmmmmmmm (1* 760 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 761 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 753 *1)) (1* 752 *1) with (1* 762
+     *1) tttttttttttttt * (1* 763 *1) t * (1* 764 *1) tttttttttttt * (1* 765
+     *1) ttttttttttt * (1* 766 *1) tttttttttttttttt (1* 751 *1)) & (1* 767
+     *1) kkkkkkkk & kind_of_ (1* 769 *1) (1* 770 *1) ttttttttttttttt (1* 768
+     *1)) & ((1* 773 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 772 *1) with (1*
+     774 *1) t (1* 771 *1)))) & (1* 775 *1) k & (((((((((((1* 793 *1) _ (1*
+     792 *1)) & ((1* 795 *1) _ (1* 794 *1)) & (1* 796 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkk & (1* 798 *1) _ (1* 797 *1)) (1* 791 *1) mod
+     (1* 799 *1) mmmmmmmmmmmmmmmmmmmmmm (1* 790 *1)) (1* 789 *1) mod (1* 800
+     *1) mmmmmmmm (1* 801 *1) mmmmmm (1* 788 *1)) (1* 787 *1) with (1* 802
+     *1) tttttttttt * (1* 803 *1) ttttttttttttttttttttttttttt * (1* 804 *1)
+     ((1* 805 *1) tttttttttttttttttttttttttttttt, (1* 806 *1)
+     ttttttttttttttttttttttttttttt) (1* 807 *1) tttttttttt * (('(1* 808 *1)
+     aaaaa : (kind_of_ (1* 810 *1) ((1* 811 *1)
+     tttttttttttttttttttttttttttttt -> (1* 812 *1)
+     ttttttttttttttttttttttttttttt) (1* 809 *1) & kind_of_ (1* 814 *1) (1*
+     815 *1) ((1* 816 *1) t, (1* 817 *1) ttttt, (1* 818 *1) tt, (1* 819 *1)
+     tttttttttt) (1* 820 *1) tttttttttt (1* 813 *1) & (1* 821 *1)
+     kkkkkkkkkkkkkkkkkkkkkkk & ((((1* 826 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+     (1* 825 *1) mod (1* 827 *1) mmmmmmmmmmmmmmmm (1* 828 *1) m (1* 824 *1)))
+     (1* 823 *1) mod (1* 829 *1) mmmmmmmmmmmmmm (1* 830 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 831 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 822 *1)) & (kind_of_ (1* 835 *1) (1*
+     836 *1) tttt (1* 834 *1) (1* 833 *1) with (1* 837 *1) ttt (1* 832 *1))))
+     -> (1* 838 *1) ttttttttttttttttttttttttttttttttt) (1* 786 *1)) (1* 785
+     *1) mod (1* 839 *1) mmmmmmmmmmmmmmm (1* 840 *1) mmmmmmmmmmmmmm (1* 841
+     *1) mmmmmmmmmmmmmmmmmmmmmmmmm (1* 784 *1)) (1* 783 *1) with (1* 842 *1)
+     tttttttttttt (1* 782 *1)) (1* 781 *1) mod (1* 843 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 780 *1)) (1* 779 *1) with (1* 844
+     *1) t (1* 778 *1)) (1* 777 *1) mod (1* 845 *1) mmm (1* 846 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 847 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+     (1* 776 *1)))) (1* 489 *1) with ((1* 848 *1)
+     ttttttttttttttttttttttttttttttt -> (1* 849 *1) ttttttttttttttttttttt)
+     (1* 488 *1))) (1* 467 *1) mod (1* 850 *1) mmmmmmmmmmmmmmmmm (1* 851 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 852 *1) mmmmmmmmmmmmmm (1* 853 *1)
+     mmmmmmmmmm (1* 466 *1)) (1* 465 *1) mod (1* 854 *1)
+     mmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 855 *1) m (1* 856 *1) mmmmmmmmm (1* 857
+     *1) mmmmmmmmmmmmmmmmmmmmmmm (1* 464 *1)) & (1* 858 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & kind_of_ (1* 860 *1) (1* 861 *1)
+     tttttttttttttttttttttttttttttt (1* 859 *1) & kind_of_ (1* 863 *1) (1*
+     864 *1) ttttttttttttttttttttttttttttttttttt (1* 862 *1) & kind_of_ (1*
+     866 *1) (1* 867 *1) ((1* 868 *1) tttttttttttttttttttttttttttttttttt) (1*
+     869 *1) tttttttttttttttttttttttttttttttttt * (1* 870 *1) ((1* 871 *1)
+     ttttttttttttttttttttttttttttttttttt) (1* 872 *1) tttt (1* 865 *1))) (1*
+     420 *1) mod (1* 873 *1) mmmmmmmmmmmmm (1* 874 *1) mmm (1* 875 *1) mm (1*
+     876 *1) mmmmmmmmmmm (1* 419 *1)) *)
+  kind_abbrev_ k =
+    kind_of_
+    (* 880 *)
+    (* 881 *)
+    t
+    (* 879 *)
+    (* 878 *)
+    with (* 882 *) ttttttttttttttttttttttttttttttttt (* 877 *)
+
+  kind_abbrev_ k =
+    kind_of_
+    (* 884 *)
+    (* 885 *)
+    tttttttttttttttttttttttttttt
+  (* 883 *)
+
+  kind_abbrev_ k =
+    (* 889 *)
+    _
+    (* 888 *)
+    (* 887 *)
+    mod
+       (* 890 *)
+       mmmmmmmmmmmmmmmmmm
+       (* 891 *)
+       m
+       (* 892 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 893 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 894 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  (* 886 *)
+
+  kind_abbrev_ k =
+    (* 899 *)
+    kkkkkkkkkk
+    (* 898 *)
+    mod
+       (* 900 *)
+       mmmmmmmmm
+       (* 901 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 902 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+    (* 897 *)
+    (* 896 *)
+    with (* 903 *) tttttttttt (* 895 *)
+
+  kind_abbrev_ k =
+    ((* 906 *) kkkkkkkkkk
+     & kind_of_
+         (* 908 *)
+         (* 909 *)
+         t
+         (* 907 *)
+         (* 905 *))
+    with    ((* 910 *) 'aaaaaaaaaaaaaaa : (* 912 *) _ (* 911 *))
+         -> (* 913 *) tttttttttttttttttttttttt (* 904 *)
+
+  kind_abbrev_ k =
+    (((* 920 *) kkkkkkkkkkkkkkkkkkkkkkk (* 919 *) with (* 921 *) t (* 918 *))
+     & kind_of_
+         (* 923 *)
+         (* 924 *)
+         tttttt
+         (* 922 *)
+     & ((* 927 *)
+         kkkkkkkkkkkkkkkkkkk
+         (* 926 *)
+         with (* 928 *) ttttt (* 925 *))
+     & (* 930 *) _ (* 929 *)
+     & kind_of_
+         (* 932 *)
+         (* 933 *)
+         ttttttt
+         (* 931 *)
+         (* 917 *))
+    mod
+       (* 934 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 935 *)
+       m
+       (* 936 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+    (* 916 *)
+    (* 915 *)
+    with (* 937 *) tt -> (* 938 *) t (* 914 *)
+
+  kind_abbrev_ k =
+    (* 944 *)
+    _
+    (* 943 *)
+    (* 942 *)
+    with (* 945 *) ttttttttttttttttttttttttttttttttttt
+    (* 941 *)
+    (* 940 *)
+    mod (* 946 *)
+        mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 947 *) mmmmmmmmmm
+  (* 939 *)
+
+  kind_abbrev_ k = (* 949 *) _ (* 948 *)
+
+  kind_abbrev_ k = (* 950 *) kkkkkkkkkkkkkkkkkkkkkk
+end
+
+(* sig *)
+
+module type S = sig
+  kind_abbrev_ k =
+    (((kkkkkkkkkkkkkkkkkkkkkkkk
+       & ((_
+           & kind_of_
+               ( ttttttttttttttttttttttt -> tttttttttttttttttttttttt
+               , t
+               , ttt
+                 * t
+                 * ( (ttt, tttttttt) ttttttttttttttttttttttttttttttttt
+                   , tttttttttttttttttttttttttttt
+                   , ttttttttttttttttttttttttttttttttttt
+                   , t )
+                   tttttttttttttttttt
+               , ('aaaaaaaaaaaaaaa : kkkkkk) -> t )
+               tttttttttttttttt)
+           mod mmmmmmmmmmmmmmmmmm m mmmmmmmmmmmmmmmmmmm
+           with tttttttttttttttttttt tttttttttttttt))
+      & kind_of_ ttttt -> ttttttttttttttttttttttttttttttttttt
+      & (_ with ttttttttttttttttttttttttttttttttt))
+     & kkkkkkkkkkkkkk
+     & kkkkkkkkkkkkkkkkkkkkk)
+    with tttttttttttttttttttttttttt
+    mod
+       mmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmm
+       mmmmmmmmmmmmmmmmmmmmm
+
+  kind_abbrev_ k =
+    kind_of_
+    ttttttttttttttttttttttttttttttttttt
+    * t
+    * t
+    * ttttttttttttttt
+    * tttttttttttttttttttttttttttt
+    * tttttttttttttt
+    * ttttttttttttttttttttttttttttttttttt
+    * tttttttttttttt
+    * (ttttttttttttttttttttt -> ttttt)
+    * ttttttttttttttttttttttt
+    * ttttttttttttttt
+    * (   ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+          kind_of_
+             ('aaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+             kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk )
+          -> ttttttttttttttttttttt )
+       -> tttttttttttttttttttttttttt )
+    * ttttttttttttttttttttttttttttttt
+    * t
+    * (ttttttttttt -> ttttttttttttttttttttt)
+    * ( tttttttttttt
+      , ttt
+      , ttttttttttttttttttttttttttttttttttt
+      , ( tttttttttttttttttttttttt
+        , ('aaaaaaa : _) -> tttt
+        , t )
+        tttttttttttttttttttttttttt
+      , tttt )
+      ttttttttttttttttttttttttttttt
+    * (('aaaaaaaaaaa : _) -> tttttt)
+    * t
+    * tttttt
+
+  kind_abbrev_ k =
+    (((kind_of_
+        tttttttttttttttttttt
+        with tttttttttttttttt
+        mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
+      & _
+      & kkkkkkkkkkkkkkkk
+      & _
+      & kind_of_ ttttttttttttttttt)
+     & (_
+         with ttttttttttttttttttt ttttttttt
+         mod mmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmm))
+    & _
+
+  kind_abbrev_ k =
+    kind_of_
+    ttttttt
+    * ( (    ('aaaaa :
+             _
+             & (k
+                & (kind_of_ ttttttttttttttttttttttttttttttttttt
+                   & (_
+                       mod
+                          mmmmmmmmmmmmmmmmmm
+                          mmmmmmmmmmmmmmmm
+                          mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)))
+             & _
+             & ((_ & _)
+                 mod
+                    mmmmmmmmmmmmmmmmmmmmm
+                    mmmmmmmmmmmmmm
+                    mmmmmmmmmmmmmmmmmmmmmmmm
+                    mmmm
+                    m
+                 mod mmmmmmmmmmmmmmmmm) )
+          -> ttttttttttttttttttttttt
+        ,    ('aaaaaaaaaaaaaaa :
+             ((_ & kkkkkkkkkkkkkkkk & kkkkkkkkkkkkkkkkkkkkkkkkkk)
+              & _
+              & (kkkkkk with tttttttttttt)
+              & (_
+                  mod
+                     mmm
+                     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                     mmmmmmmmmm
+                     mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                     mmm))
+             mod mmmm mmmmmmmmmmmmmmm
+             mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm m mmmmmmmmmmmmmmmmm )
+          -> t )
+        ttttttttttttttttttttttttt
+        * ttttttttttttttttttttttttttttttt
+        * (t, ttttttt, tttttttttttttt, ttttttttttttttttttttttt) ttttttt
+        * (ttttttttttttttttt -> tttttttttttttttttttt)
+      , ttttttttttttttttttttttttttttttttttt )
+      ttttttttttttttttttttttttttttt
+    * ttttttttttttttttttttttttttttttttttt
+    * ttttttttttttttttttttttttt
+    * ttttttttttttttttttttttttttttttttt
+    * (ttttttttttttt -> tttttttttttttttttttt)
+    * t
+    * ( ttttttttttttttttttttttt
+      , ( ( t
+          ,    ('aaaaaaaaaaaaaaaaaa :
+               kkkkkkkkkkkkkkkkkkkkkkkkkk
+               mod
+                  mmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmm
+                  mmmmmmmmmmmmmmmmmmmmmm )
+            -> tttttttttttttttttttttttttttttttttt )
+          tttttttttttttttttttttt
+        , tttttttttttttttt )
+        tttttttttttt
+      , t )
+      tttttttttttttttttttttttttttt
+    * tttttttttttt
+    * t
+    mod mmmmmmmmmmmmm mmmmmm mmmmmmmmmmmmm mmmmmmmmmmmmmmm
+
+  kind_abbrev_ k =
+    kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+    with ttttttttttttttttttttttttttt
+         * (('aaaaaaaaaaaaaaaaaaaaaaaaa : _) -> ttttttt)
+         * tttttttttt
+         * (ttt, tttttt, tttttttt) ttt
+         * (   ('aaaaaaaaaaaaaaaaaaaaaaa : kind_of_ tttttttttttttttttttttttt)
+            -> ttttttttttttttttttttt )
+         * ttttttttttttttttttttttttttt
+         * ( ( tttttttttttttttttttttttttt
+             , t
+             , ( tttttttttttttttttttttttttt
+               ,    ('aaaa : kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk)
+                 -> tttttttttttttttttttttttttttt )
+               t
+             , ( ttttttttttttttttttttttttt
+               , ( ttttttttttttttttt
+                 , tttttttttttttttttttttttt
+                 , tttttttttt
+                 , ttt
+                 , t -> ttttttttttttttttttttttttttttttttttt )
+                 tttttttttttttttttttttttttttttttt
+               , ttttttttttttttttttt
+               , tttttttt
+               , tt )
+               tttt )
+             tttt
+           , tttttttttttttttttttttttttttttt
+           , ttttttttttttttttttt )
+           tt
+         * tttttttttttttttt
+         * tttttttttttttttttttttttttttt
+         * t
+         * tttttttttttttttt
+         * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : k) -> t)
+         * tttttttttttttttttttttttttttttttttt
+         * ttttttttttttttttt
+         * ttttttttttttttttttttttttttttttttttt
+         * tttttttttttttttttttttttttttttttttt
+         * t
+
+  kind_abbrev_ k =
+    kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+    mod mmmmmmmmmmm
+    with ( t
+           * ( ttttttttttttttttttttttttttttttttttt
+             , tttttttttttttttttttt * ttttttttttttttttttttttt )
+             tttttttttttttttttttttttttttt
+           * ttttttttttttttttttttttt
+           * ttttt
+           * tttttttt
+           * t
+           * tttttttttt
+         ,    ('aaaaaaaaaaaaaaaaaaaaaaaaaa : _)
+           -> ttttttttttttttttttttttttttttttttttt
+         , (('a : _) -> ttttttttttttttttttttttttttt)
+           * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttt)
+           * ttttt
+           * tttttttttttttttttttttttttttttt )
+         t
+
+  kind_abbrev_ k =
+    kind_of_
+    (ttttttttttttttttttttttttttttttt -> ttttttttttttttttttttttttttttt)
+    * t
+    * ( ttttttttttttttttttttttttttttt
+      , tttttttttttttttttttttttt )
+      tttttttttttttttt
+    * (('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttttttttttt)
+    * ttttttttttttttttttttttttttttttttt
+    * ttttttttttttttttt
+    * tttttttttttttttttttttt
+    * ttttttttttttttttt
+    * tttttttttttttttttttttttttttttt
+    * tttttttt
+    * ( ttttttttttttttttttttt
+      , tt
+      , ttttttttttttttttttttttttttttttttttt )
+      tttttttttttttttttt
+    * tttttttttttttttttttttttt
+    * t
+    mod mmmmmmmmmmmmmm m mm
+    mod
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmmm
+
+  kind_abbrev_ k = kkkkkkkkkkkkkkkkkkkkk
+
+  kind_abbrev_ k = (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & kkkkkk & _) mod mmmmmm
+
+  kind_abbrev_ k =
+    kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+    mod mmmmmmm mmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm m
+
+  kind_abbrev_ k =
+    (_ & _ & kkkkkkkkkkkkkkkkkk & kkkkkkkkkkkkkk & _)
+    & kk
+    & kkkkkkkkkkkkkkkkkkkkkkkkk
+    & _
+
+  kind_abbrev_ k =
+    kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+    mod mmmmmmmmmmmmmmmmmmmmmmmm mmmmm m
+
+  kind_abbrev_ k =
+    ((kkkkkkkkkkkkkk & kind_of_ ttttttttttttttttttttttttttttttttt)
+      mod
+         mmmmmmmmmmmmmmmmmmmmmmmmm
+         mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+         mmmmm
+         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+         mmmmmmmmmm)
+    & ((k
+        & (_
+            mod
+               mmm
+               mmmmmm
+               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmm
+               mmmmmmmmmmmmmm
+            mod
+               mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmmmmmmmmmmmm)
+        & _
+        & ((kkkkkkkkkkkkkkkkkkkk & _ & _ & _ & _)
+            with ttttttttttttttttttttttttttttt
+            mod mmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
+        & (kkkkkkkkkkkkkkkkkkkkk
+            mod mmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmm
+            with tttttttttttttttttttttttttttt
+                 * (ttttttttttttttttttttttttttttttttt -> tttttttttttttt)
+            mod
+               mmmmmmmmmmmmmmmmmm
+               m
+               mmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmm))
+        with ttttttttttttttttttttt
+        mod mmmmm
+        mod
+           mmmmmmmmmmmmmmmmmm
+           mmmmmmmmmmmmmmmmmmmmmmm
+           mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+        with tttt)
+    & ((((kkkkkkkkkkkkkkkkkkkkkkkkkkkk
+           mod mmmmmmmmmmmmm m mmmmmmmmmmmmmm mmmmmmmm)
+         & _
+         & _)
+         mod mmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmm
+         mod
+            mmmmmmmmmmmm
+            mmmmmmmmmmmmmmmmmmmmmmmmm
+            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+            mm
+            m)
+       & (kkkkkkkkkkkkkkkkkkkkkkkkkk
+          & kind_of_
+              ( tttttttttttttttttttttttttttttttt
+              , ( ttttttttttttttttttttttttttttttttttt
+                , ( ( ttttttttttttttttttt -> tttttttttttttttttttttttttttt
+                    , ttttttttttttttttttttttttttttttt
+                    , tttttttttttttttttttttt -> tt
+                    , ttttt )
+                    ttttttt
+                  , ('aaaaaaaaaaaaaaaaaaaaaaaaa : _) -> tttttttttttttttttttt
+                  , tttttttttttttttttttttttt
+                  , ( ttttttttt
+                    , ttttttttttttttttttttttt
+                    , ( tttttttt
+                      , ttttttttttttttttttttttttttttttttttt
+                      , tttttttttttttttttttttttttttttttttt
+                      , tt
+                      ,    ttttttttttttttttttttttttttt
+                        -> ttttttttttttttttttttttttttttt )
+                      tttttttttttttttt
+                    , ttttttttttttttttttttttt
+                      * tttttttttttttttttttttttttttt
+                      * t
+                      * tttt ttttttt
+                      * ttttttttttttttttttttttttttt )
+                    ttttttttttttttttttttttt
+                    * tttttttt
+                    * t
+                  , ttttttttttttttttttttttttttttttttttt )
+                  ttttttttttttttttttttttttttttttt )
+                tttttttttttttttttttttttttttttt
+              , ttttttttttttt * t * ttt * tttttttttttttttttttttt )
+              tttttttttt
+          & (kind_of_
+              ( t
+              , tttttttttttttttttttttttt
+              , tttttttttttttttttttttttttttttttt
+              , tttttttttttttttttttttttttttttt )
+              ttttttttttttttttttttttttttttttt
+              with ttttttttt -> tttttttttttttttttttttttt))
+       & kkkkkkkkkkkkkkkkkkkkkkkkkkkk
+       & (_
+           mod
+              mmmmmmmmmmmmmmmm
+              mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+              mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm))
+    & (((_
+          mod
+             mmmmmmmmmmmmmmmmmmmm
+             mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+             mmmmmmmmmmmmmmmmmmmmmmmmm
+             m
+             mmmm
+          mod mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
+        & _
+        & kind_of_ ttttttttttttttttt
+        & (kkkkkkkkkkkkkkkkkkk
+            mod
+               mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmmmmmmmmmmmmmm
+               mmmmmmmmmmmmmm))
+        with t)
+    & kkkkkkkkkkk
+
+  kind_abbrev_ k =
+    kind_of_
+    ttttttttttttt
+    mod
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       mmmmmmmmmmmm
+    with ttttttttttttttttttttttttt
+
+  kind_abbrev_ k =
+    (((* 952 *) _ (* 951 *)
+      & (* 954 *) _ (* 953 *)
+      & (* 956 *) _ (* 955 *)
+      & ((* 961 *)
+          kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+          (* 960 *)
+          with (* 962 *) tttttttttttt
+          (* 959 *)
+          (* 958 *)
+          mod
+             (* 963 *)
+             mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+             (* 964 *)
+             mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+             (* 965 *)
+             mmmmmmmmmmmmmmmmmmmmmmmmmm
+             (* 966 *)
+             m
+             (* 957 *)))
+     & ((* 970 *)
+         _
+         (* 969 *)
+         (* 968 *)
+         mod
+            (* 971 *)
+            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+            (* 972 *)
+            mmmmmmmmmm
+            (* 973 *)
+            mmmmmmmmmmm
+            (* 974 *)
+            mmmmmmmmmmmmmmmmmmmmmmmm
+            (* 967 *))
+     & (((* 978 *)
+          _
+          (* 977 *)
+          (* 976 *)
+          mod (* 979 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 975 *))
+        & (((* 983 *)
+             _
+             (* 982 *)
+             (* 981 *)
+             with (* 984 *)
+             ( (* 985 *)
+             tttt
+             * (* 986 *) tttttttttttttttttttttttt
+             * (* 987 *) t
+             * (* 988 *)
+             ( (* 989 *) tttttttttttttttttttttttt
+             , (* 990 *) tttttttttttttttt )
+             (* 991 *)
+             ttttttt
+             * (* 992 *) t
+             , (* 993 *) t
+             , (* 994 *)
+             ( (* 995 *) tttttttttt
+             , (* 996 *) tttttttttttttt
+             , (* 997 *) tttttttttttttttttttttttt -> (* 998 *) ttttt
+             , (* 999 *) ttttttttttttttttttttttttttttttt
+             , (* 1000 *) tttttttttttttttttttttttttttttttttt )
+             (* 1001 *)
+             t
+             ,    ((* 1002 *)
+                  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+                  (* 1005 *)
+                  kkkkkkkkkkkkkkk
+                  (* 1004 *)
+                  mod (* 1006 *) mmmmmmmmmmmmm (* 1003 *) )
+               -> (* 1007 *) ttttttttttttttttttttttttttttttttttt
+             , (* 1008 *) t )
+             (* 1009 *)
+             ttttttttttttt
+             (* 980 *))
+           & (* 1011 *) _ (* 1010 *)
+           & ((kind_of_
+                 (* 1015 *)
+                 (* 1016 *)
+                 t
+                 (* 1014 *)
+               & kind_of_
+                   (* 1018 *)
+                   (* 1019 *)
+                   tttt
+                   (* 1017 *)
+               & ((((* 1029 *)
+                     _
+                     (* 1028 *)
+                     (* 1027 *)
+                     with (* 1030 *)
+                     (    ((* 1031 *)
+                          'aaaaaaaaaaaa :
+                          (* 1032 *)
+                          kkkkkkkkkkkkkkkkkkkkkkk
+                          & ((* 1037 *)
+                              kkkkkkkkkkkkk
+                              (* 1036 *)
+                              mod
+                                 (* 1038 *)
+                                 mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                 (* 1039 *)
+                                 mmmm
+                                 (* 1040 *)
+                                 mmmm
+                                 (* 1041 *)
+                                 mmmmmmmmmm
+                                 (* 1042 *)
+                                 mmmmmmmmmmmmmm
+                              (* 1035 *)
+                              (* 1034 *)
+                              mod
+                                 (* 1043 *)
+                                 mmmmmmmmmmmmmmmmm
+                                 (* 1044 *)
+                                 mmmm
+                                 (* 1045 *)
+                                 mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                 (* 1046 *)
+                                 mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                 (* 1047 *)
+                                 mmmmmmmmmmmmmmmmmmmmmm
+                                 (* 1033 *))
+                          & (((((((* 1055 *) _ (* 1054 *)
+                                  & ((((kind_of_
+                                            (* 1063 *)
+                                            (* 1064 *)
+                                            tttttttttttttttttttttttttttttt
+                                         -> (* 1065 *) tttttttt
+                                         (* 1062 *)
+                                         (* 1061 *)
+                                         mod
+                                            (* 1066 *)
+                                            mmmmmmmmmmmmm
+                                            (* 1067 *)
+                                            mmmmmm
+                                            (* 1068 *)
+                                            mmmmmmmmmmmmmmm
+                                            (* 1069 *)
+                                            mmmmmmmmmmmmmmm
+                                         (* 1060 *)
+                                         (* 1059 *)
+                                         mod
+                                            (* 1070 *)
+                                            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                            (* 1071 *)
+                                            mm
+                                            (* 1072 *)
+                                            mmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                            (* 1073 *)
+                                            mmmmmmmmmmm
+                                            (* 1058 *))
+                                       & ((((* 1082 *)
+                                             kkkkkkkkkkkkkkkkkk
+                                             (* 1081 *)
+                                             mod
+                                                (* 1083 *)
+                                                mmmmmmmmmmmmm
+                                                (* 1080 *))
+                                           & (* 1085 *) _ (* 1084 *)
+                                           & (* 1086 *) kkkkkkkkkkkkkkkkkkkk
+                                           & ((* 1089 *)
+                                               kkkkkkkkkkkkkkkkkkkk
+                                               (* 1088 *)
+                                               with (* 1090 *)
+                                                    tttttttttttttttttttttttttttttttttt
+                                                    (* 1087 *))
+                                           & ((* 1094 *)
+                                               _
+                                               (* 1093 *)
+                                               (* 1092 *)
+                                               with (* 1095 *)
+                                                    tttttttttttttttttttt
+                                                    (* 1091 *)
+                                                    (* 1079 *)))
+                                           mod (* 1096 *)
+                                               mmmmmmmmmmmmmm
+                                           (* 1078 *)
+                                           (* 1077 *)
+                                           with (* 1097 *)
+                                                tttttttttttttttt
+                                           (* 1076 *)
+                                           (* 1075 *)
+                                           with (* 1098 *)
+                                           (    ((* 1099 *)
+                                                'aaaaaaaaaaaaaaaaaaaaaa :
+                                                (((* 1106 *)
+                                                   k
+                                                   (* 1105 *)
+                                                   with    ((* 1107 *)
+                                                           'aaaaaaaaaaaaaa :
+                                                           (* 1108 *) k )
+                                                        -> (* 1109 *)
+                                                           tttttttttttttttttt
+                                                   (* 1104 *)
+                                                   (* 1103 *)
+                                                   with (* 1110 *)
+                                                        ttttttttttttttttttttttt
+                                                        (* 1102 *))
+                                                 & (* 1112 *) _ (* 1111 *)
+                                                 & ((* 1117 *)
+                                                     kkkk
+                                                     (* 1116 *)
+                                                     mod
+                                                        (* 1118 *)
+                                                        mmmmmmmmmmm
+                                                        (* 1119 *)
+                                                        mmm
+                                                     (* 1115 *)
+                                                     (* 1114 *)
+                                                     mod
+                                                        (* 1120 *)
+                                                        mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                                        (* 1113 *))
+                                                 & ((* 1122 *) _ (* 1121 *)
+                                                    & kind_of_
+                                                        (* 1124 *)
+                                                        (* 1125 *)
+                                                        tttttttttttttttttttt
+                                                        (* 1123 *)
+                                                    & ((* 1127 *)
+                                                         _ (* 1126 *)
+                                                       & (* 1128 *)
+                                                           kkkkkkkkkkkkkkk
+                                                       & (* 1129 *)
+                                                           kkkkkkkkkkkkkkk)
+                                                    & kind_of_
+                                                        (* 1131 *)
+                                                        (* 1132 *)
+                                                        ttttttttttttttttttttttttt
+                                                        (* 1130 *)
+                                                    & ((* 1136 *)
+                                                        _
+                                                        (* 1135 *)
+                                                        (* 1134 *)
+                                                        with (* 1137 *)
+                                                             tttttttttt
+                                                             (* 1133 *)
+                                                             (* 1101 *))))
+                                                mod
+                                                   (* 1138 *)
+                                                   mmmmmmmmmmmmmmmmmmmmm
+                                                   (* 1139 *)
+                                                   mmmmmmmmmmmmmmmmmm
+                                                (* 1100 *) )
+                                             -> (* 1140 *)
+                                                ttttttttttttttttttttttttttttttttttt
+                                           ,    ((* 1141 *)
+                                                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+                                                kind_of_
+                                                (* 1143 *)
+                                                (* 1144 *)
+                                                t
+                                                (* 1142 *) )
+                                             -> (* 1145 *) tttttttttttt )
+                                           (* 1146 *)
+                                           ttttttttttttttttttttt
+                                           (* 1074 *))
+                                       & (* 1148 *) _ (* 1147 *))
+                                      & (* 1150 *) _ (* 1149 *)
+                                      & ((* 1153 *)
+                                          kkkkkkkk
+                                          (* 1152 *)
+                                          mod
+                                             (* 1154 *)
+                                             mmmmmmm
+                                             (* 1151 *)
+                                             (* 1057 *)))
+                                      mod
+                                         (* 1155 *)
+                                         mmmmmmmmmmmmmmmmmm
+                                         (* 1156 *)
+                                         mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                         (* 1157 *)
+                                         mmmmmmmmmmmmmmmmmm
+                                         (* 1158 *)
+                                         mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                         (* 1056 *)))
+                                 & ((((* 1161 *) kkkkkkkkkkkkkkkkkkkkkkkk
+                                      & (((* 1167 *) _ (* 1166 *)
+                                          & (kind_of_
+                                               (* 1169 *)
+                                               (* 1170 *)
+                                               tttttttttttttttt
+                                               (* 1168 *)
+                                             & ((* 1174 *)
+                                                 _
+                                                 (* 1173 *)
+                                                 (* 1172 *)
+                                                 mod
+                                                    (* 1175 *)
+                                                    mmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                                    (* 1176 *)
+                                                    mmmmmmmmmmmmm
+                                                    (* 1171 *))
+                                             & _
+                                                 (* 1178 *)
+                                                 (* 1177 *)
+                                             & kind_of_
+                                                 (* 1180 *)
+                                                 (* 1181 *)
+                                                 tttttttttttttttttttttttttttttt
+                                                 (* 1179 *)
+                                                 (* 1165 *)))
+                                          mod
+                                             (* 1182 *)
+                                             mmmmmmmmmmmmmmmmmm
+                                             (* 1183 *)
+                                             m
+                                             (* 1184 *)
+                                             mmmmmmmmmmmmmmmmmmm
+                                          (* 1164 *)
+                                          (* 1163 *)
+                                          with (* 1185 *)
+                                               (* 1186 *)
+                                          tttttttttttttttttttt
+                                          (* 1187 *)
+                                          tttttttttttttt
+                                          (* 1162 *)))
+                                     & ((* 1193 *)
+                                         _
+                                         (* 1192 *)
+                                         (* 1191 *)
+                                         mod
+                                            (* 1194 *)
+                                            mmmmmmmmmmmmm
+                                            (* 1195 *)
+                                            mmmmmmmmmmmmm
+                                         (* 1190 *)
+                                         (* 1189 *)
+                                         with (* 1196 *) tt (* 1188 *))
+                                     & (* 1198 *)
+                                         _
+                                         (* 1197 *)
+                                         (* 1160 *))
+                                     with (* 1199 *)
+                                          (* 1200 *)
+                                     tttttttttttttttttttttttttt
+                                     (* 1201 *)
+                                     tttttttttttttttttttttttttttt
+                                     (* 1159 *))
+                                 & kind_of_
+                                        (* 1203 *)
+                                        ((* 1204 *)
+                                        'a :
+                                        (* 1208 *)
+                                        _
+                                        (* 1207 *)
+                                        (* 1206 *)
+                                        mod
+                                           (* 1209 *)
+                                           mm
+                                           (* 1210 *)
+                                           mmmmmmmm
+                                           (* 1211 *)
+                                           mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                           (* 1212 *)
+                                           mmmm
+                                           (* 1213 *)
+                                           mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                        (* 1205 *) )
+                                     -> (* 1214 *)
+                                        ttttttttttttttttttt
+                                     (* 1202 *)
+                                 & ((kind_of_
+                                       (* 1218 *)
+                                       (* 1219 *)
+                                       ttttttttttttttt
+                                       (* 1217 *)
+                                     & kind_of_
+                                         (* 1221 *)
+                                         (* 1222 *)
+                                         ( (   (* 1223 *)
+                                               ttttttttttttttttttttttttttttttttt
+                                            -> (* 1224 *)
+                                               tttttttttttttttttttttttttttttttttt
+                                           )
+                                           * (* 1225 *) tttttttttttttt
+                                           * (* 1226 *) ttttttttttttttttttttt
+                                         ,    (* 1227 *)
+                                              ttttttttttttttttttttttttttttttt
+                                           -> (* 1228 *)
+                                              ttttttttttttttttttttttttt
+                                         ,    (* 1229 *)
+                                              ttttttttttttttttttttttttttttttttttt
+                                           -> (* 1230 *) ttttt
+                                         , (* 1231 *) ttttttttttttt
+                                         , (* 1232 *) ttttttttt )
+                                         (* 1233 *)
+                                         ttt
+                                         (* 1220 *)
+                                     & (* 1234 *)
+                                         kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+                                         (* 1216 *))
+                                     mod
+                                        (* 1235 *)
+                                        mmm
+                                        (* 1236 *)
+                                        mmmmmmmmmmmmmmmmm
+                                        (* 1237 *)
+                                        mmmmmm
+                                        (* 1215 *)))
+                                & kind_of_
+                                       (* 1239 *)
+                                       (* 1240 *)
+                                       ttttttttttttttttttttttttttttt
+                                    -> (* 1241 *)
+                                       tttttttttttttttttt
+                                    (* 1238 *)
+                                & (((* 1245 *)
+                                     _
+                                     (* 1244 *)
+                                     (* 1243 *)
+                                     with (* 1246 *)
+                                          ttttttttttttttttttttttttttttttttttt
+                                          (* 1242 *))
+                                   & kind_of_
+                                       (* 1248 *)
+                                       (* 1249 *)
+                                       t
+                                       (* 1247 *)
+                                   & ((kind_of_
+                                            (* 1253 *)
+                                            (* 1254 *)
+                                            ttttttttttttttttttttttttt
+                                         -> (* 1255 *) t
+                                         (* 1252 *)
+                                       & kind_of_
+                                           (* 1257 *)
+                                           (* 1258 *)
+                                           (    ((* 1259 *)
+                                                'aaaaaaaaaaaaaaaa :
+                                                kind_of_
+                                                (* 1261 *)
+                                                (* 1262 *)
+                                                ttt
+                                                (* 1260 *) )
+                                             -> (* 1263 *)
+                                                ttttttttttttttttttttt
+                                           , (* 1264 *)
+                                             ttttttttttttttttttttttt )
+                                           (* 1265 *)
+                                           tttttttttttttttttttttttttttttttt
+                                           (* 1256 *)
+                                           (* 1251 *))
+                                       with (* 1266 *)
+                                            ttttttttttttttttttttttttttttttttt
+                                            (* 1250 *))
+                                   & kind_of_
+                                       (* 1268 *)
+                                       (* 1269 *)
+                                       ttttttttttttttttttttttttttttttt
+                                       (* 1267 *)
+                                       (* 1053 *)))
+                                with (* 1270 *) ttttt
+                                (* 1052 *)
+                                (* 1051 *)
+                                mod
+                                   (* 1271 *)
+                                   mmmmmmmmmmmmmmmmmmmmmmmm
+                                   (* 1272 *)
+                                   mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                   (* 1273 *)
+                                   mmmmm
+                                   (* 1274 *)
+                                   mmmmmmmmmm
+                                   (* 1050 *))
+                              & (* 1276 *)
+                                  _
+                                  (* 1275 *)
+                                  (* 1049 *))
+                              mod
+                                 (* 1277 *)
+                                 mmmmmmmmmmmmmmmmmmmmmmmmmm
+                                 (* 1048 *))
+                          & (* 1279 *) _ (* 1278 *)
+                          & kind_of_
+                              (* 1281 *)
+                              (* 1282 *)
+                              tttttttttttttttttttttttttttttttttt
+                          (* 1280 *) )
+                       -> (* 1283 *) ttttttttttttttttt
+                     ,    ((* 1284 *)
+                          'aaaaaaaaaaaaaaaaa :
+                          (((kind_of_
+                               (* 1292 *)
+                               (* 1293 *)
+                               tttttttttttttttttttttttttttttttttt
+                               (* 1291 *)
+                             & (* 1295 *) _ (* 1294 *)
+                             & ((* 1299 *)
+                                 _
+                                 (* 1298 *)
+                                 (* 1297 *)
+                                 with (* 1300 *)
+                                      ttttttttttt
+                                      (* 1296 *)
+                                      (* 1290 *)))
+                             with    ((* 1301 *)
+                                     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
+                                     (* 1305 *)
+                                     _
+                                     (* 1304 *)
+                                     (* 1303 *)
+                                     with (* 1306 *) ttttttttt (* 1302 *) )
+                                  -> (* 1307 *) t
+                             (* 1289 *)
+                             (* 1288 *)
+                             mod
+                                (* 1308 *)
+                                mmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                (* 1309 *)
+                                m
+                                (* 1310 *)
+                                mmmmmmm
+                                (* 1311 *)
+                                m
+                                (* 1312 *)
+                                m
+                                (* 1287 *))
+                           & ((((* 1313 *) kkkkkkkkkkkk
+                                & ((* 1318 *)
+                                    kkkkkkkkkkkkkkkkkkk
+                                    (* 1317 *)
+                                    with    (* 1319 *) tttt
+                                         -> (* 1320 *)
+                                            tttttttttttttttttttttttttttttt
+                                    (* 1316 *)
+                                    (* 1315 *)
+                                    mod
+                                       (* 1321 *)
+                                       mmmmmmmmmmmm
+                                       (* 1322 *)
+                                       mmmmmmmmmmmmmmmmmmmmmmmm
+                                       (* 1323 *)
+                                       mmmm
+                                       (* 1314 *)))
+                               & (* 1325 *) _ (* 1324 *)
+                               & ((* 1328 *)
+                                   k
+                                   (* 1327 *)
+                                   mod
+                                      (* 1329 *)
+                                      mmm
+                                      (* 1330 *)
+                                      mmmmmmmmmmmmm
+                                      (* 1326 *))
+                               & (((* 1333 *) kkkkkkkkkkkkkkkk
+                                   & ((* 1336 *)
+                                       kkkkkkkkkkkkkkkk
+                                       (* 1335 *)
+                                       mod
+                                          (* 1337 *)
+                                          mmmmmmmmmmmmmmmmmmmm
+                                          (* 1338 *)
+                                          mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                          (* 1339 *)
+                                          m
+                                          (* 1340 *)
+                                          m
+                                          (* 1334 *))
+                                   & _
+                                       (* 1342 *)
+                                       (* 1341 *)
+                                   & kind_of_
+                                       (* 1344 *)
+                                       (* 1345 *)
+                                       ttttttttttttttttt
+                                       (* 1343 *)
+                                   & (* 1347 *)
+                                       _
+                                       (* 1346 *)
+                                       (* 1332 *))
+                                   mod
+                                      (* 1348 *)
+                                      m
+                                      (* 1349 *)
+                                      mm
+                                      (* 1350 *)
+                                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                                      (* 1351 *)
+                                      mmmmmmmm
+                                      (* 1352 *)
+                                      mmm
+                                      (* 1331 *)))
+                              & kind_of_
+                                  (* 1354 *)
+                                  (* 1355 *)
+                                  ttttttttttttt
+                                  (* 1353 *)
+                              & kind_of_
+                                  (* 1357 *)
+                                  (* 1358 *)
+                                  tttttttttt
+                                  (* 1356 *))
+                           & ((* 1362 *)
+                               _
+                               (* 1361 *)
+                               (* 1360 *)
+                               with (* 1363 *)
+                                    (* 1364 *)
+                               ttttttttttttttttttt (* 1365 *) ttttttttt
+                               (* 1359 *)
+                               (* 1286 *)))
+                          mod
+                             (* 1366 *)
+                             mmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                             (* 1367 *)
+                             mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                             (* 1368 *)
+                             mmmmmmmmmmm
+                             (* 1369 *)
+                             mmmmmmmmmmmmmmmmmmmmmm
+                             (* 1370 *)
+                             mmmmmmmmmmmmmmmmmmmmmmmm
+                          (* 1285 *) )
+                       -> (* 1371 *) ttttttttttttttttttttttttttttttttttt
+                     , (* 1372 *) ttt
+                     , (* 1373 *) tttttttttttttttttttttttttt
+                     , (* 1374 *)
+                     t
+                     * (* 1375 *) tttttttttttttttttttttttttt
+                     * (   ((* 1376 *)
+                           'aaaaaaaa :
+                           (* 1377 *) kkkkkkkkkkkkkkkkkkkk )
+                        -> (* 1378 *) ttttttttttttttttttttttttt )
+                     * (   (* 1379 *) tttt
+                        -> (* 1380 *) tttttttttttttttttttttttttttttttttt )
+                     * (* 1381 *) ttttttttttttttttttttttttttttttttttt )
+                     (* 1382 *)
+                     ttttttttt
+                     (* 1026 *))
+                   & (* 1384 *) _ (* 1383 *)
+                   & (* 1385 *) k (* 1025 *))
+                   mod
+                      (* 1386 *)
+                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                      (* 1387 *)
+                      mmmmmmmm
+                      (* 1388 *)
+                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                      (* 1389 *)
+                      mmmmmmmmm
+                   (* 1024 *)
+                   (* 1023 *)
+                   with (* 1390 *) tttttttttttttttttttttttttttttt
+                   (* 1022 *)
+                   (* 1021 *)
+                   mod (* 1391 *) mmmmmmmmmmmmmmmmmmmm (* 1020 *))
+               & (* 1392 *) kkkkkkkkkkkkkkkkkk
+               & ((kind_of_
+                     (* 1396 *)
+                     (* 1397 *)
+                     ttttttttttttttttttttttttttttttttttt
+                     (* 1395 *)
+                   & kind_of_
+                       (* 1399 *)
+                       (* 1400 *)
+                       tttt
+                       (* 1398 *)
+                   & (* 1401 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+                   & (* 1403 *)
+                       _
+                       (* 1402 *)
+                       (* 1394 *))
+                   mod
+                      (* 1404 *)
+                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                      (* 1405 *)
+                      mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                      (* 1393 *)
+                      (* 1013 *)))
+               mod (* 1406 *) m (* 1012 *))
+           & ((* 1410 *)
+               _
+               (* 1409 *)
+               (* 1408 *)
+               with (* 1411 *) tttttttttttttttttttttttt (* 1407 *))
+           & kind_of_
+               (* 1413 *)
+               (* 1414 *)
+               ttttttttttttttttttttttttttttt
+               (* 1412 *))
+        & kind_of_
+            (* 1416 *)
+            (* 1417 *)
+            tttt
+            (* 1415 *))
+     & (kind_of_
+         (* 1421 *)
+         (* 1422 *)
+         ttttttttttttttttttttttttttttttttttt
+         (* 1420 *)
+         (* 1419 *)
+         mod (* 1423 *) mmmm (* 1424 *) mmmm (* 1418 *))
+     & kind_of_
+            (* 1426 *)
+            (* 1427 *)
+            tttttt
+         -> (* 1428 *) tttttttttttttttttttttttttttttttt (* 1425 *))
+    & (((* 1431 *)
+         kkkkkkkkkkkkkkkkkkkkkkkkkk
+         (* 1430 *)
+         mod (* 1432 *) mmmmmmmmmmmmmmmmmmmmmmmmmmmmm (* 1429 *))
+       & kind_of_
+           (* 1434 *)
+           (* 1435 *)
+           ttttttttt
+           (* 1433 *))
+
+  kind_abbrev_ k =
+    (* 1441 *)
+    _
+    (* 1440 *)
+    (* 1439 *)
+    mod (* 1442 *) mmmm (* 1443 *) mmmmmmmmmmmmmm
+    (* 1438 *)
+    (* 1437 *)
+    with (* 1444 *) tttttttttttttttttttttttttt (* 1436 *)
+
+  kind_abbrev_ k = (* 1445 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+
+  kind_abbrev_ k =
+    (* 1448 *)
+    kkkkkkkkkkkkkkkkkkkkkkk
+    (* 1447 *)
+    mod
+       (* 1449 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1450 *)
+       m
+       (* 1451 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1452 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  (* 1446 *)
+
+  kind_abbrev_ k =
+    (* 1455 *)
+    kkkkkkkk
+    (* 1454 *)
+    mod
+       (* 1456 *)
+       mmmmmmmmmmmmmmmmmmmmm
+       (* 1457 *)
+       mm
+       (* 1458 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1459 *)
+       mmmmmmmmmmmmmmmmmmmmm
+       (* 1460 *)
+       mmmmmmmmmmmmmmmmm
+  (* 1453 *)
+
+  kind_abbrev_ k =
+    kind_of_
+    (* 1462 *)
+    (* 1463 *)
+    ttttttttttttttt
+  (* 1461 *)
+
+  kind_abbrev_ k = (* 1464 *) kkkkkkkkkkkkkkkkkkkkkkkkkkk
+
+  kind_abbrev_ k =
+    kind_of_
+    (* 1468 *)
+    (* 1469 *)
+    ttttttttttttttttttttttttttttttt
+    (* 1467 *)
+    (* 1466 *)
+    with (* 1470 *) tt (* 1465 *)
+
+  kind_abbrev_ k = (* 1472 *) _ (* 1471 *)
+
+  (* kind_abbrev_ k = (((((1* 1479 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 1478
+     *1) mod (1* 1480 *1) mmmmmmmmmmmmmmmmmmmmmmmm (1* 1477 *1)) (1* 1476 *1)
+     with (('(1* 1481 *1) aaaaaaaaaaaaaaaaaaaaaaa : (kind_of_ (1* 1485 *1)
+     (1* 1486 *1) ((1* 1487 *1) ttttttttttttttttttttttttt, ((1* 1488 *1)
+     ttttttttttttttttttttttttttt -> (1* 1489 *1)
+     ttttttttttttttttttttttttttt)) (1* 1490 *1) ttttttttt (1* 1484 *1) (1*
+     1483 *1) mod (1* 1491 *1) mmmmmmmmmmmmmmmmm (1* 1492 *1) mmmm (1* 1493
+     *1) mmmmmm (1* 1482 *1))) -> (1* 1494 *1) tttttttttttttt) (1* 1475 *1))
+     (1* 1474 *1) with (1* 1495 *1) t (1* 1473 *1)) & (1* 1496 *1)
+     kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & (1* 1498 *1) _ (1* 1497 *1) & kind_of_
+     (1* 1500 *1) (('(1* 1501 *1) aaaaaaaaaaaaaaa : kind_of_ (1* 1503 *1) (1*
+     1504 *1) ttttttttttttttttt (1* 1502 *1)) -> (1* 1505 *1)
+     ttttttttttttttttttttttttttttttttttt) (1* 1499 *1)) *)
+  kind_abbrev_ k =
+    (* 1510 *)
+    kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+    (* 1509 *)
+    mod
+       (* 1511 *)
+       mmmmm
+       (* 1512 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1513 *)
+       mmmmmmmmmmmmmmmmmm
+       (* 1514 *)
+       m
+       (* 1515 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+    (* 1508 *)
+    (* 1507 *)
+    mod
+       (* 1516 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1517 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1518 *)
+       mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+       (* 1519 *)
+       mmmmmmmmmmmmmmmmmmmmm
+  (* 1506 *)
+end

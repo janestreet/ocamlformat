@@ -7055,7 +7055,7 @@
  (action
   (with-stdout-to layout_abbreviation-erased.ml.stdout
    (with-stderr-to layout_abbreviation-erased.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=4 %{dep:tests/layout_abbreviation.ml})))))
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=5 %{dep:tests/layout_abbreviation.ml})))))
 
 (rule
  (alias runtest)
