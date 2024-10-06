@@ -2458,6 +2458,15 @@ end = struct
               || Conf.is_jane_street_local_annotation "exclave"
                    ~test:extension_local ) ->
         true
+    | ( Exp {pexp_desc= Pexp_stack _; _}
+      , { pexp_desc=
+            ( Pexp_apply _ | Pexp_fun _ | Pexp_function _ | Pexp_lazy _
+            | Pexp_new _ | Pexp_tuple _
+            | Pexp_construct (_, Some _)
+            | Pexp_variant (_, Some _) )
+        ; _ } ) ->
+        true
+    | Exp {pexp_desc= Pexp_apply _; _}, {pexp_desc= Pexp_stack _; _} -> true
     | ( Str
           { pstr_desc=
               Pstr_value

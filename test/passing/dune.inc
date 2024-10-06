@@ -10758,6 +10758,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to stack.ml.stdout
+   (with-stderr-to stack.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/stack.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack.ml.ref stack.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack.ml.err stack.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to stack.ml.js-stdout
+   (with-stderr-to stack.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/stack.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack.ml.js-ref stack.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack.ml.js-err stack.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to str_value.ml.stdout
    (with-stderr-to str_value.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/str_value.ml})))))

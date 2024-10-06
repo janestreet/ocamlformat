@@ -2323,7 +2323,9 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro
       $ hvbox 2
           (Params.Exp.wrap c.conf ~parens
-             (fmt_expression c ~box (sub_exp ~ctx e) $ fmt_atrs) )
+             ( fmt "stack_@ "
+             $ fmt_expression c ~box (sub_exp ~ctx e)
+             $ fmt_atrs ) )
   | Pexp_apply (e0, e1N1) -> (
       let wrap =
         if c.conf.fmt_opts.wrap_fun_args.v then Fn.id else hvbox 2
