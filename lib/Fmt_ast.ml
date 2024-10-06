@@ -789,22 +789,7 @@ and fmt_modalities ?(break = true) c modalities =
     $ hvbox 0 (list modalities "@ " fmt_modality)
 
 and fmt_modes ~ats c modes =
-  (* let rec in_pairs f sep = (function | a :: ((b :: _) as rest) -> *) 
-  (*   let a = *)
-  (*     let need_sep = Cmts.has_before c.cmts b.loc && not (Cmts.has_after c.cmts a.loc) *)
-  (*                                                      in *)
-  (*     Cmts.fmt c a.loc (f a.txt) $ *) 
-  (*     fmt_if need_sep "@," $ *)
-  (*     Cmts.fmt_before c b.loc in a $ fmt sep $ *)
-  (*   in_pairs f sep rest *)
-  (*                                    | [a] -> Cmts.fmt c a.loc (f a.txt) *)
-  (*                                    | [] -> noop *)
-    
-
-
-  (* ) *)
-  (* in *)
-  let fmt_mode { txt = (Mode mode); loc } = Cmts.fmt c loc (str mode) in
+  let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
   if List.is_empty modes || Erase_jane_syntax.should_erase () then noop
   else
     let fmt_ats =
@@ -813,15 +798,7 @@ and fmt_modes ~ats c modes =
       | `One -> fmt "@ @@ "
       | `Two -> fmt "@ @@@@ "
     in
-    (* List.iter modes ~f:(fun { loc; _ } -> Cmts.relocate_all_to_after c.cmts ~src:loc ~after:loc ); *)
-    fmt_ats $ hvbox 0 (list modes "@ " fmt_mode )
-                (* (in_pairs fmt_mode "@ "  modes *)
-                (*        (1* $ (match List.last modes with *1) *)
-                (*        (1*   | Some { loc; _ } -> Cmts.fmt_after c loc *1) *)
-                (*        (1*   | None -> noop *1) *)
-                (*        (1* ) *1) *)
-
-                (*       ) *)
+    fmt_ats $ hvbox 0 (list modes "@ " fmt_mode)
 
 and fmt_type_var ~have_tick c (s : ty_var) =
   let {txt= name_opt; loc= name_loc}, jkind_opt = s in
