@@ -10758,6 +10758,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to stack-erased.ml.stdout
+   (with-stderr-to stack-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/stack.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack-erased.ml.ref stack-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack-erased.ml.err stack-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to stack-erased.ml.js-stdout
+   (with-stderr-to stack-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/stack.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack-erased.ml.js-ref stack-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/stack-erased.ml.js-err stack-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to stack.ml.stdout
    (with-stderr-to stack.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/stack.ml})))))

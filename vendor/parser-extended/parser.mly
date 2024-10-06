@@ -2639,7 +2639,11 @@ expr:
   | simple_expr nonempty_llist(labeled_simple_expr)
       { mkexp ~loc:$sloc (Pexp_apply($1, $2)) }
   | STACK simple_expr
-      { mkexp ~loc:$sloc (Pexp_stack $2) }
+      {
+        if Erase_jane_syntax.should_erase ()
+        then $2
+        else mkexp ~loc:$sloc (Pexp_stack $2)
+      }
   | labeled_tuple %prec below_COMMA
       { mkexp ~loc:$sloc (Pexp_tuple $1) }
   | mkrhs(constr_longident) simple_expr %prec below_HASH

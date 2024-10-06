@@ -336,6 +336,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
             {exp with pexp_desc= Pexp_function (ps, c, b)}
       | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
           m.expr m (dummy_position ~loc)
+      | Pexp_stack expr when erase_jane_syntax -> m.expr m expr
       | _ -> Ast_mapper.default_mapper.expr m exp )
   in
   let pat (m : Ast_mapper.mapper) pat =
