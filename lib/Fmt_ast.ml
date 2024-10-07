@@ -3743,17 +3743,22 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
   in
   let box_manifest k =
     hvbox c.conf.fmt_opts.type_decl_indent.v
-      ( str pre
-      $ fmt_extension_suffix c ext
-      $ str " "
-      $ hvbox_if
-          (not (List.is_empty ptype_params))
-          0
-          ( fmt_tydcl_params c ctx ptype_params
-          $ Option.value_map name ~default:(str txt) ~f:(fmt_longident_loc c)
-          $ fmt_opt
-              (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
-          )
+      ( hvbox_if
+          (Option.is_some ptype_jkind)
+          c.conf.fmt_opts.type_decl_indent.v
+          ( str pre
+          $ fmt_extension_suffix c ext
+          $ str " "
+          $ hvbox_if
+              (not (List.is_empty ptype_params))
+              0
+              ( fmt_tydcl_params c ctx ptype_params
+              $ Option.value_map name ~default:(str txt)
+                  ~f:(fmt_longident_loc c)
+              $ fmt_opt
+                  (Option.map
+                     ~f:(fmt_jkind_constr ~ctx:(Td decl) c)
+                     ptype_jkind ) ) )
       $ k )
   in
   let fmt_manifest_kind =

@@ -18,8 +18,7 @@ type t_imm : immediate =
   | Bbbbbbbbbbbbbbbbbbbbb
   | Ccccccccccccccccccccc
 
-type t_imm :
-  immediate =
+type t_imm : immediate =
   [`Aaaaaaaaaaaaaaaaaaaaa | `Bbbbbbbbbbbbbbbbbbbbb | `Ccccccccccccccccccccc]
 
 type t_imm : immediate =
