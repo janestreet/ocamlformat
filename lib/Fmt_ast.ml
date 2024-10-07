@@ -3741,9 +3741,6 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
         $ str " =" $ fmt_private_flag c priv
     | None -> str " " $ str eq $ fmt_private_flag c priv
   in
-  let kind_fmt =
-    fmt_opt (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
-  in
   let box_manifest k =
     hvbox c.conf.fmt_opts.type_decl_indent.v
       ( str pre
@@ -3754,7 +3751,9 @@ and fmt_type_declaration c ?ext ?(pre = "") ?name ?(eq = "=") {ast= decl; _}
           0
           ( fmt_tydcl_params c ctx ptype_params
           $ Option.value_map name ~default:(str txt) ~f:(fmt_longident_loc c)
-          $ kind_fmt )
+          $ fmt_opt
+              (Option.map ~f:(fmt_jkind_constr ~ctx:(Td decl) c) ptype_jkind)
+          )
       $ k )
   in
   let fmt_manifest_kind =
@@ -4243,6 +4242,9 @@ and fmt_signature_item c ?ext {ast= si; _} =
       @@ fun c ->
       let doc_before, doc_after, atrs =
         let force_before =
+          (* CR modes: As a temporary hack, we force doc comments before
+             [include S @@ mode], because the parsetree doesn't currently
+             have attribute slots that support placing them after. *)
           not (Mty.is_simple pincl_mod && List.is_empty modalities)
         in
         fmt_docstring_around_item c ~force_before ~fit:true pincl_attributes
