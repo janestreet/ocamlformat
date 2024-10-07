@@ -728,7 +728,8 @@ module T = struct
         Format.fprintf fs "Ctf:@\n%a@\n" Printast.class_type_field ctf
     | Tli (`Directive d) ->
         Format.fprintf fs "Dir:@\n%a" Printast.top_phrase (Ptop_dir d)
-    | Jkd jkd -> Format.fprintf fs "Jkd:@\n%a" (Printast.jkind_annotation 0) jkd
+    | Jkd jkd ->
+        Format.fprintf fs "Jkd:@\n%a" (Printast.jkind_annotation 0) jkd
     | Top -> Format.pp_print_string fs "Top"
     | Rep -> Format.pp_print_string fs "Rep"
 end
