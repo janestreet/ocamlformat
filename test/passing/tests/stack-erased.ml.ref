@@ -84,3 +84,32 @@ let mk () =
 let mk () =
   let r = {x= [1; 2; 3]; y= [4; 5; 6]} in
   r.x
+
+(* More tests *)
+
+let f = ref (function x -> x)
+
+let f = ref (function x -> x | y -> y)
+
+let f =
+  (* 1 *)
+  ref (* 2 *) (function
+      (* 3 *)
+      (* 4 *)
+      (* 5 *)
+      (* 6 *) x -> x )
+
+let x = ((2, "hello"), ~x:(Foo x))
+
+let x =
+  (* 1 *)
+  (* 2 *)
+  ( (* 3 *)
+    (* 4 *)
+    ((* 5 *) 1 (* 6 *), (* 7 *) "hello" (* 8 *))
+    (* 9 *)
+  , (* 10 *)
+  ~x:((* 11 *)
+      (* 12 *)
+        Foo
+        x ) )
