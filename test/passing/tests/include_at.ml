@@ -1,9 +1,18 @@
 module type S = sig
 include S @@ mode1
 
+include S (** @inline *) @@ mode1
+
 include S @@ mode1 mode2 mode3
 
+include S (** A second doc comment *) @@ mode1 mode2 mode3
+
 include S @@ moooooooooooooooooooode1
+moooooooooooooooooooode2
+moooooooooooooooooooode3
+moooooooooooooooooooode4
+
+include S (** Another doc comment *) @@ moooooooooooooooooooode1
 moooooooooooooooooooode2
 moooooooooooooooooooode3
 moooooooooooooooooooode4

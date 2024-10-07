@@ -4242,7 +4242,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
       update_config_maybe_disabled c pincl_loc pincl_attributes
       @@ fun c ->
       let doc_before, doc_after, atrs =
-        let force_before = not (Mty.is_simple pincl_mod) in
+        let force_before = not (Mty.is_simple pincl_mod && List.is_empty modalities) in
         fmt_docstring_around_item c ~force_before ~fit:true pincl_attributes
       in
       let keyword, has_attrs, ({pro; psp; bdy; esp; epi; _} as blk) =
