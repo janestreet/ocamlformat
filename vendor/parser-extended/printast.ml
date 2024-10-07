@@ -629,7 +629,6 @@ and kind_abbreviation i ppf (a, k) =
       line i ppf "kind_abbreviation %s\n" a.txt;
       jkind_annotation_loc i ppf k
 
-
 and jkind_annotation_loc i ppf (jkind : jkind_annotation loc) =
   match jkind.txt with
   | Default -> line i ppf "Default %a\n" fmt_location jkind.loc
@@ -727,7 +726,6 @@ and payload i ppf = function
     pattern i ppf x;
     line i ppf "<when>\n";
     expression (i + 1) ppf g
-
 
 and type_kind i ppf x =
   match x with

@@ -53,8 +53,7 @@ type mapper = {
                          -> extension_constructor;
   include_declaration: mapper -> include_declaration -> include_declaration;
   include_description: mapper -> include_description -> include_description;
-  jkind_annotation:
-    mapper -> jkind_annotation -> jkind_annotation;
+  jkind_annotation: mapper -> jkind_annotation -> jkind_annotation;
   label_declaration: mapper -> label_declaration -> label_declaration;
   location: mapper -> Location.t -> Location.t;
   module_binding: mapper -> module_binding -> module_binding;
@@ -95,8 +94,7 @@ let map_tuple3 f1 f2 f3 (x, y, z) = (f1 x, f2 y, f3 z)
 let map_opt f = function None -> None | Some x -> Some (f x)
 
 let map_loc sub {loc; txt} = {loc = sub.location sub loc; txt}
-let map_loc_txt sub f {loc; txt} =
-  {loc = sub.location sub loc; txt = f sub txt}
+let map_loc_txt sub f {loc; txt} = {loc = sub.location sub loc; txt = f sub txt}
 
 let map_type_var sub (n, l) =
   map_loc sub n, map_opt (map_loc_txt sub sub.jkind_annotation) l

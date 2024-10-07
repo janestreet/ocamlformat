@@ -1609,8 +1609,7 @@ structure_item:
   | include_statement(module_expr)
       { let incl, ext = $1 in
         let item = mkstr ~loc:$sloc (Pstr_include incl) in
-        wrap_str_ext ~loc:$sloc item ext
-      }
+        wrap_str_ext ~loc:$sloc item ext }
   | kind_abbreviation_decl
       { let name, jkind = $1 in
         mkstr ~loc:$sloc (Pstr_kind_abbrev (name, jkind)) }
@@ -2639,11 +2638,9 @@ expr:
   | simple_expr nonempty_llist(labeled_simple_expr)
       { mkexp ~loc:$sloc (Pexp_apply($1, $2)) }
   | STACK simple_expr
-      {
-        if Erase_jane_syntax.should_erase ()
+      { if Erase_jane_syntax.should_erase ()
         then $2
-        else mkexp ~loc:$sloc (Pexp_stack $2)
-      }
+        else mkexp ~loc:$sloc (Pexp_stack $2) }
   | labeled_tuple %prec below_COMMA
       { mkexp ~loc:$sloc (Pexp_tuple $1) }
   | mkrhs(constr_longident) simple_expr %prec below_HASH
@@ -3439,13 +3436,11 @@ simple_pattern_not_ident:
   | extension
       { Ppat_extension $1 }
   | LPAREN sub_pat=pattern modes=at_mode_expr RPAREN
-      { 
-        match modes with
+      { match modes with
         | [] ->
           (* This is possible when we are erasing jane syntax *)
           sub_pat.ppat_desc
-        | modes -> Ppat_constraint(sub_pat, None, modes)
-      }
+        | modes -> Ppat_constraint(sub_pat, None, modes) }
   | LPAREN pattern COLON core_type modes=optional_atat_mode_expr RPAREN
       { Ppat_constraint($2, Some $4, modes) }
 ;
@@ -3664,33 +3659,26 @@ type_parameters:
 ;
 
 jkind:
-    mkrhs(jkind) MOD mkrhs(LIDENT)+ { (* LIDENTs here are for modes *)
-      let modes =
-        List.map
-          (fun {txt; loc} -> {txt = Mode txt; loc})
-          $3
-      in
-      Mod ($1, modes)
-    }
-  | mkrhs(jkind) WITH core_type {
-      With ($1, $3)
-    }
-  | mkrhs(ident) {
-      let {txt; loc} = $1 in
-      Abbreviation ({ txt; loc })
-    }
-  | KIND_OF ty=core_type {
-      Kind_of ty
-    }
-  | UNDERSCORE {
-      Default
-    }
-  | reverse_product_jkind %prec below_AMPERSAND {
-      Product (List.rev $1)
-    }
-  | LPAREN jkind RPAREN {
-      $2
-    }
+    mkrhs(jkind) MOD mkrhs(LIDENT)+
+      { (* LIDENTs here are for modes *) let modes =
+          List.map
+            (fun {txt; loc} -> {txt = Mode txt; loc})
+            $3
+        in
+        Mod ($1, modes) }
+  | mkrhs(jkind) WITH core_type
+      { With ($1, $3) }
+  | mkrhs(ident)
+      { let {txt; loc} = $1 in
+        Abbreviation ({ txt; loc }) }
+  | KIND_OF ty=core_type
+      { Kind_of ty }
+  | UNDERSCORE
+      { Default }
+  | reverse_product_jkind %prec below_AMPERSAND
+      { Product (List.rev $1) }
+  | LPAREN jkind RPAREN
+      { $2 }
 ;
 
 reverse_product_jkind :
