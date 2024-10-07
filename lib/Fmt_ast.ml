@@ -557,9 +557,6 @@ let let_binding_can_be_punned ~binding ~is_ext =
         : Sugar.Let_binding.t ) =
     binding
   in
-  let lb_modes =
-    if Erase_jane_syntax.should_erase () then [] else lb_modes
-  in
   match
     ( is_ext
     , lb_pat.ast.ppat_desc
@@ -782,7 +779,7 @@ and fmt_modalities ?(break = true) c modalities =
   let fmt_modality {txt= Modality modality; loc} =
     Cmts.fmt c loc (str modality)
   in
-  if List.is_empty modalities || Erase_jane_syntax.should_erase () then noop
+  if List.is_empty modalities then noop
   else
     fmt (if break then "@ " else " ")
     $ fmt "@@@@ "
@@ -790,7 +787,7 @@ and fmt_modalities ?(break = true) c modalities =
 
 and fmt_modes ~ats c modes =
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
-  if List.is_empty modes || Erase_jane_syntax.should_erase () then noop
+  if List.is_empty modes then noop
   else
     let fmt_ats =
       match ats with
@@ -1007,7 +1004,6 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            $ fmt_type_var_with_parenze ~have_tick:true c str ) )
   | Ptyp_any -> str "_"
   | Ptyp_arrow (args, ret_typ, modes) ->
-      let modes = if Erase_jane_syntax.should_erase () then [] else modes in
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
       let args, ret_typ, ctx =
@@ -5008,9 +5004,6 @@ and fmt_value_binding c ~rec_flag ?(punned_in_output = false) ?ext ?in_ ?epi
     ; lb_modes
     ; lb_loc
     ; lb_pun= punned_in_source } =
-  let lb_modes =
-    if Erase_jane_syntax.should_erase () then [] else lb_modes
-  in
   update_config_maybe_disabled c lb_loc lb_attrs
   @@ fun c ->
   let doc1, atrs = doc_atrs lb_attrs in

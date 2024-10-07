@@ -3438,8 +3438,14 @@ simple_pattern_not_ident:
       { unclosed "(" $loc($1) ")" $loc($7) }
   | extension
       { Ppat_extension $1 }
-  | LPAREN pattern modes=at_mode_expr RPAREN
-      { Ppat_constraint($2, None, modes) }
+  | LPAREN sub_pat=pattern modes=at_mode_expr RPAREN
+      { 
+        match modes with
+        | [] ->
+          (* This is possible when we are erasing jane syntax *)
+          sub_pat.ppat_desc
+        | modes -> Ppat_constraint(sub_pat, None, modes)
+      }
   | LPAREN pattern COLON core_type modes=optional_atat_mode_expr RPAREN
       { Ppat_constraint($2, Some $4, modes) }
 ;
@@ -4260,7 +4266,7 @@ strict_function_or_labeled_tuple_type:
 ;
 
 %inline mode_expr:
-  | mode+ { $1 }
+  | mode+ { if Erase_jane_syntax.should_erase () then [] else $1 }
 ;
 
 at_mode_expr:
@@ -4295,7 +4301,7 @@ atat_mode_expr:
   | LIDENT { mkloc (Modality $1) (make_loc $sloc) }
 
 %inline modalities:
-  | modality+ { $1 }
+  | modality+ { if Erase_jane_syntax.should_erase () then [] else $1 }
 
 optional_atat_modalities_expr:
   | %prec below_HASH
