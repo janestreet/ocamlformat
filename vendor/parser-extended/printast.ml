@@ -629,25 +629,32 @@ and kind_abbreviation i ppf (a, k) =
       line i ppf "kind_abbreviation %s\n" a.txt;
       jkind_annotation_loc i ppf k
 
-and jkind_annotation_loc i ppf (jkind : jkind_annotation loc) =
-  match jkind.txt with
-  | Default -> line i ppf "Default %a\n" fmt_location jkind.loc
+and jkind_annotation ?loc i ppf jkind =
+  let fmt_loc_opt ppf = function
+    | None -> ()
+    | Some loc -> fmt_location ppf loc
+  in 
+  match jkind with
+  | Default -> line i ppf "Default %a\n" fmt_loc_opt loc
   | Abbreviation jkind ->
-      line i ppf "Abbreviation \"%s\" %a\n" jkind.txt fmt_location jkind.loc
+      line i ppf "Abbreviation \"%s\" %a\n" jkind.txt fmt_loc_opt loc
   | Mod (jkind, m) ->
-      line i ppf "Mod %a\n"  fmt_location jkind.loc;
+      line i ppf "Mod %a\n"  fmt_loc_opt loc;
       jkind_annotation_loc (i+1) ppf jkind;
       modes (i+1) ppf m
   | With (jkind, type_) ->
-      line i ppf "With %a\n"  fmt_location jkind.loc;
+      line i ppf "With %a\n"  fmt_loc_opt loc;
       jkind_annotation_loc (i+1) ppf jkind;
       core_type (i+1) ppf type_
   | Kind_of type_ ->
-      line i ppf "Kind_of %a\n"  fmt_location jkind.loc;
+      line i ppf "Kind_of %a\n"  fmt_loc_opt loc;
       core_type (i+1) ppf type_
   | Product jkinds ->
-      line i ppf "Product %a\n"  fmt_location jkind.loc;
+      line i ppf "Product %a\n"  fmt_loc_opt loc;
       list i jkind_annotation_loc ppf jkinds
+
+and jkind_annotation_loc i ppf { txt; loc } =
+  jkind_annotation ~loc i ppf txt
 
 and function_param i ppf { pparam_desc = desc; pparam_loc = loc } =
   match desc with
