@@ -2,24 +2,19 @@
    output on the [janestreet] profile. *)
 
 let _ =
-  very_long_function_name_that_causes_the_line_to_wrap_at_some_point [@alert
-                                                                       "-turn-it-off"]
+  very_long_function_name_that_causes_the_line_to_wrap_at_some_point
+  [@alert "-turn-it-off"]
 ;;
 
 let () =
-  (f (fun () -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa) [@aaaaaa
-                                                                                          "This \
-                                                                                          formatting \
-                                                                                          is \
-                                                                                          a \
-                                                                                          bit \
-                                                                                          strange"])
+  (f (fun () -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+  [@aaaaaa "This formatting is a bit strange"])
 ;;
 
 let f = function
   | A (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-                                                               | (B | C _) [@alert "-foo"]
-    -> 0
+                                                               | (B | C _)
+                                                               [@alert "-foo"] -> 0
   | D -> 0
 ;;
 
