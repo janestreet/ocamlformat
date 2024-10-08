@@ -1239,6 +1239,9 @@ module _ = struct
 
   kind_abbrev_ k = (* 418 *) _ (* 417 *)
 
+  (* CR-someday layouts: The line below doesn't stabilize in the
+     [ocamlformat] profile *)
+
   (* kind_abbrev_ k = ((kind_of_ (1* 422 *1) (1* 423 *1) tttttttttttttttttt
      (1* 421 *1) & ((1* 426 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 425 *1)
      mod (1* 427 *1) mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm (1* 428 *1)
@@ -2658,6 +2661,9 @@ module type S = sig
     with (* 1470 *) tt (* 1465 *)
 
   kind_abbrev_ k = (* 1472 *) _ (* 1471 *)
+
+  (* CR-someday layouts: The line below doesn't stabilize in the
+     [ocamlformat] profile *)
 
   (* kind_abbrev_ k = (((((1* 1479 *1) kkkkkkkkkkkkkkkkkkkkkkkkkkkkk (1* 1478
      *1) mod (1* 1480 *1) mmmmmmmmmmmmmmmmmmmmmmmm (1* 1477 *1)) (1* 1476 *1)
