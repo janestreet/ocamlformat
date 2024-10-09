@@ -69,9 +69,9 @@ include module type of struct
   let x = 5
 end
   [@@attr3]
-@@ moooooooooooooooooooode1
-moooooooooooooooooooode2
-moooooooooooooooooooode3
-moooooooooooooooooooode4
+@@ moooooooooooooooooooode1 (* aaaaaaaaaaaaaaaaaaaa *) (* bbbbbbbbbbbbbbbbbbbb *)
+(* 1 *) moooooooooooooooooooode2 (* cccccccccccccccccccc *) (* dddddddddddddddddddd *)
+(* 222222222222222222222222222222 *) moooooooooooooooooooode3 (* eeeeeeeeeeeeeeeeeeee *)
+(* 33333 *) moooooooooooooooooooode4 (* f *)
 
 end
