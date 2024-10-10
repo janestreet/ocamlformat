@@ -12,31 +12,24 @@ cd $(dirname $0)
 cd ..
 
 cleanup() {
-    rm -rf parser-jane-old
+    rm -f changes-parser.patch
+    rm -f changes-common.patch
 }
 trap cleanup ERR EXIT
 
-# Remember the old compiler to get diff3 merging later
-cp -r parser-jane parser-jane-old
+commands=(
+    "diff -ruN parser-jane/for-parser-standard/ parser-standard/ > changes-parser.patch || true"
+    "diff -ruN parser-jane/for-ocaml-common/ ocaml-common/ > changes-common.patch || true"
+    "./parser-jane/update.sh $flambda_backend_dir"
+    "rm -rf parser-standard/ ocaml-common/"
+    "cp -r parser-jane/for-parser-standard parser-standard/"
+    "cp -r parser-jane/for-ocaml-common ocaml-common/"
+    "patch -p1 -d parser-standard/ < changes-parser.patch"
+    "patch -p1 -d ocaml-common/ < changes-common.patch"
+)
 
-# Update parser-jane to the new compiler
-./parser-jane/update.sh $flambda_backend_dir
-
-for dir in parser-standard ocaml-common; do
-    for file in $(ls parser-jane/for-$dir); do
-        diff3 -m -L old-tip -L old-compiler -L new-compiler \
-              $dir/$file \
-              parser-jane-old/for-$dir/$file \
-              parser-jane/for-$dir/$file \
-              | sed '/^<<<<<<< old-compiler/,/^>>>>>>> new-compiler/{/^<<<<<<< old-compiler/,/^=======/d;/^>>>>>>> new-compiler/d}' \
-              > $dir/$file.tmp \
-              || true
-
-        mv $dir/$file.tmp $dir/$file
-    done
-
-    hg revert $dir/{jbuild,.hgignore.in,LICENSE}
+for cmd in "${commands[@]}"
+do
+    echo "> $cmd"
+    eval $cmd
 done
-
-cp parser-standard/asttypes.ml{i,}
-cp parser-standard/parsetree.ml{i,}
