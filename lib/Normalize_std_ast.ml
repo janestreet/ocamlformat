@@ -411,7 +411,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let structure m str =
       List.filter str ~f:(fun stri ->
           match Jane_syntax.Structure_item.of_ast stri with
-          | Some (Jstr_layout (Lstr_kind_abbrev _)) -> false
+          | Some (Jstr_layout (Lstr_kind_abbrev _)) when erase_jane_syntax ->
+              false
           | _ -> true )
       |> Ast_mapper.default_mapper.structure m
     in
@@ -426,7 +427,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let signature m sig_ =
       List.filter sig_ ~f:(fun sigi ->
           match Jane_syntax.Signature_item.of_ast sigi with
-          | Some (Jsig_layout (Lsig_kind_abbrev _)) -> false
+          | Some (Jsig_layout (Lsig_kind_abbrev _)) when erase_jane_syntax ->
+              false
           | _ -> true )
       |> Ast_mapper.default_mapper.signature m
     in
