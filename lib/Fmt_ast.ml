@@ -4248,8 +4248,8 @@ and fmt_signature_item c ?ext {ast= si; _} =
       let doc_before, doc_after, atrs =
         let force_before =
           (* CR modes: As a temporary hack, we force doc comments before
-             [include S @@ mode], because the parsetree doesn't currently
-             have attribute slots that support placing them after. *)
+             [include S @@ mode], because the compiler's parser currently
+             doesn't associate them correctly when they come after. *)
           not (Mty.is_simple pincl_mod && List.is_empty modalities)
         in
         fmt_docstring_around_item c ~force_before ~fit:true pincl_attributes
