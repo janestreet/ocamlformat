@@ -827,7 +827,15 @@ and fmt_jkind c ~ctx {txt= jkd; loc} =
     | Default -> (false, fmt "_")
     | Abbreviation abbrev -> (false, fmt_str_loc c abbrev)
     | Mod (jkind, modes) ->
-        let parens = match ctx with Jkd (Product _) -> true | _ -> false in
+        let parens =
+          match ctx with
+          | Jkd jkd -> (
+            match jkd with
+            | Product _ -> true
+            | Mod _ | With _ -> false
+            | Default | Abbreviation _ | Kind_of _ -> assert false )
+          | _ -> false
+        in
         let mode_fmt = hvbox 0 (fmt_modes ~ats:`Zero c modes) in
         let fmt =
           fmt_jkind c ~ctx:inner_ctx jkind
@@ -835,7 +843,15 @@ and fmt_jkind c ~ctx {txt= jkd; loc} =
         in
         (parens, fmt)
     | With (jkind, type_) ->
-        let parens = match ctx with Jkd (Product _) -> true | _ -> false in
+        let parens =
+          match ctx with
+          | Jkd jkd -> (
+            match jkd with
+            | Product _ -> true
+            | Mod _ | With _ -> false
+            | Default | Abbreviation _ | Kind_of _ -> assert false )
+          | _ -> false
+        in
         let types_fmt =
           fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
         in
@@ -852,7 +868,10 @@ and fmt_jkind c ~ctx {txt= jkd; loc} =
     | Product kinds ->
         let parens =
           match ctx with
-          | Jkd (Product _ | Mod _ | With _) -> true
+          | Jkd jkd -> (
+            match jkd with
+            | Product _ | Mod _ | With _ -> true
+            | Default | Abbreviation _ | Kind_of _ -> assert false )
           | _ -> false
         in
         let fmt =
