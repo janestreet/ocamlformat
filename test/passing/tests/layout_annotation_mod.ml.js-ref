@@ -299,6 +299,5 @@ type t =
   | T :
       ((* 1 *) 'a : value mod mode) 'b (* 2 *) ('c : (* 3 *) float64 (* 4 *) mod mode) 'd.
       (* 5 *)
-      
       { x : 'a * 'b * 'c * 'd }
       -> t

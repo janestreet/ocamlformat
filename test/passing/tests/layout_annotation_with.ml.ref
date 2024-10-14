@@ -386,6 +386,5 @@ type t =
       ('c : (* 3 *) float64 (* 4 *) with type_)
       'd.
       (* 5 *)
-      
       {x: 'a * 'b * 'c * 'd}
       -> t

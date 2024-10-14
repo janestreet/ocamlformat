@@ -3970,11 +3970,18 @@ and fmt_constructor_arguments ?vars c ctx ~pre = function
             " "
         $ fmt_if_k (not last) p.sep_after
       in
+      let has_cmts_before = Cmts.has_before c.cmts loc in
       pre $ vars
-      $ Cmts.fmt c loc ~pro:(break 1 0) ~epi:noop
-        @@ wrap_k p.docked_before p.docked_after
-        @@ wrap_k p.break_before p.break_after
+      $ Cmts.fmt_before c loc ~pro:(break 1 0)
+          ~epi:(p.docked_before $ p.break_before)
+      $ wrap_k
+          (fmt_if_k (not has_cmts_before) p.docked_before)
+          p.docked_after
+        @@ wrap_k
+             (fmt_if_k (not has_cmts_before) p.break_before)
+             p.break_after
         @@ p.box_record @@ list_fl lds fmt_ld
+      $ Cmts.fmt_after c loc ~pro:(break 1 0) ~epi:noop
 
 and fmt_constructor_arguments_result c ctx vars args res =
   let before_type, pre =
