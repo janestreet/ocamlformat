@@ -27,7 +27,7 @@ let string_at t (l : Location.t) =
   and len = Position.distance l.loc_start l.loc_end in
   String.sub t.text ~pos ~len
 
-let find_token t k pos =
+let find_token t k pos = exclave_
   Array.binary_search t.tokens
     ~compare:(fun (_, elt) pos -> Position.compare elt.Location.loc_start pos)
     k pos
