@@ -772,6 +772,13 @@ and type_constr_and_body c xbody =
   | _ -> (None, xbody)
 
 and fmt_modalities ?(break = true) c modalities =
+  let modalities =
+    List.sort
+      ~compare:(fun
+          {Location.txt= Modality m1; _} {Location.txt= Modality m2; _} ->
+        String.compare m1 m2 )
+      modalities
+  in
   let fmt_modality {txt= Modality modality; loc} =
     Cmts.fmt c loc (str modality)
   in
@@ -782,6 +789,12 @@ and fmt_modalities ?(break = true) c modalities =
     $ hvbox 0 (list modalities "@ " fmt_modality)
 
 and fmt_modes ~ats c modes =
+  let modes =
+    List.sort
+      ~compare:(fun {txt= Mode m1; _} {txt= Mode m2; _} ->
+        String.compare m1 m2 )
+      modes
+  in
   let fmt_mode {txt= Mode mode; loc} = Cmts.fmt c loc (str mode) in
   if List.is_empty modes then noop
   else
