@@ -101,3 +101,31 @@ let x = (* 1 *) stack_ (* 2 *) ((* 3 *) stack_ (* 4 *) ((* 5 *) 1 (* 6 *),
 let x = Foo (stack_ ((), ()))
 
 let x = stack_ (() :: [])
+
+(* Tuples *)
+
+let x = stack_ (1, 2)
+
+let x = stack_ #(1, 2)
+
+let x = stack_ (~x:1, ~y:2)
+
+(* Expressions rejected by the typechecker *)
+
+let x = stack_ (x + y)
+
+let x = stack_ (-x)
+
+let x = stack_ (stack_ (Foo x))
+
+let x = stack_ (let y = 1 in Some y)
+
+let x = stack_ (c # x)
+
+let x = stack_ (r.x <- x)
+
+let x = stack_ (
+  if x
+  then y
+  else z
+)
