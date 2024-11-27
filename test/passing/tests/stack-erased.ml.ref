@@ -113,3 +113,9 @@ let x =
       (* 12 *)
         Foo
         x ) )
+
+(* Constructor precedence *)
+
+let x = Foo ((), ())
+
+let x = () :: []

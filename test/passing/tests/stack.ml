@@ -95,3 +95,9 @@ let x = stack_ (stack_ ( 2 , stack_ "hello" ),  ~x:(stack_ (Foo x)))
 
 let x = (* 1 *) stack_ (* 2 *) ((* 3 *) stack_ (* 4 *) ((* 5 *) 1 (* 6 *),
         stack_ (* 7 *) "hello" (* 8 *)) (* 9 *), (* 10 *) ~x:((* 11 *)stack_ (* 12 *) (Foo x)))
+
+(* Constructor precedence *)
+
+let x = Foo (stack_ ((), ()))
+
+let x = stack_ (() :: [])
