@@ -908,9 +908,15 @@ and fmt_arrow_param ~return c ctx
     | Ptyp_tuple ((Some _, _) :: _) -> true
     | _ -> false
   in
-  let core_type =
-    Params.parens_if labeled_tuple_ret_parens c.conf (fmt_core_type c xtI)
+  (* Jane Street: With our profile only, parenthesize the body of a labeled
+     parameter type if it is a tuple, to distinguish from labeled tuples. *)
+  let labeled_arg_tuple_parens =
+    c.conf.fmt_opts.parens_tuple_labeled_arg_types.v && (not return)
+    && (match tI.ptyp_desc with Ptyp_tuple _ -> true | _ -> false)
+    && match lI with Nolabel -> false | Labelled _ | Optional _ -> true
   in
+  let parens = labeled_tuple_ret_parens || labeled_arg_tuple_parens in
+  let core_type = fmt_core_type ~parens c xtI in
   let arg =
     match arg_label lI with
     | None -> core_type
@@ -957,7 +963,7 @@ and fmt_arrow_type c ~ctx ?indent ~parens ~parent_has_parens args fmt_ret_typ
    gets support for them, we should remove tydecl_param and go with whatever
    their solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
-    ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
+    ?(tydecl_param = false) ?(parens = false) ({ast= typ; ctx} as xtyp) =
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
@@ -991,7 +997,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
              (Params.parens_if (not tydecl_param) c.conf
                 (k $ fmt_attributes c ~pre:Cut atrs) ) )
   @@
-  let parens = (not tydecl_param) && parenze_typ xtyp in
+  let parens = parens || ((not tydecl_param) && parenze_typ xtyp) in
   hvbox_if box 0
   @@ Params.parens_if
        ( match typ.ptyp_desc with
