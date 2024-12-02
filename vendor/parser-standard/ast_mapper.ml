@@ -47,6 +47,7 @@ type mapper = {
   constant: mapper -> constant -> constant;
   constructor_declaration: mapper -> constructor_declaration
                            -> constructor_declaration;
+  constructor_argument: mapper -> constructor_argument -> constructor_argument;
   expr: mapper -> expression -> expression;
   extension: mapper -> extension -> extension;
   extension_constructor: mapper -> extension_constructor
@@ -261,7 +262,7 @@ module T = struct
     { pca_type; pca_loc; pca_modalities }
 
   let map_constructor_arguments sub = function
-    | Pcstr_tuple l -> Pcstr_tuple (List.map (map_constructor_argument sub) l)
+    | Pcstr_tuple l -> Pcstr_tuple (List.map (sub.constructor_argument sub) l)
     | Pcstr_record l ->
         Pcstr_record (List.map (sub.label_declaration sub) l)
 
@@ -1033,6 +1034,8 @@ let default_mapper =
             name ~vars_jkinds ~args ~res ~loc ~attrs
             ~info:Docstrings.empty_info
       );
+
+    constructor_argument = T.map_constructor_argument;
 
     label_declaration =
       (fun this {pld_name; pld_type; pld_loc; pld_mutable; pld_modalities; pld_attributes} ->
