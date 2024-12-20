@@ -616,7 +616,9 @@ let rec fmt_extension_aux c ctx ~key (ext, pld) =
   | _, PStr [({pstr_loc; _} as si)], (Pld _ | Str _ | Top)
     when Source.extension_using_sugar ~name:ext ~payload:pstr_loc ->
       fmt_structure_item c ~last:true ~ext ~semisemi:false (sub_str ~ctx si)
-  | _, PSig [({psig_loc; _} as si)], (Pld _ | Sig _ | Top)
+  | ( _
+    , PSig {psg_items= [({psig_loc; _} as si)]; psg_modalities= []; _}
+    , (Pld _ | Sig _ | Top) )
     when Source.extension_using_sugar ~name:ext ~payload:psig_loc ->
       fmt_signature_item c ~ext (sub_sig ~ctx si)
   | _, PPat (({ppat_loc; _} as pat), _), (Pld _ | Top)
@@ -715,11 +717,11 @@ and fmt_payload c ctx pld =
   match pld with
   | PStr mex ->
       fmt_if (not (List.is_empty mex)) "@ " $ fmt_structure c ctx mex
-  | PSig mty ->
-      fmt ":@ "
-      (* A trailing space is necessary because [:]] is the immutable array
-         closing delimiter*)
-      $ fmt_signature c ctx mty
+  | PSig ({psg_modalities; _} as mty) ->
+      fmt ":"
+      $ fmt_modalities c psg_modalities
+      $ fmt "@ "
+      $ fmt_signature c ctx {mty with psg_modalities= []}
   | PTyp typ -> fmt ":@ " $ fmt_core_type c (sub_typ ~ctx typ)
   | PPat (pat, exp) ->
       let fmt_when exp =
@@ -4101,15 +4103,27 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
       { empty with
         bdy= fmt_longident_loc c lid
       ; epi= Some (fmt_attributes c pmty_attributes ~pre:(Break (1, 0))) }
-  | Pmty_signature s ->
-      let empty = List.is_empty s && not (Cmts.has_within c.cmts pmty_loc) in
+  | Pmty_signature ({psg_modalities; psg_items; _} as s) ->
+      let empty =
+        List.is_empty psg_modalities
+        && List.is_empty psg_items
+        && not (Cmts.has_within c.cmts pmty_loc)
+      in
       let before = Cmts.fmt_before c pmty_loc in
       let within = Cmts.fmt_within c ~pro:noop pmty_loc in
       let after = Cmts.fmt_after c pmty_loc in
       { opn= None
-      ; pro= Some (before $ str "sig" $ fmt_if empty " ")
+      ; pro=
+          Some
+            ( before $ str "sig"
+            $ fmt_modalities c psg_modalities
+            $ fmt_if empty " " )
       ; psp= fmt_if (not empty) "@;<1000 2>"
-      ; bdy= (within $ if empty then noop else fmt_signature c ctx s)
+      ; bdy=
+          ( within
+          $
+          if empty then noop
+          else fmt_signature c ctx {s with psg_modalities= []} )
       ; cls= noop
       ; esp= fmt_if (not empty) "@;<1000 0>"
       ; epi=
@@ -4224,7 +4238,11 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
       ; esp= fmt_if_k (Option.is_none epi) esp
       ; epi= Some epi1 }
 
-and fmt_signature c ctx itms =
+and fmt_signature c ctx sg =
+  fmt_modalities c sg.psg_modalities
+  $ fmt_signature_item_list c ctx sg.psg_items
+
+and fmt_signature_item_list c ctx itms =
   let update_config c i =
     match i.psig_desc with
     | Psig_attribute atr -> update_config c [atr]
@@ -4253,7 +4271,7 @@ and fmt_signature_item c ?ext {ast= si; _} =
       let doc_before, doc_after, atrs = fmt_docstring_around_item c atrs in
       let box =
         match snd ext with
-        | PTyp _ | PPat _ | PStr [_] | PSig [_] -> true
+        | PTyp _ | PPat _ | PStr [_] | PSig {psg_items= [_]; _} -> true
         | PStr _ | PSig _ -> false
       in
       hvbox_if box c.conf.fmt_opts.stritem_extension_indent.v
@@ -4933,7 +4951,7 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
       let doc_before, doc_after, atrs = fmt_docstring_around_item c atrs in
       let box =
         match snd ext with
-        | PTyp _ | PPat _ | PStr [_] | PSig [_] -> true
+        | PTyp _ | PPat _ | PStr [_] | PSig {psg_items= [_]; _} -> true
         | PStr _ | PSig _ -> false
       in
       hvbox_if box c.conf.fmt_opts.stritem_extension_indent.v ~name:"ext1"
@@ -5222,7 +5240,7 @@ module Chunk = struct
   let fmt_item (type a) (fg : a list item) : c -> Ast.t -> a list -> Fmt.t =
     match fg with
     | Structure -> fmt_structure
-    | Signature -> fmt_signature
+    | Signature -> fmt_signature_item_list
     | Use_file -> fmt_toplevel ?force_semisemi:None
 
   let update_conf c state = {c with conf= Conf.update_state c.conf state}
@@ -5265,10 +5283,13 @@ let fmt_file (type a) ~ctx ~fmt_code ~debug (fragment : a Extended_ast.t)
     source cmts conf (itms : a) =
   let c = {source; cmts; conf; debug; fmt_code} in
   match (fragment, itms) with
-  | Structure, [] | Signature, [] | Use_file, [] ->
-      Cmts.fmt_after ~pro:noop c Location.none
+  | Signature, {psg_items= []; psg_modalities; _} ->
+      fmt_modalities c psg_modalities
+      $ Cmts.fmt_after ~pro:noop c Location.none
+  | Structure, [] | Use_file, [] -> Cmts.fmt_after ~pro:noop c Location.none
   | Structure, l -> Chunk.split_and_fmt Structure c ctx l
-  | Signature, l -> Chunk.split_and_fmt Signature c ctx l
+  | Signature, {psg_modalities; psg_items= l; _} ->
+      fmt_modalities c psg_modalities $ Chunk.split_and_fmt Signature c ctx l
   | Use_file, l -> Chunk.split_and_fmt Use_file c ctx l
   | Core_type, ty -> fmt_core_type c (sub_typ ~ctx:(Pld (PTyp ty)) ty)
   | Module_type, mty ->
