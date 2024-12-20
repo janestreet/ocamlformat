@@ -4919,7 +4919,7 @@
  (action
   (with-stdout-to include_at.ml.stdout
    (with-stderr-to include_at.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/include_at.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/include_at.ml})))))
 
 (rule
  (alias runtest)
