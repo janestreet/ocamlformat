@@ -216,16 +216,8 @@ let print_updating_num_loc_lines ppf f arg =
   pp_print_flush ppf ();
   pp_set_formatter_out_functions ppf out_functions
 
-<<<<<<< HEAD
-let setup_colors () =
-  Misc.Style.setup !Clflags.color
-||||||| 99c2991
-let setup_colors () =
-  Misc.Color.setup !Clflags.color
-=======
 let setup_tags () =
   Misc.Style.setup !Clflags.color
->>>>>>> new-base/main
 
 (******************************************************************************)
 (* Printing locations, e.g. 'File "foo.ml", line 3, characters 10-12' *)

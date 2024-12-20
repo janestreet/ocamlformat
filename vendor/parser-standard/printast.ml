@@ -442,8 +442,6 @@ and expression i ppf x =
       payload i ppf arg
   | Pexp_unreachable ->
       line i ppf "Pexp_unreachable"
-  | Pexp_hole ->
-      line i ppf "Pexp_hole"
   | Pexp_stack e ->
       line i ppf "Pexp_stack\n";
       expression i ppf e
@@ -992,14 +990,11 @@ and module_expr i ppf x =
   | Pmod_extension (s, arg) ->
       line i ppf "Pmod_extension \"%s\"\n" s.txt;
       payload i ppf arg
-<<<<<<< HEAD
-  | Pmod_hole ->
-      line i ppf "Pmod_hole"
-||||||| 4a95753
-=======
   | Pmod_instance instance ->
       line i ppf "Pmod_instance\n";
       module_instance i ppf instance
+  | Pmod_hole ->
+    line i ppf "Pmod_hole"
 
 and module_instance i ppf { pmod_instance_head; pmod_instance_args } =
   line i ppf "head=%s\n" pmod_instance_head;
@@ -1008,7 +1003,6 @@ and module_instance i ppf { pmod_instance_head; pmod_instance_args } =
     module_instance i ppf arg)
     ppf
     pmod_instance_args
->>>>>>> new-base/main
 
 and structure i ppf x = list i structure_item ppf x
 

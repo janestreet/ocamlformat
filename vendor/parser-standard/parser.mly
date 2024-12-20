@@ -35,6 +35,31 @@ open Docstrings
 open Docstrings.WithMenhir
 open Parser_types
 
+(* Copied from [builtin_attributes.ml] *)
+module Builtin_attributes = struct
+  let attr_equals_builtin {attr_name = {txt; _}; _} s =
+    (* Check for attribute s or ocaml.s.  Avoid allocating a fresh string. *)
+    txt = s ||
+    (   String.length txt = 6 + String.length s
+     && String.starts_with ~prefix:"ocaml." txt
+     && String.ends_with ~suffix:s txt)
+
+  let has_attribute nm attrs =
+    List.exists
+      (fun a -> attr_equals_builtin a nm)
+      attrs
+
+  let curry_attr_name = "extension.curry"
+
+  let has_curry attrs =
+    has_attribute curry_attr_name attrs
+    || has_attribute "curry" attrs
+
+  let curry_attr loc =
+    Ast_helper.Attr.mk ~loc:Location.none (Location.mkloc curry_attr_name loc) (PStr [])
+  ;;
+end
+
 let mkloc = Location.mkloc
 let mknoloc = Location.mknoloc
 
@@ -350,46 +375,6 @@ let expecting_loc (loc : Location.t) (nonterm : string) =
 let expecting (loc : Lexing.position * Lexing.position) nonterm =
      expecting_loc (make_loc loc) nonterm
 
-<<<<<<< HEAD
-let ppat_ltuple loc elts closed =
-  Jane_syntax.Labeled_tuples.pat_of
-    ~loc:(make_loc loc)
-    (elts, closed)
-
-let ptyp_ltuple loc tl =
-  Jane_syntax.Labeled_tuples.typ_of
-    ~loc:(make_loc loc)
-    tl
-
-let pexp_ltuple loc args =
-  Jane_syntax.Labeled_tuples.expr_of
-    ~loc:(make_loc loc)
-    args
-
-||||||| 4a95753
-let removed_string_set loc =
-  raise(Syntaxerr.Error(Syntaxerr.Removed_string_set(make_loc loc)))
-
-let ppat_ltuple loc elts closed =
-  Jane_syntax.Labeled_tuples.pat_of
-    ~loc:(make_loc loc)
-    (elts, closed)
-
-let ptyp_ltuple loc tl =
-  Jane_syntax.Labeled_tuples.typ_of
-    ~loc:(make_loc loc)
-    tl
-
-let pexp_ltuple loc args =
-  Jane_syntax.Labeled_tuples.expr_of
-    ~loc:(make_loc loc)
-    args
-
-=======
-let removed_string_set loc =
-  raise(Syntaxerr.Error(Syntaxerr.Removed_string_set(make_loc loc)))
-
->>>>>>> new-base/main
 (* Using the function [not_expecting] in a semantic action means that this
    syntactic form is recognized by the parser but is in fact incorrect. This
    idiom is used in a few places to produce ad hoc syntax error messages. *)
@@ -1165,16 +1150,8 @@ The precedences must be listed from low to high.
 /* Finally, the first tokens of simple_expr are above everything else. */
 %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
-<<<<<<< HEAD
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
-          LBRACKETPERCENT QUOTED_STRING_EXPR STACK HASHLPAREN
-||||||| 4a95753
-          NEW PREFIXOP STRING TRUE UIDENT
-          LBRACKETPERCENT QUOTED_STRING_EXPR STACK HASHLPAREN
-=======
-          NEW PREFIXOP STRING TRUE UIDENT
           LBRACKETPERCENT QUOTED_STRING_EXPR STACK HASHLBRACE HASHLPAREN
->>>>>>> new-base/main
 
 
 /* Entry points */
@@ -2872,16 +2849,6 @@ fun_expr:
     { mk_indexop_expr user_indexing_operators ~loc:$sloc $1 }
   | fun_expr attribute
       { Exp.attr $1 $2 }
-<<<<<<< HEAD
-||||||| 4a95753
-/* BEGIN AVOID */
-  | UNDERSCORE
-     { not_expecting $loc($1) "wildcard \"_\"" }
-/* END AVOID */
-=======
-  | UNDERSCORE
-    { mkexp ~loc:$sloc Pexp_hole }
->>>>>>> new-base/main
   | mode=mode_legacy exp=seq_expr
      { mkexp_constraint ~loc:$sloc ~exp ~cty:None ~modes:[mode] }
   | EXCLAVE seq_expr
@@ -4043,23 +4010,11 @@ jkind_desc:
 ;
 
 reverse_product_jkind :
-<<<<<<< HEAD
-  | jkind1 = jkind AMPERSAND jkind2 = jkind %prec prec_unboxed_product_kind
-||||||| 4a95753
-  | jkind1 = jkind AMPERSAND jkind2 = jkind %prec below_EQUAL
-=======
   | jkind1 = jkind_annotation AMPERSAND jkind2 = jkind_annotation %prec prec_unboxed_product_kind
->>>>>>> new-base/main
       { [jkind2; jkind1] }
   | jkinds = reverse_product_jkind
     AMPERSAND
-<<<<<<< HEAD
-    jkind = jkind %prec prec_unboxed_product_kind
-||||||| 4a95753
-    jkind = jkind %prec below_EQUAL
-=======
     jkind = jkind_annotation %prec prec_unboxed_product_kind
->>>>>>> new-base/main
     { jkind :: jkinds }
 
 jkind_annotation: (* : jkind_annotation *)

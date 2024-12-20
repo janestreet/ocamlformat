@@ -376,4 +376,3 @@ type t =
 
 type t =
   | T : (* 1 *) ('a : value) 'b (* 2 *) ('c : (* 3 *) float64) 'd . (* 4 *) { x : 'a * 'b * 'c * 'd } -> t
-

@@ -500,7 +500,6 @@ and expression_desc =
             - [let* P0 = E00 and* P1 = E01 in E1] *)
   | Pexp_extension of extension  (** [[%id]] *)
   | Pexp_unreachable  (** [.] *)
-  | Pexp_hole  (** [_] *)
   | Pexp_stack of expression (** stack_ exp *)
   | Pexp_comprehension of comprehension_expression
     (** [[? BODY ...CLAUSES... ?]], where:
@@ -1206,22 +1205,18 @@ and module_expr_desc =
       *)
   | Pmod_unpack of expression  (** [(val E)] *)
   | Pmod_extension of extension  (** [[%id]] *)
-<<<<<<< HEAD
-  | Pmod_hole (** [_] *)
-||||||| 4a95753
-=======
   | Pmod_instance of module_instance
       (** [Foo(Param1)(Arg1(Param2)(Arg2)) [@jane.non_erasable.instances]]
 
           The name of an instance module. Gets converted to [Global.Name.t] in
           the flambda-backend compiler. *)
+  | Pmod_hole (** [_] *)
 
 and module_instance =
   { pmod_instance_head : string;
     pmod_instance_args : (string * module_instance) list
   }
   (** [M(P1)(MI1)...(Pn)(MIn)] *)
->>>>>>> new-base/main
 
 and structure = structure_item list
 

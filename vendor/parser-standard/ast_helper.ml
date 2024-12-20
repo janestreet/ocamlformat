@@ -249,14 +249,9 @@ module Exp = struct
   let extension ?loc ?attrs a = mk ?loc ?attrs (Pexp_extension a)
   let unreachable ?loc ?attrs () = mk ?loc ?attrs Pexp_unreachable
   let stack ?loc ?attrs e = mk ?loc ?attrs (Pexp_stack e)
-<<<<<<< HEAD
-  let hole  ?loc ?attrs () = mk ?loc ?attrs Pexp_hole
-||||||| 4a95753
-=======
   let comprehension ?loc ?attrs e = mk ?loc ?attrs (Pexp_comprehension e)
   let overwrite ?loc ?attrs a b = mk ?loc ?attrs (Pexp_overwrite (a, b))
   let hole ?loc ?attrs () = mk ?loc ?attrs Pexp_hole
->>>>>>> new-base/main
 
   let case lhs ?guard rhs =
     {
@@ -304,12 +299,8 @@ module Mod = struct
     mk ?loc ?attrs (Pmod_constraint (m, ty, mode))
   let unpack ?loc ?attrs e = mk ?loc ?attrs (Pmod_unpack e)
   let extension ?loc ?attrs a = mk ?loc ?attrs (Pmod_extension a)
-<<<<<<< HEAD
-  let hole ?loc ?attrs () = mk ?loc ?attrs Pmod_hole
-||||||| 4a95753
-=======
   let instance ?loc ?attrs a = mk ?loc ?attrs (Pmod_instance a)
->>>>>>> new-base/main
+  let hole ?loc ?attrs () = mk ?loc ?attrs Pmod_hole
 end
 
 module Sig = struct

@@ -85,41 +85,6 @@ type mapper = {
   value_binding: mapper -> value_binding -> value_binding;
   value_description: mapper -> value_description -> value_description;
   with_constraint: mapper -> with_constraint -> with_constraint;
-<<<<<<< HEAD
-  directive_argument: mapper -> directive_argument -> directive_argument;
-  toplevel_directive: mapper -> toplevel_directive -> toplevel_directive;
-  toplevel_phrase: mapper -> toplevel_phrase -> toplevel_phrase;
-
-  expr_jane_syntax:
-    mapper -> Jane_syntax.Expression.t -> Jane_syntax.Expression.t;
-  extension_constructor_jane_syntax:
-    mapper ->
-    Jane_syntax.Extension_constructor.t -> Jane_syntax.Extension_constructor.t;
-  module_type_jane_syntax: mapper
-    -> Jane_syntax.Module_type.t -> Jane_syntax.Module_type.t;
-  pat_jane_syntax: mapper -> Jane_syntax.Pattern.t -> Jane_syntax.Pattern.t;
-  signature_item_jane_syntax: mapper ->
-    Jane_syntax.Signature_item.t -> Jane_syntax.Signature_item.t;
-  structure_item_jane_syntax: mapper ->
-    Jane_syntax.Structure_item.t -> Jane_syntax.Structure_item.t;
-  typ_jane_syntax: mapper -> Jane_syntax.Core_type.t -> Jane_syntax.Core_type.t;
-||||||| 4a95753
-
-  expr_jane_syntax:
-    mapper -> Jane_syntax.Expression.t -> Jane_syntax.Expression.t;
-  extension_constructor_jane_syntax:
-    mapper ->
-    Jane_syntax.Extension_constructor.t -> Jane_syntax.Extension_constructor.t;
-  module_type_jane_syntax: mapper
-    -> Jane_syntax.Module_type.t -> Jane_syntax.Module_type.t;
-  pat_jane_syntax: mapper -> Jane_syntax.Pattern.t -> Jane_syntax.Pattern.t;
-  signature_item_jane_syntax: mapper ->
-    Jane_syntax.Signature_item.t -> Jane_syntax.Signature_item.t;
-  structure_item_jane_syntax: mapper ->
-    Jane_syntax.Structure_item.t -> Jane_syntax.Structure_item.t;
-  typ_jane_syntax: mapper -> Jane_syntax.Core_type.t -> Jane_syntax.Core_type.t;
-=======
->>>>>>> new-base/main
 }
 
 let map_fst f (x, y) = (f x, y)
@@ -456,15 +421,11 @@ module M = struct
           (sub.module_expr sub m)
     | Pmod_unpack e -> unpack ~loc ~attrs (sub.expr sub e)
     | Pmod_extension x -> extension ~loc ~attrs (sub.extension sub x)
-<<<<<<< HEAD
-    | Pmod_hole -> hole ~loc ~attrs ()
-||||||| 4a95753
-=======
     | Pmod_instance x ->
         (* CR lmaurer: Implement this. Might want to change the [instance] type
            to have Ids with locations in them rather than just raw strings. *)
         instance ~loc ~attrs x
->>>>>>> new-base/main
+    | Pmod_hole -> hole ~loc ~attrs ()
 
   let map_structure_item sub {pstr_loc = loc; pstr_desc = desc} =
     let open Str in
@@ -652,7 +613,6 @@ module E = struct
           (List.map (sub.binding_op sub) ands) (sub.expr sub body)
     | Pexp_extension x -> extension ~loc ~attrs (sub.extension sub x)
     | Pexp_unreachable -> unreachable ~loc ~attrs ()
-    | Pexp_hole -> hole ~loc ~attrs ()
     | Pexp_stack e -> stack ~loc ~attrs (sub.expr sub e)
     | Pexp_comprehension c -> comprehension ~loc ~attrs (map_cexp sub c)
     | Pexp_overwrite (e1, e2) -> overwrite ~loc ~attrs (sub.expr sub e1) (sub.expr sub e2)
@@ -979,71 +939,6 @@ let default_mapper =
          | PPat (x, g) -> PPat (this.pat this x, map_opt (this.expr this) g)
       );
 
-<<<<<<< HEAD
-    jkind_annotation = (fun this ->
-      let open Jane_syntax in
-      function
-      | Default -> Default
-      | Abbreviation s ->
-        let {txt; loc} =
-          map_loc this s
-        in
-        Abbreviation (Jkind.Const.mk txt loc)
-      | Mod (t, mode_list) ->
-        Mod (this.jkind_annotation this t, this.modes this mode_list)
-      | With (t, ty) ->
-        With (this.jkind_annotation this t, this.typ this ty)
-      | Kind_of ty -> Kind_of (this.typ this ty)
-      | Product ts -> Product (List.map (this.jkind_annotation this) ts));
-
-    directive_argument =
-      (fun this a ->
-         { pdira_desc= a.pdira_desc
-         ; pdira_loc= this.location this a.pdira_loc} );
-
-    toplevel_directive =
-      (fun this d ->
-         { pdir_name= map_loc this d.pdir_name
-         ; pdir_arg= map_opt (this.directive_argument this) d.pdir_arg
-         ; pdir_loc= this.location this d.pdir_loc } );
-
-    toplevel_phrase =
-      (fun this -> function
-         | Ptop_def s -> Ptop_def (this.structure this s)
-         | Ptop_dir d -> Ptop_dir (this.toplevel_directive this d) );
-
-    expr_jane_syntax = E.map_jst;
-    extension_constructor_jane_syntax = T.map_extension_constructor_jst;
-    module_type_jane_syntax = MT.map_jane_syntax;
-    pat_jane_syntax = P.map_jst;
-    signature_item_jane_syntax = MT.map_signature_item_jst;
-    structure_item_jane_syntax = M.map_structure_item_jst;
-    typ_jane_syntax = T.map_jst;
-||||||| 4a95753
-    jkind_annotation = (fun this ->
-      let open Jane_syntax in
-      function
-      | Default -> Default
-      | Abbreviation s ->
-        let {txt; loc} =
-          map_loc this s
-        in
-        Abbreviation (Jkind.Const.mk txt loc)
-      | Mod (t, mode_list) ->
-        Mod (this.jkind_annotation this t, this.modes this mode_list)
-      | With (t, ty) ->
-        With (this.jkind_annotation this t, this.typ this ty)
-      | Kind_of ty -> Kind_of (this.typ this ty)
-      | Product ts -> Product (List.map (this.jkind_annotation this) ts));
-
-    expr_jane_syntax = E.map_jst;
-    extension_constructor_jane_syntax = T.map_extension_constructor_jst;
-    module_type_jane_syntax = MT.map_jane_syntax;
-    pat_jane_syntax = P.map_jst;
-    signature_item_jane_syntax = MT.map_signature_item_jst;
-    structure_item_jane_syntax = M.map_structure_item_jst;
-    typ_jane_syntax = T.map_jst;
-=======
     jkind_annotation = (fun this { pjkind_loc; pjkind_desc } ->
       let pjkind_loc = this.location this pjkind_loc in
       let pjkind_desc =
@@ -1058,7 +953,6 @@ let default_mapper =
         | Product ts -> Product (List.map (this.jkind_annotation this) ts)
       in
       { pjkind_loc; pjkind_desc });
->>>>>>> new-base/main
 
     modes = (fun this m ->
       List.map (map_loc this) m);
