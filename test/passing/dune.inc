@@ -2681,7 +2681,7 @@
  (action
   (with-stdout-to default_modalities.ml.stdout
    (with-stderr-to default_modalities.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/default_modalities.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/default_modalities.ml})))))
 
 (rule
  (alias runtest)
