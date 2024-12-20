@@ -2681,7 +2681,7 @@
  (action
   (with-stdout-to default_modalities.ml.stdout
    (with-stderr-to default_modalities.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/default.ml})))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/default_modalities.ml})))))
 
 (rule
  (alias runtest)
@@ -2699,7 +2699,7 @@
  (action
   (with-stdout-to default_modalities.ml.js-stdout
    (with-stderr-to default_modalities.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/default.ml})))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/default_modalities.ml})))))
 
 (rule
  (alias runtest)
