@@ -719,7 +719,7 @@ and fmt_payload c ctx pld =
       fmt_if (not (List.is_empty mex)) "@ " $ fmt_structure c ctx mex
   | PSig ({psg_modalities; _} as mty) ->
       fmt ":"
-      $ fmt_modalities c psg_modalities
+      $ fmt_modalities ~break:false c psg_modalities
       $ fmt "@ "
       $ fmt_signature c ctx {mty with psg_modalities= []}
   | PTyp typ -> fmt ":@ " $ fmt_core_type c (sub_typ ~ctx typ)
@@ -4105,8 +4105,7 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
       ; epi= Some (fmt_attributes c pmty_attributes ~pre:(Break (1, 0))) }
   | Pmty_signature ({psg_modalities; psg_items; _} as s) ->
       let empty =
-        List.is_empty psg_modalities
-        && List.is_empty psg_items
+        List.is_empty psg_items
         && not (Cmts.has_within c.cmts pmty_loc)
       in
       let before = Cmts.fmt_before c pmty_loc in
