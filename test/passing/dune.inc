@@ -2679,37 +2679,37 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to default-modalities.ml.stdout
-   (with-stderr-to default-modalities.ml.stderr
+  (with-stdout-to default_modalities.ml.stdout
+   (with-stderr-to default_modalities.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/default.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/default-modalities.ml.ref default-modalities.ml.stdout)))
+ (action (diff tests/default_modalities.ml.ref default_modalities.ml.stdout)))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/default-modalities.ml.err default-modalities.ml.stderr)))
+ (action (diff tests/default_modalities.ml.err default_modalities.ml.stderr)))
 
 (rule
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to default-modalities.ml.js-stdout
-   (with-stderr-to default-modalities.ml.js-stderr
+  (with-stdout-to default_modalities.ml.js-stdout
+   (with-stderr-to default_modalities.ml.js-stderr
      (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/default.ml})))))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/default-modalities.ml.js-ref default-modalities.ml.js-stdout)))
+ (action (diff tests/default_modalities.ml.js-ref default_modalities.ml.js-stdout)))
 
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/default-modalities.ml.js-err default-modalities.ml.js-stderr)))
+ (action (diff tests/default_modalities.ml.js-err default_modalities.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
