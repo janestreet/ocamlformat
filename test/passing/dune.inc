@@ -2679,6 +2679,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to default-modalities.ml.stdout
+   (with-stderr-to default-modalities.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/default.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default-modalities.ml.ref default-modalities.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default-modalities.ml.err default-modalities.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to default-modalities.ml.js-stdout
+   (with-stderr-to default-modalities.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/default.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default-modalities.ml.js-ref default-modalities.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default-modalities.ml.js-err default-modalities.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to directives.mlt.stdout
    (with-stderr-to directives.mlt.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/directives.mlt})))))
