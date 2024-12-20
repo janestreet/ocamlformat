@@ -7,7 +7,7 @@ module type T = sig @@ moda1 moda2 moda3 moda4
     type t
 
     val x : t @@ moda1 moda2 moda3 moda4
-  end @@ moda1 moda2 moda3 moda4
+  end
 end
 
 
@@ -20,7 +20,7 @@ module T : sig @@ moda1 moda2 moda3 moda4
     type t
 
     val x : t @@ moda1 moda2 moda3 moda4
-  end @@ moda1 moda2 moda3 moda4
+  end
 end = struct
 
 end
