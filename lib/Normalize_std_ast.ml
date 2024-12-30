@@ -352,12 +352,10 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   let structure m str =
     List.filter str ~f:(function
       | {pstr_desc= Pstr_kind_abbrev _; _} when erase_jane_syntax -> false
+      | {pstr_desc= Pstr_attribute a; _} when ignore_doc_comments && is_doc a
+        ->
+          false
       | _ -> true )
-    |> List.filter ~f:(function
-         | {pstr_desc= Pstr_attribute a; _}
-           when ignore_doc_comments && is_doc a ->
-             false
-         | _ -> true )
     |> Ast_mapper.default_mapper.structure m
   in
   let signature m {psg_modalities; psg_items; psg_loc} =
