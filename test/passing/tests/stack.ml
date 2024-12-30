@@ -149,3 +149,34 @@ let _ = stack_ fun x -> x [@bar]
 let _ = stack_ fun x -> (x [@bar])
 let _ = stack_ ((fun x -> x) [@bar])
 let _ = (stack_ fun x -> x) [@bar]
+
+(* Test labelled argument and long func *)
+
+let _ = List.iter l ~f:(stack_ (fun xxxxx ->
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end)))
+
+let _ =
+  List.iter
+    l
+    ~f:(stack_ (fun xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        (module struct
+          type nonrec t = M.t
+        end)))
+    ~g:x
+;;
+
+(* No [stack_] (for reference) *)
+let _ = List.iter l ~f:( (fun xxxxx ->
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end)))
+
+let _ =
+  List.iter
+    l
+    ~f:(fun xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        (module struct
+          type nonrec t = M.t
+        end))
+    ~g:x
+;;
