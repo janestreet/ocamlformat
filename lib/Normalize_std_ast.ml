@@ -16,15 +16,6 @@ let is_doc = function
   | {attr_name= {Location.txt= "ocaml.doc" | "ocaml.text"; _}; _} -> true
   | _ -> false
 
-let is_erasable_jane_syntax attr =
-  let name = attr.attr_name.txt in
-  String.is_prefix ~prefix:"jane.erasable." name
-  (* CR jane-syntax: When erasing jane syntax, [int -> (int -> int)] is
-     reformatted to [int -> int -> int]. This causes the removal of
-     [extension.curry] attributes, so these attributes should be considered
-     "erasable jane syntax" *)
-  || String.equal "extension.curry" name
-
 (* We rewrite both "[@immediate]" and "[@ocaml.immediate]" into ":
    immediate", which is then turned into just "[@immediate]" if we are
    erasing jane syntax. This means "[@ocaml.immediate]" get rewritten to
@@ -132,7 +123,13 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
       =
     let atrs =
       if erase_jane_syntax then
-        List.filter atrs ~f:(fun a -> not (is_erasable_jane_syntax a))
+        List.filter atrs ~f:(fun a ->
+            (* CR jane-syntax: When erasing jane syntax, [int -> (int ->
+               int)] is reformatted to [int -> int -> int]. This causes the
+               removal of [extension.curry] attributes, so these attributes
+               should be dropped when normalizing under jane syntax
+               erasure. *)
+            not (String.equal "extension.curry" a.attr_name.txt) )
       else atrs
     in
     let atrs =
