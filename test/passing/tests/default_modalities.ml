@@ -56,6 +56,11 @@ module type T = [%ext: @@ moda1 moda2 moda3 moda4
   type t
   type u]
 
+module type T = sig @@ moda1 moda2
+  (** cmt *)
+  type t
+end
+
 module type T = sig (* cmt *)
   type t
 end

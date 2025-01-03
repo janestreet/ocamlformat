@@ -5287,7 +5287,18 @@ let fmt_file (type a) ~ctx ~fmt_code ~debug (fragment : a Extended_ast.t)
   | Structure, [] | Use_file, [] -> Cmts.fmt_after ~pro:noop c Location.none
   | Structure, l -> Chunk.split_and_fmt Structure c ctx l
   | Signature, {psg_modalities; psg_items= l; _} ->
-      fmt_modalities c psg_modalities $ Chunk.split_and_fmt Signature c ctx l
+      let fmt_modalities =
+        if List.is_empty psg_modalities
+        then noop
+        else
+          let fmt_modality {txt = Modality modality; loc} =
+            Cmts.fmt c loc (str modality)
+          in
+          fmt "@@@@ "
+          $ hvbox 0 (list psg_modalities "@ " fmt_modality)
+          $ fmt "\n@;<1000 0>"
+      in
+      fmt_modalities $ Chunk.split_and_fmt Signature c ctx l
   | Use_file, l -> Chunk.split_and_fmt Use_file c ctx l
   | Core_type, ty -> fmt_core_type c (sub_typ ~ctx:(Pld (PTyp ty)) ty)
   | Module_type, mty ->

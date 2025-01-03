@@ -50,6 +50,11 @@ type u]
   type t
   type u]
 
+module type T = sig @@ moda1 moda2
+  (** cmt *)
+  type t
+end
+
 module type T = sig
   (* cmt *)
   type t
