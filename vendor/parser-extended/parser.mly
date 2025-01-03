@@ -624,6 +624,13 @@ let extra_rhs_core_type ct ~pos =
   let docs = rhs_info pos in
   { ct with ptyp_attributes = add_info_attrs docs ct.ptyp_attributes }
 
+let extra_modalities startpos modalities =
+  match modalities with
+  | [] -> modalities, []
+  | _ :: _ ->
+     let extras = rhs_pre_extra_text startpos in
+     modalities, Sig.text extras
+
 type let_binding =
   { lb_pattern: pattern;
     lb_expression: expression;
@@ -1045,6 +1052,7 @@ The precedences must be listed from low to high.
 /* macros */
 %inline extra_str(symb): symb { extra_str $startpos $endpos $1 };
 %inline extra_sig(symb): symb { extra_sig $startpos $endpos $1 };
+%inline extra_modalities(symb): symb { extra_modalities $startpos $1 };
 %inline extra_cstr(symb): symb { extra_cstr $startpos $endpos $1 };
 %inline extra_csig(symb): symb { extra_csig $startpos $endpos $1 };
 %inline extra_def(symb): symb { extra_def $startpos $endpos $1 };
@@ -1835,9 +1843,10 @@ module_type:
 (* A signature, which appears between SIG and END (among other places),
    is a list of signature elements. *)
 signature:
-  optional_atat_modalities_expr extra_sig(flatten(signature_element*))
-    { { psg_modalities = $1;
-        psg_items = erase_sig_items $2;
+  extra_modalities(optional_atat_modalities_expr) extra_sig(flatten(signature_element*))
+    { let modalities, extras = $1 in
+      { psg_modalities = modalities;
+        psg_items = erase_sig_items (extras @ $2);
         psg_loc = make_loc $sloc; } }
 ;
 
