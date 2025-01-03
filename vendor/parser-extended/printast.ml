@@ -499,8 +499,9 @@ and expression i ppf x =
   | Pexp_override (l) ->
       line i ppf "Pexp_override\n";
       list i string_x_expression ppf l;
-  | Pexp_letmodule (s, args, me, e) ->
+  | Pexp_letmodule (s, ms, args, me, e) ->
       line i ppf "Pexp_letmodule %a\n" fmt_str_opt_loc s;
+      modes i ppf ms;
       list i functor_parameter ppf args;
       module_expr i ppf me;
       expression i ppf e;
@@ -1106,10 +1107,11 @@ and module_expr i ppf x =
       line i ppf "Pmod_apply\n";
       module_expr i ppf me1;
       module_expr i ppf me2;
-  | Pmod_constraint (me, mt) ->
+  | Pmod_constraint (me, mt, mmodes) ->
       line i ppf "Pmod_constraint\n";
       module_expr i ppf me;
-      module_type i ppf mt;
+      Option.iter (module_type i ppf) mt;
+      modes i ppf mmodes;
   | Pmod_unpack (e, ty1, ty2) ->
       line i ppf "Pmod_unpack\n";
       expression i ppf e;

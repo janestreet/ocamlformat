@@ -310,7 +310,8 @@ and mod_is_simple x =
   match x.pmod_desc with
   | Pmod_ident _ | Pmod_unpack _ | Pmod_structure [] | Pmod_hole -> true
   | Pmod_structure (_ :: _) | Pmod_extension _ | Pmod_functor (_, _) -> false
-  | Pmod_constraint (e, t) -> mod_is_simple e && mty_is_simple t
+  | Pmod_constraint (e, t, _) ->
+      mod_is_simple e && Option.for_all ~f:mty_is_simple t
   | Pmod_apply (a, b) -> mod_is_simple a && mod_is_simple b
   | Pmod_apply_unit (a, _) -> mod_is_simple a
 
@@ -1534,7 +1535,7 @@ end = struct
          |Pexp_field (e, _)
          |Pexp_lazy e
          |Pexp_letexception (_, e)
-         |Pexp_letmodule (_, _, _, e)
+         |Pexp_letmodule (_, _, _, _, e)
          |Pexp_newtype (_, e)
          |Pexp_open (_, e)
          |Pexp_letopen (_, e)
@@ -2229,7 +2230,7 @@ end = struct
         | Pexp_let (_, e)
          |Pexp_letop {body= e; _}
          |Pexp_letexception (_, e)
-         |Pexp_letmodule (_, _, _, e) -> (
+         |Pexp_letmodule (_, _, _, _, e) -> (
           match cls with Match | Then | ThenElse -> continue e | _ -> false )
         | Pexp_match _ when match cls with Then -> true | _ -> false ->
             false
@@ -2307,7 +2308,7 @@ end = struct
       | Pexp_let (_, e)
        |Pexp_letop {body= e; _}
        |Pexp_letexception (_, e)
-       |Pexp_letmodule (_, _, _, e) ->
+       |Pexp_letmodule (_, _, _, _, e) ->
           continue e
       | Pexp_ifthenelse (eN, None) -> continue (List.last_exn eN).if_body
       | Pexp_extension (ext, PStr [{pstr_desc= Pstr_eval (e, _); _}])
@@ -2397,7 +2398,7 @@ end = struct
       | Exp {pexp_desc; _} -> (
         match pexp_desc with
         | Pexp_let (_, e)
-         |Pexp_letmodule (_, _, _, e)
+         |Pexp_letmodule (_, _, _, _, e)
          |Pexp_letexception (_, e)
          |Pexp_letopen (_, e)
          |Pexp_open (_, e)

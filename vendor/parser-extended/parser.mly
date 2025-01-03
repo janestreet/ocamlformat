@@ -761,7 +761,6 @@ let transl_label ~pattern ~arg_label ~loc =
              { loc; txt = Ldot (Ldot (Lident "Stdlib", "Lexing"), "dummy_pos") }) )
     | _ -> arg_label, pattern, None)
 ;;
-
 %}
 
 /* Tokens */
@@ -1457,6 +1456,10 @@ module_name:
       { None }
 ;
 
+module_name_modal(at_modal_expr):
+  | mkrhs(module_name) { $1, [] }
+  | LPAREN mkrhs(module_name) at_modal_expr RPAREN { $2, $3 }
+
 (* -------------------------------------------------------------------------- *)
 
 (* Module expressions. *)
@@ -1510,8 +1513,10 @@ module_expr:
 
 paren_module_expr:
     (* A module expression annotated with a module type. *)
-    LPAREN me = module_expr COLON mty = module_type RPAREN
-      { mkmod ~loc:$sloc (Pmod_constraint(me, mty)) }
+    LPAREN me = module_expr COLON mty = module_type mm = optional_atat_mode_expr RPAREN
+      { mkmod ~loc:$sloc (Pmod_constraint(me, Some mty, mm)) }
+  | LPAREN me = module_expr mm = at_mode_expr RPAREN
+      { mkmod ~loc:$sloc (Pmod_constraint(me, None, mm)) }
   | LPAREN module_expr COLON module_type error
       { unclosed "(" $loc($1) ")" $loc($5) }
   | (* A module expression within parentheses. *)
@@ -1628,14 +1633,15 @@ structure_item:
 %inline module_binding:
   MODULE
   ext = ext attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_mode_expr)
   args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
     { let docs = symbol_docs $sloc in
       let loc = make_loc $sloc in
       let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
-      let body = Mb.mk name args body ~attrs ~loc ~docs in
+      let name, modes = name_ in
+      let body = Mb.mk name modes args body ~attrs ~loc ~docs in
       Pstr_module body }
 ;
 
@@ -1646,8 +1652,10 @@ module_binding_body:
   | COLON error
       { expecting $loc($1) "=" }
   | mkmod(
-      COLON mty = module_type EQUAL me = module_expr
-        { Pmod_constraint(me, mty) }
+      COLON mty = module_type mm = optional_atat_mode_expr EQUAL me = module_expr
+        { Pmod_constraint(me, Some mty, mm) }
+    | mm = at_mode_expr EQUAL me = module_expr
+        { Pmod_constraint(me, None, mm) }
 (*
     | arg_and_pos = functor_arg body = module_binding_body
         { let (_, arg) = arg_and_pos in
@@ -1668,7 +1676,7 @@ module_binding_body:
   ext = ext
   attrs1 = attributes
   REC
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_mode_expr)
   args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
@@ -1676,7 +1684,8 @@ module_binding_body:
     let loc = make_loc $sloc in
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let docs = symbol_docs $sloc in
-    Mb.mk name args body ~attrs ~loc ~docs
+    let name, modes = name_ in
+    Mb.mk name modes args body ~attrs ~loc ~docs
   }
 ;
 
@@ -1684,7 +1693,7 @@ module_binding_body:
 %inline and_module_binding:
   AND
   attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_mode_expr)
   args = functor_args
   body = module_binding_body
   attrs2 = post_item_attributes
@@ -1693,7 +1702,8 @@ module_binding_body:
     let attrs = Attr.ext_attrs ~before:attrs1 ~after:attrs2 () in
     let docs = symbol_docs $sloc in
     let text = symbol_text $symbolstartpos in
-    Mb.mk name args body ~attrs ~loc ~text ~docs
+    let name, modes = name_ in
+    Mb.mk name modes args body ~attrs ~loc ~text ~docs
   }
 ;
 
@@ -1905,16 +1915,18 @@ signature_item:
 %inline module_declaration:
   MODULE
   ext = ext attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_modalities_expr)
   args = functor_args
   COLON
   body = module_type
+  modes = optional_atat_modes_expr
   attrs2 = post_item_attributes
   {
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name args body ~attrs ~loc ~docs
+    let name, modalities = name_ in
+    Md.mk name modalities args body modes ~attrs ~loc ~docs
   }
 ;
 
@@ -1938,15 +1950,18 @@ module_declaration_body:
 %inline module_alias:
   MODULE
   ext = ext attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_modalities_expr)
   EQUAL
   body = module_expr_alias
+  modalities = optional_at_modalities_expr
   attrs2 = post_item_attributes
   {
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name [] body ~attrs ~loc ~docs
+    let name, modalities' = name_ in
+    let modalities = modalities' @ modalities in
+    Md.mk name [] body ~attrs ~modalities ~loc ~docs
   }
 ;
 %inline module_expr_alias:
@@ -2599,8 +2614,9 @@ expr:
      { mkexp_exclave ~loc:$sloc $2 }
 ;
 %inline expr_attrs:
-  | LET MODULE ext_attributes mkrhs(module_name) functor_args module_binding_body IN seq_expr
-      { Pexp_letmodule($4, $5, $6, $8), $3 }
+  | LET MODULE ext_attributes module_name_modal(at_mode_expr) functor_args module_binding_body IN seq_expr
+      { let name, modes = $4 in
+        Pexp_letmodule(name, modes, $5, $6, $8), $3 }
   | LET EXCEPTION ext_attributes let_exception_declaration IN seq_expr
       { Pexp_letexception($4, $6), $3 }
   | LET OPEN override_flag ext_attributes module_expr IN seq_expr
@@ -4316,11 +4332,22 @@ atat_mode_expr:
         $1
     }
 
+at_modalities_expr:
+  | AT modalities {$2}
+  | AT error { expecting $loc($2) "modality expression" }
+;
+
 optional_atat_modalities_expr:
   | %prec below_HASH
     { [] }
   | ATAT modalities { $2 }
   | ATAT error { expecting $loc($2) "modality expression" }
+;
+
+optional_at_modalities_expr:
+  | { [] }
+  | AT modalities { $2 }
+  | AT error { expecting $loc($2) "modality expression" }
 ;
 
 

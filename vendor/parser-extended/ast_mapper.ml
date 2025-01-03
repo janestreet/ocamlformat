@@ -467,9 +467,10 @@ module M = struct
         apply ~loc ~attrs (sub.module_expr sub m1) (sub.module_expr sub m2)
     | Pmod_apply_unit (me, lc) ->
         apply_unit ~loc ~attrs (sub.module_expr sub me) (sub.location sub lc)
-    | Pmod_constraint (m, mty) ->
+    | Pmod_constraint (m, mty, modes) ->
         constraint_ ~loc ~attrs (sub.module_expr sub m)
-                    (sub.module_type sub mty)
+                    (Option.map (sub.module_type sub) mty)
+                    (sub.modes sub modes)
     | Pmod_unpack (e, ty1, ty2) ->
         unpack ~loc ~attrs
           (sub.expr sub e)
@@ -641,8 +642,9 @@ module E = struct
     | Pexp_override sel ->
         override ~loc ~attrs
           (List.map (map_tuple (map_loc sub) (sub.expr sub)) sel)
-    | Pexp_letmodule (s, args, me, e) ->
+    | Pexp_letmodule (s, ms, args, me, e) ->
         letmodule ~loc ~attrs (map_loc sub s)
+          (sub.modes sub ms)
           (List.map (map_functor_param sub) args)
           (sub.module_expr sub me)
           (sub.expr sub e)
@@ -879,11 +881,12 @@ let default_mapper =
     binding_op = E.map_binding_op;
 
     module_declaration =
-      (fun this {pmd_name; pmd_args; pmd_type; pmd_ext_attrs; pmd_loc} ->
+      (fun this {pmd_name; pmd_args; pmd_type; pmd_modalities; pmd_ext_attrs; pmd_loc} ->
          Md.mk
            (map_loc this pmd_name)
            (List.map (map_functor_param this) pmd_args)
            (this.module_type this pmd_type)
+           ~modalities:(this.modalities this pmd_modalities)
            ~attrs:(this.ext_attrs this pmd_ext_attrs)
            ~loc:(this.location this pmd_loc)
       );
@@ -909,8 +912,9 @@ let default_mapper =
       );
 
     module_binding =
-      (fun this {pmb_name; pmb_args; pmb_expr; pmb_ext_attrs; pmb_loc} ->
+      (fun this {pmb_name; pmb_modes; pmb_args; pmb_expr; pmb_ext_attrs; pmb_loc} ->
          Mb.mk (map_loc this pmb_name)
+           (this.modes this pmb_modes)
            (List.map (map_functor_param this) pmb_args)
            (this.module_expr this pmb_expr)
            ~attrs:(this.ext_attrs this pmb_ext_attrs)

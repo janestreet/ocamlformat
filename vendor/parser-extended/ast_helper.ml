@@ -154,7 +154,7 @@ module Exp = struct
   let indexop_access ?loc ?attrs pia_lhs pia_kind pia_paren pia_rhs =
     mk ?loc ?attrs (Pexp_indexop_access {pia_lhs; pia_kind; pia_paren; pia_rhs})
   let override ?loc ?attrs a = mk ?loc ?attrs (Pexp_override a)
-  let letmodule ?loc ?attrs a b c d = mk ?loc ?attrs (Pexp_letmodule (a, b, c, d))
+  let letmodule ?loc ?attrs a b c d e = mk ?loc ?attrs (Pexp_letmodule (a, b, c, d, e))
   let letexception ?loc ?attrs a b = mk ?loc ?attrs (Pexp_letexception (a, b))
   let assert_ ?loc ?attrs a = mk ?loc ?attrs (Pexp_assert a)
   let lazy_ ?loc ?attrs a = mk ?loc ?attrs (Pexp_lazy a)
@@ -221,7 +221,7 @@ let mk ?(loc = !default_loc) ?(attrs = []) d =
   let functor_ ?loc ?attrs arg body =
     mk ?loc ?attrs (Pmod_functor (arg, body))
   let apply ?loc ?attrs m1 m2 = mk ?loc ?attrs (Pmod_apply (m1, m2))
-  let constraint_ ?loc ?attrs m mty = mk ?loc ?attrs (Pmod_constraint (m, mty))
+  let constraint_ ?loc ?attrs m mty mode = mk ?loc ?attrs (Pmod_constraint (m, mty, mode))
   let unpack ?loc ?attrs a b c = mk ?loc ?attrs (Pmod_unpack (a, b, c))
   let apply_unit ?loc ?attrs a b = mk ?loc ?attrs (Pmod_apply_unit (a, b))
   let extension ?loc ?attrs a = mk ?loc ?attrs (Pmod_extension a)
@@ -389,12 +389,13 @@ module Val = struct
 end
 
 module Md = struct
-  let mk ?(loc = !default_loc) ?(attrs=Attr.ext_attrs ())
+  let mk ?(loc = !default_loc) ?(modalities=[]) ?(attrs=Attr.ext_attrs ())
         ?(docs = empty_docs) ?(text = []) name args typ =
     {
      pmd_name = name;
      pmd_args = args;
      pmd_type = typ;
+     pmd_modalities = modalities;
      pmd_ext_attrs = add_text_attrs' text (add_docs_attrs' docs attrs);
      pmd_loc = loc;
     }
@@ -424,9 +425,10 @@ end
 
 module Mb = struct
   let mk ?(loc = !default_loc) ?(attrs=Attr.ext_attrs ())
-        ?(docs = empty_docs) ?(text = []) name args expr =
+        ?(docs = empty_docs) ?(text = []) name modes args expr =
     {
      pmb_name = name;
+     pmb_modes = modes;
      pmb_args = args;
      pmb_expr = expr;
      pmb_ext_attrs = add_text_attrs' text (add_docs_attrs' docs attrs);

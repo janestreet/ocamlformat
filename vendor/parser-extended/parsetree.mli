@@ -474,7 +474,7 @@ and expression_desc =
   | Pexp_setinstvar of label loc * expression  (** [x <- 2] *)
   | Pexp_override of (label loc * expression) list
       (** [{< x1 = E1; ...; xn = En >}] *)
-  | Pexp_letmodule of string option loc * functor_parameter loc list * module_expr * expression
+  | Pexp_letmodule of string option loc * modes * functor_parameter loc list * module_expr * expression
       (** [let module M = ME in E] *)
   | Pexp_letexception of extension_constructor * expression
       (** [let exception C in E] *)
@@ -1072,6 +1072,7 @@ and module_declaration =
      pmd_name: string option loc;
      pmd_args: functor_parameter loc list;
      pmd_type: module_type;
+     pmd_modalities: modalities;
      pmd_ext_attrs : ext_attrs;
      pmd_loc: Location.t;
     }
@@ -1173,7 +1174,11 @@ and module_expr_desc =
   | Pmod_apply of module_expr * module_expr  (** [ME1(ME2)] *)
   | Pmod_apply_unit of module_expr * Location.t
       (** [ME1()]. The location argument correspond to the [()]. *)
-  | Pmod_constraint of module_expr * module_type  (** [(ME : MT)] *)
+  | Pmod_constraint of module_expr * module_type option * modes
+      (** - [(ME : MT @@ modes)]
+          - [(ME @ modes)]
+          - [(ME : MT)]
+      *)
   | Pmod_unpack of expression * package_type option * package_type option
       (** [(val E : M1 :> M2)] *)
   | Pmod_extension of extension  (** [[%id]] *)
@@ -1256,6 +1261,7 @@ and value_bindings =
 and module_binding =
     {
      pmb_name: string option loc;
+     pmb_modes: modes;
      pmb_args: functor_parameter loc list;
      pmb_expr: module_expr;
      pmb_ext_attrs : ext_attrs;

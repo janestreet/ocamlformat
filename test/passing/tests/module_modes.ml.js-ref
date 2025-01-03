@@ -1,0 +1,14 @@
+module (M @ moda1 moda2) : sig end = N
+module (M @ moda1 moda2) : sig end = N
+module M : sig end = (N @ moda1 moda2)
+module M @ moda1 moda2 = (N : sig end)
+module (M @ moda1 moda2) : sig end = N
+module (M @ moda1 moda2 moda3 moda4) : sig end = N
+module (M @ moda1 moda2) (M' : T) = N
+module (M @ moda1 moda2) (M' : T) : sig end = N
+
+module type T = sig
+  module (M @ moda1 moda2) : sig end
+  module (M @ moda1 moda2) : sig end
+  module (M @ moda1 moda2 moda3 moda4) : sig end
+end
