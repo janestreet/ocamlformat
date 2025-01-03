@@ -2823,6 +2823,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to default_modalities4.mli.stdout
+   (with-stderr-to default_modalities4.mli.stderr
+     (run %{bin:ocamlformat} --margin-check --no-comment-check %{dep:tests/default_modalities4.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default_modalities4.mli.ref default_modalities4.mli.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default_modalities4.mli.err default_modalities4.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to default_modalities4.mli.js-stdout
+   (with-stderr-to default_modalities4.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/default_modalities4.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default_modalities4.mli.js-ref default_modalities4.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/default_modalities4.mli.js-err default_modalities4.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to directives.mlt.stdout
    (with-stderr-to directives.mlt.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/directives.mlt})))))
