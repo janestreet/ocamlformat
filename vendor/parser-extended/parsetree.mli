@@ -1070,6 +1070,7 @@ and signature_item_desc =
 and module_declaration =
     {
      pmd_name: string option loc;
+     pmd_modalities: modalities;
      pmd_args: functor_parameter loc list;
      pmd_type: module_type;
      pmd_ext_attrs : ext_attrs;

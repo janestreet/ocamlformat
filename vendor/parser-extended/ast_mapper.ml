@@ -890,9 +890,10 @@ let default_mapper =
     binding_op = E.map_binding_op;
 
     module_declaration =
-      (fun this {pmd_name; pmd_args; pmd_type; pmd_ext_attrs; pmd_loc} ->
+      (fun this {pmd_name; pmd_modalities; pmd_args; pmd_type; pmd_ext_attrs; pmd_loc} ->
          Md.mk
            (map_loc this pmd_name)
+           (this.modalities this pmd_modalities)
            (List.map (map_functor_param this) pmd_args)
            (this.module_type this pmd_type)
            ~attrs:(this.ext_attrs this pmd_ext_attrs)

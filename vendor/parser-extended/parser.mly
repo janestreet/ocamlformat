@@ -1467,6 +1467,10 @@ module_name:
       { None }
 ;
 
+module_name_modal(at_modal_expr):
+  | mkrhs(module_name) { $1, [] }
+  | LPAREN mkrhs(module_name) at_modal_expr RPAREN { $2, $3 }
+
 (* -------------------------------------------------------------------------- *)
 
 (* Module expressions. *)
@@ -1915,7 +1919,7 @@ signature_item:
 %inline module_declaration:
   MODULE
   ext = ext attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_modalities_expr)
   args = functor_args
   COLON
   body = module_type
@@ -1924,7 +1928,8 @@ signature_item:
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name args body ~attrs ~loc ~docs
+    let name, modalities = name_ in
+    Md.mk name modalities args body ~attrs ~loc ~docs
   }
 ;
 
@@ -1948,7 +1953,7 @@ module_declaration_body:
 %inline module_alias:
   MODULE
   ext = ext attrs1 = attributes
-  name = mkrhs(module_name)
+  name_ = module_name_modal(at_modalities_expr)
   EQUAL
   body = module_expr_alias
   attrs2 = post_item_attributes
@@ -1956,7 +1961,8 @@ module_declaration_body:
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name [] body ~attrs ~loc ~docs
+    let name, modalities = name_ in
+    Md.mk name modalities [] body ~attrs ~loc ~docs
   }
 ;
 %inline module_expr_alias:
@@ -1999,7 +2005,7 @@ MODULE
     let attrs = Attr.ext_attrs ?ext ~before:attrs1 ~after:attrs2 () in
     let loc = make_loc $sloc in
     let docs = symbol_docs $sloc in
-    Md.mk name [] mty ~attrs ~loc ~docs
+    Md.mk name [] [] mty ~attrs ~loc ~docs
   }
 ;
 %inline and_module_declaration:
@@ -2014,7 +2020,7 @@ MODULE
     let docs = symbol_docs $sloc in
     let loc = make_loc $sloc in
     let text = symbol_text $symbolstartpos in
-    Md.mk name [] mty ~attrs ~loc ~text ~docs
+    Md.mk name [] [] mty ~attrs ~loc ~text ~docs
   }
 ;
 
@@ -4325,6 +4331,11 @@ atat_mode_expr:
         String.compare m1 m2)
         $1
     }
+
+at_modalities_expr:
+  | AT modalities {$2}
+  | AT error { expecting $loc($2) "modality expression" }
+;
 
 optional_atat_modalities_expr:
   | %prec below_HASH
