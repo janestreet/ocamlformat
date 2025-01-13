@@ -239,8 +239,7 @@ module T = struct
         constr_unboxed ~loc ~attrs (map_loc sub lid) (List.map (sub.typ sub) tl)
     (* End Jane Street extension *)
 
-  let map_variance_and_injectivity sub var_inj =
-    List.map (fun str -> map_loc sub str) var_inj
+  let map_variance_and_injectivity sub = List.map (map_loc sub)
 
   let map_type_declaration sub
       {ptype_name; ptype_params; ptype_cstrs;
