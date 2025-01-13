@@ -11912,8 +11912,7 @@
  (action
   (with-stdout-to variance.ml.stdout
    (with-stderr-to variance.ml.stderr
-     (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --margin-check %{dep:tests/variance.ml}))))))
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/variance.ml})))))
 
 (rule
  (alias runtest)
@@ -11931,8 +11930,7 @@
  (action
   (with-stdout-to variance.ml.js-stdout
    (with-stderr-to variance.ml.js-stderr
-     (with-accepted-exit-codes 1
-       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/variance.ml}))))))
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/variance.ml})))))
 
 (rule
  (alias runtest)
