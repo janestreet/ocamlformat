@@ -487,11 +487,9 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     (* CR modes: Develop a more general mechanism for "erasing" modalities
        into attributes *)
     let global__ =
-      ld.pld_modalities
-      |> Stdlib.List.find_opt (function
-           | {Location.txt= Modality "global"; _} -> true
-           | {txt= Modality _; _} -> false )
-      |> Option.is_some
+      List.exists ld.pld_modalities ~f:(function
+        | {Location.txt= Modality "global"; _} -> true
+        | {txt= Modality _; _} -> false )
     in
     let ld = Ast_mapper.default_mapper.label_declaration m ld in
     { ld with
@@ -504,11 +502,9 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     (* CR modes: Develop a more general mechanism for "erasing" modalities
        into attributes *)
     let global__ =
-      ca.pca_modalities
-      |> Stdlib.List.find_opt (function
-           | {Location.txt= Modality "global"; _} -> true
-           | {txt= Modality _; _} -> false )
-      |> Option.is_some
+      List.exists ca.pca_modalities ~f:(function
+        | {Location.txt= Modality "global"; _} -> true
+        | {txt= Modality _; _} -> false )
     in
     let ca = Ast_mapper.default_mapper.constructor_argument m ca in
     { ca with
