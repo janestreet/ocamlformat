@@ -10,3 +10,11 @@ let destructured_pattern ~call_pos:({ pos_fname; _ } : [%call_pos]) () = ()
 let in_a_type : call_pos:[%call_pos] -> unit -> Lexing.position = punned_pattern
 let in_an_expression = [%src_pos]
 let with_locals ~(local_ call_pos : [%call_pos]) () = ()
+
+let f
+  (x : here:[%call_pos] -> _)
+  ~(y : here:[%call_pos] -> _)
+  ?(z : here:[%call_pos] -> _)
+  =
+  ()
+;;
