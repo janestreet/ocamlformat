@@ -17,6 +17,8 @@ let in_an_expression = [%src_pos]
 
 let with_locals ~(local_ call_pos : [%call_pos]) () = ()
 
+type 'a t = here:[%call_pos] -> 'a
+
 let f
   (x : here:[%call_pos] -> _)
   ~(y : here:[%call_pos] -> _)
