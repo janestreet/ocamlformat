@@ -783,7 +783,7 @@ and fmt_modals ?(pro = fmt "@ ") c ~ats modals =
   let fmt_ats =
     match ats with `Zero -> str "" | `One -> str "@ " | `Two -> str "@@ "
   in
-  let fmt_modal {txt; loc} = Cmts.fmt c loc (str txt) in
+  let fmt_modal {txt; loc} = Cmts.fmt c loc (str txt) ~eol:(fmt "@ ") in
   let fmt_mode {txt= Mode mode; loc} = fmt_modal {txt= mode; loc} in
   let fmt_modality {txt= Modality modality; loc} =
     fmt_modal {txt= modality; loc}
@@ -5302,7 +5302,7 @@ let fmt_file (type a) ~ctx ~fmt_code ~debug (fragment : a Extended_ast.t)
   let c = {source; cmts; conf; debug; fmt_code} in
   match (fragment, itms) with
   | Signature, {psg_items= []; psg_modalities; _} ->
-      fmt_modals c ~ats:`Two (Modalities psg_modalities)
+      fmt_modals ~pro:noop c ~ats:`Two (Modalities psg_modalities)
       $ Cmts.fmt_after ~pro:noop c Location.none
   | Structure, [] | Use_file, [] -> Cmts.fmt_after ~pro:noop c Location.none
   | Structure, l -> Chunk.split_and_fmt Structure c ctx l

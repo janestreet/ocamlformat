@@ -8567,6 +8567,80 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to modality_comments_failure.mli.stdout
+   (with-stderr-to modality_comments_failure.mli.stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --margin-check %{dep:tests/modality_comments_failure.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_failure.mli.ref modality_comments_failure.mli.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_failure.mli.err modality_comments_failure.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to modality_comments_failure.mli.js-stdout
+   (with-stderr-to modality_comments_failure.mli.js-stderr
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/modality_comments_failure.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_failure.mli.js-ref modality_comments_failure.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_failure.mli.js-err modality_comments_failure.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to modality_comments_regression.mli.stdout
+   (with-stderr-to modality_comments_regression.mli.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/modality_comments_regression.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_regression.mli.ref modality_comments_regression.mli.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_regression.mli.err modality_comments_regression.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to modality_comments_regression.mli.js-stdout
+   (with-stderr-to modality_comments_regression.mli.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/modality_comments_regression.mli})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_regression.mli.js-ref modality_comments_regression.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/modality_comments_regression.mli.js-err modality_comments_regression.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to modes-erased.ml.stdout
    (with-stderr-to modes-erased.ml.stderr
      (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/modes.ml})))))
