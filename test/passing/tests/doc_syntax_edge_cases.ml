@@ -99,7 +99,7 @@
    C) And so this is not a third list item, but just a normal paragraph (see
       indeeeeeeeeeeeeeeeeeeeentation)
 
-   (* CR-someday dvulakh: Fix this edge case *)
+   (* CR-someday comments: Fix this edge case *)
 
    here's a funny edge case:
    a) + b)
