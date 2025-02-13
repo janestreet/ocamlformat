@@ -1,5 +1,0 @@
-ocamlformat: ignoring "tests/dropped_attribute.ml" (syntax error)
-File "tests/dropped_attribute.ml", line 5, characters 22-31:
-5 |   val foo : (module T [@annot1] with type t = 'a [@annot2]) -> unit
-                          ^^^^^^^^^
-Error: invalid package type: an attribute cannot go here
