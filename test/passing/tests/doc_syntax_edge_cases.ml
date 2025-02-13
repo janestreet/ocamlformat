@@ -21,7 +21,7 @@
 (* {01 very important} *)
 
 (* [     code
-    with newline] *)
+    with newline     ] *)
 
 (* We want nested bulleted lists.
    - Here's one layer of the list
@@ -132,7 +132,7 @@
 (** {01 very important} *)
 
 (** [     code
-     with newline] *)
+     with newline     ] *)
 
 (** We want nested bulleted lists.
     - Here's one layer of the list
@@ -241,7 +241,7 @@
 (*_ {01 very important} *)
 
 (*_ [     code
-     with newline] *)
+     with newline     ] *)
 
 (*_ We want nested bulleted lists.
     - Here's one layer of the list

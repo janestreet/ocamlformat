@@ -214,8 +214,18 @@ let emit_code_span code =
   `Code_span
     (match String.split_on_char '\n' code with
      | [] -> assert false
+     | [ line ] -> line
      | hd :: tl ->
-       String.concat " " (hd :: List.map String.trim tl))
+       let tl = 
+         (match List.rev tl with
+          | [] -> assert false
+          | last :: mid ->
+            Astring.String.drop ~rev:false ~sat:Astring.Char.Ascii.is_white last
+            :: List.map String.trim mid)
+         |> List.rev
+       in
+       Astring.String.drop ~rev:true ~sat:Astring.Char.Ascii.is_white hd :: tl
+       |> String.concat " ")
 
 let emit_verbatim input start_offset buffer =
   let t = Buffer.contents buffer in
