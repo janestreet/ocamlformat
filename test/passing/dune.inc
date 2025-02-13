@@ -12633,7 +12633,7 @@
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/wrap_invalid_doc_comments.ml wrap_invalid_doc_comments.ml.stdout)))
+ (action (diff tests/wrap_invalid_doc_comments.ml.ref wrap_invalid_doc_comments.ml.stdout)))
 
 (rule
  (alias runtest)
