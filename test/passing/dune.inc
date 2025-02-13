@@ -3503,7 +3503,8 @@
  (action
   (with-stdout-to dropped_attribute.ml.stdout
    (with-stderr-to dropped_attribute.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/dropped_attribute.ml})))))
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --margin-check %{dep:tests/dropped_attribute.ml}))))))
 
 (rule
  (alias runtest)
@@ -3521,7 +3522,8 @@
  (action
   (with-stdout-to dropped_attribute.ml.js-stdout
    (with-stderr-to dropped_attribute.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/dropped_attribute.ml})))))
+     (with-accepted-exit-codes 1
+       (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/dropped_attribute.ml}))))))
 
 (rule
  (alias runtest)
