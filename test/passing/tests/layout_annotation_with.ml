@@ -376,4 +376,8 @@ type asdfasdf :
 type t =
   T : (* a comment! *) ('a : immutable_data with t u v w x t t option list list list list list @@ asdf aaaa aaa aaaaaaaaa aaaaaaaaaaaaa with ('a, 'b, 'c) typetypetypetype @@ foo bar with t). ('a t) option -> t
 
-let f (type a) (type b : immutable_data with a with b @@ foo bar with c @@ portable many uncontended mod foo bar baz) (x : (a, b) t) = x
+let f (type a) (type b : immutable_data with a with b @@ foo bar with c @@ portable many uncontended once many portable many once uncontended mod foo bar baz) (x : (a, b) t) = x
+
+type ('a, 'b) foo : immutable_data with (* 1 *) 'a (* 2 *) @@ (* 3 *) portable (* 4 *) contended (* 5 *) many (* 6 *) shared (* 7 *)
+
+type asdfasdf : value mod portable contended many mmasdmfm with foo @@ mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm

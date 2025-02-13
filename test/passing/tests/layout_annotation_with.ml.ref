@@ -454,6 +454,28 @@ let f
     immutable_data
     with a
     with b @@ bar foo
-    with c @@ many portable uncontended
+    with c @@ many
+              many
+              many
+              once
+              once
+              portable
+              portable
+              uncontended
+              uncontended
     mod bar baz foo) ) (x : (a, b) t) =
   x
+
+type ('a, 'b) foo : immutable_data with 'a @@ contended many portable shared
+(* 1 *)
+(* 2 *)
+(* 3 *)
+(* 4 *)
+(* 5 *)
+(* 6 *)
+(* 7 *)
+
+type asdfasdf :
+  value
+  mod contended many mmasdmfm portable
+  with foo @@ mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
