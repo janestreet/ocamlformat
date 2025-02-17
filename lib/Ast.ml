@@ -191,6 +191,20 @@ module Exp = struct
         true
     | _ -> false
 
+  let is_uminus_constant {pconst_desc; _} =
+    match pconst_desc with
+    | Pconst_integer (n, _) | Pconst_float (n, _) ->
+        Char.(String.get n 0 = '-')
+    | Pconst_unboxed_integer (s, _, _) | Pconst_unboxed_float (s, _, _) -> (
+      match s with Negative -> true | Positive -> false )
+    | _ -> false
+
+  let is_uminus_op {Location.txt; _} =
+    match txt with "~-" | "~-." -> true | _ -> false
+
+  let is_uplus_op {Location.txt; _} =
+    match txt with "~+" | "~+." -> true | _ -> false
+
   (* Jane Street: This is meant to be true if the expression can be parsed by
      the [simple_expr] production in the parser.
 
@@ -200,7 +214,7 @@ module Exp = struct
   let rec is_simple_in_parser exp =
     match exp.pexp_desc with
     | Pexp_indexop_access {pia_rhs= None; _}
-     |Pexp_new _ | Pexp_object _ | Pexp_ident _ | Pexp_constant _
+     |Pexp_new _ | Pexp_object _ | Pexp_ident _
      |Pexp_construct (_, None)
      |Pexp_variant (_, None)
      |Pexp_override _ | Pexp_open _ | Pexp_extension _ | Pexp_hole
@@ -208,10 +222,9 @@ module Exp = struct
      |Pexp_list _ | Pexp_list_comprehension _ | Pexp_array_comprehension _
      |Pexp_unboxed_tuple _ ->
         true
-    | Pexp_prefix (_, e)
-     |Pexp_field (e, _)
-     |Pexp_unboxed_field (e, _)
-     |Pexp_send (e, _) ->
+    | Pexp_constant c -> not (is_uminus_constant c)
+    | Pexp_prefix (op, _) -> not (is_uminus_op op || is_uplus_op op)
+    | Pexp_field (e, _) | Pexp_unboxed_field (e, _) | Pexp_send (e, _) ->
         is_simple_in_parser e
     | Pexp_infix ({txt; _}, e1, e2) ->
         String.length txt > 0
