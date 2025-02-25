@@ -12308,6 +12308,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to unboxed_tuples-erased.ml.stdout
+   (with-stderr-to unboxed_tuples-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/unboxed_tuples.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples-erased.ml.ref unboxed_tuples-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples-erased.ml.err unboxed_tuples-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_tuples-erased.ml.js-stdout
+   (with-stderr-to unboxed_tuples-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unboxed_tuples.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples-erased.ml.js-ref unboxed_tuples-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples-erased.ml.js-err unboxed_tuples-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to unboxed_tuples.ml.stdout
    (with-stderr-to unboxed_tuples.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_tuples.ml})))))
@@ -12339,6 +12375,42 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unboxed_tuples.ml.js-err unboxed_tuples.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_tuples_cmts_attrs-erased.ml.stdout
+   (with-stderr-to unboxed_tuples_cmts_attrs-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/unboxed_tuples_cmts_attrs.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples_cmts_attrs-erased.ml.ref unboxed_tuples_cmts_attrs-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples_cmts_attrs-erased.ml.err unboxed_tuples_cmts_attrs-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_tuples_cmts_attrs-erased.ml.js-stdout
+   (with-stderr-to unboxed_tuples_cmts_attrs-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unboxed_tuples_cmts_attrs.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples_cmts_attrs-erased.ml.js-ref unboxed_tuples_cmts_attrs-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_tuples_cmts_attrs-erased.ml.js-err unboxed_tuples_cmts_attrs-erased.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )

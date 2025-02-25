@@ -2924,7 +2924,9 @@ comprehension_clause:
     LPAREN MODULE ext_attributes module_expr COLON error
       { unclosed "(" $loc($3) ")" $loc($8) }
   | HASHLPAREN labeled_tuple RPAREN
-      { Pexp_unboxed_tuple $2 }
+      { if Erase_jane_syntax.should_erase ()
+        then Pexp_tuple $2
+        else Pexp_unboxed_tuple $2 }
 ;
 labeled_simple_expr:
     simple_expr %prec below_HASH
@@ -3518,7 +3520,9 @@ simple_delimited_pattern:
             $1 }
   | HASHLPAREN reversed_labeled_tuple_pattern(pattern) RPAREN
         { let (closed, fields) = $2 in
-          Ppat_unboxed_tuple (List.rev fields, closed) }
+          if Erase_jane_syntax.should_erase ()
+          then Ppat_tuple (List.rev fields, closed)
+          else Ppat_unboxed_tuple (List.rev fields, closed) }
   ) { $1 }
 
 %inline pattern_semi_list:
@@ -4473,7 +4477,9 @@ atomic_type:
     | LBRACKETLESS BAR? row_field_list GREATER name_tag_list RBRACKET
         { Ptyp_variant($3, Closed, Some $5) }
     | HASHLPAREN unboxed_tuple_type_body RPAREN
-        { Ptyp_unboxed_tuple $2 }
+        { if Erase_jane_syntax.should_erase ()
+          then Ptyp_tuple $2
+          else Ptyp_unboxed_tuple $2 }
     | extension
         { Ptyp_extension $1 }
     | LPAREN QUOTE name=mkrhs(ident {Some $1}) COLON jkind=jkind_annotation RPAREN
