@@ -2844,7 +2844,9 @@ comprehension_clause:
   | simple_expr DOT mkrhs(label_longident)
       { Pexp_field($1, $3) }
   | simple_expr DOTHASH mkrhs(label_longident)
-      { Pexp_unboxed_field($1, $3) }
+      { if Erase_jane_syntax.should_erase ()
+        then Pexp_field($1, $3)
+        else Pexp_unboxed_field($1, $3) }
   | od=open_dot_declaration DOT LPAREN seq_expr RPAREN
       { Pexp_open(od, $4) }
   | od=open_dot_declaration DOT LBRACELESS object_expr_content GREATERRBRACE
@@ -2880,7 +2882,9 @@ comprehension_clause:
         Pexp_record(fields, exten) }
   | HASHLBRACE record_expr_content RBRACE
       { let (exten, fields) = $2 in
-        Pexp_record_unboxed_product(fields, exten) }
+        if Erase_jane_syntax.should_erase ()
+        then Pexp_record(fields, exten)
+        else Pexp_record_unboxed_product(fields, exten) }
   | LBRACE record_expr_content error
       { unclosed "{" $loc($1) "}" $loc($3) }
   | od=open_dot_declaration DOT LBRACE record_expr_content RBRACE
@@ -3501,7 +3505,9 @@ simple_delimited_pattern:
         Ppat_record(fields, closed) }
     | HASHLBRACE record_pat_content RBRACE
       { let (fields, closed) = $2 in
-        Ppat_record_unboxed_product(fields, closed) }
+        if Erase_jane_syntax.should_erase ()
+        then Ppat_record(fields, closed)
+        else Ppat_record_unboxed_product(fields, closed) }
     | LBRACE record_pat_content error
       { unclosed "{" $loc($1) "}" $loc($3) }
     | LBRACKET pattern_semi_list RBRACKET
@@ -3689,7 +3695,12 @@ nonempty_type_kind:
   | oty = type_synonym
     priv = inline_private_flag
     HASHLBRACE ls = label_declarations RBRACE
-      { (Ptype_record_unboxed_product ls, priv, oty) }
+      { let record =
+          if Erase_jane_syntax.should_erase ()
+          then Ptype_record ls
+          else Ptype_record_unboxed_product ls
+        in
+        (record, priv, oty) }
 ;
 %inline type_synonym:
   ioption(terminated(core_type, EQUAL))

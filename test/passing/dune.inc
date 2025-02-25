@@ -12236,6 +12236,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to unboxed_record-erased.ml.stdout
+   (with-stderr-to unboxed_record-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/unboxed_record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_record-erased.ml.ref unboxed_record-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_record-erased.ml.err unboxed_record-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_record-erased.ml.js-stdout
+   (with-stderr-to unboxed_record-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unboxed_record.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_record-erased.ml.js-ref unboxed_record-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_record-erased.ml.js-err unboxed_record-erased.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to unboxed_record.ml.stdout
    (with-stderr-to unboxed_record.ml.stderr
      (run %{bin:ocamlformat} --margin-check %{dep:tests/unboxed_record.ml})))))
@@ -12267,6 +12303,42 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/unboxed_record.ml.js-err unboxed_record.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_records_cmts_attrs-erased.ml.stdout
+   (with-stderr-to unboxed_records_cmts_attrs-erased.ml.stderr
+     (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iter=3 %{dep:tests/unboxed_records_cmts_attrs.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_records_cmts_attrs-erased.ml.ref unboxed_records_cmts_attrs-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_records_cmts_attrs-erased.ml.err unboxed_records_cmts_attrs-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to unboxed_records_cmts_attrs-erased.ml.js-stdout
+   (with-stderr-to unboxed_records_cmts_attrs-erased.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/unboxed_records_cmts_attrs.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_records_cmts_attrs-erased.ml.js-ref unboxed_records_cmts_attrs-erased.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/unboxed_records_cmts_attrs-erased.ml.js-err unboxed_records_cmts_attrs-erased.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )
