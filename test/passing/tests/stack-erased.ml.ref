@@ -132,7 +132,9 @@ let x = (~x:1, ~y:2)
 
 let x = x + y
 
-let x = -x
+(* CR zqian: (-x) is not [simple_expr] in parser,
+   but parsed as [Pexp_prefix] and thus counts as [Exp.is_simple_in_parser]. *)
+(* let x = stack_ (-x) *)
 
 let x = Foo x
 

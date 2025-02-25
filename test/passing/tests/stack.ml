@@ -114,7 +114,9 @@ let x = stack_ (~x:1, ~y:2)
 
 let x = stack_ (x + y)
 
-let x = stack_ (-x)
+(* CR zqian: (-x) is not [simple_expr] in parser,
+   but parsed as [Pexp_prefix] and thus counts as [Exp.is_simple_in_parser]. *)
+(* let x = stack_ (-x) *)
 
 let x = stack_ (stack_ (Foo x))
 

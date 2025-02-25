@@ -2493,16 +2493,12 @@ end = struct
                    ~test:extension_local ) ->
         true
     | ( Exp {pexp_desc= Pexp_stack _; _}
-      , { pexp_desc=
-            ( Pexp_apply _ | Pexp_fun _ | Pexp_function _ | Pexp_lazy _
-            | Pexp_new _ | Pexp_tuple _
-            | Pexp_construct (_, Some _)
-            | Pexp_cons _ | Pexp_infix _ | Pexp_prefix _ | Pexp_stack _
-            | Pexp_let _ | Pexp_letop _ | Pexp_letopen _ | Pexp_letmodule _
-            | Pexp_send _ | Pexp_setfield _ | Pexp_ifthenelse _
-            | Pexp_variant (_, Some _) )
-        ; _ } ) ->
-        true
+      , {pexp_desc= Pexp_fun _ | Pexp_function _ | Pexp_construct _; _} ) ->
+        false
+    | Exp {pexp_desc= Pexp_stack _; _}, expr
+      when Exp.is_simple_in_parser expr ->
+        false
+    | Exp {pexp_desc= Pexp_stack _; _}, _ -> true
     | ( Exp {pexp_desc= Pexp_apply _ | Pexp_construct _; _}
       , {pexp_desc= Pexp_stack _; _} ) ->
         true
