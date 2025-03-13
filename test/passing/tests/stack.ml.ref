@@ -179,23 +179,19 @@ let _ = (stack_ fun x -> x) [@bar]
 
 let _ =
   List.iter l
-    ~f:
-      ( stack_
-        fun xxxxx ->
-          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
-            ( module struct
-              type nonrec t = M.t
-            end ) )
+    ~f:(stack_ (fun xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) ) )
 
 let _ =
   List.iter l
-    ~f:
-      ( stack_
-        fun xxxxx ->
-          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
-            ( module struct
-              type nonrec t = M.t
-            end ) )
+    ~f:(stack_ (fun xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) ) )
     ~g:x
 
 (* No [stack_] (for reference) *)

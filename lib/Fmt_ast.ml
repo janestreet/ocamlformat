@@ -201,6 +201,22 @@ let update_items_config c items update_config =
   let _, items = List.fold_map items ~init:c ~f:with_config in
   items
 
+let get_in_local_expr ({pexp_desc; _} : expression) =
+  if 
+Erase_jane_syntax.should_erase ()
+  then None
+  else
+  match pexp_desc with
+  | Pexp_stack e -> Some (fmt "stack_@ ", true, e)
+  | Pexp_apply
+      ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
+      , [(Nolabel, e)] ) ->
+      let extensions = ["local"; "exclave"] in
+      List.find extensions
+        ~f:(Conf.is_jane_street_local_annotation ~test:txt)
+      |> Option.map ~f:(fun epi -> (str epi $ fmt "_@ ", false, e))
+  | _ -> None
+
 let box_semisemi c ~parent_ctx b k =
   let space = Poly.(c.conf.fmt_opts.sequence_style.v = `Separator) in
   match parent_ctx with
@@ -1761,8 +1777,8 @@ and fmt_indexop_access c ctx ~fmt_atrs ~has_attr ~parens x =
 (** Format [Pexp_fun] or [Pexp_newtype]. [wrap_intro] wraps up to after the
     [->] and is responsible for breaking. *)
 and fmt_fun ?force_closing_paren
-    ?(wrap_intro = fun x -> hvbox 2 x $ fmt "@ ") ?(box = true) ~label
-    ?(parens = false) c ({ast; _} as xast) =
+    ?(wrap_intro = fun x -> hvbox 2 x $ fmt "@ ") ?(epi = noop) ?(box = true)
+    ~label ?(inner_parens = false) ?(parens = false) c ({ast; _} as xast) =
   let has_label = match label with Nolabel -> false | _ -> true in
   (* Make sure the comment is placed after the eventual label but not into
      the inner box if no label is present. Side effects of Cmts.fmt c.cmts
@@ -1783,8 +1799,11 @@ and fmt_fun ?force_closing_paren
     in
     fmt_expression c ?box xbody
   and closing =
-    if parens then closing_paren c ?force:force_closing_paren ~offset:(-2)
-    else noop
+    let paren_if p =
+      if p then closing_paren c ?force:force_closing_paren ~offset:(-2)
+      else noop
+    in
+    paren_if inner_parens $ paren_if parens
   in
   let (label_sep : s), break_fun =
     (* Break between the label and the fun to avoid ocp-indent's alignment.
@@ -1799,7 +1818,7 @@ and fmt_fun ?force_closing_paren
            ( cmts_outer
            $ hvbox 2
                ( fmt_label label label_sep $ cmts_inner $ fmt_if parens "("
-               $ fmt "fun" $ break_fun
+               $ epi $ fmt_if inner_parens "(" $ fmt "fun" $ break_fun
                $ hvbox 0
                    ( fmt_attributes c ast.pexp_attributes ~suf:" "
                    $ fmt_fun_args c xargs $ fmt_opt fmt_cstr
@@ -1808,13 +1827,13 @@ and fmt_fun ?force_closing_paren
     $ Cmts.fmt_after c ast.pexp_loc )
 
 and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
-  match (lbl, arg.pexp_desc) with
-  | (Labelled l | Optional l), Pexp_ident {txt= Lident i; loc}
+  match (lbl, arg.pexp_desc, get_in_local_expr arg) with
+  | (Labelled l | Optional l), Pexp_ident {txt= Lident i; loc}, _
     when String.equal l.txt i && List.is_empty arg.pexp_attributes ->
       Cmts.fmt c loc @@ Cmts.fmt c ?eol arg.pexp_loc @@ fmt_label lbl ""
   | ( (Labelled l | Optional l)
     , Pexp_constraint ({pexp_desc= Pexp_ident {txt= Lident i; _}; _}, _, [])
-    )
+    , _ )
     when String.equal l.txt i
          && List.is_empty arg.pexp_attributes
          && Ocaml_version.(
@@ -1827,15 +1846,25 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
         | Nolabel -> noop
       in
       lbl $ fmt_expression c ~box xarg
-  | (Labelled _ | Optional _), _ when Cmts.has_after c.cmts xarg.ast.pexp_loc
-    ->
+  | (Labelled _ | Optional _), _, _
+    when Cmts.has_after c.cmts xarg.ast.pexp_loc ->
       let cmts_after = Cmts.fmt_after c xarg.ast.pexp_loc in
       hvbox_if box 2
         ( hvbox_if box 0
             (fmt_expression c ~pro:(fmt_label lbl ":@;<0 2>") ~box xarg)
         $ cmts_after )
-  | (Labelled _ | Optional _), (Pexp_fun _ | Pexp_newtype _) ->
+  | (Labelled _ | Optional _), (Pexp_fun _ | Pexp_newtype _), _ ->
       fmt_fun ~box ~label:lbl ~parens:true c xarg
+  | ( (Labelled _ | Optional _)
+    , _
+    , Some
+        ( epi
+        , inner_parens
+        , ({pexp_desc= Pexp_fun _ | Pexp_newtype _; _} as e) ) ) ->
+      fmt_fun ~box ~label:lbl
+        ~epi
+        ~parens:true ~inner_parens c
+        (sub_exp ~ctx:(Exp arg) e)
   | _ ->
       let label_sep : s =
         if box || c.conf.fmt_opts.wrap_fun_args.v then ":@," else ":"
