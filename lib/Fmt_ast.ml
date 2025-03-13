@@ -202,20 +202,16 @@ let update_items_config c items update_config =
   items
 
 let get_in_local_expr ({pexp_desc; _} : expression) =
-  if 
-Erase_jane_syntax.should_erase ()
-  then None
+  if Erase_jane_syntax.should_erase () then None
   else
-  match pexp_desc with
-  | Pexp_stack e -> Some (fmt "stack_@ ", true, e)
-  | Pexp_apply
-      ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
-      , [(Nolabel, e)] ) ->
-      let extensions = ["local"; "exclave"] in
-      List.find extensions
-        ~f:(Conf.is_jane_street_local_annotation ~test:txt)
-      |> Option.map ~f:(fun epi -> (str epi $ fmt "_@ ", false, e))
-  | _ -> None
+    match pexp_desc with
+    | Pexp_stack e -> Some (fmt "stack_@ ", true, e)
+    | Pexp_apply
+        ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
+        , [(Nolabel, e)] )
+      when Conf.is_jane_street_local_annotation "local" ~test:txt ->
+        Some (fmt "local_@ ", false, e)
+    | _ -> None
 
 let box_semisemi c ~parent_ctx b k =
   let space = Poly.(c.conf.fmt_opts.sequence_style.v = `Separator) in
@@ -1861,9 +1857,7 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
         ( epi
         , inner_parens
         , ({pexp_desc= Pexp_fun _ | Pexp_newtype _; _} as e) ) ) ->
-      fmt_fun ~box ~label:lbl
-        ~epi
-        ~parens:true ~inner_parens c
+      fmt_fun ~box ~label:lbl ~epi ~parens:true ~inner_parens c
         (sub_exp ~ctx:(Exp arg) e)
   | _ ->
       let label_sep : s =

@@ -136,13 +136,6 @@ let _ = List.iter l ~f:(local_ fun xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
   ~g:x
 
-let _ = List.iter l ~f:(exclave_ fun xxxxx ->
-  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
-
-let _ = List.iter l ~f:(exclave_ fun xxxxx ->
-  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
-  ~g:x
-
 (* No [local_] (for reference) *)
 let _ = List.iter l ~f:(fun xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
