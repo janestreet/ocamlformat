@@ -1,6 +1,6 @@
 (* These tests from the campiler test suite *)
 
-let f = ref (stack_ fun x -> x)
+let f = ref (stack_ (fun x -> x))
 let f = ref (stack_ (2, 3))
 let f = ignore_local (stack_ (2, 3))
 let f = ref (stack_ Foo)
@@ -69,19 +69,12 @@ let mk () =
 
 (* More tests *)
 
-let f =
-  ref
-    (stack_
-      function
-      | x -> x)
-;;
+let f = ref (stack_ (function x -> x))
 
 let f =
-  ref
-    (stack_
-      function
-      | x -> x
-      | y -> y)
+  ref (stack_ (function
+    | x -> x
+    | y -> y))
 ;;
 
 let f =
@@ -89,12 +82,11 @@ let f =
   ref
     (* 2 *)
     (stack_
-      (* 3 *)
-      (* 4 *)
-      function
-      (* 5 *)
-      (* 6 *)
-      | x -> x)
+    (* 3 *)
+    (* 4 *)
+    (function
+    (* 5 *)
+    (* 6 *) x -> x))
 ;;
 
 let x = stack_ (stack_ (2, stack_ "hello"), ~x:(stack_ Foo x))
@@ -153,13 +145,11 @@ let _ = (stack_ fun x -> x) [@bar]
 (* Test labelled argument and long func *)
 
 let _ =
-  List.iter
-    l
-    ~f:(stack_ (fun xxxxx ->
-      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
-        (module struct
-          type nonrec t = M.t
-        end)))
+  List.iter l ~f:(stack_ (fun xxxxx ->
+    Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+      (module struct
+        type nonrec t = M.t
+      end)))
 ;;
 
 let _ =

@@ -2413,12 +2413,20 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         in
         if parens || not dock_fun_arg then (noop, pro) else (pro, noop)
       in
-      match last_arg.pexp_desc with
+      let epi, inner_parens, last_arg_inner, xlast_arg =
+        match get_in_local_expr last_arg with
+        | Some (epi, inner_parens, last_arg_inner) ->
+            ( epi $ Cmts.fmt c ?eol last_arg_inner.pexp_loc noop
+            , inner_parens
+            , last_arg_inner
+            , sub_exp ~ctx:(Exp last_arg) last_arg_inner )
+        | None -> (noop, false, last_arg, sub_exp ~ctx last_arg)
+      in
+      match last_arg_inner.pexp_desc with
       | Pexp_fun (_, eN1_body)
         when List.for_all args_before ~f:(fun (_, eI) ->
                  is_simple c.conf (fun _ -> 0) (sub_exp ~ctx eI) ) ->
           (* Last argument is a [fun _ ->]. *)
-          let xlast_arg = sub_exp ~ctx last_arg in
           let args =
             let break_body =
               match eN1_body.pexp_desc with
@@ -2444,7 +2452,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               else Break
             in
             fmt_fun c ~force_closing_paren ~wrap_intro ~label:lbl
-              ~parens:true xlast_arg
+              ~parens:true ~inner_parens ~epi xlast_arg
           in
           hvbox_if has_attr 0
             (expr_epi $ Params.parens_if parens c.conf (args $ fmt_atrs))
@@ -2458,7 +2466,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
             then Fit
             else Break
           in
-          let ctx = Exp last_arg in
+          let ctx = Exp last_arg_inner in
           (* side effects of Cmts.fmt_before before [fmt_pattern] is
              important *)
           let leading_cmt = Cmts.fmt_before c pc_lhs.ppat_loc in
@@ -2471,7 +2479,8 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                         $ fmt_args_grouped e0 args_before
                         $ fmt "@ "
                         $ Cmts.fmt_before c last_arg.pexp_loc
-                        $ fmt_label lbl ":" $ str "(function"
+                        $ fmt_label lbl ":" $ str "(" $ epi
+                        $ fmt_if inner_parens "(" $ str "function"
                         $ fmt_attributes c ~pre:Blank
                             last_arg.pexp_attributes )
                     $ fmt "@ " $ leading_cmt
@@ -2482,6 +2491,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                     $ fmt "@ "
                     $ cbox 0 (fmt_expression c (sub_exp ~ctx pc_rhs))
                     $ closing_paren c ~force
+                    $ fmt_if_k inner_parens (closing_paren c ~force)
                     $ Cmts.fmt_after c last_arg.pexp_loc )
                 $ fmt_atrs ) )
       | Pexp_function cs
@@ -2491,7 +2501,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
             if c.conf.fmt_opts.wrap_fun_args.v then hovbox 2 else hvbox 2
           in
           let xlast_arg = sub_exp ~ctx last_arg in
-          let ctx'' = Exp last_arg in
+          let ctx'' = Exp last_arg_inner in
           hvbox
             (Params.Indent.docked_function c.conf ~parens xlast_arg)
             ( expr_epi
@@ -2501,9 +2511,11 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                     $ fmt_args_grouped e0 args_before
                     $ fmt "@ "
                     $ Cmts.fmt_before c last_arg.pexp_loc
-                    $ fmt_label lbl ":" $ str "(function"
+                    $ fmt_label lbl ":" $ str "(" $ epi
+                    $ fmt_if inner_parens "(" $ str "function"
                     $ fmt_attributes c ~pre:Blank last_arg.pexp_attributes )
                 $ fmt "@ " $ fmt_cases c ctx'' cs $ closing_paren c
+                $ fmt_if_k inner_parens (closing_paren c)
                 $ Cmts.fmt_after c last_arg.pexp_loc
                 $ fmt_atrs ) )
       | _ ->
