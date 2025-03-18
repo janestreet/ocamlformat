@@ -1876,9 +1876,19 @@ and fmt_args_grouped ?epi:(global_epi = noop) c ctx args =
   let fmt_arg c ~first:_ ~last (lbl, arg) =
     let ({ast; _} as xarg) = sub_exp ~ctx arg in
     let box =
-      match ast.pexp_desc with
-      | Pexp_fun _ | Pexp_function _ -> Some false
-      | _ -> None
+      let is_a_fun = function
+        | {pexp_desc= Pexp_fun _ | Pexp_function _ | Pexp_newtype _; _} ->
+            true
+        | _ -> false
+      in
+      match
+        ( is_a_fun ast
+        , Option.map
+            ~f:(fun (_, _, ast) -> is_a_fun ast)
+            (get_in_local_expr ast) )
+      with
+      | true, _ | _, Some true -> Some false
+      | false, (Some false | None) -> None
     in
     let break_after =
       match (ast.pexp_desc, c.conf.fmt_opts.break_string_literals.v) with

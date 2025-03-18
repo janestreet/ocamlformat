@@ -297,8 +297,7 @@ let _ =
 let _ =
   List.iter
     l (* 1 *)
-    ~f:
-      (local_
+    ~f:(local_
       (* 2 *)
       (* 3 *)
       function
@@ -315,8 +314,7 @@ let _ =
 let _ =
   List.iter
     l
-    ~f:
-      (local_
+    ~f:(local_
       function
       | xxxxx ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
@@ -329,8 +327,7 @@ let _ =
 let _ =
   List.iter
     l (* 1 *)
-    ~f:
-      (local_
+    ~f:(local_
       (* 2 *)
       (* 3 *)
       function
@@ -343,8 +340,7 @@ let _ =
 let _ =
   List.iter
     l
-    ~f:
-      (local_
+    ~f:(local_
       function
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x)
