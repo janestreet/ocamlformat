@@ -8221,3 +8221,5 @@ end
     ]
   ;;
 *)
+
+let _ = List.sum l (module M) ~f:(fun x -> print_endline "*"; x)
