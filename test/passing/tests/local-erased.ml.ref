@@ -192,10 +192,11 @@ let _ = x |> f
 
 let _ =
   (* 1 *)
-  List.iter (* 2 *) l (* 3 *)
-    ~f:(fun
-        (* 4 *)
-        (* 5 *) x (* 6 *)
+  M.x (* 2 *) l (* 3 *)
+    ~f:(* 4 *)
+      (fun
+        (* 5 *)
+        (* 6 *) x (* 7 *)
       ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 7 *)
@@ -212,11 +213,15 @@ let _ =
 
 let _ =
   (* 1 *)
-  M.x (* 2 *) l (* 3 *) ~f:(function
-      (* 4 *)
-      (* 5 *) x (* 6 *) ->
+  M.x
+    (* 2 *)
+    l
+    (* 3 *)
+    (* 4 *) ~f:(function
+      (* 5 *)
+      (* 6 *) x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
-        (* 7 *)
+        (* 8 *)
         ( module struct
           type nonrec t = M.t
         end ) )
@@ -230,18 +235,22 @@ let _ =
 
 let _ =
   (* 1 *)
-  M.x (* 2 *) l (* 3 *) ~f:(function
-    (* 4 *)
+  M.x
+    (* 2 *)
+    l
+    (* 3 *)
+    (* 4 *) ~f:(function
     (* 5 *)
+    (* 6 *)
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-          (* 7 *)
+          (* 8 *)
           ( module struct
             type nonrec t = M.t
           end )
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-          (* 7 *)
+          (* 9 *)
           ( module struct
             type nonrec t = M.t
           end ) )

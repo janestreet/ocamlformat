@@ -174,13 +174,14 @@ let _ = fun [@bar] x -> x
 
 let _ =
   (* 1 *)
-  List.iter (* 2 *) l (* 3 *)
-    ~f:(fun
-        (* 4 *)
-        (* 5 *) x (* 6 *)
+  M.x (* 2 *) l (* 3 *)
+    ~f:(* 4 *)
+      (fun
+        (* 5 *)
+        (* 6 *) x (* 7 *)
       ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
-        (* 7 *)
+        (* 8 *)
         ( module struct
           type nonrec t = M.t
         end ) )
@@ -194,11 +195,15 @@ let _ =
 
 let _ =
   (* 1 *)
-  M.x (* 2 *) l (* 3 *) ~f:(function
-      (* 4 *)
-      (* 5 *) x (* 6 *) ->
+  x
+    (* 2 *)
+    l
+    (* 3 *)
+    (* 4 *) ~f:(function
+      (* 5 *)
+      (* 6 *) x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
-        (* 7 *)
+        (* 8 *)
         ( module struct
           type nonrec t = M.t
         end ) )
@@ -212,18 +217,22 @@ let _ =
 
 let _ =
   (* 1 *)
-  M.x (* 2 *) l (* 3 *) ~f:(function
-    (* 4 *)
+  M.x
+    (* 2 *)
+    l
+    (* 3 *)
+    (* 4 *) ~f:(function
     (* 5 *)
+    (* 6 *)
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-          (* 7 *)
+          (* 8 *)
           ( module struct
             type nonrec t = M.t
           end )
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-          (* 7 *)
+          (* 9 *)
           ( module struct
             type nonrec t = M.t
           end ) )
@@ -243,12 +252,13 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(fun
-        (* 2 *)
+    ~f:(* 2 *)
+      (fun
         (* 3 *)
-        (* 4 *) xxxxx
+        (* 4 *)
+        (* 5 *) xxxxx
       ->
-      (* 5 *)
+      (* 6 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
@@ -266,12 +276,12 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(function
-      (* 2 *)
+    ~f:(* 2 *) (function
       (* 3 *)
       (* 4 *)
+      (* 5 *)
       | xxxxx ->
-          (* 5 *)
+          (* 6 *)
           Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
             ( module struct
               type nonrec t = M.t
@@ -290,12 +300,12 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(function
-      (* 2 *)
+    ~f:(* 2 *) (function
       (* 3 *)
       (* 4 *)
-      | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
+      (* 5 *)
+      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ (* 7 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
 
 let _ =

@@ -152,21 +152,21 @@ let _ = (stack_ fun x -> x) [@bar]
 
 (* Test labelled argument and long func *)
 
-let _ = (* 1 *) List.iter (* 2 *) l (* 3 *) ~f:((* 4 *) stack_ (* 5 *) (fun x (* 6 *) ->
-  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx (* 7 *) (module struct type nonrec t = M.t end)))
+let _ = (* 1 *) M.x (* 2 *) l (* 3 *) ~f:(* 4 *)((* 5 *) stack_ (* 6 *) (fun x (* 7 *) ->
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx (* 8 *) (module struct type nonrec t = M.t end)))
 
 let _ = List.iter l ~f:(stack_ (fun xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end)))
 
-let _ = (* 1 *) M.x (* 2 *) l (* 3 *) ~f:((* 4 *) stack_ (* 5 *) (function x (* 6 *) ->
-  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx (* 7 *) (module struct type nonrec t = M.t end)))
+let _ = (* 1 *) x (* 2 *) l (* 3 *) ~f:(* 4 *)((* 5 *) stack_ (* 6 *) (function x (* 7 *) ->
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx (* 8 *) (module struct type nonrec t = M.t end)))
 
 let _ = List.iter l ~f:(stack_ (function xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end)))
 
-let _ = (* 1 *) M.x (* 2 *) l (* 3 *) ~f:((* 4 *) stack_ (* 5 *) (function
-  | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx (* 7 *) (module struct type nonrec t = M.t end)
-  | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx (* 7 *) (module struct type nonrec t = M.t end)
+let _ = (* 1 *) M.x (* 2 *) l (* 3 *) ~f:(* 4 *)((* 5 *) stack_ (* 6 *) (function
+  | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx (* 8 *) (module struct type nonrec t = M.t end)
+  | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx (* 9 *) (module struct type nonrec t = M.t end)
 ))
 
 let _ = List.iter l ~f:(stack_ (function
@@ -178,7 +178,7 @@ let _ =
   List.iter
     l
     (* 1 *)
-    ~f:((* 2 *) stack_ (* 3 *) (fun (* 4 *) xxxxx -> (* 5 *)
+    ~f:(* 2 *)((* 3 *) stack_ (* 4 *) (fun (* 5 *) xxxxx -> (* 6 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         (module struct
           type nonrec t = M.t
@@ -201,7 +201,7 @@ let _ =
   List.iter
     l
     (* 1 *)
-    ~f:((* 2 *) stack_ (* 3 *) (function (* 4 *) xxxxx -> (* 5 *)
+    ~f:(* 2 *)((* 3 *) stack_ (* 4 *) (function (* 5 *) xxxxx -> (* 6 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         (module struct
           type nonrec t = M.t
@@ -224,9 +224,9 @@ let _ =
   List.iter
     l
     (* 1 *)
-    ~f:((* 2 *) stack_ (* 3 *) (function (* 4 *)
-      | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
+    ~f:(* 2 *)((* 3 *) stack_ (* 4 *) (function (* 5 *)
+      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ (* 7 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
     ~g:x
 ;;
 
