@@ -1856,7 +1856,8 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
     , Some
         ( epi
         , inner_parens
-        , ({pexp_desc= Pexp_fun _ | Pexp_newtype _; _} as e) ) ) ->
+        , ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e) ) ) ->
+      let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
       fmt_fun ~box ~label:lbl ~epi ~parens:true ~inner_parens c
         (sub_exp ~ctx:(Exp arg) e)
   | _ ->

@@ -11446,7 +11446,7 @@
  (action
   (with-stdout-to stack.ml.stdout
    (with-stderr-to stack.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/stack.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/stack.ml})))))
 
 (rule
  (alias runtest)

@@ -173,11 +173,87 @@ let _ = fun [@bar] x -> x
 (* Test labelled argument and long func *)
 
 let _ =
+  (* 1 *)
+  List.iter (* 2 *) l (* 3 *)
+    ~f:(fun
+        (* 4 *)
+        (* 5 *) x (* 6 *)
+      ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
+        (* 7 *)
+        ( module struct
+          type nonrec t = M.t
+        end ) )
+
+let _ =
   List.iter l ~f:(fun xxxxx ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
         end ) )
+
+let _ =
+  (* 1 *)
+  M.x (* 2 *) l (* 3 *) ~f:(function
+      (* 4 *)
+      (* 5 *) x (* 6 *) ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
+        (* 7 *)
+        ( module struct
+          type nonrec t = M.t
+        end ) )
+
+let _ =
+  List.iter l ~f:(function xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) )
+
+let _ =
+  (* 1 *)
+  M.x (* 2 *) l (* 3 *) ~f:(function
+    (* 4 *)
+    (* 5 *)
+    | _ ->
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
+          (* 7 *)
+          ( module struct
+            type nonrec t = M.t
+          end )
+    | _ ->
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
+          (* 7 *)
+          ( module struct
+            type nonrec t = M.t
+          end ) )
+
+let _ =
+  List.iter l ~f:(function
+    | _ ->
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxx
+          ( module struct
+            type nonrec t = M.t
+          end )
+    | _ ->
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxx
+          ( module struct
+            type nonrec t = M.t
+          end ) )
+
+let _ =
+  List.iter l (* 1 *)
+    ~f:(fun
+        (* 2 *)
+        (* 3 *)
+        (* 4 *) xxxxx
+      ->
+      (* 5 *)
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) )
+    ~g:x
 
 let _ =
   List.iter l
@@ -186,6 +262,47 @@ let _ =
         ( module struct
           type nonrec t = M.t
         end ) )
+    ~g:x
+
+let _ =
+  List.iter l (* 1 *)
+    ~f:(function
+      (* 2 *)
+      (* 3 *)
+      (* 4 *)
+      | xxxxx ->
+          (* 5 *)
+          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+            ( module struct
+              type nonrec t = M.t
+            end ) )
+    ~g:x
+
+let _ =
+  List.iter l
+    ~f:(function
+      | xxxxx ->
+          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+            ( module struct
+              type nonrec t = M.t
+            end ) )
+    ~g:x
+
+let _ =
+  List.iter l (* 1 *)
+    ~f:(function
+      (* 2 *)
+      (* 3 *)
+      (* 4 *)
+      | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
+    ~g:x
+
+let _ =
+  List.iter l
+    ~f:(function
+      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
 
 (* No [stack_] (for reference) *)
