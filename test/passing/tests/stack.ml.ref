@@ -1,6 +1,6 @@
 (* These tests from the campiler test suite *)
 
-let f = ref (stack_ (fun x -> x))
+let f = ref (stack_ fun x -> x)
 
 let f = ref (stack_ (2, 3))
 
@@ -87,17 +87,17 @@ let mk () =
 
 (* More tests *)
 
-let f = ref (stack_ (function x -> x))
+let f = ref (stack_ function x -> x)
 
-let f = ref (stack_ (function x -> x | y -> y))
+let f = ref (stack_ function x -> x | y -> y)
 
 let f =
   (* 1 *)
   ref (* 2 *) (stack_
       (* 3 *)
-      (* 4 *) (function
+      (* 4 *) function
       (* 5 *)
-      (* 6 *) x -> x ) )
+      (* 6 *) x -> x )
 
 let x = stack_ (stack_ (2, stack_ "hello"), ~x:(stack_ Foo x))
 
@@ -179,44 +179,44 @@ let _ =
     ~f:(stack_
       (* 4 *)
       (* 5 *)
-      (fun
+      fun
         x (* 6 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 7 *)
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
 
 let _ =
-  List.iter l ~f:(stack_ (fun xxxxx ->
+  List.iter l ~f:(stack_ fun xxxxx ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
 
 let _ =
   (* 1 *)
   M.x (* 2 *) l (* 3 *) ~f:(stack_
       (* 4 *)
-      (* 5 *) (function x (* 6 *) ->
+      (* 5 *) function x (* 6 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 7 *)
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
 
 let _ =
-  List.iter l ~f:(stack_ (function xxxxx ->
+  List.iter l ~f:(stack_ function xxxxx ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
 
 let _ =
   (* 1 *)
   M.x (* 2 *) l (* 3 *) ~f:(stack_
     (* 4 *)
-    (* 5 *) (function
+    (* 5 *) function
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
           (* 7 *)
@@ -228,10 +228,10 @@ let _ =
           (* 7 *)
           ( module struct
             type nonrec t = M.t
-          end ) ) )
+          end ) )
 
 let _ =
-  List.iter l ~f:(stack_ (function
+  List.iter l ~f:(stack_ function
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxx
           ( module struct
@@ -241,70 +241,70 @@ let _ =
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxx
           ( module struct
             type nonrec t = M.t
-          end ) ) )
+          end ) )
 
 let _ =
   List.iter l (* 1 *)
     ~f:(stack_
       (* 2 *)
       (* 3 *)
-      (fun
+      fun
         (* 4 *) xxxxx ->
       (* 5 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
     ~g:x
 
 let _ =
   List.iter l
-    ~f:(stack_ (fun xxxxx ->
+    ~f:(stack_ fun xxxxx ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
         ( module struct
           type nonrec t = M.t
-        end ) ) )
+        end ) )
     ~g:x
 
 let _ =
   List.iter l (* 1 *)
     ~f:(stack_
       (* 2 *)
-      (* 3 *) (function
+      (* 3 *) function
       (* 4 *)
       | xxxxx ->
           (* 5 *)
           Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
             ( module struct
               type nonrec t = M.t
-            end ) ) )
+            end ) )
     ~g:x
 
 let _ =
   List.iter l
-    ~f:(stack_ (function
+    ~f:(stack_ function
       | xxxxx ->
           Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
             ( module struct
               type nonrec t = M.t
-            end ) ) )
+            end ) )
     ~g:x
 
 let _ =
   List.iter l (* 1 *)
     ~f:(stack_
       (* 2 *)
-      (* 3 *) (function
+      (* 3 *) function
       (* 4 *)
       | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x ) )
+      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
 
 let _ =
   List.iter l
-    ~f:(stack_ (function
+    ~f:(stack_ function
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x ) )
+      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
 
 (* No [stack_] (for reference) *)
