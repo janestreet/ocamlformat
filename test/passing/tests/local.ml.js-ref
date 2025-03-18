@@ -184,14 +184,15 @@ let _ = exclave_ x |> f
 
 let _ =
   (* 1 *)
-  List.iter
+  M.x
     (* 2 *) l (* 3 *)
     ~f:
       (local_
       (* 4 *)
       (* 5 *)
+      (* 6 *)
       fun
-        x (* 6 *) ->
+        x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 7 *)
         (module struct
@@ -214,9 +215,10 @@ let _ =
     ~f:(local_
     (* 4 *)
     (* 5 *)
-    function x (* 6 *) ->
+    (* 6 *)
+    function x (* 7 *) ->
     Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
-      (* 7 *)
+      (* 8 *)
       (module struct
         type nonrec t = M.t
       end))
@@ -237,16 +239,17 @@ let _ =
     ~f:(local_
     (* 4 *)
     (* 5 *)
+    (* 6 *)
     function
     | _ ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-        (* 7 *)
+        (* 8 *)
         (module struct
           type nonrec t = M.t
         end)
     | _ ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
-        (* 7 *)
+        (* 9 *)
         (module struct
           type nonrec t = M.t
         end))

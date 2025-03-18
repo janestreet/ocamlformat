@@ -201,17 +201,23 @@ let update_items_config c items update_config =
   let _, items = List.fold_map items ~init:c ~f:with_config in
   items
 
-let get_in_local_expr ({pexp_desc; _} : expression) =
+let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
   if Erase_jane_syntax.should_erase () then None
   else
-    match pexp_desc with
+    ( match pexp_desc with
     | Pexp_stack e -> Some (fmt "stack_@ ", e)
     | Pexp_apply
         ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
         , [(Nolabel, e)] )
       when Conf.is_jane_street_local_annotation "local" ~test:txt ->
         Some (fmt "local_@ ", e)
-    | _ -> None
+    | _ -> None )
+    |> Option.map ~f:(fun (epi, e) ->
+           ( lazy (epi
+             $ Cmts.fmt c ?eol pexp_loc noop
+             $ Cmts.fmt c ?eol e.pexp_loc noop
+            )
+           , e ) )
 
 let box_semisemi c ~parent_ctx b k =
   let space = Poly.(c.conf.fmt_opts.sequence_style.v = `Separator) in
@@ -1823,7 +1829,7 @@ and fmt_fun ?force_closing_paren
     $ Cmts.fmt_after c ast.pexp_loc )
 
 and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
-  match (lbl, arg.pexp_desc, get_in_local_expr arg) with
+  match (lbl, arg.pexp_desc, get_in_local_expr ?eol c arg) with
   | (Labelled l | Optional l), Pexp_ident {txt= Lident i; loc}, _
     when String.equal l.txt i && List.is_empty arg.pexp_attributes ->
       Cmts.fmt c loc @@ Cmts.fmt c ?eol arg.pexp_loc @@ fmt_label lbl ""
@@ -1853,14 +1859,14 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
       fmt_fun ~box ~label:lbl ~parens:true c xarg
   | ( (Labelled _ | Optional _)
     , _
-    , Some (epi, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
+    , Some (lazy epi, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
     ) ->
       let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
       fmt_fun ~box ~label:lbl ~epi ~parens:true c (sub_exp ~ctx:(Exp arg) e)
   | ( (Labelled _ | Optional _)
     , _
     , Some
-        ( epi
+        ( lazy epi
         , ({pexp_desc= Pexp_function cs; pexp_loc; pexp_attributes; _} as e)
         ) ) ->
       let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
@@ -1893,7 +1899,7 @@ and fmt_args_grouped ?epi:(global_epi = noop) c ctx args =
         ( is_a_fun ast
         , Option.map
             ~f:(fun (_, ast) -> is_a_fun ast)
-            (get_in_local_expr ast) )
+            (get_in_local_expr c ast) )
       with
       | true, _ | _, Some true -> Some false
       | false, (Some false | None) -> None
@@ -2433,8 +2439,8 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         if parens || not dock_fun_arg then (noop, pro) else (pro, noop)
       in
       let epi, last_arg_inner, xlast_arg =
-        match get_in_local_expr last_arg with
-        | Some (epi, last_arg_inner) ->
+        match get_in_local_expr ?eol c last_arg with
+        | Some (lazy epi, last_arg_inner) ->
             ( epi $ Cmts.fmt c ?eol last_arg_inner.pexp_loc noop
             , last_arg_inner
             , sub_exp ~ctx:(Exp last_arg) last_arg_inner )
