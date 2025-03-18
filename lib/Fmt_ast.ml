@@ -1860,6 +1860,20 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
       let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
       fmt_fun ~box ~label:lbl ~epi ~parens:true ~inner_parens c
         (sub_exp ~ctx:(Exp arg) e)
+  | ( (Labelled _ | Optional _)
+    , _
+    , Some
+        ( epi
+        , inner_parens
+        , ({pexp_desc= Pexp_function cs; pexp_loc; pexp_attributes; _} as e)
+        ) ) ->
+      let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
+      fmt_label lbl ":" $ str "(" $ epi $ fmt_if inner_parens "("
+      $ str "function"
+      $ fmt_attributes c ~pre:Blank pexp_attributes
+      $ fmt "@ " $ fmt_cases c (Exp e) cs $ closing_paren c
+      $ fmt_if_k inner_parens (closing_paren c)
+      $ Cmts.fmt_after c pexp_loc
   | _ ->
       let label_sep : s =
         if box || c.conf.fmt_opts.wrap_fun_args.v then ":@," else ":"

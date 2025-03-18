@@ -260,29 +260,27 @@ let _ =
   List.iter
     l (* 1 *)
     ~f:(stack_
-         (* 2 *)
-         (* 3 *)
-         (function
-           (* 4 *)
-           | xxxxx ->
-             (* 5 *)
-             Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
-               (module struct
-                 type nonrec t = M.t
-               end)))
+      (* 2 *)
+      (* 3 *) (function
+      (* 4 *)
+      | xxxxx ->
+        (* 5 *)
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+          (module struct
+            type nonrec t = M.t
+          end)))
     ~g:x
 ;;
 
 let _ =
   List.iter
     l
-    ~f:(stack_
-         (function
-           | xxxxx ->
-             Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
-               (module struct
-                 type nonrec t = M.t
-               end)))
+    ~f:(stack_ (function
+      | xxxxx ->
+        Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+          (module struct
+            type nonrec t = M.t
+          end)))
     ~g:x
 ;;
 
@@ -290,22 +288,20 @@ let _ =
   List.iter
     l (* 1 *)
     ~f:(stack_
-         (* 2 *)
-         (* 3 *)
-         (function
-           (* 4 *)
-           | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-           | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
+      (* 2 *)
+      (* 3 *) (function
+      (* 4 *)
+      | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
     ~g:x
 ;;
 
 let _ =
   List.iter
     l
-    ~f:(stack_
-         (function
-           | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
-           | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
+    ~f:(stack_ (function
+      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
+      | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x))
     ~g:x
 ;;
 

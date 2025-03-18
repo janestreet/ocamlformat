@@ -299,8 +299,7 @@ let _ =
     l (* 1 *)
     ~f:(local_
       (* 2 *)
-      (* 3 *)
-      function
+      (* 3 *) function
       (* 4 *)
       | xxxxx ->
         (* 5 *)
@@ -314,8 +313,7 @@ let _ =
 let _ =
   List.iter
     l
-    ~f:(local_
-      function
+    ~f:(local_ function
       | xxxxx ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
           (module struct
@@ -329,8 +327,7 @@ let _ =
     l (* 1 *)
     ~f:(local_
       (* 2 *)
-      (* 3 *)
-      function
+      (* 3 *) function
       (* 4 *)
       | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x)
@@ -340,8 +337,7 @@ let _ =
 let _ =
   List.iter
     l
-    ~f:(local_
-      function
+    ~f:(local_ function
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x)
     ~g:x
