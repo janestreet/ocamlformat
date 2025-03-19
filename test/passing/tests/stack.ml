@@ -239,6 +239,11 @@ let _ =
     ~g:x
 ;;
 
+(* Two funs breaks comments *)
+M.f
+  ~x:(fun _ -> x)
+  ~y:(* c *) (stack_ fun _ -> y)
+
 (* No [stack_] (for reference) *)
 let _ = List.iter l ~f:( (fun xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end)))

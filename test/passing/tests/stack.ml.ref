@@ -313,6 +313,10 @@ let _ =
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
+;;
+
+(* Two funs breaks comments *)
+M.f ~x:(fun _ -> x) ~y:(stack_ (* c *) fun _ -> y)
 
 (* No [stack_] (for reference) *)
 let _ =
