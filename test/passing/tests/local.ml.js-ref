@@ -190,8 +190,7 @@ let _ =
       ((* 4 *)
        (* 5 *)
        (* 6 *)
-      local_
-      fun
+      local_ fun
         x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 7 *)
@@ -215,8 +214,7 @@ let _ =
     ~f:((* 4 *)
         (* 5 *)
         (* 6 *)
-    local_
-    function x (* 7 *) ->
+    local_ function x (* 7 *) ->
     Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
       (* 8 *)
       (module struct
@@ -239,8 +237,7 @@ let _ =
     ~f:((* 4 *)
         (* 5 *)
         (* 6 *)
-    local_
-    function
+    local_ function
     | _ ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
         (* 8 *)
@@ -275,8 +272,7 @@ let _ =
     ~f:
       ((* 2 *)
        (* 3 *)
-      local_
-      fun
+      local_ fun
         (* 4 *) xxxxx ->
       (* 5 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx

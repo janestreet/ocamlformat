@@ -205,12 +205,12 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
   if Erase_jane_syntax.should_erase () then None
   else
     ( match pexp_desc with
-    | Pexp_stack e -> Some (fmt "stack_@ ", e)
+    | Pexp_stack e -> Some (fmt "stack_ ", e)
     | Pexp_apply
         ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
         , [(Nolabel, e)] )
       when Conf.is_jane_street_local_annotation "local" ~test:txt ->
-        Some (fmt "local_@ ", e)
+        Some (fmt "local_ ", e)
     | _ -> None )
     |> Option.map ~f:(fun (epi, e) ->
            ( lazy

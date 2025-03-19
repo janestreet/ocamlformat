@@ -83,8 +83,7 @@ let f =
     ((* 2 *)
      (* 3 *)
      (* 4 *)
-    stack_
-    function
+    stack_ function
     (* 5 *)
     (* 6 *) x -> x)
 ;;
@@ -152,8 +151,7 @@ let _ =
       ((* 4 *)
        (* 5 *)
        (* 6 *)
-      stack_
-      fun
+      stack_ fun
         x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 8 *)
@@ -177,8 +175,7 @@ let _ =
     ~f:((* 4 *)
         (* 5 *)
         (* 6 *)
-    stack_
-    function x (* 7 *) ->
+    stack_ function x (* 7 *) ->
     Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
       (* 8 *)
       (module struct
@@ -201,8 +198,7 @@ let _ =
     ~f:((* 4 *)
         (* 5 *)
         (* 6 *)
-    stack_
-    function
+    stack_ function
     | _ ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
         (* 8 *)
@@ -238,8 +234,7 @@ let _ =
       ((* 2 *)
        (* 3 *)
        (* 4 *)
-      stack_
-      fun
+      stack_ fun
         (* 5 *) xxxxx ->
       (* 6 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
