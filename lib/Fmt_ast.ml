@@ -1793,13 +1793,16 @@ and fmt_fun ?force_closing_paren
   in
   let xargs, xbody = Sugar.fun_ c.cmts xast in
   let fmt_cstr, xbody = type_constr_and_body c xbody in
-  let body =
+  let pre_body, body =
     let box =
       match xbody.ast.pexp_desc with
-      | Pexp_fun _ | Pexp_newtype _ | Pexp_function _ -> Some false
-      | _ -> None
+      | Pexp_fun _ | Pexp_newtype _ | Pexp_function _ -> false
+      | _ -> true
     in
-    fmt_expression c ?box xbody
+    if c.conf.fmt_opts.ocp_indent_compat.v then
+      let pre_body, body = fmt_body c xbody in
+      (pre_body, hvbox_if box 0 body)
+    else (noop, fmt_expression c ~box xbody)
   and closing =
     let paren_if p =
       if p then closing_paren c ?force:force_closing_paren ~offset:(-2)
@@ -1824,7 +1827,7 @@ and fmt_fun ?force_closing_paren
                $ hvbox 0
                    ( fmt_attributes c ast.pexp_attributes ~suf:" "
                    $ fmt_fun_args c xargs $ fmt_opt fmt_cstr
-                   $ fmt "@;<1 -2>->" ) ) ) )
+                   $ fmt "@;<1 -2>->" $ pre_body ) ) ) )
     $ body $ closing
     $ Cmts.fmt_after c ast.pexp_loc )
 
@@ -2453,9 +2456,14 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
             let break_body =
               match eN1_body.pexp_desc with
               | Pexp_function _ ->
-                  break 1
-                    (Params.Indent.docked_function_after_fun c.conf
-                       ~parens:true ~lbl )
+                  if c.conf.fmt_opts.ocp_indent_compat.v then
+                    (* The spacing is handled by using [fmt_body], which we
+                       only do in the ocp-indent compatible regime. *)
+                    break 1 0
+                  else
+                    break 1
+                      (Params.Indent.docked_function_after_fun c.conf
+                         ~parens:true ~lbl )
               | _ ->
                   break 1
                     (Params.Indent.docked_fun c.conf ~source:c.source

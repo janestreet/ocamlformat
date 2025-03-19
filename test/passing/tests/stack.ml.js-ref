@@ -346,8 +346,7 @@ let _ =
 ;;
 
 let _ =
-  List.iter l ~f:(stack_ fun xxxxx ->
-    exclave_
+  List.iter l ~f:(stack_ fun xxxxx -> exclave_
     Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
       (module struct
         type nonrec t = M.t
