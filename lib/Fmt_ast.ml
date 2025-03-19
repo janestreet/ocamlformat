@@ -1810,6 +1810,7 @@ and fmt_fun ?force_closing_paren
     in
     paren_if parens
   in
+  let body = body $ Cmts.fmt_after c xbody.ast.pexp_loc in
   let (label_sep : s), break_fun =
     (* Break between the label and the fun to avoid ocp-indent's alignment.
        If a label is present, arguments should be indented more than the
