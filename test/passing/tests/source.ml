@@ -8233,3 +8233,8 @@ let _ =
       | _ -> ffffffff xxxxxxxxxxxxxxxxx
       | _ -> ffffffff xxxxxxxxxxxxxxxxx)
 
+let _ =
+  f ~f:(fun _ -> exclave_
+    Mmmmmmmmmmmmmmmmmmmmm.xxxxxxxxxxxxxxxxxxxxx
+    |> fffffffffffffffffffff ~xxxxxxxxxxxxxxxxxxxxx
+    (* ccccccccccccccccccccccccccccccccccccccccc *))
