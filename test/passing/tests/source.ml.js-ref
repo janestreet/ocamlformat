@@ -10505,3 +10505,11 @@ let _ =
     y;
     x)
 ;;
+
+let _ =
+  M.ffffffffffffff
+    ~aaaaaaaaaaaaaaaaaaaa:(ffffffffffffff xxxxxxxxxxxxxxxxxxxxxxxxxxx)
+    ~aaaaaaaaaaaaaaaaaaaa:(function
+    | _ -> ffffffff xxxxxxxxxxxxxxxxx
+    | _ -> ffffffff xxxxxxxxxxxxxxxxx)
+;;
