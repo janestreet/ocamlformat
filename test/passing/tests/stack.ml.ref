@@ -93,10 +93,10 @@ let f = ref (stack_ function x -> x | y -> y)
 
 let f =
   (* 1 *)
-  ref (stack_
-      (* 2 *)
-      (* 3 *)
-      (* 4 *) function
+  ref
+      ((* 2 *)
+       (* 3 *)
+       (* 4 *) stack_ function
       (* 5 *)
       (* 6 *) x -> x )
 
@@ -177,10 +177,10 @@ let _ = (stack_ fun x -> x) [@bar]
 let _ =
   (* 1 *)
   M.x (* 2 *) l (* 3 *)
-    ~f:(stack_
-      (* 4 *)
-      (* 5 *)
-      (* 6 *)
+    ~f:((* 4 *)
+        (* 5 *)
+        (* 6 *)
+      stack_
       fun
         x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
@@ -198,10 +198,10 @@ let _ =
 
 let _ =
   (* 1 *)
-  x (* 2 *) l (* 3 *) ~f:(stack_
-      (* 4 *)
-      (* 5 *)
-      (* 6 *) function x (* 7 *) ->
+  x (* 2 *) l (* 3 *)
+      ~f:((* 4 *)
+          (* 5 *)
+          (* 6 *) stack_ function x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
         (* 8 *)
         ( module struct
@@ -217,10 +217,10 @@ let _ =
 
 let _ =
   (* 1 *)
-  M.x (* 2 *) l (* 3 *) ~f:(stack_
-    (* 4 *)
-    (* 5 *)
-    (* 6 *) function
+  M.x (* 2 *) l (* 3 *)
+    ~f:((* 4 *)
+        (* 5 *)
+        (* 6 *) stack_ function
     | _ ->
         Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
           (* 8 *)
@@ -249,10 +249,10 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(stack_
-      (* 2 *)
-      (* 3 *)
-      (* 4 *)
+    ~f:((* 2 *)
+        (* 3 *)
+        (* 4 *)
+      stack_
       fun
         (* 5 *) xxxxx ->
       (* 6 *)
@@ -273,10 +273,9 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(stack_
-      (* 2 *)
-      (* 3 *)
-      (* 4 *) function
+    ~f:((* 2 *)
+        (* 3 *)
+        (* 4 *) stack_ function
       (* 5 *)
       | xxxxx ->
           (* 6 *)
@@ -298,10 +297,9 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(stack_
-      (* 2 *)
-      (* 3 *)
-      (* 4 *) function
+    ~f:((* 2 *)
+        (* 3 *)
+        (* 4 *) stack_ function
       (* 5 *)
       | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ (* 7 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
@@ -316,7 +314,7 @@ let _ =
 ;;
 
 (* Two funs breaks comments *)
-M.f ~x:(fun _ -> x) ~y:(stack_ (* c *) fun _ -> y)
+M.f ~x:(fun _ -> x) ~y:((* c *) stack_ fun _ -> y)
 
 (* No [stack_] (for reference) *)
 let _ =

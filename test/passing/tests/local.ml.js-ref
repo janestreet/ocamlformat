@@ -187,10 +187,10 @@ let _ =
   M.x
     (* 2 *) l (* 3 *)
     ~f:
-      (local_
-      (* 4 *)
-      (* 5 *)
-      (* 6 *)
+      ((* 4 *)
+       (* 5 *)
+       (* 6 *)
+      local_
       fun
         x (* 7 *) ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
@@ -212,10 +212,10 @@ let _ =
   (* 1 *)
   M.x
     (* 2 *) l (* 3 *)
-    ~f:(local_
-    (* 4 *)
-    (* 5 *)
-    (* 6 *)
+    ~f:((* 4 *)
+        (* 5 *)
+        (* 6 *)
+    local_
     function x (* 7 *) ->
     Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxx
       (* 8 *)
@@ -236,10 +236,10 @@ let _ =
   (* 1 *)
   M.x
     (* 2 *) l (* 3 *)
-    ~f:(local_
-    (* 4 *)
-    (* 5 *)
-    (* 6 *)
+    ~f:((* 4 *)
+        (* 5 *)
+        (* 6 *)
+    local_
     function
     | _ ->
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxx
@@ -273,9 +273,9 @@ let _ =
   List.iter
     l (* 1 *)
     ~f:
-      (local_
-      (* 2 *)
-      (* 3 *)
+      ((* 2 *)
+       (* 3 *)
+      local_
       fun
         (* 4 *) xxxxx ->
       (* 5 *)
@@ -300,9 +300,8 @@ let _ =
 let _ =
   List.iter
     l (* 1 *)
-    ~f:(local_
-      (* 2 *)
-      (* 3 *) function
+    ~f:((* 2 *)
+        (* 3 *) local_ function
       (* 4 *)
       | xxxxx ->
         (* 5 *)
@@ -328,9 +327,8 @@ let _ =
 let _ =
   List.iter
     l (* 1 *)
-    ~f:(local_
-      (* 2 *)
-      (* 3 *) function
+    ~f:((* 2 *)
+        (* 3 *) local_ function
       (* 4 *)
       | _ (* 5 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ (* 6 *) -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x)
@@ -347,7 +345,7 @@ let _ =
 ;;
 
 (* Two funs breaks comments *)
-M.f ~x:(fun _ -> x) ~y:(stack_ (* c *) fun _ -> y)
+M.f ~x:(fun _ -> x) ~y:((* c *) stack_ fun _ -> y)
 
 (* No [local_] (for reference) *)
 let _ =

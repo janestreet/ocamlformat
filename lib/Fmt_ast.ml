@@ -214,9 +214,9 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
     | _ -> None )
     |> Option.map ~f:(fun (epi, e) ->
            ( lazy
-               ( epi
-               $ Cmts.fmt c ?eol pexp_loc noop
-               $ Cmts.fmt c ?eol e.pexp_loc noop )
+               ( Cmts.fmt c ?eol pexp_loc noop
+               $ Cmts.fmt c ?eol e.pexp_loc noop
+               $ epi )
            , e ) )
 
 let box_semisemi c ~parent_ctx b k =
