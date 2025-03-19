@@ -331,10 +331,49 @@ let _ =
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x
       | _ -> Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx x )
     ~g:x
-;;
+
+(* [exclave_] *)
+let _ =
+  List.iter l
+    ~f:(function
+      (* x *)
+      | xxxxx (* y *) ->
+          (* z *)
+          (* w *)
+          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+            ( module struct
+              type nonrec t = M.t
+            end ) )
+    ~g:x
+
+let _ =
+  List.iter l ~f:(fun (* x *) xxxxx (* y *) ->
+      (* z *)
+      (* w *)
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) )
+
+let _ =
+  List.iter l
+    ~f:(function
+      | xxxxx ->
+          Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+            ( module struct
+              type nonrec t = M.t
+            end ) )
+    ~g:x
+
+let _ =
+  List.iter l ~f:(fun xxxxx ->
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        ( module struct
+          type nonrec t = M.t
+        end ) )
 
 (* Two funs breaks comments *)
-M.f ~x:(fun _ -> x) ~y:(* c *) (fun _ -> y)
+let _ = M.f ~x:(fun _ -> x) ~y:(* c *) (fun _ -> y)
 
 (* No [local_] (for reference) *)
 let _ =

@@ -239,10 +239,42 @@ let _ =
     ~g:x
 ;;
 
+(* [exclave_] *)
+let _ =
+  List.iter
+    l
+    ~f:(stack_ function (* x *) xxxxx (* y *) -> (* z *) exclave_ (* w *)
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        (module struct
+          type nonrec t = M.t
+        end))
+    ~g:x
+;;
+
+let _ = List.iter l ~f:(stack_ fun (* x *) xxxxx (* y *) -> (* z *) exclave_ (* w *)
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
+;;
+
+let _ =
+  List.iter
+    l
+    ~f:(stack_ function xxxxx -> exclave_
+      Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
+        (module struct
+          type nonrec t = M.t
+        end))
+    ~g:x
+;;
+
+let _ = List.iter l ~f:(stack_ fun xxxxx -> exclave_
+  Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
+;;
+
 (* Two funs breaks comments *)
-M.f
-  ~x:(fun _ -> x)
-  ~y:(* c *) (stack_ fun _ -> y)
+let _ =
+  M.f
+    ~x:(fun _ -> x)
+    ~y:(* c *) (stack_ fun _ -> y)
 
 (* No [stack_] (for reference) *)
 let _ = List.iter l ~f:( (fun xxxxx ->
