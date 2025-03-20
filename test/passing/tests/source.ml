@@ -8238,3 +8238,11 @@ let _ =
     Mmmmmmmmmmmmmmmmmmmmm.xxxxxxxxxxxxxxxxxxxxx
     |> fffffffffffffffffffff ~xxxxxxxxxxxxxxxxxxxxx
     (* ccccccccccccccccccccccccccccccccccccccccc *))
+
+let x =
+  Mmmmmmmmmmmmmmmmmmmmm.xxxxxxxxxxxxxxxxxxxxx
+    ~xxxxxxxxxxxx:
+      (fun
+        ttttttttttttttttttttttttttttttttttttt tttttttttttttttttttttt -> function
+      | _ -> let x = x in x
+      | _ -> let x = x in x)
