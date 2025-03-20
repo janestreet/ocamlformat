@@ -2455,8 +2455,12 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
           (* Last argument is a [fun _ ->]. *)
           let args =
             let break_body =
-              match eN1_body.pexp_desc with
-              | Pexp_function _ ->
+              let rec actual_body = function
+                | {pexp_desc= Pexp_fun (_, body); _} -> actual_body body
+                | body -> body
+              in
+              match actual_body eN1_body with
+              | {pexp_desc= Pexp_function _; _} ->
                   if c.conf.fmt_opts.ocp_indent_compat.v then
                     (* The spacing is handled by using [fmt_body], which we
                        only do in the ocp-indent compatible regime. *)

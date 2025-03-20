@@ -9942,7 +9942,7 @@ let x =
   Mmmmmmmmmmmmmmmmmmmmm.xxxxxxxxxxxxxxxxxxxxx
     ~xxxxxxxxxxxx:(fun
         ttttttttttttttttttttttttttttttttttttt tttttttttttttttttttttt ->
-      function
+    function
     | _ ->
         let x = x in
         x
