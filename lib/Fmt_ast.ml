@@ -214,9 +214,8 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
     | _ -> None )
     |> Option.map ~f:(fun (epi, e) ->
            ( lazy
-               ( Cmts.fmt c ?eol pexp_loc noop
-               $ Cmts.fmt c ?eol e.pexp_loc noop
-               $ epi )
+               ( Cmts.fmt_before c ?eol pexp_loc
+               $ Cmts.fmt c ?eol e.pexp_loc epi )
            , e ) )
 
 let box_semisemi c ~parent_ctx b k =
@@ -1863,18 +1862,17 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
       fmt_fun ~box ~label:lbl ~parens:true c xarg
   | ( (Labelled _ | Optional _)
     , _
-    , Some
-        ( (lazy epi)
-        , ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e) ) ) ->
-      let epi = epi $ Cmts.fmt c ?eol pexp_loc noop in
+    , Some (epi, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
+    ) ->
+      let epi = Lazy.force epi $ Cmts.fmt c ?eol pexp_loc noop in
       fmt_fun ~box ~label:lbl ~epi ~parens:true c (sub_exp ~ctx:(Exp arg) e)
   | ( (Labelled _ | Optional _)
     , _
     , Some
-        ( (lazy epi)
+        ( epi
         , ({pexp_desc= Pexp_function cs; pexp_loc; pexp_attributes; _} as e)
         ) ) ->
-      fmt_label lbl ":" $ str "(" $ epi $ str "function"
+      fmt_label lbl ":" $ str "(" $ Lazy.force epi $ str "function"
       $ fmt_attributes c ~pre:Blank pexp_attributes
       $ fmt "@ " $ fmt_cases c (Exp e) cs $ closing_paren c
       $ Cmts.fmt_after c pexp_loc
