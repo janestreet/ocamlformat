@@ -290,3 +290,14 @@ let _ =
         end))
     ~g:x
 ;;
+
+(* Two arguments *)
+let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
+  xxxxxxx
+    (stack_ fun () ->
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+    (stack_ fun () ->
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+;;

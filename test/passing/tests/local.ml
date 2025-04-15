@@ -263,3 +263,14 @@ let _ = List.iter l ~f:(fun xxxxx ->
 let _ = List.iter l ~f:(function xxxxx ->
   Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx (module struct type nonrec t = M.t end))
   ~g:x
+
+(* Two arguments *)
+let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
+  xxxxxxx
+    (local_ fun () ->
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+    (local_ fun () ->
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
+;;

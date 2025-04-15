@@ -401,3 +401,13 @@ let _ =
               type nonrec t = M.t
             end ) )
     ~g:x
+
+(* Two arguments *)
+let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
+  xxxxxxx
+    (fun () ->
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ;
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx )
+    (fun () ->
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ;
+      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx )
