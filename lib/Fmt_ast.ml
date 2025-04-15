@@ -2415,7 +2415,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
              $ fmt_atrs ) )
   | Pexp_stack e ->
       pro
-      $ hvbox 2
+      $ hvbox_if box 2
           (Params.Exp.wrap c.conf ~parens
              ( Params.Exp.wrap c.conf ~parens:has_attr
                  (fmt "stack_@ " $ fmt_expression c ~box (sub_exp ~ctx e))

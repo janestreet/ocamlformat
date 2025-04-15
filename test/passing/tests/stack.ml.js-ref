@@ -379,12 +379,10 @@ let _ =
 (* Two arguments *)
 let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
   xxxxxxx
-    (stack_
-      fun () ->
+    (stack_ fun () ->
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
-    (stack_
-      fun () ->
+    (stack_ fun () ->
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 ;;
