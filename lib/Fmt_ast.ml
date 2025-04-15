@@ -2396,7 +2396,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
     ->
       pro
       $ Params.parens_if parens c.conf
-          (fmt "local_@ " $ fmt_expression c (sub_exp ~ctx sbody))
+          (fmt "local_@ " $ fmt_expression ~box c (sub_exp ~ctx sbody))
   | Pexp_apply
       ( {pexp_desc= Pexp_extension ({txt= extension_exclave; _}, PStr []); _}
       , [(Nolabel, sbody)] )
