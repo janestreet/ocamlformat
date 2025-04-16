@@ -213,6 +213,8 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
         Some (fmt "local_ ", e)
     | _ -> None )
     |> Option.map ~f:(fun (epi, e) ->
+           Cmts.relocate_all_to_before c.cmts ~src:e.pexp_loc
+             ~before:pexp_loc ;
            ( lazy
                ( Cmts.fmt_before c ?eol pexp_loc
                $ Cmts.fmt c ?eol e.pexp_loc epi )

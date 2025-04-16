@@ -248,10 +248,10 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(stack_ (* 2 *)
-               (* 3 *)
-               (* 4 *)
-      fun
+    ~f:((* 2 *)
+        (* 3 *)
+        (* 4 *)
+      stack_ fun
         (* 5 *) xxxxx ->
       (* 6 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
@@ -355,7 +355,7 @@ let _ =
         end ) )
 
 (* Two funs breaks comments *)
-let _ = M.f ~x:(fun _ -> x) ~y:(stack_ (* c *) fun _ -> y)
+let _ = M.f ~x:(fun _ -> x) ~y:((* c *) stack_ fun _ -> y)
 
 (* No [stack_] (for reference) *)
 let _ =
@@ -388,6 +388,6 @@ let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
 let x =
   xxxxxxx
     ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(fun _ -> x)
-    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(stack_ (* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
-      fun
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:((* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
+      stack_ fun
         _ _ -> xxxxxxxxxxxxxxxxxxxxxx )

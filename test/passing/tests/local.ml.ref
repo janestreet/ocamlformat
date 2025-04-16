@@ -271,9 +271,9 @@ let _ =
 
 let _ =
   List.iter l (* 1 *)
-    ~f:(local_ (* 2 *)
-               (* 3 *)
-      fun
+    ~f:((* 2 *)
+        (* 3 *)
+      local_ fun
         (* 4 *) xxxxx ->
       (* 5 *)
       Xxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxx
@@ -375,7 +375,7 @@ let _ =
         end ) )
 
 (* Two funs breaks comments *)
-let _ = M.f ~x:(fun _ -> x) ~y:(stack_ (* c *) fun _ -> y)
+let _ = M.f ~x:(fun _ -> x) ~y:((* c *) stack_ fun _ -> y)
 
 (* No [local_] (for reference) *)
 let _ =
@@ -418,6 +418,6 @@ let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
 let x =
   xxxxxxx
     ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(fun _ -> x)
-    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(local_ (* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
-      fun
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:((* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
+      local_ fun
         _ _ -> xxxxxxxxxxxxxxxxxxxxxx )
