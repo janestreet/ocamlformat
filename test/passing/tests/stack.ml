@@ -301,3 +301,12 @@ let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 ;;
+
+(* Comment shouldn't split [stack_ fun] *)
+let x =
+  xxxxxxx
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(fun _ -> x)
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:
+      (* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
+      (stack_ fun _ _ -> xxxxxxxxxxxxxxxxxxxxxx)
+;;

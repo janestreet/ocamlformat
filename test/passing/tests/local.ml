@@ -274,3 +274,12 @@ let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)
 ;;
+
+(* Comment shouldn't split [local_ fun] *)
+let x =
+  xxxxxxx
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(fun _ -> x)
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:
+      (* xxxxxxxxxxxxxxxxxxxxxxxxxx *)
+      (local_ fun _ _ -> xxxxxxxxxxxxxxxxxxxxxx)
+;;

@@ -384,3 +384,10 @@ let xxxxxxxxxxxxxxxxx xxxxxxx ~xxx =
     (fun () ->
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ;
       xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx )
+
+(* Comment shouldn't split [stack_ fun] *)
+let x =
+  xxxxxxx
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(fun _ -> x)
+    ~xxxxxxxxxxxxxxxxxxxxxxxxxxx:(* xxxxxxxxxxxxxxxxxxxxxxxxxx *) (fun _ _ ->
+      xxxxxxxxxxxxxxxxxxxxxx )
