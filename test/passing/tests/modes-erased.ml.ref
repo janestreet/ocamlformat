@@ -156,12 +156,12 @@ module Expressions = struct
         while x do
           y
         done
-        @@ mode
+        @ mode
     ; for1=
         for x = y to z do
           a
         done
-        @@ mode
+        @ mode
     ; constraint1= ((x : _) : _)
     ; coerce1= ((x :> _) : _)
     ; send1= (x#y : _)

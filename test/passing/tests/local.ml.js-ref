@@ -46,7 +46,7 @@ let () = exclave_ r
 let local_ x : string = "hi"
 let (x : string) = local_ "hi"
 let (x : string) = exclave_ "hi"
-let local_ x = ("hi" : string)
+let x = local_ ("hi" : string)
 let x = exclave_ ("hi" : string)
 let x : 'a. 'a -> 'a = local_ "hi"
 let x : 'a. 'a -> 'a = exclave_ "hi"
@@ -59,7 +59,7 @@ let foo () =
 
 let[@ocaml.local] upstream_local_attr_long x = x
 
-module type S = functor (_ : S) (_ : S) -> S
+module type S = functor (_ : S) -> functor (_ : S) -> S
 
 let[@ocaml.local never] upstream_local_attr_never_long x = x
 let[@ocaml.local always] upstream_local_attr_always_long x = x
@@ -109,7 +109,7 @@ let x =
   y
 ;;
 
-module type S = functor (_ : S) (_ : S) -> S
+module type S = functor (_ : S) -> functor (_ : S) -> S
 (* this is here to make sure we pass the AST equality checks even when the
    extended AST is different *)
 

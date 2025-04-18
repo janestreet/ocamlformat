@@ -1,4 +1,5 @@
-@@ portable
+@@
+portable
 
 type t
 
@@ -18,7 +19,7 @@ module T : sig @@ nonportable
   val portable : t @@ nonportable
 end
 
-module (T @ nonportable) : sig @@ portable
+module (T @@ nonportable) : sig @@ portable
   val portable : t
 
   val nonportable : t @@ nonportable

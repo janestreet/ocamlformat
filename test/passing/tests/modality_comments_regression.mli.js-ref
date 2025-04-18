@@ -1,20 +1,7 @@
-@@ m
-   m
-   mm
-   mmmmm
-   mmmmmmmmm
-   (* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
-   mmmmmmmmmm
-   mmmmmmmmmm
+@@
+m m mm mmmmm mmmmmmmmm (* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*) mmmmmmmmmm mmmmmmmmmm
 
 val command
   : Command.t
-  @@ m
-     mmm
-     mmmmm
-     mmmmm
-     mmmmmm
-     (* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*)
-     mmmmmmm
-     mmmmmmmm
-     mmmmmmmm
+  @@
+  m mmm mmmmm mmmmm mmmmmm (* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx*) mmmmmmm mmmmmmmm mmmmmmmm
