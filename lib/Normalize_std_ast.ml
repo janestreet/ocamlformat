@@ -114,6 +114,15 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         in
         Ast_mapper.default_mapper.attribute m
           { attr with
+            attr_name =
+              (* The rest of this mapper is inconsistent about whether the result
+                 [map_attributes_no_sort] is passed through the default mapper again. When
+                 it is, doc comments can get normalized twice. Since the normalization
+                 process here is not idempotent, we change the name of the attribute to
+                 something that will prevent "renormalization." Ideally, we should
+                 eventually fix the uses of [map_attributes_no_sort] and prevent the
+                 normalization pass from touching some parts of the AST multiple times. *)
+              {attr.attr_name with txt = attr.attr_name.txt ^ ".normalized"};
             attr_payload=
               PStr
                 [ { pstr with
@@ -126,6 +135,16 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                           ; pexp_loc_stack= [] }
                         , [] ) } ] }
     | _ -> Ast_mapper.default_mapper.attribute m attr
+  in
+  let constant (m : Ast_mapper.mapper) (constant : constant) =
+    (match constant with
+     | Pconst_unboxed_integer (const, sigil) when erase_jane_syntax ->
+       Pconst_integer (const, Some sigil)
+     | Pconst_unboxed_float (const, sigil) when erase_jane_syntax ->
+       Pconst_float (const, sigil)
+     | constant -> constant
+    )
+    |> Ast_mapper.default_mapper.constant m
   in
   let map_attributes_no_sort (m : Ast_mapper.mapper) (atrs : attribute list)
       =
@@ -548,6 +567,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; signature
   ; class_signature
   ; class_structure
+  ; constant
   ; constructor_argument
   ; expr
   ; pat

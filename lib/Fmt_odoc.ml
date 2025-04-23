@@ -420,9 +420,23 @@ let fmt_parsed (conf : Conf.t) ~actually_a_doc_comment ~fmt_code ~input
     str (String.make begin_offset ' ') $ fmt_ast conf ~fmt_code parsed
   in
   match parsed with
-  | _ when not (conf.fmt_opts.parse_docstrings.v && actually_a_doc_comment)
-    ->
-      str input
+  | _ when not (conf.fmt_opts.parse_docstrings.v && actually_a_doc_comment) ->
+      if conf.fmt_opts.ocp_indent_compat.v
+      then
+        (* Clear empty lines *)
+        (str (
+          (match String.split ~on:'\n' input |> List.rev with
+          | [] -> []
+          | last_line :: rev_lines ->
+              let rev_lines =
+                List.map rev_lines ~f:(fun line ->
+                  if String.for_all line ~f:Char.is_whitespace then "" else line
+                )
+              in
+              List.rev (last_line :: rev_lines)
+          )
+          |> String.concat ~sep:"\n"))
+      else str input
   | Ok parsed -> fmt_parsed parsed
   | Error msgs ->
       if (not conf.opr_opts.quiet.v) && conf.opr_opts.check_odoc_parsing.v

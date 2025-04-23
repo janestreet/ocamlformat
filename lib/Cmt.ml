@@ -149,7 +149,7 @@ let split_asterisk_prefixed =
 
 let mk ?(prefix = "") ?(suffix = "") kind = {prefix; suffix; kind}
 
-let decode_comment ~parse_comments_as_doc txt loc =
+let decode_comment ~parse_comments_as_doc ~collapse_comment_whitespace txt loc =
   let txt =
     (* Windows compatibility *)
     let f = function '\r' -> false | _ -> true in
@@ -171,7 +171,7 @@ let decode_comment ~parse_comments_as_doc txt loc =
         in
         mk ~prefix:"$" ~suffix (Code code)
     | '=' -> mk (Verbatim txt)
-    | _ when is_all_whitespace txt ->
+    | _ when is_all_whitespace txt && collapse_comment_whitespace ->
         mk (Verbatim " ") (* Make sure not to format to [(**)]. *)
     | _ when parse_comments_as_doc -> mk (Doc txt)
     | _ -> (
@@ -197,6 +197,6 @@ let decode_docstring _loc = function
   | txt when is_all_whitespace txt -> mk (Verbatim " ")
   | txt -> mk ~prefix:"*" (Doc txt)
 
-let decode ~parse_comments_as_doc = function
-  | Comment {txt; loc} -> decode_comment ~parse_comments_as_doc txt loc
+let decode ~parse_comments_as_doc ~collapse_comment_whitespace = function
+  | Comment {txt; loc} -> decode_comment ~parse_comments_as_doc ~collapse_comment_whitespace txt loc
   | Docstring {txt; loc} -> decode_docstring loc txt

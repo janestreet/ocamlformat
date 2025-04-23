@@ -620,6 +620,16 @@ module Doc = struct
           let l = List.last_exn lines in
           (is_only_whitespaces h, is_only_whitespaces l)
     in
+    let pre_lines, post_lines =
+      if conf.Conf.fmt_opts.collapse_comment_whitespace.v || is_only_whitespaces txt
+      then (0, 0)
+      else
+        let lines = String.split ~on:'\n' txt in
+        let leading_blank_lines list =
+          List.take_while list ~f:is_only_whitespaces |> List.length
+        in
+        leading_blank_lines lines, leading_blank_lines (List.rev lines)
+    in
     let txt = if pre_nl then String.lstrip txt else txt in
     let txt = if trail_nl then String.rstrip txt else txt in
     let parsed = Docstring.parse ~loc ~pro txt in
@@ -633,8 +643,10 @@ module Doc = struct
     let open Fmt in
     hvbox 2
       ( str pro
+      $ (Fn.apply_n_times ~n:(pre_lines - 1) (fun x -> x $ fmt "@;<1000 0>") noop)
       $ fmt_if pre_nl "@;<1000 1>"
       $ doc
+      $ (Fn.apply_n_times ~n:(post_lines - 1) (fun x -> x $ fmt "@;<1000 0>") noop)
       $ fmt_if trail_nl "@;<1000 -2>"
       $ epi )
 end
@@ -642,7 +654,8 @@ end
 let fmt_cmt (conf : Conf.t) cmt ~fmt_code =
   let open Fmt in
   let parse_comments_as_doc = conf.fmt_opts.ocp_indent_compat.v in
-  let decoded = Cmt.decode ~parse_comments_as_doc cmt in
+  let collapse_comment_whitespace = conf.fmt_opts.collapse_comment_whitespace.v in
+  let decoded = Cmt.decode ~parse_comments_as_doc ~collapse_comment_whitespace cmt in
   (* TODO: Offset should be computed from location. *)
   let offset = 2 + String.length decoded.prefix in
   let pro_str = "(*" ^ decoded.prefix

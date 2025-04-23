@@ -214,9 +214,10 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
 
 let normalize_cmt (conf : Conf.t) =
   let parse_comments_as_doc = conf.fmt_opts.ocp_indent_compat.v in
+  let collapse_comment_whitespace = conf.fmt_opts.collapse_comment_whitespace.v in
   object (self)
     method cmt c =
-      let decoded = Cmt.decode ~parse_comments_as_doc c in
+      let decoded = Cmt.decode ~parse_comments_as_doc ~collapse_comment_whitespace c in
       match decoded.Cmt.kind with
       | Verbatim txt -> txt
       | Doc txt ->
