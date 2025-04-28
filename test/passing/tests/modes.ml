@@ -62,7 +62,7 @@ module Expressions = struct
         (function
           | x -> (x : _ @ mode)
           | y -> (y : _ @ mode))
-    ; fun1 = (fun ?(x = (x : _ @ mode)) () -> (y : _ @ mode))
+    ; fun1 = (fun ?(x = (x : _ @ mode)) () @ mode -> (y : _ @ mode))
     ; apply1 = (x : _ @ mode) (y : _ @ mode)
     ; apply2 = f ~lbl:(x : _ @ mode)
     ; apply3 = f ~x:(x : _ @ mode)
@@ -111,7 +111,7 @@ module Expressions = struct
         (x : _ @ mode))
     ; assert1 = assert (x : _ @ mode)
     ; lazy1 = lazy (x : _ @ mode)
-    ; newtype1 = (fun (type t) -> (x : _ @ mode))
+    ; newtype1 = (fun (type t) @ mode -> (x : _ @ mode))
     ; open1 = M.((x : _ @ mode))
     ; letopen1 =
         (let open M in
@@ -141,7 +141,7 @@ module Expressions = struct
          | y -> y
          : _
          @ mode)
-    ; fun1 = (fun x -> y : _ @ mode)
+    ; fun1 = (fun x @ mode -> y : _ @ mode)
     ; apply1 = (f x : _ @ mode)
     ; match1 =
         ((match x with
@@ -204,7 +204,7 @@ module Expressions = struct
     ; assert1 = (assert x : _ @ mode)
     ; lazy1 = (lazy x : _ @ mode)
     ; object1 = (object end : _ @ mode)
-    ; newtype1 = (fun (type t) -> x : _ @ mode)
+    ; newtype1 = (fun (type t) @ mode -> x : _ @ mode)
     ; pack1 = ((module M) : _ @ mode)
     ; pack2 = ((module M : S) : _ @ mode)
     ; open1 = (M.(x y) : _ @ mode)

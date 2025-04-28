@@ -224,22 +224,9 @@ let mkpat_with_modes ~loc ~pat ~cty ~modes =
     end
 
 let mkexp_constraint ~loc ~modes exp cty =
-  match exp.pexp_desc with
-  | Pexp_constraint (exp', cty', modes') ->
-     begin match cty, cty' with
-     | cty, None | None, cty ->
-        { exp with
-          pexp_desc = Pexp_constraint (exp', cty, modes @ modes');
-          pexp_loc = make_loc loc
-        }
-     | _ ->
-        mkexp ~loc (Pexp_constraint (exp, cty, modes))
-     end
-  | _ ->
-     begin match cty, modes with
-     | None, [] -> exp
-     | cty, modes -> mkexp ~loc (Pexp_constraint (exp, cty, modes))
-     end
+  match cty, modes with
+  | None, [] -> exp
+  | cty, modes -> mkexp ~loc (Pexp_constraint (exp, cty, modes))
 
 let ghexp_constraint ~loc ~modes exp cty =
   let exp = mkexp_constraint ~loc ~modes exp cty in
@@ -3192,12 +3179,17 @@ fun_param:
         let p = {p with ppat_attributes} in
         { pparam_loc = make_loc $sloc; pparam_desc = Pparam_val (islocal, l, o, p) } }
 ;
+optional_atomic_constraint_:
+  | COLON atomic_type { (Some (Pconstraint $2), [])}
+  | at_mode_expr { (None, $1)}
+  | { (None, []) }
+;
 fun_def:
-    MINUSGREATER seq_expr
-      { $2 }
-  | mkexp(COLON atomic_type MINUSGREATER seq_expr
-      { Pexp_constraint ($4, Some $2, []) })
-      { $1 }
+    optional_atomic_constraint_ MINUSGREATER seq_expr
+      {
+        let ty, modes = $1 in
+        mkexp_type_constraint_with_modes ~ghost:true ~loc:$sloc ~modes $3 ?ty
+      }
 /* Cf #5939: we used to accept (fun p when e0 -> e) */
   | fun_param fun_def
       { ghexp ~loc:$sloc (Pexp_fun($1, $2)) }

@@ -790,7 +790,7 @@ and fmt_type_cstr c ?constraint_ctx xtyp =
 and type_constr_and_body c xbody =
   let body = xbody.ast in
   match xbody.ast.pexp_desc with
-  | Pexp_constraint (exp, Some typ, []) ->
+  | Pexp_constraint (exp, typ, modes) ->
       Cmts.relocate c.cmts ~src:body.pexp_loc ~before:exp.pexp_loc
         ~after:exp.pexp_loc ;
       let typ_ctx = Exp body in
@@ -802,8 +802,13 @@ and type_constr_and_body c xbody =
         in
         Exp Ast_helper.(Exp.fun_ param exp)
       in
-      ( Some (fmt_type_cstr c ~constraint_ctx:`Fun (sub_typ ~ctx:typ_ctx typ))
-      , sub_exp ~ctx:exp_ctx exp )
+      let fmt_typ =
+        match typ with
+        | Some typ ->
+            fmt_type_cstr c ~constraint_ctx:`Fun (sub_typ ~ctx:typ_ctx typ)
+        | None -> noop
+      in
+      (Some (fmt_typ $ fmt_modals c (Modes modes)), sub_exp ~ctx:exp_ctx exp)
   | _ -> (None, xbody)
 
 and fmt_modals ?(pro = fmt "@ ") c modals =
