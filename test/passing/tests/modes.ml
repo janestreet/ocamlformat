@@ -266,9 +266,9 @@ module type Value_descriptions = sig
 end
 
 module Let_bound_functions = struct
-  let (f @ mode) arg1 arg2 = x
-  let (f @ mode) arg1 arg2 : typ = x
-  let (f @ mode1 mode2) arg1 arg2 = x
+  let (f @ mode) arg1 arg2 @ mode1 = x
+  let (f @ mode) arg1 arg2 : typ @ mode1 = x
+  let (f @ mode1 mode2) arg1 arg2 @ mode1 = x
 
   let (f @ mode)
     (arg @ mode)
@@ -285,7 +285,7 @@ module Let_bound_functions = struct
     ?(arg : typ @ mode)
     ?(arg @ mode = value)
     ?(arg : typ @ mode = value)
-    : typ
+    : typ @ mode1
     =
     value
   ;;
@@ -465,6 +465,7 @@ module Line_breaking = struct
       (long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
         long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8)
+      @ mode1 mode2 mode3
       =
       a
     ;;
