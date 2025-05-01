@@ -1805,11 +1805,8 @@ and fmt_fun ?force_closing_paren
       (pre_body, hvbox_if box 0 body)
     else (noop, fmt_expression c ~box xbody)
   and closing =
-    let paren_if p =
-      if p then closing_paren c ?force:force_closing_paren ~offset:(-2)
-      else noop
-    in
-    paren_if parens
+    if parens then closing_paren c ?force:force_closing_paren ~offset:(-2)
+    else noop
   in
   let body = body $ Cmts.fmt_after c xbody.ast.pexp_loc in
   let (label_sep : s), break_fun =
