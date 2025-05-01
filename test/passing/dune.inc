@@ -8477,24 +8477,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to local-erased.ml.js-stdout
-   (with-stderr-to local-erased.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/local.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local-erased.ml.js-ref local-erased.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local-erased.ml.js-err local-erased.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to local.ml.stdout
    (with-stderr-to local.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iter=3 %{dep:tests/local.ml})))))
