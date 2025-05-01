@@ -811,7 +811,7 @@ and type_constr_and_body c xbody =
       (Some (fmt_typ $ fmt_modals c (Modes modes)), sub_exp ~ctx:exp_ctx exp)
   | _ -> (None, xbody)
 
-and fmt_modals ?(pro = fmt "@ ") c modals =
+and fmt_modals ?(pro = fmt "@ ")  c modals =
   let fmt_modal {txt; loc} = Cmts.fmt c loc (str txt) ~eol:(fmt "@ ") in
   let fmt_mode {txt= Mode mode; loc} = fmt_modal {txt= mode; loc} in
   let fmt_modality {txt= Modality modality; loc} =
@@ -823,7 +823,7 @@ and fmt_modals ?(pro = fmt "@ ") c modals =
     | Modes modes -> (fmt "@@@ ", list modes "@ " fmt_mode)
     | Modalities modalities ->
         (fmt "@@@@@ ", list modalities "@ " fmt_modality)
-    | Mode_crossing modes -> (fmt "mod@ ", list modes "@ " fmt_mode)
+    | Mode_crossing modes -> (noop, list modes "@ " fmt_mode)
   in
   fmt_if_k (not (is_empty_modals modals)) (pro $ fmt_ats $ hvbox 0 fmt_modals)
 
@@ -868,7 +868,8 @@ and fmt_jkind c ~ctx {txt= jkd; loc} =
         in
         let mode_fmt = hvbox 0 (fmt_modals c (Mode_crossing modes)) in
         let fmt =
-          fmt_jkind c ~ctx:inner_ctx jkind $ Cmts.fmt_within c loc $ mode_fmt
+          fmt_jkind c ~ctx:inner_ctx jkind
+          $ fmt "@ mod" $ Cmts.fmt_within c loc $ mode_fmt
         in
         (parens, fmt)
     | With (jkind, type_, ms) ->

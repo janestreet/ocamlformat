@@ -393,7 +393,8 @@ type t =
 (* Test 13: modalities on with-bounds *)
 
 type asdfasdf :
-  value mod contended many mmasdmfm portable
+  value
+  mod contended many mmasdmfm portable
   with foo @@ asd asdfasdfasdf f many portable
   with bar @@ vasdf
   with t
@@ -401,7 +402,8 @@ type asdfasdf :
   with asdfasdf
 
 type asdfasdf :
-  value mod contended many mmasdmfm portable
+  value
+  mod contended many mmasdmfm portable
   with foo @@
              asasdfasd
              asd
@@ -464,7 +466,8 @@ let f
              portable
              portable
              uncontended
-             uncontended mod bar baz foo) ) (x : (a, b) t) =
+             uncontended
+    mod bar baz foo) ) (x : (a, b) t) =
   x
 
 type ('a, 'b) foo : immutable_data with 'a @@ contended many portable shared
@@ -477,6 +480,7 @@ type ('a, 'b) foo : immutable_data with 'a @@ contended many portable shared
 (* 7 *)
 
 type asdfasdf :
-  value mod contended many mmasdmfm portable
+  value
+  mod contended many mmasdmfm portable
   with foo @@
              mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm

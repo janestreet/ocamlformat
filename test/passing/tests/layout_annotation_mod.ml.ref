@@ -309,7 +309,8 @@ type a =
   'k (* comment 2 *) :
   (* comment 3 *)
   immediate64
-  (* comment 4 *) mod (* comment 5 *) mode
+  (* comment 4 *)
+  mod (* comment 5 *) mode
   (* comment 6 *))
 (* comment 7 *)
 
