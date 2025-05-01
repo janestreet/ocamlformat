@@ -134,8 +134,7 @@ module Expressions = struct
         ( let x = y in
           z
           : _
-          @
-          mode )
+          @ mode )
     ; function1= (function x -> x | y -> y : _ @ mode)
     ; fun1= (fun x @ mode -> y : _ @ mode)
     ; apply1= (f x : _ @ mode)
@@ -177,14 +176,12 @@ module Expressions = struct
         ( let module M = ME in
           x
           : _
-          @
-          mode )
+          @ mode )
     ; letexception1=
         ( let exception E in
           x
           : _
-          @
-          mode )
+          @ mode )
     ; assert1= (assert x : _ @ mode)
     ; lazy1= (lazy x : _ @ mode)
     ; object1= (object end : _ @ mode)
@@ -196,14 +193,12 @@ module Expressions = struct
         ( let open M in
           x
           : _
-          @
-          mode )
+          @ mode )
     ; letop1=
         ( let* x = y in
           z
           : _
-          @
-          mode )
+          @ mode )
     ; extension1= ([%ext] : _ @ mode)
     ; hole1= (_ : _ @ mode)
     ; cons1= (x :: y :: z : _ @ mode)
@@ -277,17 +272,17 @@ end
 
 module Line_breaking = struct
   module Let_bindings = struct
-    let long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
+    let long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
       1
 
-    let long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : t @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
+    let long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : t
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
       1
 
     let long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-        long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
+        long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
       1
   end
 
@@ -295,14 +290,12 @@ module Line_breaking = struct
     let x =
       ( long_expr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         : t
-        @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
 
     let x =
       ( long_expr_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         : long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
   end
 
   module Arrow_params = struct
@@ -317,17 +310,13 @@ module Line_breaking = struct
 
     type t =
          long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-         @
-         mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+         @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
       -> label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-         @
-         mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+         @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
       -> ?label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-         @
-         mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+         @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
       -> long_result_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-         @
-         mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+         @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
 
     let x :
            arg @ mode1 mode2
@@ -341,17 +330,13 @@ module Line_breaking = struct
 
     let x :
            long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-           @
-           mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+           @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
         -> label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-           @
-           mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+           @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
         -> ?label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-           @
-           mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+           @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
         -> long_result_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-           @
-           mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
+           @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 =
       y
 
     let x =
@@ -363,107 +348,86 @@ module Line_breaking = struct
            -> arg @ mode1 mode2
            -> arg @ mode1 mode2
            -> arg @ mode1 mode2 )
-        @
-        mode1 mode2 )
+        @ mode1 mode2 )
 
     let x =
       ( expr
         : (   long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-              @
-              mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+              @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
            -> label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-              @
-              mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+              @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
            -> ?label:long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-              @
-              mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+              @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
            -> long_result_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-              @
-              mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
-        @
-        mode1 mode2 )
+              @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+        @ mode1 mode2 )
   end
 
   module Modalities_on_record_fields = struct
     type t =
       { long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: t
-        @@
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+        @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
       ; mutable long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: t
-        @@
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+        @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
       ; long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:
           long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        @@
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 }
+        @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 }
 
     type t =
       | A of
           { long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: t
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           ; mutable long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: t
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           ; long_field_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:
               long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 }
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 }
   end
 
   module Modalities_on_constructor_arguments = struct
     type t =
       | A of
           long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          @@
-          mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+          @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * short_type @@ mode1 mode2
 
     type t =
       | A :
           long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          @@
-          mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+          @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            @@
-            mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+            @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
           * short_type @@ mode1 mode2
           -> t
   end
 
   module type Value_descriptions = sig
-    val long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : t @@
-      mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+    val long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa : t
+      @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
 
     val long_value_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
-      long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa @@
-      mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
+      long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      @@ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8
   end
 
   module Let_bound_functions = struct
-    let (long_fun_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa @
-        mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+    let (long_fun_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
         (long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          @
-          mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+          @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
         (long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
           t
-          @
-          mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+          @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
         (long_arg_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa :
           long_type_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-          @
-          mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 ) @
-        mode1 mode2 mode3 =
+          @ mode1 mode2 mode3 mode4 mode5 mode6 mode7 mode8 )
+        @ mode1 mode2 mode3 =
       a
   end
 end

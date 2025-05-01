@@ -820,9 +820,9 @@ and fmt_modals ?(pro = fmt "@ ")  c modals =
   let fmt_ats, fmt_modals =
     match modals with
     | No_modals -> (noop, noop)
-    | Modes modes -> (fmt "@@@ ", list modes "@ " fmt_mode)
+    | Modes modes -> (fmt "@@ ", list modes "@ " fmt_mode)
     | Modalities modalities ->
-        (fmt "@@@@@ ", list modalities "@ " fmt_modality)
+        (fmt "@@@@ ", list modalities "@ " fmt_modality)
     | Mode_crossing modes -> (noop, list modes "@ " fmt_mode)
   in
   fmt_if_k (not (is_empty_modals modals)) (pro $ fmt_ats $ hvbox 0 fmt_modals)

@@ -326,34 +326,32 @@ type asdfasdf :
 type asdfasdf :
   value
   mod contended many mmasdmfm portable
-  with foo @@
-            asasdfasd
-            asd
-            asd
-            asd
-            asd
-            asdf
-            asdf
-            asdf
-            asdfasdf
-            asdfasdfasdf
-            asdfasdfasdf
-            df
-            df
-            df
-            f
-            f
-            fas
-            fas
-            fasd
-            many
-            portable
-  with bar @@
-            asd
-            asdf
-            fasd
-            fasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-            vasdfsadf
+  with foo @@ asasdfasd
+              asd
+              asd
+              asd
+              asd
+              asdf
+              asdf
+              asdf
+              asdfasdf
+              asdfasdfasdf
+              asdfasdfasdf
+              df
+              df
+              df
+              f
+              f
+              fas
+              fas
+              fasd
+              many
+              portable
+  with bar @@ asd
+              asdf
+              fasd
+              fasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+              vasdfsadf
   with t
   with u
   with asdfasdf
@@ -362,12 +360,11 @@ type t =
   | T :
       ((* a comment! *) 'a :
       immutable_data
-      with t u v w x t t option list list list list list @@
-                                                          aaa
-                                                          aaaa
-                                                          aaaaaaaaa
-                                                          aaaaaaaaaaaaa
-                                                          asdf
+      with t u v w x t t option list list list list list @@ aaa
+                                                            aaaa
+                                                            aaaaaaaaa
+                                                            aaaaaaaaaaaaa
+                                                            asdf
       with ('a, 'b, 'c) typetypetypetype @@ bar foo
       with t).
       'a t option
@@ -398,5 +395,4 @@ type ('a, 'b) foo : immutable_data with 'a @@ contended many portable shared
 type asdfasdf :
   value
   mod contended many mmasdmfm portable
-  with foo @@
-            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  with foo @@ mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm

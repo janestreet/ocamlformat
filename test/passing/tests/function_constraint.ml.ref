@@ -60,8 +60,8 @@ let f (type a : value) : unit @ local = ()
 let (* 1 *) f
     (type (* 3 *)
           (* 4 *)
-    a (* 5 *) : (* 6 *) value (* 7 *) ) : (* 12 *) unit (* 13 *) @
-    (* 14 *) local (* 15 *) =
+    a (* 5 *) : (* 6 *) value (* 7 *) ) : (* 12 *) unit (* 13 *)
+    @ (* 14 *) local (* 15 *) =
   (* 2 *)
   (* 8 *)
   (* 9 *)
@@ -74,8 +74,8 @@ let[@a1] f (type a : value) : (unit[@a3]) @ local = () [@a2]
 
 let f x y : unit @ local = ()
 
-let (* 1 *) f (* 2 *) x (* 3 *) y : (* 8 *) unit (* 9 *) @
-    (* 10 *) local (* 11 *) =
+let (* 1 *) f (* 2 *) x (* 3 *) y : (* 8 *) unit (* 9 *)
+    @ (* 10 *) local (* 11 *) =
   (* 4 *)
 
   (* 5 *)
