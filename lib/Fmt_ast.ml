@@ -811,7 +811,7 @@ and type_constr_and_body c xbody =
       (Some (fmt_typ $ fmt_modals c (Modes modes)), sub_exp ~ctx:exp_ctx exp)
   | _ -> (None, xbody)
 
-and fmt_modals ?(pro = fmt "@ ")  c modals =
+and fmt_modals ?(pro = fmt "@ ") c modals =
   let fmt_modal {txt; loc} = Cmts.fmt c loc (str txt) ~eol:(fmt "@ ") in
   let fmt_mode {txt= Mode mode; loc} = fmt_modal {txt= mode; loc} in
   let fmt_modality {txt= Modality modality; loc} =
