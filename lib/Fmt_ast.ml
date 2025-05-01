@@ -212,12 +212,12 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
       when Conf.is_jane_street_local_annotation "local" ~test:txt ->
         Some (fmt "local_ ", e)
     | _ -> None )
-    |> Option.map ~f:(fun (epi, e) ->
+    |> Option.map ~f:(fun (expr_pro, e) ->
            Cmts.relocate_all_to_before c.cmts ~src:e.pexp_loc
              ~before:pexp_loc ;
            ( (fun () ->
                Cmts.fmt_before c ?eol pexp_loc
-               $ Cmts.fmt c ?eol e.pexp_loc epi )
+               $ Cmts.fmt c ?eol e.pexp_loc expr_pro )
            , e ) )
 
 let box_semisemi c ~parent_ctx b k =
@@ -1780,8 +1780,8 @@ and fmt_indexop_access c ctx ~fmt_atrs ~has_attr ~parens x =
 (** Format [Pexp_fun] or [Pexp_newtype]. [wrap_intro] wraps up to after the
     [->] and is responsible for breaking. *)
 and fmt_fun ?force_closing_paren
-    ?(wrap_intro = fun x -> hvbox 2 x $ fmt "@ ") ?(epi = noop) ?(box = true)
-    ~label ?(parens = false) c ({ast; _} as xast) =
+    ?(wrap_intro = fun x -> hvbox 2 x $ fmt "@ ") ?(fun_pro = noop)
+    ?(box = true) ~label ?(parens = false) c ({ast; _} as xast) =
   let has_label = match label with Nolabel -> false | _ -> true in
   (* Make sure the comment is placed after the eventual label but not into
      the inner box if no label is present. Side effects of Cmts.fmt c.cmts
@@ -1822,7 +1822,7 @@ and fmt_fun ?force_closing_paren
            ( cmts_outer
            $ hvbox 2
                ( fmt_label label label_sep $ cmts_inner $ fmt_if parens "("
-               $ epi $ fmt "fun" $ break_fun
+               $ fun_pro $ fmt "fun" $ break_fun
                $ hvbox 0
                    ( fmt_attributes c ast.pexp_attributes ~suf:" "
                    $ fmt_fun_args c xargs $ fmt_opt fmt_cstr
@@ -1861,17 +1861,18 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
       fmt_fun ~box ~label:lbl ~parens:true c xarg
   | ( (Labelled _ | Optional _)
     , _
-    , Some (epi, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
+    , Some (pro, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
     ) ->
-      let epi = epi () $ Cmts.fmt c ?eol pexp_loc noop in
-      fmt_fun ~box ~label:lbl ~epi ~parens:true c (sub_exp ~ctx:(Exp arg) e)
+      let fun_pro = pro () $ Cmts.fmt c ?eol pexp_loc noop in
+      fmt_fun ~box ~label:lbl ~fun_pro ~parens:true c
+        (sub_exp ~ctx:(Exp arg) e)
   | ( (Labelled _ | Optional _)
     , _
     , Some
-        ( epi
+        ( function_pro
         , ({pexp_desc= Pexp_function cs; pexp_loc; pexp_attributes; _} as e)
         ) ) ->
-      fmt_label lbl ":" $ str "(" $ epi () $ str "function"
+      fmt_label lbl ":" $ str "(" $ function_pro () $ str "function"
       $ fmt_attributes c ~pre:Blank pexp_attributes
       $ fmt "@ " $ fmt_cases c (Exp e) cs $ closing_paren c
       $ Cmts.fmt_after c pexp_loc
@@ -2439,10 +2440,10 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         in
         if parens || not dock_fun_arg then (noop, pro) else (pro, noop)
       in
-      let epi, last_arg_inner, xlast_arg =
+      let arg_pro, last_arg_inner, xlast_arg =
         match get_in_local_expr ?eol c last_arg with
-        | Some (epi, last_arg_inner) ->
-            (epi, last_arg_inner, sub_exp ~ctx:(Exp last_arg) last_arg_inner)
+        | Some (pro, last_arg_inner) ->
+            (pro, last_arg_inner, sub_exp ~ctx:(Exp last_arg) last_arg_inner)
         | None -> ((fun () -> noop), last_arg, sub_exp ~ctx last_arg)
       in
       match last_arg_inner.pexp_desc with
@@ -2484,7 +2485,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               else Break
             in
             fmt_fun c ~force_closing_paren ~wrap_intro ~label:lbl
-              ~parens:true ~epi:(epi ()) xlast_arg
+              ~parens:true ~fun_pro:(arg_pro ()) xlast_arg
           in
           hvbox_if has_attr 0
             (expr_epi $ Params.parens_if parens c.conf (args $ fmt_atrs))
@@ -2511,7 +2512,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                         $ fmt_args_grouped e0 args_before
                         $ fmt "@ "
                         $ Cmts.fmt_before c last_arg.pexp_loc
-                        $ fmt_label lbl ":" $ str "(" $ epi ()
+                        $ fmt_label lbl ":" $ str "(" $ arg_pro ()
                         $ str "function"
                         $ fmt_attributes c ~pre:Blank
                             last_arg.pexp_attributes )
@@ -2542,7 +2543,8 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                     $ fmt_args_grouped e0 args_before
                     $ fmt "@ "
                     $ Cmts.fmt_before c last_arg.pexp_loc
-                    $ fmt_label lbl ":" $ str "(" $ epi () $ str "function"
+                    $ fmt_label lbl ":" $ str "(" $ arg_pro ()
+                    $ str "function"
                     $ fmt_attributes c ~pre:Blank last_arg.pexp_attributes )
                 $ fmt "@ " $ fmt_cases c ctx'' cs $ closing_paren c
                 $ Cmts.fmt_after c last_arg.pexp_loc
