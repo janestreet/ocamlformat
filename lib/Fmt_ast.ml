@@ -215,8 +215,8 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
     |> Option.map ~f:(fun (epi, e) ->
            Cmts.relocate_all_to_before c.cmts ~src:e.pexp_loc
              ~before:pexp_loc ;
-           ( lazy
-               ( Cmts.fmt_before c ?eol pexp_loc
+           ( (fun () ->
+               Cmts.fmt_before c ?eol pexp_loc
                $ Cmts.fmt c ?eol e.pexp_loc epi )
            , e ) )
 
@@ -1866,7 +1866,7 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
     , _
     , Some (epi, ({pexp_desc= Pexp_fun _ | Pexp_newtype _; pexp_loc; _} as e))
     ) ->
-      let epi = Lazy.force epi $ Cmts.fmt c ?eol pexp_loc noop in
+      let epi = epi () $ Cmts.fmt c ?eol pexp_loc noop in
       fmt_fun ~box ~label:lbl ~epi ~parens:true c (sub_exp ~ctx:(Exp arg) e)
   | ( (Labelled _ | Optional _)
     , _
@@ -1874,7 +1874,7 @@ and fmt_label_arg ?(box = true) ?eol c (lbl, ({ast= arg; _} as xarg)) =
         ( epi
         , ({pexp_desc= Pexp_function cs; pexp_loc; pexp_attributes; _} as e)
         ) ) ->
-      fmt_label lbl ":" $ str "(" $ Lazy.force epi $ str "function"
+      fmt_label lbl ":" $ str "(" $ epi () $ str "function"
       $ fmt_attributes c ~pre:Blank pexp_attributes
       $ fmt "@ " $ fmt_cases c (Exp e) cs $ closing_paren c
       $ Cmts.fmt_after c pexp_loc
@@ -2446,7 +2446,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         match get_in_local_expr ?eol c last_arg with
         | Some (epi, last_arg_inner) ->
             (epi, last_arg_inner, sub_exp ~ctx:(Exp last_arg) last_arg_inner)
-        | None -> (lazy noop, last_arg, sub_exp ~ctx last_arg)
+        | None -> ((fun () -> noop), last_arg, sub_exp ~ctx last_arg)
       in
       match last_arg_inner.pexp_desc with
       | Pexp_fun (_, eN1_body)
@@ -2487,7 +2487,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               else Break
             in
             fmt_fun c ~force_closing_paren ~wrap_intro ~label:lbl
-              ~parens:true ~epi:(force epi) xlast_arg
+              ~parens:true ~epi:(epi ()) xlast_arg
           in
           hvbox_if has_attr 0
             (expr_epi $ Params.parens_if parens c.conf (args $ fmt_atrs))
@@ -2514,7 +2514,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                         $ fmt_args_grouped e0 args_before
                         $ fmt "@ "
                         $ Cmts.fmt_before c last_arg.pexp_loc
-                        $ fmt_label lbl ":" $ str "(" $ Lazy.force epi
+                        $ fmt_label lbl ":" $ str "(" $ epi ()
                         $ str "function"
                         $ fmt_attributes c ~pre:Blank
                             last_arg.pexp_attributes )
@@ -2545,8 +2545,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                     $ fmt_args_grouped e0 args_before
                     $ fmt "@ "
                     $ Cmts.fmt_before c last_arg.pexp_loc
-                    $ fmt_label lbl ":" $ str "(" $ force epi
-                    $ str "function"
+                    $ fmt_label lbl ":" $ str "(" $ epi () $ str "function"
                     $ fmt_attributes c ~pre:Blank last_arg.pexp_attributes )
                 $ fmt "@ " $ fmt_cases c ctx'' cs $ closing_paren c
                 $ Cmts.fmt_after c last_arg.pexp_loc
