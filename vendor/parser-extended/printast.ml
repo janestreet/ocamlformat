@@ -994,9 +994,6 @@ and module_type i ppf x =
       list i functor_parameter ppf params;
       module_type i ppf mt;
       modes i ppf mm
-  | Pmty_gen (loc, mt) ->
-      line i ppf "Pmty_gen %a\n" fmt_location loc;
-      module_type i ppf mt
   | Pmty_with (mt, l) ->
       line i ppf "Pmty_with\n";
       module_type i ppf mt;

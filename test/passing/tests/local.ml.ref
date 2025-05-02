@@ -72,7 +72,7 @@ let foo () =
 
 let[@ocaml.local] upstream_local_attr_long x = x
 
-module type S = functor (_ : S) -> functor (_ : S) -> S
+module type S = functor (_ : S) (_ : S) -> S
 
 let[@ocaml.local never] upstream_local_attr_never_long x = x
 
@@ -124,7 +124,7 @@ let x =
   let y = 1 in
   y
 
-module type S = functor (_ : S) -> functor (_ : S) -> S
+module type S = functor (_ : S) (_ : S) -> S
 (* this is here to make sure we pass the AST equality checks even when the
    extended AST is different *)
 

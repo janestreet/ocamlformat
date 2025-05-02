@@ -1036,8 +1036,6 @@ and module_type_desc =
   | Pmty_signature of signature  (** [sig ... end] *)
   | Pmty_functor of functor_parameter loc list * module_type * modes
       (** [functor (X1 : MT1) ... (Xn : MTn) -> MT @ MM] *)
-  | Pmty_gen of Location.t * module_type
-      (** [() -> MT] *)
   | Pmty_with of module_type * with_constraint list  (** [MT with ...] *)
   | Pmty_typeof of module_expr  (** [module type of ME] *)
   | Pmty_extension of extension  (** [[%id]] *)

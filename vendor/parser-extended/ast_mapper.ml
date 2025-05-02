@@ -400,10 +400,6 @@ module MT = struct
           (List.map (map_functor_param sub) params)
           (sub.module_type sub mt)
           (sub.modes sub mm)
-    | Pmty_gen (arg_loc, mt) ->
-        gen ~loc ~attrs
-          (sub.location sub arg_loc)
-          (sub.module_type sub mt)
     | Pmty_with (mt, l) ->
         with_ ~loc ~attrs (sub.module_type sub mt)
           (List.map (sub.with_constraint sub) l)

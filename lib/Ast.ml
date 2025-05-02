@@ -340,7 +340,6 @@ let rec mty_is_simple x =
    |Pmty_functor (_, _, _)
    |Pmty_strengthen _ ->
       false
-  | Pmty_gen (_, t) -> mty_is_simple t
   | Pmty_typeof e -> mod_is_simple e
   | Pmty_with (t, ([] | [_])) -> mty_is_simple t
 

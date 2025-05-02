@@ -4191,6 +4191,14 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
             ( str "end" $ after
             $ fmt_attributes_and_docstrings c pmty_attributes ) }
   | Pmty_functor (args, mt, _mm) ->
+      let rec pull_args_from_ret args mt =
+        match (mt.pmty_desc, mt.pmty_attributes) with
+        | Pmty_functor (args', mt', _mm), [] ->
+            let args', mt' = pull_args_from_ret args' mt' in
+            (args @ args', mt')
+        | _ -> (args, mt)
+      in
+      let args, mt = pull_args_from_ret args mt in
       let blk = fmt_module_type c (sub_mty ~ctx mt) in
       { blk with
         pro=
@@ -4200,20 +4208,6 @@ and fmt_module_type c ?(rec_ = false) ({ast= mty; _} as xmty) =
             $ fmt_attributes c ~pre:Blank pmty_attributes
             $ fmt "@;<1 2>"
             $ list args "@;<1 2>" (fmt_functor_param c ctx)
-            $ fmt "@;<1 2>->"
-            $ opt blk.pro (fun pro -> str " " $ pro) )
-      ; epi= Some (fmt_opt blk.epi $ Cmts.fmt_after c pmty_loc)
-      ; psp=
-          fmt_or_k (Option.is_none blk.pro)
-            (fits_breaks " " ~hint:(1, 2) "")
-            blk.psp }
-  | Pmty_gen (gen_loc, mt) ->
-      let blk = fmt_module_type c (sub_mty ~ctx mt) in
-      { blk with
-        pro=
-          Some
-            ( Cmts.fmt_before c pmty_loc
-            $ Cmts.fmt c gen_loc (wrap "(" ")" (Cmts.fmt_within c gen_loc))
             $ fmt "@;<1 2>->"
             $ opt blk.pro (fun pro -> str " " $ pro) )
       ; epi= Some (fmt_opt blk.epi $ Cmts.fmt_after c pmty_loc)
