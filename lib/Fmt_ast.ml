@@ -780,11 +780,11 @@ and fmt_record_field c ?typ1 ?typ2 ?rhs lid1 =
   $ cbox 0
       (fmt_longident_loc c lid1 $ Cmts.fmt_after c lid1.loc $ fmt_type_rhs)
 
-and fmt_type_cstr c ?constraint_ctx xtyp =
+and fmt_type_cstr c ?constraint_ctx ?constraint_modes xtyp =
   let colon_before = Poly.(c.conf.fmt_opts.break_colon.v = `Before) in
   fmt_or_k colon_before (fits_breaks " " ~hint:(1000, 0) "") (fmt "@;<0 -1>")
   $ cbox_if colon_before 0
-      (fmt_core_type c ~pro:":" ?constraint_ctx ~pro_space:(not colon_before)
+      (fmt_core_type c ~pro:":" ?constraint_ctx ?constraint_modes ~pro_space:(not colon_before)
          ~box:(not colon_before) xtyp )
 
 and type_constr_and_body c xbody =
@@ -805,7 +805,7 @@ and type_constr_and_body c xbody =
       let fmt_typ =
         match typ with
         | Some typ ->
-            fmt_type_cstr c ~constraint_ctx:`Fun (sub_typ ~ctx:typ_ctx typ)
+            fmt_type_cstr c ~constraint_ctx:`Fun ~constraint_modes:modes (sub_typ ~ctx:typ_ctx typ)
         | None -> noop
       in
       (Some (fmt_typ $ fmt_modals c (Modes modes)), sub_exp ~ctx:exp_ctx exp)
@@ -995,6 +995,7 @@ and fmt_arrow_type c ~ctx ?indent ~parens ~parent_has_parens args fmt_ret_typ
    gets support for them, we should remove tydecl_param and go with whatever
    their solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
+      ?constraint_modes
     ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
   protect c (Typ typ)
   @@
@@ -1044,8 +1045,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   in
   let ctx = Typ typ in
   let parenze_constraint_ctx =
-    match constraint_ctx with
-    | Some `Fun when not parens -> true
+    match constraint_ctx, constraint_modes with
+    | (Some (`Fun), _) | (_, Some (_ :: _)) when not parens -> true
     | _ -> false
   in
   match ptyp_desc with
@@ -1100,11 +1101,12 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_poly ([], _) ->
       impossible "produced by the parser, handled elsewhere"
   | Ptyp_poly (a1N, t) ->
+
       hovbox_if box 0
         ( hovbox_if (not box) 0
             (list a1N "@ " (fmt_type_var_with_parenze ~have_tick:true c))
         $ fmt ".@ "
-        $ fmt_core_type c ~box:true (sub_typ ~ctx t) )
+        $ fmt_core_type c ~box:true ?constraint_modes (sub_typ ~ctx t) )
   | Ptyp_tuple typs ->
       hvbox 0
         (wrap_if parenze_constraint_ctx "(" ")"
@@ -1518,7 +1520,7 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             ( match ctx0 with
             | Exp {pexp_desc= Pexp_let _; _} -> fmt "@ : "
             | _ -> fmt " :@ " )
-            $ fmt_core_type c (sub_typ ~ctx typ)
+            $ fmt_core_type c ~constraint_modes:modes (sub_typ ~ctx typ)
       in
       hvbox 2
         (Params.parens_if parens c.conf
@@ -2578,7 +2580,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
              ( wrap_fits_breaks ~space:false c.conf "(" ")"
                  ( fmt_expression c (sub_exp ~ctx e)
                  $ fmt "@ : "
-                 $ fmt_core_type c (sub_typ ~ctx t)
+                 $ fmt_core_type c ~constraint_modes:modes (sub_typ ~ctx t)
                  $ fmt_modals c (Modes modes) )
              $ fmt_atrs ) )
   | Pexp_construct ({txt= Lident (("()" | "[]") as txt); loc}, None) ->
