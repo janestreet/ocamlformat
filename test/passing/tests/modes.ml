@@ -15,6 +15,7 @@ module Let_bindings = struct
   let x : typ @ mode1 mode2 = y
   let x : typ1 typ2 @ mode1 mode2 = y
   let x : (typ1 -> typ2) @ mode1 mode2 = y
+  let x : (typ1 @ mode1 -> typ2 @ mode2) @ mode3 mode4 = y
   let x : typ1 * typ2 @ mode1 mode2 = y
 
   let x @ mode = x
@@ -289,6 +290,18 @@ module Let_bound_functions = struct
     =
     value
   ;;
+end
+
+module LATs = struct
+  let f : 'a. (b -> c) @ mode = fun x -> y
+  let f : ('a : k). (b -> c) @ mode = fun x -> y
+  let f : 'a. (b @ mode1 -> c @ mode2) @ mode3 = fun x -> y
+  let f : ('a : k). (b @ mode1 -> c @ mode2) @ mode3 = fun x -> y
+  let (* aaa *) f (* bbb *) : (* ccc *) ('a (* ddd *) : (* eee *) k).
+      (* fff *) (b (* ggg *) @ (* hhh *) mode1 (* iii *)
+      -> (* jjj *) c (* kkk *) @ (* lll *) mode2) (* mmm *)
+      @ (* nnn *) mode3 (* ooo *)
+      = (* ppp *) fun (* qqq *) x -> y
 end
 
 module No_illegal_sugaring = struct

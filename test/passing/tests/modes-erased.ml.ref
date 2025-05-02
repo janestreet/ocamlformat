@@ -21,6 +21,8 @@ module Let_bindings = struct
 
   let x : typ1 -> typ2 = y
 
+  let x : typ1 -> typ2 = y
+
   let x : typ1 * typ2 = y
 
   let x = x
@@ -249,6 +251,35 @@ module Let_bound_functions = struct
       ?lbl:(arg : typ) ?lbl:(arg = value) ?lbl:(arg : typ = value) ?arg
       ?(arg : typ) ?(arg = value) ?(arg : typ = value) : typ =
     value
+end
+
+module LATs = struct
+  let f : 'a. b -> c = fun x -> y
+
+  let f : 'a. b -> c = fun x -> y
+
+  let f : 'a. b -> c = fun x -> y
+
+  let f : 'a. b -> c = fun x -> y
+
+  let (* aaa *) f (* bbb *) :
+      (* ccc *)
+      'a (* ddd *).
+         (* eee *)
+         (* fff *)
+         b
+         (* ggg *)
+      -> (* hhh *)
+         (* iii *)
+         (* jjj *)
+         c
+      (* kkk *)
+      (* lll *)
+      (* mmm *) =
+   (* nnn *)
+   (* ooo *)
+   (* ppp *)
+   fun (* qqq *) x -> y
 end
 
 module No_illegal_sugaring = struct
