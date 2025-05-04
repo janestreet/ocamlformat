@@ -5081,7 +5081,7 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
        $ hvbox 0 fmt_expr ) )
   $ fmt_atrs
 
-and fmt_value_constraint c vc_opt modes ~constraint_modes =
+and fmt_value_constraint c vc_opt modes =
   let fmt_sep x =
     match c.conf.fmt_opts.break_colon.v with
     | `Before -> fmt "@ " $ str x $ char ' '
@@ -5094,7 +5094,7 @@ and fmt_value_constraint c vc_opt modes ~constraint_modes =
       match vc with
       | Pvc_constraint {locally_abstract_univars= []; typ} ->
           ( noop
-          , fmt_type_cstr ~constraint_modes c (sub_typ ~ctx typ)
+          , fmt_type_cstr ~constraint_modes:modes c (sub_typ ~ctx typ)
           , fmt_modes )
       | Pvc_constraint {locally_abstract_univars= pvars; typ} -> (
         match c.conf.fmt_opts.break_colon.v with
@@ -5106,7 +5106,8 @@ and fmt_value_constraint c vc_opt modes ~constraint_modes =
                   $ list pvars " "
                       (fmt_type_var_with_parenze ~have_tick:false c)
                   $ fmt ".@ "
-                  $ fmt_core_type ~constraint_modes c (sub_typ ~ctx typ) )
+                  $ fmt_core_type ~constraint_modes:modes c
+                      (sub_typ ~ctx typ) )
             , fmt_modes )
         | `After ->
             ( fmt_sep ":"
@@ -5115,15 +5116,16 @@ and fmt_value_constraint c vc_opt modes ~constraint_modes =
                   $ list pvars " "
                       (fmt_type_var_with_parenze ~have_tick:false c)
                   $ str "." )
-            , fmt "@ " $ fmt_core_type ~constraint_modes c (sub_typ ~ctx typ)
+            , fmt "@ "
+              $ fmt_core_type ~constraint_modes:modes c (sub_typ ~ctx typ)
             , fmt_modes ) )
       | Pvc_coercion {ground; coercion} ->
           ( noop
           , opt ground (fun ty ->
                 fmt_sep ":"
-                $ fmt_core_type ~constraint_modes c (sub_typ ~ctx ty) )
+                $ fmt_core_type ~constraint_modes:modes c (sub_typ ~ctx ty) )
             $ fmt_sep ":>"
-            $ fmt_core_type ~constraint_modes c (sub_typ ~ctx coercion)
+            $ fmt_core_type ~constraint_modes:modes c (sub_typ ~ctx coercion)
           , fmt_modes ) )
   | None -> (noop, noop, fmt_modes)
 
@@ -5146,7 +5148,7 @@ and fmt_value_binding c ~rec_flag ?(punned_in_output = false) ?ext ?in_ ?epi
   let modes_binding = Modes lb_modes_binding in
   let fmt_modes_binding = fmt_modals c modes_binding in
   let fmt_newtypes, fmt_cstr, fmt_modes =
-    fmt_value_constraint c lb_typ lb_modes ~constraint_modes:lb_modes
+    fmt_value_constraint c lb_typ lb_modes
   in
   let indent =
     match lb_exp.ast.pexp_desc with
