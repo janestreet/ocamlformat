@@ -8931,7 +8931,7 @@
  (action
   (with-stdout-to modes-ocaml_version.ml.stdout
    (with-stderr-to modes-ocaml_version.ml.stderr
-     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 %{dep:tests/modes.ml})))))
+     (run %{bin:ocamlformat} --margin-check --ocaml-version=4.14.0 --max-iter=5 %{dep:tests/modes.ml})))))
 
 (rule
  (alias runtest)
@@ -8949,7 +8949,7 @@
  (action
   (with-stdout-to modes.ml.stdout
    (with-stderr-to modes.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/modes.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/modes.ml})))))
 
 (rule
  (alias runtest)

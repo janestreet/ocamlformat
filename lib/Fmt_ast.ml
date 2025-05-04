@@ -784,8 +784,8 @@ and fmt_type_cstr c ?constraint_ctx ?constraint_modes xtyp =
   let colon_before = Poly.(c.conf.fmt_opts.break_colon.v = `Before) in
   fmt_or_k colon_before (fits_breaks " " ~hint:(1000, 0) "") (fmt "@;<0 -1>")
   $ cbox_if colon_before 0
-      (fmt_core_type c ~pro:":" ?constraint_ctx ?constraint_modes ~pro_space:(not colon_before)
-         ~box:(not colon_before) xtyp )
+      (fmt_core_type c ~pro:":" ?constraint_ctx ?constraint_modes
+         ~pro_space:(not colon_before) ~box:(not colon_before) xtyp )
 
 and type_constr_and_body c xbody =
   let body = xbody.ast in
@@ -805,7 +805,8 @@ and type_constr_and_body c xbody =
       let fmt_typ =
         match typ with
         | Some typ ->
-            fmt_type_cstr c ~constraint_ctx:`Fun ~constraint_modes:modes (sub_typ ~ctx:typ_ctx typ)
+            fmt_type_cstr c ~constraint_ctx:`Fun ~constraint_modes:modes
+              (sub_typ ~ctx:typ_ctx typ)
         | None -> noop
       in
       (Some (fmt_typ $ fmt_modals c (Modes modes)), sub_exp ~ctx:exp_ctx exp)
@@ -995,8 +996,7 @@ and fmt_arrow_type c ~ctx ?indent ~parens ~parent_has_parens args fmt_ret_typ
    gets support for them, we should remove tydecl_param and go with whatever
    their solution is. *)
 and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
-      ?constraint_modes
-    ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
+    ?constraint_modes ?(tydecl_param = false) ({ast= typ; ctx} as xtyp) =
   protect c (Typ typ)
   @@
   let {ptyp_desc; ptyp_attributes; ptyp_loc; _} = typ in
@@ -1045,8 +1045,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   in
   let ctx = Typ typ in
   let parenze_constraint_ctx =
-    match constraint_ctx, constraint_modes with
-    | (Some (`Fun), _) | (_, Some (_ :: _)) when not parens -> true
+    match (constraint_ctx, constraint_modes) with
+    | (Some `Fun, _ | _, Some (_ :: _)) when not parens -> true
     | _ -> false
   in
   match ptyp_desc with
@@ -1101,7 +1101,6 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_poly ([], _) ->
       impossible "produced by the parser, handled elsewhere"
   | Ptyp_poly (a1N, t) ->
-
       hovbox_if box 0
         ( hovbox_if (not box) 0
             (list a1N "@ " (fmt_type_var_with_parenze ~have_tick:true c))
@@ -5082,7 +5081,7 @@ and fmt_let c ~ext ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr ~body_loc
        $ hvbox 0 fmt_expr ) )
   $ fmt_atrs
 
-and fmt_value_constraint c vc_opt modes =
+and fmt_value_constraint c vc_opt modes ~constraint_modes =
   let fmt_sep x =
     match c.conf.fmt_opts.break_colon.v with
     | `Before -> fmt "@ " $ str x $ char ' '
@@ -5094,7 +5093,9 @@ and fmt_value_constraint c vc_opt modes =
       let ctx = Vc (vc, modes) in
       match vc with
       | Pvc_constraint {locally_abstract_univars= []; typ} ->
-          (noop, fmt_type_cstr c (sub_typ ~ctx typ), fmt_modes)
+          ( noop
+          , fmt_type_cstr ~constraint_modes c (sub_typ ~ctx typ)
+          , fmt_modes )
       | Pvc_constraint {locally_abstract_univars= pvars; typ} -> (
         match c.conf.fmt_opts.break_colon.v with
         | `Before ->
@@ -5105,7 +5106,7 @@ and fmt_value_constraint c vc_opt modes =
                   $ list pvars " "
                       (fmt_type_var_with_parenze ~have_tick:false c)
                   $ fmt ".@ "
-                  $ fmt_core_type c (sub_typ ~ctx typ) )
+                  $ fmt_core_type ~constraint_modes c (sub_typ ~ctx typ) )
             , fmt_modes )
         | `After ->
             ( fmt_sep ":"
@@ -5114,14 +5115,15 @@ and fmt_value_constraint c vc_opt modes =
                   $ list pvars " "
                       (fmt_type_var_with_parenze ~have_tick:false c)
                   $ str "." )
-            , fmt "@ " $ fmt_core_type c (sub_typ ~ctx typ)
+            , fmt "@ " $ fmt_core_type ~constraint_modes c (sub_typ ~ctx typ)
             , fmt_modes ) )
       | Pvc_coercion {ground; coercion} ->
           ( noop
           , opt ground (fun ty ->
-                fmt_sep ":" $ fmt_core_type c (sub_typ ~ctx ty) )
+                fmt_sep ":"
+                $ fmt_core_type ~constraint_modes c (sub_typ ~ctx ty) )
             $ fmt_sep ":>"
-            $ fmt_core_type c (sub_typ ~ctx coercion)
+            $ fmt_core_type ~constraint_modes c (sub_typ ~ctx coercion)
           , fmt_modes ) )
   | None -> (noop, noop, fmt_modes)
 
@@ -5144,7 +5146,7 @@ and fmt_value_binding c ~rec_flag ?(punned_in_output = false) ?ext ?in_ ?epi
   let modes_binding = Modes lb_modes_binding in
   let fmt_modes_binding = fmt_modals c modes_binding in
   let fmt_newtypes, fmt_cstr, fmt_modes =
-    fmt_value_constraint c lb_typ lb_modes
+    fmt_value_constraint c lb_typ lb_modes ~constraint_modes:lb_modes
   in
   let indent =
     match lb_exp.ast.pexp_desc with
