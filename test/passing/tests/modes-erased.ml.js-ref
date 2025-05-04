@@ -64,6 +64,10 @@ module Expressions = struct
           | x -> (x : _ @ mode)
           | y -> (y : _ @ mode))
     ; fun1 = (fun ?(x = (x : _ @ mode)) () @ mode -> (y : _ @ mode))
+    ; fun2 = (fun ?(x = (x : _ @ mode)) () @ mode1 -> (y : _ @ mode2))
+    ; fun3 = (fun ?(x = (x : _ @ mode)) () @ mode1 -> (y : t @ mode2))
+    ; fun4 = (fun ?(x = (x : _ @ mode)) () -> (y : _ @ mode))
+    ; fun5 = (fun ?(x = (x : _ @ mode)) () -> (y : t @ mode))
     ; apply1 = (x : _ @ mode) (y : _ @ mode)
     ; apply2 = f ~lbl:(x : _ @ mode)
     ; apply3 = f ~x:(x : _ @ mode)
@@ -143,6 +147,10 @@ module Expressions = struct
          : _
          @ mode)
     ; fun1 = (fun x @ mode -> y : _ @ mode)
+    ; fun2 = (fun x @ mode1 -> y : _ @ mode2)
+    ; fun3 = (fun x @ mode1 -> y : t @ mode2)
+    ; fun4 = (fun x -> y : _ @ mode)
+    ; fun5 = (fun x -> y : t @ mode)
     ; apply1 = (f x : _ @ mode)
     ; match1 =
         ((match x with

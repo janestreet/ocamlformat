@@ -790,7 +790,10 @@ and fmt_type_cstr c ?constraint_ctx ?constraint_modes xtyp =
 and type_constr_and_body c xbody =
   let body = xbody.ast in
   match xbody.ast.pexp_desc with
-  | Pexp_constraint (exp, typ, modes) ->
+  | Pexp_constraint (exp, typ, ([] as modes))
+   |Pexp_constraint (exp, (None as typ), modes)
+  (* [fun x : ret_t @ ret_mode ->] is banned in the parser, so don't move the
+     constraint if there are both a type and modes. *) ->
       Cmts.relocate c.cmts ~src:body.pexp_loc ~before:exp.pexp_loc
         ~after:exp.pexp_loc ;
       let typ_ctx = Exp body in
