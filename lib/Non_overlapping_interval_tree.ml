@@ -102,7 +102,7 @@ module Make (Itv : IN) = struct
         (list roots "@," (fun root ->
              let children = children tree root in
              vbox 1
-               ( str (Sexp.to_string_hum (Itv.comparator.sexp_of_t root))
+               ( str (Sexp.to_string_hum (Comparator.sexp_of_t Itv.comparator root))
                $ wrap_if
                    (not (List.is_empty children))
                    "@,{" " }" (dump_ tree children) ) ) )
