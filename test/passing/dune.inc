@@ -7647,24 +7647,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to layout_annotation-erased.ml.js-stdout
-   (with-stderr-to layout_annotation-erased.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_annotation.ml})))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_annotation-erased.ml.js-ref layout_annotation-erased.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_annotation-erased.ml.js-err layout_annotation-erased.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to layout_annotation.ml.stdout
    (with-stderr-to layout_annotation.ml.stderr
      (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation.ml})))))
