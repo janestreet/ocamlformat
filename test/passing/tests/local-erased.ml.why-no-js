@@ -1,1 +1,1 @@
-we directly set [--profile=janestreet] in [.opts] for [-erased] files
+we only test erasing behavior in the default profile
