@@ -4592,9 +4592,7 @@ atomic_type:
     | LPAREN mkrhs(UNDERSCORE {None}) COLON jkind=jkind_annotation RPAREN
       { Ptyp_var ($2, jkind) }
     | LPAREN TYPE COLON jkind=jkind RPAREN
-      { if Erase_jane_syntax.should_erase ()
-        then Ptyp_any
-        else Ptyp_of_kind jkind }
+      { Ptyp_of_kind jkind }
 
   )
   { $1 } /* end mktyp group */
