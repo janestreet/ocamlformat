@@ -11,6 +11,7 @@
 
 module type IN = sig
   include Comparator.S
+  val sexp_of_t : t -> Sexp.t
 
   val contains : t -> t -> bool
 
@@ -102,7 +103,7 @@ module Make (Itv : IN) = struct
         (list roots "@," (fun root ->
              let children = children tree root in
              vbox 1
-               ( str (Sexp.to_string_hum (Itv.comparator.sexp_of_t root))
+               ( str (Sexp.to_string_hum (Itv.sexp_of_t root))
                $ wrap_if
                    (not (List.is_empty children))
                    "@,{" " }" (dump_ tree children) ) ) )

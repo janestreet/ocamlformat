@@ -15,6 +15,7 @@
 
 module type IN = sig
   include Comparator.S
+  val sexp_of_t : t -> Sexp.t
 
   val contains : t -> t -> bool
 
