@@ -35,15 +35,18 @@ type u =
 (* Attributes *)
 
 type u =
-  ( type :
-    value
-    mod portable
-    with t
-    with (u[@foo])
-    with ( type :
-           (* f f *)
-           value
-           mod contended many
-           with ('a : value mod portable with (type : (bits8 & bits8) mod external_)) u )
-           v )
-    y
+  (( type :
+     value
+     mod portable
+     with t
+     with (u[@foo])
+     with (( type :
+             (* f f *)
+             value
+             mod contended many
+             with (('a : value mod portable with (type : (bits8 & bits8) mod external_)) u
+                  [@bar]) )
+             v
+          [@baz]) )
+     y
+  [@fnord])
