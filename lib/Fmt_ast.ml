@@ -3285,16 +3285,75 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
             $ str " = "
             $ fmt_expression c (sub_exp ~ctx f)
       in
+      let rec last_item = function
+        | [] -> assert false (* this can't happen *)
+        | [x] -> x
+        | _ :: xs -> last_item xs
+      in
+      let rec exp_ends_with_closed_square_bracket exp =
+        match exp.pexp_desc with
+        | Pexp_let (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_function cases ->
+            case_end_with_closed_square_bracket (last_item cases)
+        | Pexp_fun (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_apply (_, args) ->
+            exp_ends_with_closed_square_bracket (snd (last_item args))
+        | Pexp_match (_, (_ :: _ as cases)) ->
+            case_end_with_closed_square_bracket (last_item cases)
+        | Pexp_try (_, (_ :: _ as cases)) ->
+            case_end_with_closed_square_bracket (last_item cases)
+        | Pexp_list _ -> true
+        | Pexp_cons elems ->
+            exp_ends_with_closed_square_bracket (last_item elems)
+        | Pexp_construct ({txt= Lident "[]"; loc= _}, None) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_construct (_, Some exp) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_variant (_, Some exp) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_array _ -> true
+        | Pexp_ifthenelse (if_branch, None) ->
+            let last = (last_item if_branch).if_body in
+            exp_ends_with_closed_square_bracket last
+        | Pexp_ifthenelse (_, Some exp) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_sequence (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_setinstvar (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_letmodule (_, _, _, exp) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_letexception (_, exp) ->
+            exp_ends_with_closed_square_bracket exp
+        | Pexp_assert exp -> exp_ends_with_closed_square_bracket exp
+        | Pexp_lazy exp -> exp_ends_with_closed_square_bracket exp
+        | Pexp_poly (exp, None) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_newtype (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_open (_, exp) -> exp_ends_with_closed_square_bracket exp
+        | Pexp_letop {let_= _; ands= _; body} ->
+            exp_ends_with_closed_square_bracket body
+        | Pexp_extension _ -> true
+        | Pexp_stack exp -> exp_ends_with_closed_square_bracket exp
+        | Pexp_list_comprehension _ -> true
+        | Pexp_array_comprehension _ -> true
+        | _ -> false
+      and case_end_with_closed_square_bracket {pc_lhs= _; pc_guard= _; pc_rhs}
+          =
+        exp_ends_with_closed_square_bracket pc_rhs
+      in
       match l with
       | [] ->
           pro
           $ Params.parens_if parens c.conf
               (wrap "{<" ">}" (Cmts.fmt_within c pexp_loc) $ fmt_atrs)
       | _ ->
+          let br_open, br_close, space =
+            if exp_ends_with_closed_square_bracket (snd (last_item l)) then
+              ("{< ", " >}", true)
+            else ("{<", ">}", false)
+          in
           pro
           $ hvbox 0
               (Params.parens_if parens c.conf
-                 ( wrap_fits_breaks ~space:false c.conf "{<" ">}"
+                 ( wrap_fits_breaks ~space c.conf br_open br_close
                      (list l "@;<0 1>; " fmt_field)
                  $ fmt_atrs ) ) )
   | Pexp_setinstvar (name, expr) ->
