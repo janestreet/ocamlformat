@@ -3305,8 +3305,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
         | Pexp_list _ -> true
         | Pexp_cons elems ->
             exp_ends_with_closed_square_bracket (last_item elems)
-        | Pexp_construct ({txt= Lident "[]"; loc= _}, None) ->
-            exp_ends_with_closed_square_bracket exp
+        | Pexp_construct ({txt= Lident "[]"; loc= _}, None) -> true
         | Pexp_construct (_, Some exp) ->
             exp_ends_with_closed_square_bracket exp
         | Pexp_variant (_, Some exp) ->
@@ -3345,15 +3344,15 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
           $ Params.parens_if parens c.conf
               (wrap "{<" ">}" (Cmts.fmt_within c pexp_loc) $ fmt_atrs)
       | _ ->
-          let br_open, br_close, space =
+          let br_open, br_close =
             if exp_ends_with_closed_square_bracket (snd (last_item l)) then
-              ("{< ", " >}", true)
-            else ("{<", ">}", false)
+              ("{<", " >}")
+            else ("{<", ">}")
           in
           pro
           $ hvbox 0
               (Params.parens_if parens c.conf
-                 ( wrap_fits_breaks ~space c.conf br_open br_close
+                 ( wrap_fits_breaks ~space:false c.conf br_open br_close
                      (list l "@;<0 1>; " fmt_field)
                  $ fmt_atrs ) ) )
   | Pexp_setinstvar (name, expr) ->

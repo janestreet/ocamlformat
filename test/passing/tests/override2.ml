@@ -10,11 +10,11 @@ let _ =
 
     method empty = {<l = [] >}
 
-    method singleton x = {< l = [x] >}
+    method singleton x = {<l = [x] >}
 
     method both x = {<l = [x]; v = x>}
 
-    method both_ws x = {< v = x; l = [x] >}
+    method both_ws x = {<v = x; l = [x] >}
 
     method with_let1 x =
       {< l = let p = [x] in
@@ -22,13 +22,13 @@ let _ =
 
     method with_let2 x =
       {< l = let a = x + v in
-             [a] >}
+             [a]  >}
 
     method update_constr_none = {<o = None>}
 
     method update_constr_some_empty = {<o = Some [] >}
 
-    method update_constr_some x = {< o = Some [x] >}
+    method update_constr_some x = {<o = Some [x] >}
 
     method prepend x = {<l = x :: l>}
   end
