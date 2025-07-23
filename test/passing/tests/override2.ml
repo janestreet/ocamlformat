@@ -6,6 +6,12 @@ let _ =
 
     val mutable o = None
 
+    val mutable a = [||]
+
+    val mutable ia = [::]
+
+    val mutable vv = `A
+
     method inc = {<v = v + 1>}
 
     method empty = {<l = [] >}
@@ -22,7 +28,7 @@ let _ =
 
     method with_let2 x =
       {< l = let a = x + v in
-             [a]  >}
+             [a] >}
 
     method update_constr_none = {<o = None>}
 
@@ -31,4 +37,18 @@ let _ =
     method update_constr_some x = {<o = Some [x] >}
 
     method prepend x = {<l = x :: l>}
+
+    method attr x = {<l = x [@a] >}
+
+    method array x = {<a = [|x|] >}
+
+    method iarray x = {<ia = [:x; x; x:] >}
+
+    method comprehension x = {<l = [2 * x for x = 1 to 10] >}
+
+    method variant = {<vv = (`A : [> `A])>}
   end
+
+module _ = struct
+  type t = < x: [`A] >
+end
