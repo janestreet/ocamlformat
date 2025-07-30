@@ -4570,6 +4570,21 @@ and fmt_module c ctx ?rec_ ?epi ?(can_sparse = false) keyword ?(eqty = "=")
             Some (str " " $ str eqty $ opt blk.pro (fun pro -> str " " $ pro))
         ; psp= fmt_if (Option.is_none blk.pro) "@;<1 2>" $ blk.psp } )
   in
+  let fmt_name, fmt_trailing_modals =
+    match modals with
+    | Modes _ ->
+        (* [module M : S @ m = M] *)
+        (fmt_str_loc_opt c name, fmt_modals c modals)
+    | Modalities _ ->
+        (* [module (M @@ m) : S] *)
+        ( wrap_if
+            (not (is_empty_modals modals))
+            "(" ")"
+            (fmt_str_loc_opt c name $ fmt_modals c modals)
+        , noop )
+    | No_modals -> (fmt_str_loc_opt c name, noop)
+    | Mode_crossing _ -> assert false
+  in
   let blk_b = Option.value_map xbody ~default:empty ~f:(fmt_module_expr c) in
   let fmt_name_and_mt ~pro ~loc name mt =
     let xmt = sub_mty ~ctx mt in
@@ -4616,7 +4631,7 @@ and fmt_module c ctx ?rec_ ?epi ?(can_sparse = false) keyword ?(eqty = "=")
     str keyword
     $ fmt_extension_suffix c ext
     $ fmt_attributes c ~pre:(Break (1, 0)) attrs_before
-    $ fmt_if rec_flag " rec" $ str " " $ fmt_str_loc_opt c name
+    $ fmt_if rec_flag " rec" $ str " " $ fmt_name
   in
   let compact =
     Poly.(c.conf.fmt_opts.let_module.v = `Compact) || not can_sparse
@@ -4632,7 +4647,7 @@ and fmt_module c ctx ?rec_ ?epi ?(can_sparse = false) keyword ?(eqty = "=")
                 ( hvbox args_p.indent
                     (fmt_args ~pro:intro xargs $ fmt_opt blk_t.pro)
                 $ blk_t.psp $ blk_t.bdy )
-            $ blk_t.esp $ fmt_opt blk_t.epi $ fmt_modals c modals
+            $ blk_t.esp $ fmt_opt blk_t.epi $ fmt_trailing_modals
             $ fmt_if (Option.is_some xbody) " ="
             $ fmt_if_k compact fmt_pro )
         $ fmt_if_k (not compact) fmt_pro

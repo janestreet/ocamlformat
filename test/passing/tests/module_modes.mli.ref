@@ -18,8 +18,8 @@ module T : sig @@ nonportable
   val portable : t @@ nonportable
 end
 
-module T : sig @@ portable
+module (T @@ nonportable) : sig @@ portable
   val portable : t
 
   val nonportable : t @@ nonportable
-end @@ nonportable
+end
