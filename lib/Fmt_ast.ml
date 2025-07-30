@@ -2836,15 +2836,25 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
   | Pexp_letmodule (name, args, pmod, exp) ->
       let keyword = "let module" in
       let xbody = sub_mod ~ctx pmod in
-      let xbody, xmty =
+      let xbody, xmty, xmmodes =
         match xbody.ast with
-        | { pmod_desc= Pmod_constraint (body_me, Some body_mt, _)
+        | { pmod_desc= Pmod_constraint (body_me, body_mt, body_mm)
           ; pmod_loc
           ; pmod_attributes= [] } ->
-            Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-              ~after:body_mt.pmty_loc ;
-            (sub_mod ~ctx body_me, Some (sub_mty ~ctx body_mt))
-        | _ -> (xbody, None)
+            let xbody = sub_mod ~ctx body_me in
+            let xmty =
+              match body_mt with
+              | None ->
+                  Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
+                    ~after:body_me.pmod_loc ;
+                  None
+              | Some body_mt ->
+                  Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
+                    ~after:body_mt.pmty_loc ;
+                  Some (sub_mty ~ctx body_mt)
+            in
+            (xbody, xmty, body_mm)
+        | _ -> (xbody, None, [])
       in
       let can_sparse =
         match xbody.ast.pmod_desc with
@@ -2857,8 +2867,8 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
               (parens || not (List.is_empty pexp_attributes))
               c.conf
               ( hvbox 2
-                  (fmt_module c ctx keyword ~eqty:":" name No_modals args
-                     (Some xbody) xmty
+                  (fmt_module c ctx keyword ~eqty:":" name (Modes xmmodes)
+                     args (Some xbody) xmty
                      ~attrs:(Ast_helper.Attr.ext_attrs ?ext ())
                      ~epi:(str "in") ~can_sparse ~rec_flag:false )
               $ fmt "@;<1000 0>"
@@ -4607,10 +4617,7 @@ and fmt_module c ctx ?rec_ ?epi ?(can_sparse = false) keyword ?(eqty = "=")
     $ fmt_extension_suffix c ext
     $ fmt_attributes c ~pre:(Break (1, 0)) attrs_before
     $ fmt_if rec_flag " rec" $ str " "
-    $ wrap_if
-        (not (is_empty_modals modals))
-        "(" ")"
-        (fmt_str_loc_opt c name $ fmt_modals c modals)
+    fmt_str_loc_opt c name 
   in
   let compact =
     Poly.(c.conf.fmt_opts.let_module.v = `Compact) || not can_sparse
@@ -4626,7 +4633,7 @@ and fmt_module c ctx ?rec_ ?epi ?(can_sparse = false) keyword ?(eqty = "=")
                 ( hvbox args_p.indent
                     (fmt_args ~pro:intro xargs $ fmt_opt blk_t.pro)
                 $ blk_t.psp $ blk_t.bdy )
-            $ blk_t.esp $ fmt_opt blk_t.epi
+            $ blk_t.esp $ fmt_opt blk_t.epi $ fmt_modals c modals
             $ fmt_if (Option.is_some xbody) " ="
             $ fmt_if_k compact fmt_pro )
         $ fmt_if_k (not compact) fmt_pro
@@ -4865,10 +4872,24 @@ and fmt_module_expr ?(dock_struct = true) c ({ast= m; _} as xmod) =
       let blk_a = fmt_module_expr c (sub_mod ~ctx me_a) in
       fmt_mod_apply c ctx ~parens ~dock_struct pmod_loc pmod_attributes me_f
         (`Block (blk_a, Mod.is_simple me_a))
-  | Pmod_constraint (me, mt, _mm) ->
-      let mt = match mt with None -> assert false | Some mt -> mt in
+  | Pmod_constraint (me, mt, mm) ->
       let blk_e = fmt_module_expr c (sub_mod ~ctx me) in
-      let blk_t = fmt_module_type c (sub_mty ~ctx mt) in
+      let pro_constr, blk_t =
+        match mt with
+        | None ->
+            ( noop
+            , { opn= None
+              ; pro= None
+              ; psp= fmt "@,"
+              ; bdy= fmt_modals c (Modes mm)
+              ; cls= noop
+              ; esp= noop
+              ; epi= None } )
+        | Some mt ->
+            let blk_t = fmt_module_type c (sub_mty ~ctx mt) in
+            ( fmt " :" $ Params.Mod.break_constraint c.conf ~rhs:mt
+            , {blk_t with bdy= blk_t.bdy $ fmt_modals c (Modes mm)} )
+      in
       let has_epi =
         Cmts.has_after c.cmts pmod_loc || not (List.is_empty pmod_attributes)
       in
@@ -4881,8 +4902,7 @@ and fmt_module_expr ?(dock_struct = true) c ({ast= m; _} as xmod) =
       ; bdy=
           hvbox 0
             ( fmt_opt blk_e.pro $ blk_e.psp $ blk_e.bdy $ blk_e.esp
-            $ fmt_opt blk_e.epi $ fmt " :"
-            $ Params.Mod.break_constraint c.conf ~rhs:mt
+            $ fmt_opt blk_e.epi $ pro_constr
             $ hvbox 0
                 ( fmt_opt blk_t.pro $ blk_t.psp $ blk_t.bdy $ blk_t.esp
                 $ fmt_opt blk_t.epi ) )
@@ -5311,19 +5331,30 @@ and fmt_module_binding c ~rec_flag ~first {ast= pmb; _} =
   let ctx = Mb pmb in
   let keyword = if first then "module" else "and" in
   let xbody = sub_mod ~ctx pmb.pmb_expr in
-  let xbody, xmty =
+  let xbody, xmty, xmodes =
     match xbody.ast with
-    | { pmod_desc= Pmod_constraint (body_me, Some body_mt, _)
+    | { pmod_desc= Pmod_constraint (body_me, body_mt, body_mm)
       ; pmod_loc
       ; pmod_attributes= [] } ->
-        Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-          ~after:body_mt.pmty_loc ;
-        (sub_mod ~ctx body_me, Some (sub_mty ~ctx body_mt))
-    | _ -> (xbody, None)
+        let xbody = sub_mod ~ctx body_me in
+        let xmty =
+          match body_mt with
+          | None ->
+              Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
+                ~after:body_me.pmod_loc ;
+              None
+          | Some body_mt ->
+              Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
+                ~after:body_mt.pmty_loc ;
+              Some (sub_mty ~ctx body_mt)
+        in
+        (xbody, xmty, body_mm)
+    | _ -> (xbody, None, [])
   in
   Cmts.fmt c pmb.pmb_loc
     (fmt_module ~rec_:rec_flag c ctx keyword ~rec_flag:(rec_flag && first)
-       ~eqty:":" pmb_name No_modals pmb.pmb_args (Some xbody) xmty ~attrs )
+       ~eqty:":" pmb_name (Modes xmodes) pmb.pmb_args (Some xbody) xmty
+       ~attrs )
 
 let fmt_toplevel_directive c ~semisemi dir =
   let fmt_dir_arg = function
