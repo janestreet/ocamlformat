@@ -2842,17 +2842,14 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
           ; pmod_loc
           ; pmod_attributes= [] } ->
             let xbody = sub_mod ~ctx body_me in
-            let xmty =
+            let xmty, after =
               match body_mt with
-              | None ->
-                  Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-                    ~after:body_me.pmod_loc ;
-                  None
+              | None -> (None, body_me.pmod_loc)
               | Some body_mt ->
-                  Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-                    ~after:body_mt.pmty_loc ;
-                  Some (sub_mty ~ctx body_mt)
+                  (Some (sub_mty ~ctx body_mt), body_mt.pmty_loc)
             in
+            Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
+              ~after ;
             (xbody, xmty, body_mm)
         | _ -> (xbody, None, [])
       in
@@ -5351,17 +5348,12 @@ and fmt_module_binding c ~rec_flag ~first {ast= pmb; _} =
       ; pmod_loc
       ; pmod_attributes= [] } ->
         let xbody = sub_mod ~ctx body_me in
-        let xmty =
+        let xmty, after =
           match body_mt with
-          | None ->
-              Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-                ~after:body_me.pmod_loc ;
-              None
-          | Some body_mt ->
-              Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc
-                ~after:body_mt.pmty_loc ;
-              Some (sub_mty ~ctx body_mt)
+          | None -> (None, body_me.pmod_loc)
+          | Some body_mt -> (Some (sub_mty ~ctx body_mt), body_mt.pmty_loc)
         in
+        Cmts.relocate c.cmts ~src:pmod_loc ~before:body_me.pmod_loc ~after ;
         (xbody, xmty, body_mm)
     | _ -> (xbody, None, [])
   in
