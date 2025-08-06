@@ -3373,8 +3373,8 @@ and fmt_comprehension_iterator c ~ctx : iterator -> _ = function
       $ fmt_expression c (sub_exp ~ctx stop)
   | In seq -> fmt "in@;<1 0>" $ fmt_expression c (sub_exp ~ctx seq)
 
-and fmt_let_bindings c ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr mutable_flag
-    rec_flag bindings body =
+and fmt_let_bindings c ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr
+    mutable_flag rec_flag bindings body =
   let indent_after_in =
     match body.pexp_desc with
     | Pexp_let _ | Pexp_letmodule _
@@ -3391,8 +3391,8 @@ and fmt_let_bindings c ?ext ~parens ~has_attr ~fmt_atrs ~fmt_expr mutable_flag
         0
     | _ -> c.conf.fmt_opts.indent_after_in.v
   in
-  fmt_let c ~ext ~mutable_flag ~rec_flag ~bindings ~parens ~has_attr ~fmt_atrs
-    ~fmt_expr ~body_loc:body.pexp_loc ~indent_after_in
+  fmt_let c ~ext ~mutable_flag ~rec_flag ~bindings ~parens ~has_attr
+    ~fmt_atrs ~fmt_expr ~body_loc:body.pexp_loc ~indent_after_in
 
 and fmt_class_structure c ~ctx ?ext self_ fields =
   let update_config c i =
@@ -3563,9 +3563,9 @@ and fmt_class_expr c ({ast= exp; ctx= ctx0} as xexp) =
       in
       let fmt_expr = fmt_class_expr c (sub_cl ~ctx body) in
       let has_attr = not (List.is_empty pcl_attributes) in
-      fmt_let c ~ext:None ~mutable_flag:lbs.pvbs_mutable ~rec_flag:lbs.pvbs_rec
-        ~bindings ~parens ~has_attr ~fmt_atrs ~fmt_expr ~body_loc:body.pcl_loc
-        ~indent_after_in
+      fmt_let c ~ext:None ~mutable_flag:lbs.pvbs_mutable
+        ~rec_flag:lbs.pvbs_rec ~bindings ~parens ~has_attr ~fmt_atrs
+        ~fmt_expr ~body_loc:body.pcl_loc ~indent_after_in
   | Pcl_constraint (e, t) ->
       hvbox 2
         (wrap_fits_breaks ~space:false c.conf "(" ")"
@@ -5109,8 +5109,11 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
   | Pstr_type (rec_flag, decls) -> fmt_type c ?ext rec_flag decls ctx
   | Pstr_typext te -> fmt_type_extension ?ext c ctx te
   | Pstr_kind_abbrev kab -> fmt_kind_abbreviation c kab
-  | Pstr_value { pvbs_mutable= mutable_flag; pvbs_rec= rec_flag;
-                 pvbs_bindings= bindings; pvbs_extension} ->
+  | Pstr_value
+      { pvbs_mutable= mutable_flag
+      ; pvbs_rec= rec_flag
+      ; pvbs_bindings= bindings
+      ; pvbs_extension } ->
       let update_config c i = update_config ~quiet:true c i.pvb_attributes in
       let ast x = Lb x in
       let fmt_item c ctx ~prev ~next b =
@@ -5149,8 +5152,8 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
       fmt_class_types ?ext c ctx ~pre:"class type" ~sep:"=" cl
   | Pstr_class cls -> fmt_class_exprs ?ext c ctx cls
 
-and fmt_let c ~ext ~mutable_flag ~rec_flag ~bindings ~parens ~fmt_atrs ~fmt_expr
-    ~body_loc ~has_attr ~indent_after_in =
+and fmt_let c ~ext ~mutable_flag ~rec_flag ~bindings ~parens ~fmt_atrs
+    ~fmt_expr ~body_loc ~has_attr ~indent_after_in =
   let is_ext = Option.is_some ext in
   let parens = parens || has_attr in
   let fmt_in indent =
@@ -5244,8 +5247,8 @@ and fmt_value_constraint c vc_opt modes =
           , fmt_modes ) )
   | None -> (noop, noop, fmt_modes)
 
-and fmt_value_binding c ~mutable_flag ~rec_flag ?(punned_in_output = false) ?ext
-    ?in_ ?epi
+and fmt_value_binding c ~mutable_flag ~rec_flag ?(punned_in_output = false)
+    ?ext ?in_ ?epi
     { lb_op
     ; lb_pat
     ; lb_args
