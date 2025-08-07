@@ -8063,7 +8063,7 @@
  (action
   (with-stdout-to let_mutable.ml.stdout
    (with-stderr-to let_mutable.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/let_mutable.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/let_mutable.ml})))))
 
 (rule
  (alias runtest)
