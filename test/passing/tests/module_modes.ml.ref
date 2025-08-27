@@ -102,3 +102,59 @@ let () =
     (* 43 *)
   in
   ()
+
+module M @ foo = struct end
+
+module M : S @ foo = struct end
+
+module (M @ foo) @ bar = struct end
+
+module (M @ foo) : S @ bar = struct end
+
+module (F @ foo) () = struct end
+
+module (F @ foo) () : S = struct end
+
+module (F @ foo) () @ bar = struct end
+
+module (F @ foo) () : S @ bar = struct end
+
+module rec (M @ foo) : S @ bar = struct end
+
+and (N @ foo) : S @ bar = struct end
+
+module rec (F @ foo) () : S @ bar = struct end
+
+and (G @ foo) () : S @ bar = struct end
+
+let () =
+  let module M @ foo = struct end in
+  ()
+
+let () =
+  let module M : S @ foo = struct end in
+  ()
+
+let () =
+  let module (M @ foo) @ bar = struct end in
+  ()
+
+let () =
+  let module (M @ foo) : S @ bar = struct end in
+  ()
+
+let () =
+  let module (F @ foo) () = struct end in
+  ()
+
+let () =
+  let module (F @ foo) () : S = struct end in
+  ()
+
+let () =
+  let module (F @ foo) () @ bar = struct end in
+  ()
+
+let () =
+  let module (F @ foo) () : S @ bar = struct end in
+  ()
