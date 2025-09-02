@@ -640,7 +640,7 @@ let let_binding_can_be_punned ~binding ~is_ext =
       true
   | _ -> false
 
-let extract_module_binding_constraints c ctx args modes body =
+let extract_module_binding_constraints c ctx modes body =
   let xbody = sub_mod ~ctx body in
   let xbody, xmty, xmodes =
     match xbody.ast with
@@ -659,17 +659,7 @@ let extract_module_binding_constraints c ctx args modes body =
   in
   (* [xmodes_id] is the modes on the identifier, while [xmodes] is the modes
      on the RHS. For example, [module (F @ xmodes_id) () @ xmodes = ...]. *)
-  let xmodes_id, xmodes =
-    match (args, xmodes) with
-    | [], [] ->
-        (* If there is no argument, then [xmodes_id] and [xmodes] are the
-           same thing, in which case we prefer [xmodes_id]. But we don't want
-           to reduce [module (M @ foo) @ bar = ...] to [module M @ foo bar =
-           ...] because that would be viewed as changed AST by the standard
-           parser. *)
-        (modes, [])
-    | _ -> (modes, xmodes)
-  in
+  let xmodes_id = modes in
   (xmodes_id, xmty, xmodes, xbody)
 
 let rec fmt_extension_aux c ctx ~key (ext, pld) =
@@ -2874,7 +2864,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
   | Pexp_letmodule (name, modes, args, pmod, exp) ->
       let keyword = "let module" in
       let xmodes_id, xmty, xmodes, xbody =
-        extract_module_binding_constraints c ctx args modes pmod
+        extract_module_binding_constraints c ctx modes pmod
       in
       let can_sparse =
         match xbody.ast.pmod_desc with
@@ -5370,8 +5360,7 @@ and fmt_module_binding c ~rec_flag ~first {ast= pmb; _} =
   let ctx = Mb pmb in
   let keyword = if first then "module" else "and" in
   let xmodes_id, xmty, xmodes, xbody =
-    extract_module_binding_constraints c ctx pmb.pmb_args pmb.pmb_modes
-      pmb.pmb_expr
+    extract_module_binding_constraints c ctx pmb.pmb_modes pmb.pmb_expr
   in
   Cmts.fmt c pmb.pmb_loc
     (fmt_module ~rec_:rec_flag c ctx keyword ~rec_flag:(rec_flag && first)
