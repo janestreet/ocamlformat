@@ -663,11 +663,11 @@ let extract_module_binding_constraints c ctx args modes body =
     match (args, xmodes) with
     | [], [] ->
         (* If there is no argument, then [xmodes_id] and [xmodes] are the
-           same thing, in which case we prefer [xmodes]. But we don't want to
-           reduce [module (M @ foo) @ bar = ...] to [module M @ foo bar =
+           same thing, in which case we prefer [xmodes_id]. But we don't want
+           to reduce [module (M @ foo) @ bar = ...] to [module M @ foo bar =
            ...] because that would be viewed as changed AST by the standard
            parser. *)
-        ([], modes)
+        (modes, [])
     | _ -> (modes, xmodes)
   in
   (xmodes_id, xmty, xmodes, xbody)
