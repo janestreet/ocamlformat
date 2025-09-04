@@ -540,36 +540,6 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
             }
           else ca.pca_type ) }
   in
-  let module_binding (m : Ast_mapper.mapper) (mb : module_binding) =
-    (* Special cases: normalize the forms {[ module (M @ m) : S @ l = N ]} to
-       {[ module (M @ m l) : S = N ]} and {[ module M : S @ m = N ]} to {[
-       module (M @ m) : S = N ]} *)
-    let mb = Ast_mapper.default_mapper.module_binding m mb in
-    let pmod_desc =
-      match mb.pmb_expr.pmod_desc with
-      | Pmod_constraint
-          ( ( {pmod_desc= Pmod_constraint (expr, mty, outer_modes); _} as
-              inner_expr )
-          , None
-          , inner_modes ) ->
-          let inner_expr =
-            match mty with
-            | Some _ ->
-                {inner_expr with pmod_desc= Pmod_constraint (expr, mty, [])}
-            | None -> expr
-          in
-          Pmod_constraint (inner_expr, None, inner_modes @ outer_modes)
-      | Pmod_constraint (expr, (Some _ as mty), modes) ->
-          Pmod_constraint
-            ( { pmod_desc= Pmod_constraint (expr, mty, [])
-              ; pmod_loc= Location.none
-              ; pmod_attributes= [] }
-            , None
-            , modes )
-      | pmod_desc -> pmod_desc
-    in
-    {mb with pmb_expr= {mb.pmb_expr with pmod_desc}}
-  in
   { Ast_mapper.default_mapper with
     location
   ; attribute
@@ -588,8 +558,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; modalities
   ; value_binding
   ; constructor_declaration
-  ; extension_constructor
-  ; module_binding }
+  ; extension_constructor }
 
 let ast fragment ~ignore_doc_comments ~erase_jane_syntax c =
   map fragment (make_mapper c ~ignore_doc_comments ~erase_jane_syntax)

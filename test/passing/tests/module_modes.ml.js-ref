@@ -1,29 +1,29 @@
 (* bindings *)
 
-module (M @ m) : sig
+module M : sig
   type t
-end =
+end @ m =
   M
 
-module (M @ m) : S = M
-module (M @ m) = M
+module M : S @ m = M
+module M @ m = M
 
-module (M @ m) : sig
+module M : sig
   type t
-end =
+end @ m =
   M
 [@@a]
 
-module (M @ m) : S = M [@@a]
-module (M @ m) = M [@@a]
+module M : S @ m = M [@@a]
+module M @ m = M [@@a]
 
-module [@a] (M @ m) : sig
+module [@a] M : sig
   type t
-end =
+end @ m =
   M
 
-module [@a] (M @ m) : S = M
-module [@a] (M @ m) = M
+module [@a] M : S @ m = M
+module [@a] M @ m = M
 
 (* expressions *)
 
@@ -48,23 +48,27 @@ let () =
 
 (* test comment preservation *)
 
-module (M @ (* 05 *) m (* 06 *)) : (* 02 *) sig
+module M : (* 02 *) sig
   (* 03 *)
   type t
-end (* 04 *) =
+end (* 04 *) @ (* 05 *) m (* 06 *) =
   (* 01 *)
 
   (* 07 *)
   M
 (* 08 *)
 
-module (M @ (* 12 *) m (* 13 *)) : (* 10 *) S (* 11 *) =
+module M : (* 10 *) S (* 11 *) @ (* 12 *) m (* 13 *) =
   (* 09 *)
   (* 14 *)
   M
 (* 15 *)
 
-module (M (* 16 *) @ (* 17 *) m (* 18 *)) = (* 19 *) M (* 20 *)
+module M @ (* 17 *) m (* 18 *) =
+  (* 16 *)
+  (* 19 *)
+  M
+(* 20 *)
 
 let () =
   let module (* 21 *) M : (* 23 *) sig
@@ -109,8 +113,8 @@ module (M @ foo) : S = struct end
 
 (* No functor args: [bar] should move onto [M] *)
 
-module (M @ bar foo) = struct end
-module (M @ bar foo) : S = struct end
+module (M @ foo) @ bar = struct end
+module (M @ foo) : S @ bar = struct end
 module (F @ foo) () = struct end
 module (F @ foo) () : S = struct end
 
@@ -119,8 +123,8 @@ module (F @ foo) () : S = struct end
 module (F @ foo) () @ bar = struct end
 module (F @ foo) () : S @ bar = struct end
 
-module rec (M @ bar foo) : S = struct end
-and (N @ bar foo) : S = struct end
+module rec (M @ foo) : S @ bar = struct end
+and (N @ foo) : S @ bar = struct end
 
 module rec (F @ foo) () : S @ bar = struct end
 and (G @ foo) () : S @ bar = struct end
@@ -129,21 +133,21 @@ and (G @ foo) () : S @ bar = struct end
 
 module [@a] (M @ foo) = struct end
 module [@a] (M @ foo) : S = struct end
-module [@a] (M @ bar foo) = struct end
-module [@a] (M @ bar foo) : S = struct end
+module [@a] (M @ foo) @ bar = struct end
+module [@a] (M @ foo) : S @ bar = struct end
 module [@a] (F @ foo) () = struct end
 module [@a] (F @ foo) () : S = struct end
 module [@a] (F @ foo) () @ bar = struct end
 module [@a] (F @ foo) () : S @ bar = struct end
 
-module rec (M @ bar foo) = (struct end : S) [@a]
-and (N @ bar foo) = (struct end : S) [@a]
+module rec (M @ foo) = (struct end : S @ bar) [@a]
+and (N @ foo) = (struct end : S @ bar) [@a]
 
 module rec (F @ foo) () = (struct end : S @ bar) [@a]
 and (G @ foo) () = (struct end : S @ bar) [@a]
 
-module rec (M @ bar foo) : S = struct end [@a]
-and (N @ bar foo) : S = struct end [@a]
+module rec (M @ foo) : S @ bar = struct end [@a]
+and (N @ foo) : S @ bar = struct end [@a]
 
 module rec (F @ foo) () : S @ bar = struct end [@a]
 and (G @ foo) () : S @ bar = struct end [@a]
@@ -217,13 +221,9 @@ module ((* 72 *)
         (* 73 *)
   M
   (* 74 *)
-  @ (* 77 *)
-    (* 78 *)
-    bar
-    (* 79 *)
-    (* 75 *)
-    foo
-    (* 76 *)) =
+  @ (* 75 *) foo (* 76 *))
+@ (* 78 *) bar (* 79 *) =
+(* 77 *)
 (* 80 *)
 struct
   (* 81 *)
@@ -234,12 +234,7 @@ module ((* 83 *)
         (* 84 *)
   M
   (* 85 *)
-  @ (* 91 *)
-    bar
-    (* 92 *)
-    (* 86 *)
-    foo
-    (* 87 *)) : (* 89 *) S (* 90 *) =
+  @ (* 86 *) foo (* 87 *)) : (* 89 *) S (* 90 *) @ (* 91 *) bar (* 92 *) =
 (* 88 *)
 (* 93 *) struct
   (* 94 *)

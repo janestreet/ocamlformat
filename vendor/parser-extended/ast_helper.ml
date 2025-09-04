@@ -433,28 +433,13 @@ end
 module Mb = struct
   let mk ?(loc = !default_loc) ?(attrs=Attr.ext_attrs ())
         ?(docs = empty_docs) ?(text = []) name modes args expr =
-    (* Special case: when this module binding is not a functor, and the module expression
-       is a constraint with modes, move the modes to the binding *)
-    let modes, expr =
-      match args, expr.pmod_desc with
-      | [], Pmod_constraint (mexpr, mty, (_ :: _ as outer_modes)) ->
-        let expr =
-          match mty with
-          | Some _ -> { expr with pmod_desc = Pmod_constraint (mexpr, mty, []) }
-          | None -> mexpr
-        in
-        ( List.sort
-            (fun { txt = Mode m1; _ } { txt = Mode m2 } -> String.compare m1 m2)
-            (modes @ outer_modes)
-        , expr )
-      | _ -> modes, expr
-    in
-    { pmb_name = name
-    ; pmb_modes = modes
-    ; pmb_args = args
-    ; pmb_expr = expr
-    ; pmb_ext_attrs = add_text_attrs' text (add_docs_attrs' docs attrs)
-    ; pmb_loc = loc
+    {
+     pmb_name = name;
+     pmb_modes = modes;
+     pmb_args = args;
+     pmb_expr = expr;
+     pmb_ext_attrs = add_text_attrs' text (add_docs_attrs' docs attrs);
+     pmb_loc = loc;
     }
 end
 
