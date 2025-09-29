@@ -11883,7 +11883,7 @@
 (rule
  (alias runtest)
  (package ocamlformat)
- (action (diff tests/type_param_with_jkind_and_attr.ml type_param_with_jkind_and_attr.ml.stdout)))
+ (action (diff tests/type_param_with_jkind_and_attr.ml.ref type_param_with_jkind_and_attr.ml.stdout)))
 
 (rule
  (alias runtest)
