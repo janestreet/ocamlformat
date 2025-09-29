@@ -11878,7 +11878,7 @@
  (action
   (with-stdout-to type_param_with_jkind_and_attr.ml.stdout
    (with-stderr-to type_param_with_jkind_and_attr.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/type_param_with_jkind_and_attr.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=3 %{dep:tests/type_param_with_jkind_and_attr.ml})))))
 
 (rule
  (alias runtest)
