@@ -1,0 +1,15 @@
+(* basic syntax *)
+
+type 'a r = { foo : 'a }
+let idx_r () = (.foo)
+let idx_r_r () = (.foo.#foo)
+let idx_array x = (.(x))
+let idx_array_L x = (.L(x))
+let idx_array_l x = (.l(x))
+let idx_array_n x = (.n(x))
+let idx_iarray x = (.:(x))
+let idx_iarray_L x = (.:L(x))
+let idx_iarray_l x = (.:l(x))
+let idx_iarray_n x = (.:n(x))
+let idx_imm x = (.idx_imm(x))
+let idx_mut x = (.idx_mut(x))

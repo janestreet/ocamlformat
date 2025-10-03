@@ -507,6 +507,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to block_indices.ml.stdout
+   (with-stderr-to block_indices.ml.stderr
+     (run %{bin:ocamlformat} --margin-check %{dep:tests/block_indices.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/block_indices.ml.ref block_indices.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/block_indices.ml.err block_indices.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to block_indices.ml.js-stdout
+   (with-stderr-to block_indices.ml.js-stderr
+     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/block_indices.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/block_indices.ml.js-ref block_indices.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/block_indices.ml.js-err block_indices.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to break_before_in-auto.ml.stdout
    (with-stderr-to break_before_in-auto.ml.stderr
      (run %{bin:ocamlformat} --margin-check --break-before-in=auto %{dep:tests/break_before_in.ml})))))
