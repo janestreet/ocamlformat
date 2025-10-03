@@ -311,7 +311,9 @@ let unclosed opening_name opening_loc closing_name closing_loc =
   raise(Syntaxerr.Error(Syntaxerr.Unclosed(make_loc opening_loc, opening_name,
                                            make_loc closing_loc, closing_name)))
 
-let quotation_reserved name loc =
+(* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
+   restriction *)
+let _quotation_reserved name loc =
   raise(Syntaxerr.Error(Syntaxerr.Quotation_reserved(make_loc loc, name)))
 
 (* Normal mutable arrays and immutable arrays are parsed identically, just with
@@ -1016,7 +1018,6 @@ let maybe_pmod_constraint mode expr =
 %token COMMA                  ","
 %token CONSTRAINT             "constraint"
 %token DO                     "do"
-%token DOLLAR                 "$"
 %token DONE                   "done"
 %token DOT                    "."
 %token DOTDOT                 ".."
@@ -1073,7 +1074,6 @@ let maybe_pmod_constraint mode expr =
 %token LBRACKETPERCENT        "[%"
 %token LBRACKETPERCENTPERCENT "[%%"
 %token LESS                   "<"
-%token LESSLBRACKET           "<["
 %token LESSMINUS              "<-"
 %token LET                    "let"
 %token <string> LIDENT        "lident" (* just an example *)
@@ -1110,7 +1110,6 @@ let maybe_pmod_constraint mode expr =
 %token QUOTE                  "'"
 %token RBRACE                 "}"
 %token RBRACKET               "]"
-%token RBRACKETGREATER        "]>"
 %token REC                    "rec"
 %token RPAREN                 ")"
 %token SEMI                   ";"
@@ -1215,13 +1214,7 @@ The precedences must be listed from low to high.
 /* Finally, the first tokens of simple_expr are above everything else. */
 %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
-<<<<<<< HEAD
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
-||||||| 92df3d5
-          NEW PREFIXOP STRING TRUE UIDENT
-=======
-          NEW PREFIXOP STRING TRUE UIDENT LESSLBRACKET DOLLAR
->>>>>>> new-base/main
           LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
 
 /* Entry points */
@@ -3238,12 +3231,16 @@ block_access:
           mkexp_attrs ~loc:($startpos($3), $endpos)
             (Pexp_constraint (ghexp ~loc:$sloc (Pexp_pack $6), Some $8, [])) $5 in
         Pexp_open(od, modexp) }
+  (* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
+     restriction
+     {[
   | LESSLBRACKET expr_semi_list RBRACKETGREATER
       { quotation_reserved "<[" $loc($1) }
   | LESSLBRACKET expr_semi_list error
       { unclosed "<[" $loc($1) "]>" $loc($3) }
   | DOLLAR error
       { quotation_reserved "$" $loc($1) }
+     ]} *)
   | mod_longident DOT
     LPAREN MODULE ext_attributes module_expr COLON error
       { unclosed "(" $loc($3) ")" $loc($8) }
@@ -4862,20 +4859,18 @@ atomic_type:
       { mktyp ~loc:$sloc (Ptyp_var (name, Some jkind)) }
   | LPAREN UNDERSCORE COLON jkind=jkind_annotation RPAREN
       { mktyp ~loc:$sloc (Ptyp_any (Some jkind)) }
-<<<<<<< HEAD
   | LPAREN TYPE COLON jkind=jkind_annotation RPAREN
       { mktyp ~loc:$loc (Ptyp_of_kind jkind) }
-||||||| 92df3d5
-=======
-  | LPAREN TYPE COLON jkind=jkind_annotation RPAREN
-      { mktyp ~loc:$loc (Ptyp_of_kind jkind) }
+  (* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
+     restriction
+     {[
   | LESSLBRACKET core_type RBRACKETGREATER
       { quotation_reserved "<[" $loc($1) }
   | LESSLBRACKET core_type error
       { unclosed "<[" $loc($1) "]>" $loc($3) }
   | DOLLAR error
       { quotation_reserved "$" $loc($1) }
->>>>>>> new-base/main
+     ]} *)
 
 
 (* This is the syntax of the actual type parameters in an application of

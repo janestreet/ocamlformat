@@ -208,23 +208,6 @@ let prepare_error err =
   | Malformed_instance_identifier loc ->
       Location.errorf ~loc
         "Syntax error: Unexpected in module instance"
-<<<<<<< HEAD
-  | Let_mutable_not_allowed_at_structure_level loc ->
-      Location.errorf ~loc
-        "Syntax error: Mutable let bindings are not allowed \
-         at the structure level."
-  | Let_mutable_not_allowed_in_class_definition loc ->
-      Location.errorf ~loc
-        "Syntax error: Mutable let bindings are not allowed \
-         inside class definitions."
-  | Let_mutable_not_allowed_with_function_bindings loc ->
-      Location.errorf ~loc
-        "Syntax error: Mutable let is not allowed with function bindings.\n\
-         @{<hint>Hint@}: If you really want a mutable function variable, \
-         use the de-sugared syntax:\n  %a"
-         Style.inline_code "let mutable f = fun x -> .."
-||||||| 92df3d5
-=======
   | Quotation_reserved (loc, symb) ->
       Location.errorf ~loc
         "Syntax error: `%s` is reserved for use in runtime metaprogramming."
@@ -251,7 +234,6 @@ let prepare_error err =
         Style.inline_code ".n" Style.inline_code ".:" Style.inline_code ".:L"
         Style.inline_code ".:l" Style.inline_code ".:n"
         Style.inline_code ".idx_imm" Style.inline_code ".idx_mut"
->>>>>>> new-base/main
 
 let () =
   Location.register_error_of_exn
