@@ -18,7 +18,13 @@ type _ t =
   | Labeled_tuples : unit t
   | Small_numbers : maturity t
   | Instances : unit t
+<<<<<<< HEAD
   | Let_mutable : unit t
+||||||| 92df3d5
+=======
+  | Separability : unit t
+  | Let_mutable : unit t
+>>>>>>> new-base/main
 
 (* When you update this, update [pair_of_string] below too. *)
 let to_string : type a. a t -> string = function
@@ -35,4 +41,10 @@ let to_string : type a. a t -> string = function
   | Labeled_tuples -> "labeled_tuples"
   | Small_numbers -> "small_numbers"
   | Instances -> "instances"
+<<<<<<< HEAD
   | Let_mutable -> "let_mutable"
+||||||| 92df3d5
+=======
+  | Separability -> "separability"
+  | Let_mutable -> "let_mutable"
+>>>>>>> new-base/main

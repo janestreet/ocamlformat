@@ -31,7 +31,13 @@ type 'a t = 'a Language_extension_kernel.t =
   | Labeled_tuples : unit t
   | Small_numbers : maturity t
   | Instances : unit t
+<<<<<<< HEAD
   | Let_mutable : unit t
+||||||| 92df3d5
+=======
+  | Separability : unit t
+  | Let_mutable : unit t
+>>>>>>> new-base/main
 
 (** Require that an extension is enabled for at least the provided level, or
     else throw an exception at the provided location saying otherwise. *)

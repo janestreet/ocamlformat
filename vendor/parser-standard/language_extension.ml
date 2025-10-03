@@ -73,7 +73,13 @@ let get_level_ops : type a. a t -> (module Extension_level with type t = a) =
   | Labeled_tuples -> (module Unit)
   | Small_numbers -> (module Maturity)
   | Instances -> (module Unit)
+<<<<<<< HEAD
   | Let_mutable -> (module Unit)
+||||||| 92df3d5
+=======
+  | Separability -> (module Unit)
+  | Let_mutable -> (module Unit)
+>>>>>>> new-base/main
 
 (* We'll do this in a more principled way later. *)
 (* CR layouts: Note that layouts is only "mostly" erasable, because of annoying
@@ -86,8 +92,15 @@ let get_level_ops : type a. a t -> (module Extension_level with type t = a) =
 let is_erasable : type a. a t -> bool = function
   | Mode | Unique | Overwriting | Layouts -> true
   | Comprehensions | Include_functor | Polymorphic_parameters | Immutable_arrays
+<<<<<<< HEAD
   | Module_strengthening | SIMD | Labeled_tuples | Small_numbers | Instances
   | Let_mutable ->
+||||||| 92df3d5
+  | Module_strengthening | SIMD | Labeled_tuples | Small_numbers | Instances ->
+=======
+  | Module_strengthening | SIMD | Labeled_tuples | Small_numbers | Instances
+  | Separability | Let_mutable ->
+>>>>>>> new-base/main
     false
 
 let maturity_of_unique_for_drf = Stable
@@ -111,7 +124,13 @@ module Exist_pair = struct
     | Pair (Labeled_tuples, ()) -> Stable
     | Pair (Small_numbers, m) -> m
     | Pair (Instances, ()) -> Stable
+<<<<<<< HEAD
     | Pair (Let_mutable, ()) -> Stable
+||||||| 92df3d5
+=======
+    | Pair (Separability, ()) -> Stable
+    | Pair (Let_mutable, ()) -> Stable
+>>>>>>> new-base/main
 
   let is_erasable : t -> bool = function Pair (ext, _) -> is_erasable ext
 
@@ -125,7 +144,13 @@ module Exist_pair = struct
     | Pair
         ( (( Comprehensions | Include_functor | Polymorphic_parameters
            | Immutable_arrays | Module_strengthening | Labeled_tuples
+<<<<<<< HEAD
            | Instances | Overwriting | Let_mutable ) as ext),
+||||||| 92df3d5
+           | Instances | Overwriting ) as ext),
+=======
+           | Instances | Overwriting | Separability | Let_mutable ) as ext),
+>>>>>>> new-base/main
           _ ) ->
       to_string ext
 
@@ -152,11 +177,18 @@ module Exist_pair = struct
     | "layouts_beta" -> Some (Pair (Layouts, Beta))
     | "simd" -> Some (Pair (SIMD, Stable))
     | "simd_beta" -> Some (Pair (SIMD, Beta))
+    | "simd_alpha" -> Some (Pair (SIMD, Alpha))
     | "labeled_tuples" -> Some (Pair (Labeled_tuples, ()))
     | "small_numbers" -> Some (Pair (Small_numbers, Stable))
     | "small_numbers_beta" -> Some (Pair (Small_numbers, Beta))
     | "instances" -> Some (Pair (Instances, ()))
+<<<<<<< HEAD
     | "let_mutable" -> Some (Pair (Let_mutable, ()))
+||||||| 92df3d5
+=======
+    | "separability" -> Some (Pair (Separability, ()))
+    | "let_mutable" -> Some (Pair (Let_mutable, ()))
+>>>>>>> new-base/main
     | _ -> None
 end
 
@@ -177,8 +209,16 @@ let all_extensions =
     Pack SIMD;
     Pack Labeled_tuples;
     Pack Small_numbers;
+<<<<<<< HEAD
     Pack Instances;
     Pack Let_mutable ]
+||||||| 92df3d5
+    Pack Instances ]
+=======
+    Pack Instances;
+    Pack Separability;
+    Pack Let_mutable ]
+>>>>>>> new-base/main
 
 (**********************************)
 (* string conversions *)
@@ -217,10 +257,23 @@ let equal_t (type a b) (a : a t) (b : b t) : (a, b) Misc.eq option =
   | Labeled_tuples, Labeled_tuples -> Some Refl
   | Small_numbers, Small_numbers -> Some Refl
   | Instances, Instances -> Some Refl
+<<<<<<< HEAD
   | Let_mutable, Let_mutable -> Some Refl
+||||||| 92df3d5
+=======
+  | Separability, Separability -> Some Refl
+  | Let_mutable, Let_mutable -> Some Refl
+>>>>>>> new-base/main
   | ( ( Comprehensions | Mode | Unique | Overwriting | Include_functor
       | Polymorphic_parameters | Immutable_arrays | Module_strengthening
+<<<<<<< HEAD
       | Layouts | SIMD | Labeled_tuples | Small_numbers | Instances | Let_mutable ),
+||||||| 92df3d5
+      | Layouts | SIMD | Labeled_tuples | Small_numbers | Instances ),
+=======
+      | Layouts | SIMD | Labeled_tuples | Small_numbers | Instances
+      | Separability | Let_mutable ),
+>>>>>>> new-base/main
       _ ) ->
     None
 
