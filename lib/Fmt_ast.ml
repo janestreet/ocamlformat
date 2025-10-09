@@ -2199,8 +2199,10 @@ and fmt_block_access c ctx ba =
         | Index_unboxed_int32 -> str "l"
         | Index_unboxed_nativeint -> str "n"
       in
-      dot $ suff
-      $ Params.parens c.conf (fmt_expression c (sub_exp ~ctx expr))
+      hvbox 0
+        ( dot $ suff
+        $ Params.parens c.conf
+            (fmt "@;<0 0>" $ fmt_expression c (sub_exp ~ctx expr)) )
   | Baccess_block (mut, expr) ->
       let dot =
         match mut with
@@ -2677,10 +2679,11 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
              $ fmt_atrs ) )
   | Pexp_idx (ba, uas) ->
       pro
-      $ hvbox 0
-          (Params.parens c.conf
+      $ Params.parens c.conf
+          (hvbox 0
              ( fmt_block_access c (Exp exp) ba
-             $ list uas "" (fmt_unboxed_access c) ) )
+             $ fmt_if (not (List.is_empty uas)) "@;<0 0>"
+             $ list uas "@;<0 0>" (fmt_unboxed_access c) ) )
   | Pexp_list e1N ->
       let p = Params.get_list_expr c.conf in
       let offset =
