@@ -1,6 +1,7 @@
 (* basic syntax *)
 
 type 'a r = { foo : 'a }
+
 let idx_r () = (.foo)
 let idx_r_r () = (.foo.#foo)
 let idx_array x = (.(x))

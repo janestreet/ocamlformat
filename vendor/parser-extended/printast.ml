@@ -472,6 +472,9 @@ and expression i ppf x =
   | Pexp_array (mf, l) ->
       line i ppf "Pexp_array %a\n" fmt_mutable_flag mf;
       list i expression ppf l;
+  | Pexp_idx (ba, uas) ->
+      line i ppf "Pexp_idx %a\n" fmt_block_access ba;
+      list i unboxed_access ppf uas;
   | Pexp_list (l) ->
       line i ppf "Pexp_list\n";
       list i expression ppf l;
@@ -603,6 +606,10 @@ and expression i ppf x =
   | Pexp_array_comprehension (m, c) ->
       line i ppf "Pexp_array_comprehension %a\n" fmt_mutable_flag m;
       comprehension i ppf c
+
+and fmt_block_access _ _  : unit = ()
+
+and unboxed_access _ _ _ : unit = ()
 
 and clause_binding i ppf { pattern=pat; iterator; attributes=attrs } =
   line i ppf "<binding>\n";
