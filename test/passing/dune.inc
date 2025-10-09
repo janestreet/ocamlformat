@@ -509,7 +509,7 @@
  (action
   (with-stdout-to block_indices.ml.stdout
    (with-stderr-to block_indices.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/block_indices.ml})))))
+     (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/block_indices.ml})))))
 
 (rule
  (alias runtest)
