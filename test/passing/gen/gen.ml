@@ -98,8 +98,10 @@ let register_file tests fname =
 let cmd should_fail args =
   let cmd_string = String.concat " " args in
   if should_fail then
-    spf {|(with-accepted-exit-codes 1
-       (setenv TERM dumb (run %s)))|} cmd_string
+    spf
+      {|(with-accepted-exit-codes 1
+       (setenv TERM dumb (run %s)))|}
+      cmd_string
   else spf {|(setenv TERM dumb (run %s))|} cmd_string
 
 let one_styling_test ~extra_deps ~enabled_if_line ~test_name ~base_test_name
