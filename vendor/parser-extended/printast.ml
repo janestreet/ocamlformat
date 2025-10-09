@@ -158,6 +158,12 @@ let fmt_private_flag f x =
   | Public -> fprintf f "Public"
   | Private loc -> fprintf f "Private %a" fmt_location loc
 
+let fmt_index_kind f = function
+  | Index_int -> fprintf f "Index_int"
+  | Index_unboxed_int64 -> fprintf f "Index_unboxed_int64"
+  | Index_unboxed_int32 -> fprintf f "Index_unboxed_int32"
+  | Index_unboxed_nativeint -> fprintf f "Index_unboxed_nativeint"
+
 let fmt_opt f ppf = function
   | None -> fprintf ppf "None"
   | Some x -> fprintf ppf "Some(%a)" f x
@@ -473,8 +479,9 @@ and expression i ppf x =
       line i ppf "Pexp_array %a\n" fmt_mutable_flag mf;
       list i expression ppf l;
   | Pexp_idx (ba, uas) ->
-      line i ppf "Pexp_idx %a\n" fmt_block_access ba;
-      list i unboxed_access ppf uas;
+      line i ppf "Pexp_idx\n";
+      block_access i ppf ba;
+      List.iter (unboxed_access i ppf) uas;
   | Pexp_list (l) ->
       line i ppf "Pexp_list\n";
       list i expression ppf l;
@@ -607,9 +614,21 @@ and expression i ppf x =
       line i ppf "Pexp_array_comprehension %a\n" fmt_mutable_flag m;
       comprehension i ppf c
 
-and fmt_block_access _ _  : unit = ()
+and block_access i ppf = function
+  | Baccess_field lid ->
+      line i ppf "Baccess_field %a\n" fmt_longident_loc lid
+  | Baccess_array (mut, index_kind, index) ->
+      line i ppf "Baccess_array %a %a\n"
+        fmt_mutable_flag mut fmt_index_kind index_kind;
+      expression i ppf index
+  | Baccess_block (mut, idx) ->
+      line i ppf "Baccess_block %a\n"
+        fmt_mutable_flag mut;
+      expression i ppf idx
 
-and unboxed_access _ _ _ : unit = ()
+and unboxed_access i ppf = function
+  | Uaccess_unboxed_field lid ->
+      line i ppf "Uaccess_unboxed_field %a\n" fmt_longident_loc lid
 
 and clause_binding i ppf { pattern=pat; iterator; attributes=attrs } =
   line i ppf "<binding>\n";
