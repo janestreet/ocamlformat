@@ -2197,6 +2197,8 @@ and fmt_block_access c ctx ba =
         | Index_int -> noop
         | Index_unboxed_int64 -> str "L"
         | Index_unboxed_int32 -> str "l"
+        | Index_unboxed_int16 -> str "S"
+        | Index_unboxed_int8 -> str "s"
         | Index_unboxed_nativeint -> str "n"
       in
       hvbox 0

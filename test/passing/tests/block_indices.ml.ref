@@ -10,6 +10,10 @@ let idx_array_L x = (.L(x))
 
 let idx_array_l x = (.l(x))
 
+let idx_array_S x = (.S(x))
+
+let idx_array_s x = (.s(x))
+
 let idx_array_n x = (.n(x))
 
 let idx_iarray x = (.:(x))
@@ -17,6 +21,10 @@ let idx_iarray x = (.:(x))
 let idx_iarray_L x = (.:L(x))
 
 let idx_iarray_l x = (.:l(x))
+
+let idx_iarray_S x = (.:S(x))
+
+let idx_iarray_s x = (.:s(x))
 
 let idx_iarray_n x = (.:n(x))
 
@@ -78,6 +86,32 @@ let idx_array_l x =
    .#Foo.Bar.baz1234567890
    .#Foo.Bar.baz1234567890 )
 
+let idx_array_S x =
+  (.S(x)
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890 )
+
+let idx_array_s x =
+  (.s(x)
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890 )
+
 let idx_array_n x =
   (.n(x)
    .#Foo.Bar.baz1234567890
@@ -119,6 +153,32 @@ let idx_iarray_L x =
 
 let idx_iarray_l x =
   (.:l(x)
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890 )
+
+let idx_iarray_S x =
+  (.:S(x)
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890
+   .#Foo.Bar.baz1234567890 )
+
+let idx_iarray_s x =
+  (.:s(x)
    .#Foo.Bar.baz1234567890
    .#Foo.Bar.baz1234567890
    .#Foo.Bar.baz1234567890
