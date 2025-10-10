@@ -422,6 +422,9 @@ let unclosed opening_name opening_loc closing_name closing_loc =
   raise(Syntaxerr.Error(Syntaxerr.Unclosed(make_loc opening_loc, opening_name,
                                            make_loc closing_loc, closing_name)))
 
+let unspliceable loc =
+  raise(Syntaxerr.Error(Syntaxerr.Unspliceable (make_loc loc)))
+
 (* Normal mutable arrays and immutable arrays are parsed identically, just with
    different delimiters.  The parsing is done by the [array_exprs] rule, and the
    [Generic_array] module provides (1) a type representing the possible results,
@@ -984,6 +987,9 @@ let erase_call_pos_type ~arg_label ~arg_type ~loc =
 %token <string * char option> HASH_FLOAT "#42.0" (* just an example *)
 %token <string * char option> HASH_INT "#42l" (* just an example *)
 %token                        HASH_SUFFIX "# "
+%token                        LESSLBRACKET "<["
+%token                        RBRACKETGREATER "]>"
+%token                        DOLLAR "$"
 (* End Jane Street extension *)
 
 /* Precedences and associativities.
@@ -1051,7 +1057,7 @@ The precedences must be listed from low to high.
 /* Finally, the first tokens of simple_expr are above everything else. */
 %nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
-          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
+          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE LESSLBRACKET DOLLAR
           LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
 
 
@@ -2770,6 +2776,23 @@ expr:
       { mkexp ~loc:$sloc (mkuplus ~oploc:$loc($1) $1 $2) }
 ;
 
+spliceable_expr:
+  | LESSLBRACKET seq_expr RBRACKETGREATER
+      { mkexp ~loc:$sloc (Pexp_quote ($2)) }
+  | LPAREN seq_expr RPAREN
+      { reloc_exp ~loc:$sloc $2 }
+  | LPAREN seq_expr error
+      { unclosed "(" $loc($1) ")" $loc($3) }
+  | LPAREN seq_expr type_constraint_with_modes RPAREN
+      { let (t, m) = $3 in
+        mkexp_type_constraint_with_modes
+          ~ghost:true ~loc:$sloc ~modes:m $2 ~ty:t }
+  | mkrhs(val_longident)
+      { mkexp ~loc:$sloc (Pexp_ident ($1)) }
+  | error
+      { unspliceable $sloc }
+;
+
 simple_expr:
   | LPAREN e = seq_expr RPAREN
       { match e.pexp_desc with
@@ -3059,6 +3082,12 @@ block_access:
       { if Erase_jane_syntax.should_erase ()
         then Pexp_tuple $2
         else Pexp_unboxed_tuple $2 }
+  | DOLLAR spliceable_expr
+      { Pexp_splice $2 }
+  | LESSLBRACKET seq_expr RBRACKETGREATER
+      { Pexp_quote $2 }
+  | LESSLBRACKET seq_expr error
+      { unclosed "<[" $loc($1) "]>" $loc($3) }
 ;
 labeled_simple_expr:
     simple_expr %prec below_HASH
@@ -4596,6 +4625,19 @@ restricted to tail position by its %prec annotation. *)
      { let label = mkrhs label $loc(label) in
        Some label, ty }
 
+spliceable_type:
+ /* delimited_type_supporting_local_open does not exist */
+ | LPAREN core_type RPAREN
+     { $2 }
+ | mktyp( /* begin mktyp group */
+     tid = mkrhs(type_longident)
+       { Ptyp_constr (tid, []) }
+   | QUOTE mkrhs(ident {Some $1})
+       { Ptyp_var ($2, None) }
+ )
+ { $1 } /* end mktyp group */
+;
+
 (* Atomic types are the most basic level in the syntax of types.
    Atomic types include:
    - types between parentheses:           (int -> int)
@@ -4656,6 +4698,10 @@ atomic_type:
       { Ptyp_var ($2, jkind) }
     | LPAREN TYPE COLON jkind=jkind RPAREN
       { Ptyp_of_kind jkind }
+  | LESSLBRACKET core_type RBRACKETGREATER
+      { Ptyp_quote $2 }
+  | DOLLAR type_ = spliceable_type
+      { Ptyp_splice type_ }
 
   )
   { $1 } /* end mktyp group */

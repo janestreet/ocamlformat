@@ -291,6 +291,12 @@ let rec core_type i ppf x =
   | Ptyp_constr_unboxed (li, l) ->
       line i ppf "Ptyp_constr_unboxed %a\n" fmt_longident_loc li;
       list i core_type ppf l
+  | Ptyp_quote ct ->
+      line i ppf "Ptyp_quote\n";
+      core_type i ppf ct
+  | Ptyp_splice ct ->
+      line i ppf "Ptyp_splice\n";
+      core_type i ppf ct
   (* End Jane Street extension *)
 
 and arrow_param i ppf {pap_label; pap_loc; pap_type; pap_modes} =
@@ -615,6 +621,12 @@ and expression i ppf x =
   | Pexp_array_comprehension (m, c) ->
       line i ppf "Pexp_array_comprehension %a\n" fmt_mutable_flag m;
       comprehension i ppf c
+  | Pexp_quote e ->
+      line i ppf "Pexp_quote\n";
+      expression i ppf e
+  | Pexp_splice e ->
+      line i ppf "Pexp_splice\n";
+      expression i ppf e
 
 and block_access i ppf = function
   | Baccess_field lid ->

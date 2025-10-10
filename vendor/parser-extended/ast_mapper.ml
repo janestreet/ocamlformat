@@ -239,6 +239,10 @@ module T = struct
         of_kind ~loc ~attrs (sub.jkind_annotation sub jkind)
     | Ptyp_constr_unboxed (lid, tl) ->
         constr_unboxed ~loc ~attrs (map_loc sub lid) (List.map (sub.typ sub) tl)
+    | Ptyp_quote t ->
+        quote ~loc ~attrs (sub.typ sub t)
+    | Ptyp_splice t ->
+        splice ~loc ~attrs (sub.typ sub t)
     (* End Jane Street extension *)
 
   let map_variance_and_injectivity sub = List.map (map_loc sub)
@@ -729,6 +733,8 @@ module E = struct
     | Pexp_list_comprehension c -> list_comp ~loc ~attrs (Comprehension.map sub c)
     | Pexp_array_comprehension (f, c) ->
         array_comp ~loc ~attrs (Flag.map_mutable sub f) (Comprehension.map sub c)
+    | Pexp_quote e -> quote ~loc ~attrs (sub.expr sub e)
+    | Pexp_splice e -> splice ~loc ~attrs (sub.expr sub e)
 
   let map_binding_op sub {pbop_op; pbop_pat; pbop_exp; pbop_is_pun; pbop_loc} =
     let open Exp in
