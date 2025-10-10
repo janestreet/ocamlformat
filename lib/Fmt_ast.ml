@@ -1282,6 +1282,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            ( fmt "type"
            $ fmt_jkind_constr ~ctx:(Typ typ) c {txt= jk; loc= typ.ptyp_loc}
            ) )
+  | Ptyp_quote t -> wrap "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
+  | Ptyp_splice t -> fmt "$" $ fmt_core_type c (sub_typ ~ctx t)
 
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with
@@ -3389,6 +3391,17 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro $ fmt_indexop_access c ctx ~fmt_atrs ~has_attr ~parens x
   | Pexp_poly _ ->
       impossible "only used for methods, handled during method formatting"
+  | Pexp_quote expr ->
+      pro
+      $ hvbox 0
+          (wrap "<[" "]>"
+             (fmt_expression c ~box ?eol ~parens:false ~indent_wrap ?ext
+                (sub_exp ~ctx expr) ) )
+  | Pexp_splice expr ->
+      pro
+      $ Params.parens_if parens c.conf
+          ( Cmts.fmt c pexp_loc
+          @@ hvbox 2 (str "$" $ fmt_expression c (sub_exp ~ctx expr)) )
   | Pexp_hole -> pro $ hvbox 0 (fmt_hole () $ fmt_atrs)
   | Pexp_beginend e ->
       let wrap_beginend k =

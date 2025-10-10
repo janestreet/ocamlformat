@@ -21,6 +21,14 @@ module Left_angle = struct
       | None, typ -> core_type typ )
     | Ptyp_object _ -> true
     | Ptyp_alias (typ, _) -> core_type typ
+    | Ptyp_quote _ -> true
+    | _ -> false
+
+  let rec expression exp =
+    match exp.pexp_desc with
+    | Pexp_apply (exp, _) -> expression exp
+    | Pexp_sequence (exp, _) -> expression exp
+    | Pexp_quote _ -> true
     | _ -> false
 end
 
@@ -37,6 +45,7 @@ module Right_angle = struct
         | Some _, _ -> false
         | None, typ -> core_type typ )
       | Ptyp_object _ -> true
+      | Ptyp_quote _ -> true
       | _ -> false )
 
   let constructor_arguments = function
@@ -150,6 +159,37 @@ module Right_angle = struct
     | PSig {psg_items; _} -> list ~elt:signature_item psg_items
     | PTyp t -> core_type t
     | PPat _ -> false
+
+  let rec expression exp =
+    match exp.pexp_desc with
+    | Pexp_let (_, exp) -> expression exp
+    | Pexp_function cases -> case (List.last_exn cases)
+    | Pexp_fun (_, exp) -> expression exp
+    | Pexp_apply (_, args) -> expression (snd (List.last_exn args))
+    | Pexp_match (_, (_ :: _ as cases)) -> case (List.last_exn cases)
+    | Pexp_try (_, (_ :: _ as cases)) -> case (List.last_exn cases)
+    | Pexp_cons elems -> expression (List.last_exn elems)
+    | Pexp_construct (_, Some exp) -> expression exp
+    | Pexp_variant (_, Some exp) -> expression exp
+    | Pexp_ifthenelse (if_branch, None) ->
+        let last = (List.last_exn if_branch).if_body in
+        expression last
+    | Pexp_ifthenelse (_, Some exp) -> expression exp
+    | Pexp_sequence (_, exp) -> expression exp
+    | Pexp_setinstvar (_, exp) -> expression exp
+    | Pexp_letmodule (_, _, _, _, exp) -> expression exp
+    | Pexp_letexception (_, exp) -> expression exp
+    | Pexp_assert exp -> expression exp
+    | Pexp_lazy exp -> expression exp
+    | Pexp_poly (exp, None) -> expression exp
+    | Pexp_newtype (_, exp) -> expression exp
+    | Pexp_open (_, exp) -> expression exp
+    | Pexp_letop {let_= _; ands= _; body} -> expression body
+    | Pexp_stack exp -> expression exp
+    | Pexp_quote _ -> true
+    | _ -> false
+
+  and case {pc_lhs= _; pc_guard= _; pc_rhs} = expression pc_rhs
 end
 
 module Right_square = struct

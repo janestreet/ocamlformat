@@ -20,6 +20,8 @@ open Extended_ast
 (** Predicates for [<] on the LHS of printed AST nodes. *)
 module Left_angle : sig
   val core_type : core_type -> bool
+
+  val expression : expression -> bool
 end
 
 module Right_angle : sig
@@ -32,6 +34,8 @@ module Right_angle : sig
   val row_field : row_field -> bool
 
   val payload : payload -> bool
+
+  val expression : expression -> bool
 
   val list : elt:('a -> bool) -> 'a list -> bool
   (** [list ~elt l] holds iff [elt] holds of the {i last} element in [l], and

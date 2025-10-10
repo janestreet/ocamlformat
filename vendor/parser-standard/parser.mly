@@ -311,10 +311,8 @@ let unclosed opening_name opening_loc closing_name closing_loc =
   raise(Syntaxerr.Error(Syntaxerr.Unclosed(make_loc opening_loc, opening_name,
                                            make_loc closing_loc, closing_name)))
 
-(* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
-   restriction *)
-let _quotation_reserved name loc =
-  raise(Syntaxerr.Error(Syntaxerr.Quotation_reserved(make_loc loc, name)))
+let unspliceable loc =
+  raise(Syntaxerr.Error(Syntaxerr.Unspliceable (make_loc loc)))
 
 (* Normal mutable arrays and immutable arrays are parsed identically, just with
    different delimiters.  The parsing is done by the [array_exprs] rule, and the
@@ -1009,6 +1007,7 @@ let maybe_pmod_constraint mode expr =
 %token BARRBRACKET            "|]"
 %token BEGIN                  "begin"
 %token <char> CHAR            "'a'" (* just an example *)
+%token <char> HASH_CHAR       "#'a'" (* just an example *)
 %token CLASS                  "class"
 %token COLON                  ":"
 %token COLONCOLON             "::"
@@ -1018,6 +1017,7 @@ let maybe_pmod_constraint mode expr =
 %token COMMA                  ","
 %token CONSTRAINT             "constraint"
 %token DO                     "do"
+%token DOLLAR                 "$"
 %token DONE                   "done"
 %token DOT                    "."
 %token DOTDOT                 ".."
@@ -1074,6 +1074,7 @@ let maybe_pmod_constraint mode expr =
 %token LBRACKETPERCENT        "[%"
 %token LBRACKETPERCENTPERCENT "[%%"
 %token LESS                   "<"
+%token LESSLBRACKET           "<["
 %token LESSMINUS              "<-"
 %token LET                    "let"
 %token <string> LIDENT        "lident" (* just an example *)
@@ -1110,6 +1111,7 @@ let maybe_pmod_constraint mode expr =
 %token QUOTE                  "'"
 %token RBRACE                 "}"
 %token RBRACKET               "]"
+%token RBRACKETGREATER        "]>"
 %token REC                    "rec"
 %token RPAREN                 ")"
 %token SEMI                   ";"
@@ -1212,9 +1214,10 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTHASH DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR HASH_CHAR FALSE FLOAT HASH_FLOAT
+          INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
-          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE
+          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE LESSLBRACKET DOLLAR
           LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
 
 /* Entry points */
@@ -2962,6 +2965,22 @@ unboxed_access:
       { Uaccess_unboxed_field $2 }
 ;
 
+spliceable_expr:
+  | LESSLBRACKET seq_expr RBRACKETGREATER
+      { mkexp ~loc:$sloc (Pexp_quote ($2)) }
+  | LPAREN seq_expr RPAREN
+      { reloc_exp ~loc:$sloc $2 }
+  | LPAREN seq_expr error
+      { unclosed "(" $loc($1) ")" $loc($3) }
+  | LPAREN seq_expr type_constraint_with_modes RPAREN
+      { let (t, m) = $3 in
+        mkexp_type_constraint_with_modes ~ghost:true ~loc:$sloc ~modes:m $2 t }
+  | mkrhs(val_longident)
+      { mkexp ~loc:$sloc (Pexp_ident ($1)) }
+  | error
+      { unspliceable $sloc }
+;
+
 simple_expr:
   | LPAREN seq_expr RPAREN
       { reloc_exp ~loc:$sloc $2 }
@@ -3250,6 +3269,12 @@ block_access:
       { unclosed "(" $loc($3) ")" $loc($8) }
   | HASHLPAREN labeled_tuple RPAREN
       { Pexp_unboxed_tuple $2 }
+  | DOLLAR spliceable_expr
+      { Pexp_splice $2 }
+  | LESSLBRACKET seq_expr RBRACKETGREATER
+      { Pexp_quote $2 }
+  | LESSLBRACKET seq_expr error
+      { unclosed "<[" $loc($1) "]>" $loc($3) }
 ;
 labeled_simple_expr:
     simple_expr %prec below_HASH
@@ -4090,22 +4115,22 @@ jkind_desc:
           (fun {txt; loc} -> {txt = Mode txt; loc})
           $3
       in
-      Mod ($1, modes)
+      Pjk_mod ($1, modes)
     }
   | jkind_annotation WITH core_type optional_atat_modalities_expr {
-      With ($1, $3, $4)
+      Pjk_with ($1, $3, $4)
     }
   | ident {
-      Abbreviation $1
+      Pjk_abbreviation $1
     }
   | KIND_OF ty=core_type {
-      Kind_of ty
+      Pjk_kind_of ty
     }
   | UNDERSCORE {
-      Default
+      Pjk_default
     }
   | reverse_product_jkind %prec below_AMPERSAND {
-      Product (List.rev $1)
+      Pjk_product (List.rev $1)
     }
   | LPAREN jkind_desc RPAREN {
       $2
@@ -4767,6 +4792,7 @@ tuple_type:
     - object types                < x: t; ... >
     - variant types               [ `A ]
     - extension                   [%foo ...]
+    - quoted types                <[ t ]>
 
   We support local opens on the following classes of types:
     - parenthesised
@@ -4806,6 +4832,8 @@ delimited_type_supporting_local_open:
         { Ptyp_variant(fields, Closed, Some tags) }
     | HASHLPAREN unboxed_tuple_type_body RPAREN
         { Ptyp_unboxed_tuple $2 }
+    | LESSLBRACKET core_type RBRACKETGREATER
+        { Ptyp_quote $2 }
   )
   { $1 }
 ;
@@ -4835,6 +4863,18 @@ delimited_type:
     { $1 }
 ;
 
+spliceable_type:
+  | type_ = delimited_type_supporting_local_open
+      { type_ }
+  | mktyp( /* begin mktyp group */
+        tid = mkrhs(type_longident)
+          { Ptyp_constr (tid, []) }
+      | QUOTE ident = ident
+          { Ptyp_var (ident, None) }
+  )
+  { $1 } /* end mktyp group */
+;
+
 atomic_type:
   | type_ = delimited_type
       { type_ }
@@ -4857,6 +4897,8 @@ atomic_type:
         { Ptyp_var (ident, None) }
     | UNDERSCORE
         { Ptyp_any None }
+    | DOLLAR type_ = spliceable_type
+        { Ptyp_splice type_ }
   )
   { $1 } /* end mktyp group */
   | LPAREN QUOTE name=ident COLON jkind=jkind_annotation RPAREN
@@ -4998,6 +5040,7 @@ value_constant:
 unboxed_constant:
   | HASH_INT          { unboxed_int $sloc $sloc Positive $1 }
   | HASH_FLOAT        { unboxed_float Positive $1 }
+  | HASH_CHAR         { Pconst_untagged_char $1 }
 ;
 constant:
     value_constant    { $1 }
@@ -5056,8 +5099,8 @@ operator:
 %inline infix_operator:
   | op = INFIXOP0 { op }
   /* Still support the two symbols as infix operators */
-  | AT             {"@"}
-  | ATAT           {"@@"}
+  | AT            {"@"}
+  | ATAT          {"@@"}
   | op = INFIXOP1 { op }
   | op = INFIXOP2 { op }
   | op = infixop3 { op }
