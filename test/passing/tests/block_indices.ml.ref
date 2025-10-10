@@ -300,6 +300,98 @@ let idx_imm x = lazy (.idx_imm(x))
 
 let idx_mut x = !(.idx_mut(x))
 
+(* attributes *)
+
+let idx_r () = (.foo) [@attr]
+
+let idx_r_r () = (.foo.#foo) [@attr] [@bttr] [@cttr defg]
+
+let idx_array x = (.(x)) [@attr] [@bttr] [@cttr defg]
+
+let idx_array_L x = (.L(x)) [@attr]
+
+let idx_array_l x = (.l(x)) [@attr] [@bttr]
+
+let idx_array_S x = (.S(x)) [@attr] [@bttr] [@cttr defg]
+
+let idx_array_s x = (.s(x)) [@attr] [@bttr] [@cttr defg]
+
+let idx_array_n x = (.n(x)) [@attr] [@bttr] [@cttr defg]
+
+let idx_iarray x = (.:(x)) [@attr] [@bttr]
+
+let idx_iarray_L x = (.:L(x)) [@attr]
+
+let idx_iarray_l x = (.:l(x)) [@attr]
+
+let idx_iarray_S x =
+  (.:S(x) )
+    [@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaattr
+      ]
+    [@bttr]
+    [@cttr defg]
+
+let idx_iarray_s x =
+  (.:s(x) )
+    [@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaattr
+      ]
+    [@bttr]
+    [@cttr defg]
+
+let idx_iarray_n x =
+  (.:n(x) )
+    [@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaattr
+      ]
+    [@bttr]
+    [@cttr defg]
+
+let idx_imm x =
+  (.idx_imm(x) )
+    [@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaattr
+      ]
+    [@bttr]
+    [@cttr defg]
+
+let idx_mut x =
+  (.idx_mut(x) )
+    [@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaattr
+      ]
+    [@bttr]
+    [@cttr defg]
+
+(* attributes inside *)
+
+let idx_array x = (.((x, y, (z [@attr]))))
+
+let idx_array_L x = (.L([x; y; z] [@attr]))
+
+let idx_array_l x =
+  (.l(
+   (List.map l ~f:(fun x ->
+        let y, z = g x in
+        (y, z) )
+   [@attr] ) ) )
+
+let idx_array_n x = (.n(function[@attr] _ -> x | _ -> y))
+
+let idx_iarray x = (.:(((~x, ~y, ~z) [@attr])))
+
+let idx_iarray_L x = (.:L((.:L({x; y; z} [@attr]))))
+
+let idx_iarray_l x = (.:l((.:l(#{x; y; z} [@attr]))))
+
+let idx_iarray_n x = (.:n((x + y + (z * (x + y + z))) [@attr]))
+
+let idx_imm x = (.idx_imm(if [@attr] x then y else z))
+
+let idx_mut x =
+  (.idx_mut(let%foo[@attr] x = y in
+            z ) )
+
+let idx_imm x = (.idx_imm(((module M) [@attr])))
+
+let idx_mut x = (.idx_mut((assert false [@attr])))
+
 (* comments *)
 
 let idx_r () =

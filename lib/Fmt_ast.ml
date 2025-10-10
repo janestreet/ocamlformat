@@ -2681,11 +2681,13 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
              $ fmt_atrs ) )
   | Pexp_idx (ba, uas) ->
       pro
-      $ Params.parens c.conf
-          (hvbox 0
-             ( fmt_block_access c (Exp exp) ba
-             $ fmt_if (not (List.is_empty uas)) "@;<0 0>"
-             $ list uas "@;<0 0>" (fmt_unboxed_access c) ) )
+      $ hvbox_if has_attr 2
+          ( Params.parens c.conf
+              (hvbox 0
+                 ( fmt_block_access c (Exp exp) ba
+                 $ fmt_if (not (List.is_empty uas)) "@;<0 0>"
+                 $ list uas "@;<0 0>" (fmt_unboxed_access c) ) )
+          $ fmt_atrs )
   | Pexp_list e1N ->
       let p = Params.get_list_expr c.conf in
       let offset =
