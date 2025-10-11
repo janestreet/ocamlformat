@@ -895,25 +895,12 @@ and directive already_consumed = parse
         let explanation = "line directives are not supported" in
         directive_error lexbuf explanation ~already_consumed ~directive
       }
-  | "syntax" [' ' '\t']+ (lowercase identchar* as mode) [' ' '\t']+
-    (lowercase identchar* as toggle) [^ '\010' '\013']*
-      { let toggle =
-          match toggle with
-          | "on" -> true
-          | "off" -> false
-          | _ ->
-              directive_error lexbuf
-                ("syntax directive can only be toggled on or off; "
-                 ^ toggle ^ " not recognized")
-                ~already_consumed ~directive:"syntax"
-        in
-        match mode with
-        | "quotations" ->
-            Syntax_mode.quotations := toggle;
-            token lexbuf
-        | _ ->
-            directive_error lexbuf ("unknown syntax mode " ^ mode)
-              ~already_consumed ~directive:"syntax"
+  | "syntax" [' ' '\t']+ (lowercase identchar*) [' ' '\t']+
+    (lowercase identchar*) [^ '\010' '\013']*
+      {
+        (* Syntax directives are not preserved by the lexer so we error out. *)
+        let explanation = "syntax directives are not supported" in
+        directive_error lexbuf explanation ~already_consumed ~directive:"syntax"
       }
 (* End Jane Street modification *)
 

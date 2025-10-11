@@ -1056,8 +1056,8 @@ end = struct
       | Ptyp_class (_, l) -> assert (List.exists l ~f)
       | Ptyp_of_kind _ -> assert false
       | Ptyp_constr_unboxed (_, t1N) -> assert (List.exists t1N ~f)
-      | Ptyp_quote _ -> assert false
-      | Ptyp_splice _ -> assert false )
+      | Ptyp_quote t1 -> assert (typ == t1)
+      | Ptyp_splice t1 -> assert (typ == t1) )
     | Td {ptype_params; ptype_cstrs; ptype_kind; ptype_manifest; _} ->
         assert (
           List.exists ptype_params ~f:fst_f

@@ -3401,7 +3401,9 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro
       $ Params.parens_if parens c.conf
           ( Cmts.fmt c pexp_loc
-          @@ hvbox 2 (str "$" $ fmt_expression c (sub_exp ~ctx expr)) )
+          @@ hvbox 2
+               (str "$" $ fmt_expression ~parens:true c (sub_exp ~ctx expr))
+          )
   | Pexp_hole -> pro $ hvbox 0 (fmt_hole () $ fmt_atrs)
   | Pexp_beginend e ->
       let wrap_beginend k =

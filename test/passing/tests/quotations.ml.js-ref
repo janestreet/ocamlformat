@@ -1,21 +1,28 @@
 let simple_number = <[123]>
 
 let npower x_quoted n =
-  let rec loop m =
-    if m = 0 then <[1]>
-    else <[$x_quoted * $(loop (m -1))]>
-  in loop n
+  let rec loop m = if m = 0 then <[1]> else <[$x_quoted * $(loop (m - 1))]> in
+  loop n
+;;
 
 let example_function n = <[fun x -> $(npower <[x]> n)]>
 
 let longer_example m n =
   let first_quote = <[fun x -> $(npower <[x]> m)]> in
-  let second_quote = <[fun y -> $(npower <[y] n)]> in
-  let combined_quote = <[fun x -> $second_quote ($first_quote x)]>
+  let second_quote = <[fun y -> $(npower <[y]> n)]> in
+  let combined_quote = <[fun x -> $second_quote ($first_quote x)]> in
+  <[$combined_quote, $combined_quote]>
+;;
 
 let even_longer m n =
-<[fun x y ->
-  let xm = $(npower <[x]> m) in
-  let yn = $(npower <[y]> n) in
-  let z = xm + yn in
-  $(npower <[z]> (m + n))]>
+  <[fun x y ->
+    let xm = $(npower <[x]> m) in
+    let yn = $(npower <[y]> n) in
+    let z = xm + yn in
+    $(npower <[z]> (m + n))]>
+;;
+
+type s = <[int]>
+type t = s expr
+
+let f (x : t) : <[$s * $s]> expr = <[$x, $x + 1]>

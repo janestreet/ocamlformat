@@ -4698,11 +4698,10 @@ atomic_type:
       { Ptyp_var ($2, jkind) }
     | LPAREN TYPE COLON jkind=jkind RPAREN
       { Ptyp_of_kind jkind }
-  | LESSLBRACKET core_type RBRACKETGREATER
+    | LESSLBRACKET core_type RBRACKETGREATER
       { Ptyp_quote $2 }
-  | DOLLAR type_ = spliceable_type
-      { Ptyp_splice type_ }
-
+    | DOLLAR spliceable_type
+      { Ptyp_splice $2 }
   )
   { $1 } /* end mktyp group */
 ;

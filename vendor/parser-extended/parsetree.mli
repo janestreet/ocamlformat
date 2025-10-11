@@ -548,8 +548,8 @@ and expression_desc =
       (** [[|BODY ...CLAUSES...|]] (flag = Mutable)
           [[:BODY ...CLAUSES...:]] (flag = Immutable)
           (only allowed with [-extension immutable_arrays]) *)
-  | Pexp_quote of expression (** [<[E]>] *)
-  | Pexp_splice of expression (** [$(E)] *)
+  | Pexp_quote of expression (** runtime metaprogramming quotations <[E]> *)
+  | Pexp_splice of expression (** runtime metaprogramming splicing $(E) *)
 
 and block_access =
   | Baccess_field of Longident.t loc
