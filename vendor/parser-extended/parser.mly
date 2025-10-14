@@ -4714,6 +4714,7 @@ atomic_type:
       { Ptyp_quote $2 }
     | DOLLAR spliceable_type
       { Ptyp_splice $2 }
+
   )
   { $1 } /* end mktyp group */
 ;
