@@ -10648,7 +10648,7 @@
  (action
   (with-stdout-to quotations.ml.stdout
    (with-stderr-to quotations.ml.stderr
-     (run %{bin:ocamlformat} --margin-check %{dep:tests/quotations.ml})))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/quotations.ml}))))))
 
 (rule
  (alias runtest)
@@ -10666,7 +10666,7 @@
  (action
   (with-stdout-to quotations.ml.js-stdout
    (with-stderr-to quotations.ml.js-stderr
-     (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/quotations.ml})))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/quotations.ml}))))))
 
 (rule
  (alias runtest)
