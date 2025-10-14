@@ -1229,11 +1229,21 @@ let rec toplevel_phrase i ppf x =
   | Ptop_def (s) ->
       line i ppf "Ptop_def\n";
       structure (i+1) ppf s;
-  | Ptop_dir {pdir_name; pdir_arg; _} ->
+  | Ptop_dir {pdir_name; pdir_arg; _} -> begin
       line i ppf "Ptop_dir \"%s\"\n" pdir_name.txt;
       match pdir_arg with
       | None -> ()
       | Some da -> directive_argument i ppf da;
+    end
+  | Ptop_lex l ->
+      line i ppf "Ptop_lex\n";
+      lexer_directive (i + 1) ppf l.plex_desc;
+
+and lexer_directive i ppf x =
+  match x with
+  | Plex_syntax s ->
+      line i ppf "Plex_syntax %a %s\n" fmt_string_loc s.psyn_mode
+        (string_of_bool s.psyn_toggle);
 
 and directive_argument i ppf x =
   match x.pdira_desc with

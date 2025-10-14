@@ -402,7 +402,8 @@ let erase_toplevel_phrases phrases =
     List.map
       (function
         | Ptop_def str -> Ptop_def (erase_str_items str)
-        | Ptop_dir _ as phrase -> phrase)
+        | Ptop_dir _ as phrase -> phrase
+        | Ptop_lex lex -> Ptop_lex lex)
       phrases
 
 (*
@@ -774,6 +775,16 @@ let package_type_of_module_type pmty =
   | _ ->
       err pmty.pmty_loc Neither_identifier_nor_with_type
 
+let mk_hashsyntax ~loc mode toggle =
+  Ptop_lex {
+      plex_desc =
+        Plex_syntax {
+             psyn_mode = mode;
+             psyn_toggle = toggle;
+        };
+      plex_loc = make_loc loc;
+    }
+
 let mk_directive_arg ~loc k =
   { pdira_desc = k;
     pdira_loc = make_loc loc;
@@ -990,6 +1001,7 @@ let erase_call_pos_type ~arg_label ~arg_type ~loc =
 %token                        LESSLBRACKET "<["
 %token                        RBRACKETGREATER "]>"
 %token                        DOLLAR "$"
+%token <string * bool>        HASH_SYNTAX "#syntax foo on" (* just an example *)
 (* End Jane Street extension *)
 
 /* Precedences and associativities.
@@ -5004,9 +5016,12 @@ any_longident:
 /* Toplevel directives */
 
 toplevel_directive:
-  hash dir = mkrhs(ident)
-  arg = ioption(mk_directive_arg(toplevel_directive_argument))
-    { mk_directive ~loc:$sloc dir arg }
+  | HASH_SYNTAX
+      { let mode, toggle = $1 in
+        mk_hashsyntax ~loc:$sloc (mkloc mode (make_loc $sloc)) toggle }
+  | hash dir = mkrhs(ident)
+    arg = ioption(mk_directive_arg(toplevel_directive_argument))
+      { mk_directive ~loc:$sloc dir arg }
 ;
 
 %inline toplevel_directive_argument:

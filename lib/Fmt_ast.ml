@@ -5471,10 +5471,22 @@ let fmt_toplevel_directive c ~semisemi dir =
   in
   Cmts.fmt c pdir_loc (box_semisemi c ~parent_ctx:Top semisemi (name $ args))
 
+let fmt_lexer_directive c ~semisemi l =
+  let toggle_to_string = function true -> "on" | false -> "off" in
+  let fmt_lexer_arg l =
+    match l.plex_desc with
+    | Plex_syntax {psyn_mode; psyn_toggle} ->
+        str
+          (Printf.sprintf "#syntax %s %s" psyn_mode.txt
+             (toggle_to_string psyn_toggle) )
+  in
+  box_semisemi c ~parent_ctx:Top semisemi (fmt_lexer_arg l)
+
 let flatten_ptop =
   List.concat_map ~f:(function
     | Ptop_def items -> List.map items ~f:(fun i -> `Item i)
-    | Ptop_dir d -> [`Directive d] )
+    | Ptop_dir d -> [`Directive d]
+    | Ptop_lex l -> [`Lexer l] )
 
 let fmt_toplevel ?(force_semisemi = false) c ctx itms =
   let itms = flatten_ptop itms in
@@ -5494,6 +5506,7 @@ let fmt_toplevel ?(force_semisemi = false) c ctx itms =
     match itm with
     | `Item i -> fmt_structure_item c ~last ~semisemi (sub_str ~ctx i)
     | `Directive d -> fmt_toplevel_directive c ~semisemi d
+    | `Lexer l -> fmt_lexer_directive c ~semisemi l
   in
   let ast x = Tli x in
   fmt_item_list c ctx update_config ast fmt_item itms

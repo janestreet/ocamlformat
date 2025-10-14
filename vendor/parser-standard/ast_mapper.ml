@@ -77,6 +77,7 @@ type mapper = {
   structure: mapper -> structure -> structure;
   structure_item: mapper -> structure_item -> structure_item;
   toplevel_directive: mapper -> toplevel_directive -> toplevel_directive;
+  lexer_directive: mapper -> lexer_directive -> lexer_directive;
   toplevel_phrase: mapper -> toplevel_phrase -> toplevel_phrase;
   typ: mapper -> core_type -> core_type;
   type_declaration: mapper -> type_declaration -> type_declaration;
@@ -1004,10 +1005,20 @@ let default_mapper =
          ; pdir_arg= map_opt (this.directive_argument this) d.pdir_arg
          ; pdir_loc= this.location this d.pdir_loc } );
 
+    lexer_directive =
+      (fun this l ->
+         match l.plex_desc with
+         | Plex_syntax s ->
+           {plex_desc= Plex_syntax { psyn_mode = map_loc this s.psyn_mode
+                                   ; psyn_toggle = s.psyn_toggle };
+            plex_loc= this.location this l.plex_loc });
+
     toplevel_phrase =
       (fun this -> function
          | Ptop_def s -> Ptop_def (this.structure this s)
-         | Ptop_dir d -> Ptop_dir (this.toplevel_directive this d) );
+         | Ptop_dir d -> Ptop_dir (this.toplevel_directive this d)
+         | Ptop_lex l -> Ptop_lex (this.lexer_directive this l) );
+
   }
 
 let extension_of_error {kind; main; sub} =

@@ -718,7 +718,9 @@ module Class_type_field = struct
 end
 
 type toplevel_item =
-  [`Item of structure_item | `Directive of toplevel_directive]
+  [ `Item of structure_item
+  | `Directive of toplevel_directive
+  | `Lexer of lexer_directive ]
 
 (** Ast terms of various forms. *)
 module T = struct
@@ -775,6 +777,8 @@ module T = struct
         Format.fprintf fs "Ctf:@\n%a@\n" Printast.class_type_field ctf
     | Tli (`Directive d) ->
         Format.fprintf fs "Dir:@\n%a" Printast.top_phrase (Ptop_dir d)
+    | Tli (`Lexer l) ->
+        Format.fprintf fs "Lex:@\n%a" Printast.top_phrase (Ptop_lex l)
     | Jkd jkd ->
         Format.fprintf fs "Jkd:@\n%a" (Printast.jkind_annotation 0) jkd
     | Top -> Format.pp_print_string fs "Top"
@@ -836,6 +840,7 @@ let location = function
   | Ctf x -> x.pctf_loc
   | Tli (`Item x) -> x.pstr_loc
   | Tli (`Directive x) -> x.pdir_loc
+  | Tli (`Lexer x) -> x.plex_loc
   | Jkd _ -> Location.none
   | Top -> Location.none
   | Rep -> Location.none

@@ -1,3 +1,5 @@
+#syntax quotations on
+
 let simple_number = <[123]>
 
 let npower x_quoted n =
