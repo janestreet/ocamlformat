@@ -2335,7 +2335,7 @@ end = struct
          |Pexp_variant (_, None)
          |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
          |Pexp_indexop_access _ | Pexp_list_comprehension _
-         |Pexp_array_comprehension _ | Pexp_idx _ | Pexp_quote ->
+         |Pexp_array_comprehension _ | Pexp_idx _ | Pexp_quote _ ->
             false
       in
       Exp.mem_cls cls exp
