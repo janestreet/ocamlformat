@@ -148,13 +148,13 @@ module Typ = struct
     and loop_jkind jkind =
       let pjkind_desc =
         match jkind.pjkind_desc with
-        | Pjk_default as x -> x
-        | Pjk_abbreviation _ as x -> x
-        | Pjk_mod (jkind, modes) -> Pjk_mod (loop_jkind jkind, modes)
-        | Pjk_with (jkind, typ, modalities) ->
-          Pjk_with (loop_jkind jkind, loop typ, modalities)
-        | Pjk_kind_of typ -> Pjk_kind_of (loop typ)
-        | Pjk_product jkinds -> Pjk_product (List.map loop_jkind jkinds)
+        | Default as x -> x
+        | Abbreviation _ as x -> x
+        | Mod (jkind, modes) -> Mod (loop_jkind jkind, modes)
+        | With (jkind, typ, modalities) ->
+          With (loop_jkind jkind, loop typ, modalities)
+        | Kind_of typ -> Kind_of (loop typ)
+        | Product jkinds -> Product (List.map loop_jkind jkinds)
       in
       { jkind with pjkind_desc }
     and loop_row_field field =
@@ -235,7 +235,6 @@ module Exp = struct
   let unboxed_field ?loc ?attrs a b = mk ?loc ?attrs (Pexp_unboxed_field (a, b))
   let setfield ?loc ?attrs a b c = mk ?loc ?attrs (Pexp_setfield (a, b, c))
   let array ?loc ?attrs a b = mk ?loc ?attrs (Pexp_array (a, b))
-  let idx ?loc ?attrs a b = mk ?loc ?attrs (Pexp_idx (a, b))
   let ifthenelse ?loc ?attrs a b c = mk ?loc ?attrs (Pexp_ifthenelse (a, b, c))
   let sequence ?loc ?attrs a b = mk ?loc ?attrs (Pexp_sequence (a, b))
   let while_ ?loc ?attrs a b = mk ?loc ?attrs (Pexp_while (a, b))

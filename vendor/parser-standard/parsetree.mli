@@ -33,11 +33,9 @@ type constant =
       (** Integer constants such as [#3] [#3l] [#3L] [#3n].
 
           A suffix [[g-z][G-Z]] is required by the parser.
-          Suffixes except ['s'], ['S'], ['l'], ['L'], ['n'], and ['m'] are
-          rejected by the typechecker
+          Suffixes except ['l'], ['L'] and ['n'] are rejected by the typechecker
       *)
   | Pconst_char of char  (** Character such as ['c']. *)
-  | Pconst_untagged_char of char  (** Untagged character such as [#'c']. *)
   | Pconst_string of string * Location.t * string option
       (** Constant string such as ["constant"] or
           [{delim|other constant|delim}].
@@ -459,9 +457,6 @@ and expression_desc =
       (** [E1.l <- E2] *)
   | Pexp_array of mutable_flag * expression list
       (** [[| E1; ...; En |]] or [[: E1; ...; En :]] *)
-  | Pexp_idx of block_access * unboxed_access list
-      (** [(BA1 UA1 UA2 ...)] e.g. [(.foo.#bar.#baz)]
-          Above, BA1=.foo, UA1=.#bar, and UA2=#.baz *)
   | Pexp_ifthenelse of expression * expression * expression option
       (** [if E1 then E2 else E3] *)
   | Pexp_sequence of expression * expression  (** [E1; E2] *)
@@ -1336,15 +1331,15 @@ and module_binding =
 (** Values of type [module_binding] represents [module X = ME] *)
 
 and jkind_annotation_desc =
-  | Pjk_default
-  | Pjk_abbreviation of string
+  | Default
+  | Abbreviation of string
   (* CR layouts v2.8: [mod] can have only layouts on the left, not
      full kind annotations. We may want to narrow this type some.
      Internal ticket 5085. *)
-  | Pjk_mod of jkind_annotation * modes
-  | Pjk_with of jkind_annotation * core_type * modalities
-  | Pjk_kind_of of core_type
-  | Pjk_product of jkind_annotation list
+  | Mod of jkind_annotation * modes
+  | With of jkind_annotation * core_type * modalities
+  | Kind_of of core_type
+  | Product of jkind_annotation list
 
 and jkind_annotation =
   { pjkind_loc : Location.t

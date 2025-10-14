@@ -62,8 +62,6 @@ let fmt_constant f x =
   | Pconst_integer (i,m) -> fprintf f "PConst_int (%s,%a)" i fmt_char_option m
   | Pconst_unboxed_integer (i,m) -> fprintf f "PConst_unboxed_int (%s,%c)" i m
   | Pconst_char (c) -> fprintf f "PConst_char %02x" (Char.code c)
-  | Pconst_untagged_char (c) ->
-      fprintf f "PConst_untagged_char %02x" (Char.code c)
   | Pconst_string (s, strloc, None) ->
       fprintf f "PConst_string(%S,%a,None)" s fmt_location strloc
   | Pconst_string (s, strloc, Some delim) ->
@@ -237,7 +235,7 @@ let rec core_type i ppf x =
       line i ppf "Ptyp_splice\n";
       core_type i ppf t
   | Ptyp_of_kind jkind ->
-      line i ppf "Ptyp_of_kind %a\n" (jkind_annotation (i + 1)) jkind
+    line i ppf "Ptyp_of_kind %a\n" (jkind_annotation (i + 1)) jkind
   | Ptyp_extension (s, arg) ->
       line i ppf "Ptyp_extension \"%s\"\n" s.txt;
       payload i ppf arg
@@ -383,10 +381,6 @@ and expression i ppf x =
   | Pexp_array (mut, l) ->
       line i ppf "Pexp_array %a\n" fmt_mutable_flag mut;
       list i expression ppf l;
-  | Pexp_idx (ba, uas) ->
-      line i ppf "Pexp_idx\n";
-      block_access i ppf ba;
-      List.iter (unboxed_access i ppf) uas;
   | Pexp_ifthenelse (e1, e2, eo) ->
       line i ppf "Pexp_ifthenelse\n";
       expression i ppf e1;
@@ -487,22 +481,6 @@ and expression i ppf x =
   | Pexp_hole ->
     line i ppf "Pexp_hole"
 
-and block_access i ppf = function
-  | Baccess_field lid ->
-      line i ppf "Baccess_field %a\n" fmt_longident_loc lid
-  | Baccess_array (mut, index_kind, index) ->
-      line i ppf "Baccess_array %a %a\n"
-        fmt_mutable_flag mut fmt_index_kind index_kind;
-      expression i ppf index
-  | Baccess_block (mut, idx) ->
-      line i ppf "Baccess_block %a\n"
-        fmt_mutable_flag mut;
-      expression i ppf idx
-
-and unboxed_access i ppf = function
-  | Uaccess_unboxed_field lid ->
-      line i ppf "Uaccess_unboxed_field %a\n" fmt_longident_loc lid
-
 and comprehension_expression i ppf = function
   | Pcomp_array_comprehension (m, c) ->
       line i ppf "Pcomp_array_comprehension %a\n" fmt_mutable_flag m;
@@ -547,23 +525,23 @@ and jkind_annotation_opt i ppf jkind =
 and jkind_annotation i ppf (jkind : jkind_annotation) =
   line i ppf "jkind %a\n" fmt_location jkind.pjkind_loc;
   match jkind.pjkind_desc with
-  | Pjk_default -> line i ppf "Pjk_default\n"
-  | Pjk_abbreviation jkind ->
-      line i ppf "Pjk_abbreviation \"%s\"\n" jkind
-  | Pjk_mod (jkind, m) ->
-      line i ppf "Pjk_mod\n";
+  | Default -> line i ppf "Default\n"
+  | Abbreviation jkind ->
+      line i ppf "Abbreviation \"%s\"\n" jkind
+  | Mod (jkind, m) ->
+      line i ppf "Mod\n";
       jkind_annotation (i+1) ppf jkind;
       modes (i+1) ppf m
-  | Pjk_with (jkind, type_, modalities_) ->
-      line i ppf "Pjk_with\n";
+  | With (jkind, type_, modalities_) ->
+      line i ppf "With\n";
       jkind_annotation (i+1) ppf jkind;
       core_type (i+1) ppf type_;
       modalities (i+1) ppf modalities_
-  | Pjk_kind_of type_ ->
-      line i ppf "Pjk_kind_of\n";
+  | Kind_of type_ ->
+      line i ppf "Kind_of\n";
       core_type (i+1) ppf type_
-  | Pjk_product jkinds ->
-      line i ppf "Pjk_product\n";
+  | Product jkinds ->
+      line i ppf "Product\n";
       list i jkind_annotation ppf jkinds
 
 and function_param i ppf { pparam_desc = desc; pparam_loc = loc } =
