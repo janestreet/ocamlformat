@@ -915,11 +915,11 @@ and directive already_consumed = parse
           match mode with
             | "quotations" ->
                 Syntax_mode.quotations := toggle;
+                token lexbuf
             | _ ->
                 directive_error lexbuf ("unknown syntax mode " ^ mode)
                   ~already_consumed ~directive:"syntax"
-        );
-        HASH_SYNTAX(mode, toggle)
+        )
       }
 and comment = parse
     "(*"

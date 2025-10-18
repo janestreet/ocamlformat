@@ -1353,7 +1353,6 @@ and jkind_annotation =
 type toplevel_phrase =
   | Ptop_def of structure
   | Ptop_dir of toplevel_directive  (** [#use], [#load] ... *)
-  | Ptop_lex of lexer_directive
 
 and toplevel_directive =
   {
@@ -1373,19 +1372,3 @@ and directive_argument_desc =
   | Pdir_int of string * char option
   | Pdir_ident of Longident.t
   | Pdir_bool of bool
-
-(** Lexer directives: ugly hack to avoid their deletion *)
-and syntax_directive =
-  {
-    psyn_mode: string loc;
-    psyn_toggle: bool;
-  }
-
-and lexer_directive_desc =
-  | Plex_syntax of syntax_directive
-
-and lexer_directive =
-  {
-    plex_desc: lexer_directive_desc;
-    plex_loc: Location.t
-  }

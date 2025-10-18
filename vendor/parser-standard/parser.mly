@@ -932,16 +932,6 @@ let pmod_instance : module_expr -> module_expr_desc =
   fun mexpr -> Pmod_instance (instance_of_module_expr mexpr)
 ;;
 
-let mk_hashsyntax ~loc mode toggle =
-  Ptop_lex {
-      plex_desc =
-        Plex_syntax {
-             psyn_mode = mode;
-             psyn_toggle = toggle;
-        };
-      plex_loc = make_loc loc;
-    }
-
 let mk_directive_arg ~loc k =
   { pdira_desc = k;
     pdira_loc = make_loc loc;
@@ -1052,7 +1042,6 @@ let maybe_pmod_constraint mode expr =
 %token GREATERRBRACKET        ">]"
 %token HASHLPAREN             "#("
 %token HASHLBRACE             "#{"
-%token <string * bool> HASH_SYNTAX "#syntax foo on" (* just an example *)
 %token IF                     "if"
 %token IN                     "in"
 %token INCLUDE                "include"
@@ -3210,16 +3199,6 @@ comprehension_clause:
           mkexp_attrs ~loc:($startpos($3), $endpos)
             (Pexp_constraint (ghexp ~loc:$sloc (Pexp_pack $6), Some $8, [])) $5 in
         Pexp_open(od, modexp) }
-  (* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
-     restriction
-     {[
-  | LESSLBRACKET expr_semi_list RBRACKETGREATER
-      { quotation_reserved "<[" $loc($1) }
-  | LESSLBRACKET expr_semi_list error
-      { unclosed "<[" $loc($1) "]>" $loc($3) }
-  | DOLLAR error
-      { quotation_reserved "$" $loc($1) }
-     ]} *)
   | mod_longident DOT
     LPAREN MODULE ext_attributes module_expr COLON error
       { unclosed "(" $loc($3) ")" $loc($8) }
@@ -5167,9 +5146,6 @@ any_longident:
 /* Toplevel directives */
 
 toplevel_directive:
-  | HASH_SYNTAX
-      { let mode, toggle = $1 in
-        mk_hashsyntax ~loc:$sloc (mkloc mode (make_loc $sloc)) toggle }
   | hash dir = mkrhs(ident)
     arg = ioption(mk_directive_arg(toplevel_directive_argument))
       { mk_directive ~loc:$sloc dir arg }
