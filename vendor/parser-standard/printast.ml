@@ -1199,12 +1199,11 @@ let rec toplevel_phrase i ppf x =
   | Ptop_def (s) ->
       line i ppf "Ptop_def\n";
       structure (i+1) ppf s;
-  | Ptop_dir {pdir_name; pdir_arg; _} -> begin
+  | Ptop_dir {pdir_name; pdir_arg; _} ->
       line i ppf "Ptop_dir \"%s\"\n" pdir_name.txt;
       match pdir_arg with
       | None -> ()
       | Some da -> directive_argument i ppf da;
-    end
 
 and directive_argument i ppf x =
   match x.pdira_desc with
