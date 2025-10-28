@@ -109,6 +109,23 @@
    big float: 999999999999999999999999999999.0
 *)
 
+(* this is a comment that could be code that cares about space: "  hello  " *)
+
+(* so is this: {|  hello  |} *)
+
+(* and this: {%foo bar|  hello  |bar} *)
+
+(* this comment
+   will become "  sus  " *)
+
+(* syntax change regression test
+   {[
+   type t [@@immediate]
+   ]}
+*)
+
+(*/**)
+
 (** {xinvalid markup} *)
 
 (** valid markup {but no space} *)
@@ -216,6 +233,23 @@
     big num: 999999999999999999999999999999.
 
     big float: 999999999999999999999999999999.0
+*)
+
+(**/**)
+
+(** this is a comment that could be code that cares about space: "  hello  " *)
+
+(** so is this: {|  hello  |} *)
+
+(** and this: {%foo bar|  hello  |bar} *)
+
+(** this comment
+    will become "  sus  " *)
+
+(** syntax change regression test
+    {[
+    type t [@@immediate]
+    ]}
 *)
 
 (*_ {xinvalid markup} *)
@@ -326,3 +360,21 @@
 
     big float: 999999999999999999999999999999.0
 *)
+
+(*_ this is a comment that could be code that cares about space: "  hello  " *)
+
+(*_ so is this: {|  hello  |} *)
+
+(*_ and this: {%foo bar|  hello  |bar} *)
+
+(*_ this comment
+    will become "  sus  " *)
+
+(*_ syntax change regression test
+    {[
+    type t [@@immediate]
+    ]}
+*)
+
+(*_/**)
+

@@ -428,9 +428,7 @@ let fmt_parsed_docstring c ~loc ?pro ~epi input parsed =
       c.conf.fmt_opts.parse_docstrings.v
       && String.for_all ~f:Char.is_whitespace input
     then noop
-    else
-      Fmt_odoc.fmt_parsed c.conf ~actually_a_doc_comment:true ~fmt_code
-        ~offset ~input parsed
+    else Fmt_odoc.fmt_parsed c.conf ~fmt_code ~offset ~input parsed
   in
   let closing_space =
     match parsed with

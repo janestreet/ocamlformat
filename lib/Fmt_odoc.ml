@@ -407,8 +407,7 @@ let beginning_offset (conf : Conf.t) input =
       whitespace_count
   else min whitespace_count 1
 
-let fmt_parsed (conf : Conf.t) ~actually_a_doc_comment ~fmt_code ~input
-    ~offset parsed =
+let fmt_parsed (conf : Conf.t) ~fmt_code ~input ~offset parsed =
   let open Fmt in
   let begin_offset = beginning_offset conf input in
   (* The offset is used to adjust the margin when formatting code blocks. *)
@@ -420,9 +419,7 @@ let fmt_parsed (conf : Conf.t) ~actually_a_doc_comment ~fmt_code ~input
     str (String.make begin_offset ' ') $ fmt_ast conf ~fmt_code parsed
   in
   match parsed with
-  | _ when not (conf.fmt_opts.parse_docstrings.v && actually_a_doc_comment)
-    ->
-      str input
+  | _ when not conf.fmt_opts.parse_docstrings.v -> str input
   | Ok parsed -> fmt_parsed parsed
   | Error msgs ->
       if (not conf.opr_opts.quiet.v) && conf.opr_opts.check_odoc_parsing.v

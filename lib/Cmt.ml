@@ -147,9 +147,14 @@ let split_asterisk_prefixed =
       Some (fst_line :: List.map tl ~f:drop_prefix)
   | _ -> None
 
+let ambiguous_line line =
+  String.contains line '"'
+  || (String.contains line '|' && String.contains line '}')
+
 let mk ?(prefix = "") ?(suffix = "") kind = {prefix; suffix; kind}
 
-let decode_comment ~parse_comments_as_doc txt loc =
+let decode_comment ~parse_comments_as_doc ~preserve_ambiguous_line_comments
+    txt loc =
   let txt =
     (* Windows compatibility *)
     let f = function '\r' -> false | _ -> true in
@@ -173,15 +178,24 @@ let decode_comment ~parse_comments_as_doc txt loc =
     | '=' -> mk (Verbatim txt)
     | _ when is_all_whitespace txt ->
         mk (Verbatim " ") (* Make sure not to format to [(**)]. *)
-    | _ when parse_comments_as_doc -> mk (Doc txt)
-    | _ -> (
+    | c -> (
         let lines =
           let content_offset = opn_offset + 2 in
           unindent_lines ~content_offset txt
         in
-        match split_asterisk_prefixed lines with
-        | Some deprefixed_lines -> mk (Asterisk_prefixed deprefixed_lines)
-        | None -> mk (Normal txt) )
+        match lines with
+        | [line] when preserve_ambiguous_line_comments && ambiguous_line line
+          ->
+            mk (Verbatim txt)
+        | _ -> (
+          match split_asterisk_prefixed lines with
+          | Some deprefixed_lines -> mk (Asterisk_prefixed deprefixed_lines)
+          | None ->
+              if parse_comments_as_doc then
+                match c with
+                | '_' -> mk ~prefix:"_" (Doc (String.subo ~pos:1 txt))
+                | _ -> mk (Doc txt)
+              else mk (Normal txt) ) )
   else
     match txt with
     (* "(**)" is not parsed as a docstring but as a regular comment
@@ -197,6 +211,9 @@ let decode_docstring _loc = function
   | txt when is_all_whitespace txt -> mk (Verbatim " ")
   | txt -> mk ~prefix:"*" (Doc txt)
 
-let decode ~parse_comments_as_doc = function
-  | Comment {txt; loc} -> decode_comment ~parse_comments_as_doc txt loc
+let decode ~parse_comments_as_doc ~preserve_ambiguous_line_comments =
+  function
+  | Comment {txt; loc} ->
+      decode_comment ~parse_comments_as_doc ~preserve_ambiguous_line_comments
+        txt loc
   | Docstring {txt; loc} -> decode_docstring loc txt
