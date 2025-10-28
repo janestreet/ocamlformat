@@ -1,0 +1,8 @@
+(* This is just here so that the std ast normalization fails and we are reliant on the
+   extended ast *)
+let _ =
+  fun (type a) -> function
+  | _ -> ()
+;;
+
+type t : immediate

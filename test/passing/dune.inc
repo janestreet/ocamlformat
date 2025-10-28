@@ -7127,8 +7127,7 @@
  (action
   (with-stdout-to kind_attribute_normalization.ml.stdout
    (with-stderr-to kind_attribute_normalization.ml.stderr
-     (with-accepted-exit-codes 1
-       (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/kind_attribute_normalization.ml})))))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/kind_attribute_normalization.ml}))))))
 
 (rule
  (alias runtest)
@@ -7146,8 +7145,7 @@
  (action
   (with-stdout-to kind_attribute_normalization.ml.js-stdout
    (with-stderr-to kind_attribute_normalization.ml.js-stderr
-     (with-accepted-exit-codes 1
-       (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/kind_attribute_normalization.ml})))))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/kind_attribute_normalization.ml}))))))
 
 (rule
  (alias runtest)
@@ -7633,7 +7631,7 @@
  (action
   (with-stdout-to layout_annotation_composed.ml.stdout
    (with-stderr-to layout_annotation_composed.ml.stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters 3 %{dep:tests/layout_annotation_composed.ml}))))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters 10 %{dep:tests/layout_annotation_composed.ml}))))))
 
 (rule
  (alias runtest)

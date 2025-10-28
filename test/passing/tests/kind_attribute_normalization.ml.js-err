@@ -1,3 +1,0 @@
-ocamlformat: Cannot process "tests/kind_attribute_normalization.ml".
-  Please report this bug at https://github.com/ocaml-ppx/ocamlformat/issues.
-  BUG: ast changed.
