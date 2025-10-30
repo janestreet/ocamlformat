@@ -32,3 +32,39 @@ let f (x : t) : <[$s * $s]> expr = <[($x, $x + 1)]>
 let double =
   <[let x = <[42]> in
     <[123 + $x]>]>
+
+(* Long lines and breaks *)
+
+let _ =
+  <[let aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 1 in
+    [ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ]]>
+
+let _ =
+  <[fun xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy zzzzzzzzzzzzzzzzzzzzzzz ->
+     $( <[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          + yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy]>
+      , <[zzzzzzzzzzzzzzzzzzzzzzz]> )]>
+
+let _ =
+  let xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =
+    <[fun aaaaaaaaaaaaaaaaaaaaa ->
+       (aaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa)]>
+  in
+  <[( $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    , $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        (fun bbbbbbbbbbbbbbbbbbbbb -> bbbbbbbbbbbbbbbbbbbbb ) )]>
+
+let _ =
+ fun xxxxxxxxxxxxxxxxxxxx ->
+  <[fun zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz ->
+     $((fun yyyyyyyyyyyyyyyyyyyy ->
+         <[zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz + 42]> )
+         xxxxxxxxxxxxxxxxxxxx )]>
+
+(* Comments *)
+
+(* let q = <[fun xxxxxxxxxx -> (xxxxxxxxxx, xxxxxxxxxx, xxxxxxxxxx)]> in let
+   f a -> <[$q $a + $q $a + $q $a]> in f <[111111111111111111]> *)

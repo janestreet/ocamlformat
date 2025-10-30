@@ -1369,8 +1369,8 @@ and directive_argument_desc =
 (** Lexer directives: ugly hack to avoid their deletion *)
 and syntax_directive =
   {
-    psyn_mode: string loc;
-    psyn_toggle: bool;
+    psyn_mode: string loc; (* which syntax feature e.g. quotations *)
+    psyn_toggle: bool; (* on/off *)
   }
 
 and lexer_directive_desc =
