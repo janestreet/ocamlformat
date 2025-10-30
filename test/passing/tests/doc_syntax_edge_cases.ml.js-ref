@@ -237,7 +237,7 @@
 
     big float: 999999999999999999999999999999.0 *)
 
-(** /**)
+(**/**)
 
 (** this is a comment that could be code that cares about space: " hello " *)
 
