@@ -148,8 +148,8 @@ let split_asterisk_prefixed =
   | _ -> None
 
 let ambiguous_line line =
-  String.contains line '"'
-  || (String.contains line '|' && String.contains line '}')
+  String.contains line '"' || String.contains line '{'
+  || String.contains line '}'
 
 let mk ?(prefix = "") ?(suffix = "") kind = {prefix; suffix; kind}
 

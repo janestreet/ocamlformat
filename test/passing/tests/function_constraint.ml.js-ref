@@ -347,8 +347,8 @@ let[@a1] _ =
 ;;
 
 (* CR: Some of the comment movement above are kind of sad. For example this: let f (* 2 *)
-   (type (* 3 *) a) = (() : unit \@@ local) becomes: let f (type (* 3 *) a) = (* 2 *) (()
-   : unit \@@ local)
+   (type (* 3 *) a) = (() : unit @@ local) becomes: let f (type (* 3 *) a) = (* 2 *) (() :
+   unit @@ local)
 
    Why does (* 2 *) get moved out to the rhs? *)
 

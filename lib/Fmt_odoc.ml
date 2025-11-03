@@ -249,7 +249,10 @@ let rec fmt_inline_elements c elements =
           (non_wrap_space sp)
         $ aux t
     | `Word w :: t ->
-        fmt_if (String.is_prefix ~prefix:"@" w) "\\"
+        fmt_if
+          ( String.is_prefix ~prefix:"@" w
+          && List.mem Odoc_parser.tag_list ~equal:String.equal w )
+          "\\"
         $ str_normalized c w $ aux t
     | `Code_span s :: t -> fmt_code_span s $ aux t
     | `Math_span s :: t -> fmt_math_span s $ aux t

@@ -3212,7 +3212,7 @@ val test_bar : unit -> unit = <fun>
 |}]
 
 (* Uncomment these to test. Should see substantial speedup! let () = Printf.printf "No
-   \@@immediate: %fs\n" (test test_foo) let () = Printf.printf "With \@@immediate: %fs\n"
+   @@immediate: %fs\n" (test test_foo) let () = Printf.printf "With @@immediate: %fs\n"
    (test test_bar) *)
 
 (* INVALID DECLARATIONS *)

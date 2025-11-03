@@ -116,7 +116,7 @@
 
 (** Markup contains numbered list: {i O(log n)} *)
 
-(** Here is an \@ and here are two \@@ and here's a bad tag \@yo *)
+(** Here is an @ and here are two @@ and here's a bad tag @yo *)
 
 (** {1 very important} *)
 
@@ -214,7 +214,7 @@
 
 (** let x = [{ y = z }] *)
 
-(** let f : _ \@ a -> _ \@ b = g *)
+(** let f : _ @ a -> _ @ b = g *)
 
 (** this comment will become " sus " *)
 

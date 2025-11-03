@@ -1,25 +1,24 @@
-(* [{xinvalid markup}] *)
+(* {xinvalid markup} *)
 
-(* valid markup [{but no space}] *)
+(* valid markup {but no space} *)
 
 (* valid markup {b this time with space} *)
 
-(* A variant name: [{Cold}] *)
+(* A variant name: {Cold} *)
 
-(* A variant name: [{Red}] *)
+(* A variant name: {Red} *)
 
-(* A variant name: [{Lock}] *)
+(* A variant name: {Lock} *)
 
-(* In a bad spot:
-   {v needs spaces around and inside v} *)
+(* In a bad spot: {vneeds spaces around and inside v} *)
 
 (* Not closed: {v *)
 
 (* Markup contains numbered list: {i O(log n)} *)
 
-(* Here is an \@ and here are two \@@ and here's a bad tag \@yo *)
+(* Here is an @ and here are two @@ and here's a bad tag @yo *)
 
-(* {1 very important} *)
+(* {01 very important} *)
 
 (* [     code with newline     ] *)
 
@@ -120,9 +119,9 @@
 
 (* and this: {%foo bar|  hello  |bar} *)
 
-(* let x = [{ y = z }] *)
+(* let x = { y = z } *)
 
-(* let f : _ \@ a -> _ \@ b = g *)
+(* let f : _ @ a -> _ @ b = g *)
 
 (* this comment will become " sus " *)
 
@@ -153,7 +152,7 @@
 
 (** Markup contains numbered list: {i O(log n)} *)
 
-(** Here is an \@ and here are two \@@ and here's a bad tag \@yo *)
+(** Here is an @ and here are two @@ and here's a bad tag @yo *)
 
 (** {1 very important} *)
 
@@ -251,7 +250,7 @@
 
 (** let x = [{ y = z }] *)
 
-(** let f : _ \@ a -> _ \@ b = g *)
+(** let f : _ @ a -> _ @ b = g *)
 
 (** this comment will become " sus " *)
 
@@ -260,28 +259,27 @@
       type t : immediate
     ]} *)
 
-(*_ [{xinvalid markup}] *)
+(*_ {xinvalid markup} *)
 
-(*_ valid markup [{but no space}] *)
+(*_ valid markup {but no space} *)
 
 (*_ valid markup {b this time with space} *)
 
-(*_ A variant name: [{Cold}] *)
+(*_ A variant name: {Cold} *)
 
-(*_ A variant name: [{Red}] *)
+(*_ A variant name: {Red} *)
 
-(*_ A variant name: [{Lock}] *)
+(*_ A variant name: {Lock} *)
 
-(*_ In a bad spot:
-    {v needs spaces around and inside v} *)
+(*_ In a bad spot: {vneeds spaces around and inside v} *)
 
 (*_ Not closed: {v *)
 
 (*_ Markup contains numbered list: {i O(log n)} *)
 
-(*_ Here is an \@ and here are two \@@ and here's a bad tag \@yo *)
+(*_ Here is an @ and here are two @@ and here's a bad tag @yo *)
 
-(*_ {1 very important} *)
+(*_ {01 very important} *)
 
 (*_ [     code with newline     ] *)
 
@@ -380,9 +378,9 @@
 
 (*_ and this: {%foo bar|  hello  |bar} *)
 
-(*_ let x = [{ y = z }] *)
+(*_ let x = { y = z } *)
 
-(*_ let f : _ \@ a -> _ \@ b = g *)
+(*_ let f : _ @ a -> _ @ b = g *)
 
 (*_ this comment will become " sus " *)
 
