@@ -115,6 +115,10 @@
 
 (* and this: {%foo bar|  hello  |bar} *)
 
+(* let x = { y = z } *)
+
+(* let f : _ @ a -> _ @ b = g *)
+
 (* this comment
    will become "  sus  " *)
 
@@ -243,6 +247,10 @@
 
 (** and this: {%foo bar|  hello  |bar} *)
 
+(** let x = { y = z } *)
+
+(** let f : _ @ a -> _ @ b = g *)
+
 (** this comment
     will become "  sus  " *)
 
@@ -366,6 +374,10 @@
 (*_ so is this: {|  hello  |} *)
 
 (*_ and this: {%foo bar|  hello  |bar} *)
+
+(*_ let x = { y = z } *)
+
+(*_ let f : _ @ a -> _ @ b = g *)
 
 (*_ this comment
     will become "  sus  " *)
