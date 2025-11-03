@@ -13,7 +13,7 @@ open Extended_ast
 
 val rewrite_type_declaration_imm_attr_to_jkind_annot :
   type_declaration -> attribute option * type_declaration
-(** Rewrites [@@immediate] to [_ : immediate] and do the same for [@@immediate64].
+(** Rewrites [@@immediate] to [_ : immediate] and does the same for [@@immediate64].
     This only happens if there's no existing jkind annotation AND there's only
     one immediacy attribute. If the rewrite occurred, also returns the attribute that
     participated. *)
