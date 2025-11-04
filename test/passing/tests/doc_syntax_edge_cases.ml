@@ -122,6 +122,8 @@
 
 (* Regression for comment preservation check \[1\] *)
 
+(* \[1\] Regression for comment preservation check *)
+
 (* this is a comment that could be code that cares about space: "  hello  " *)
 
 (* so is this: {|  hello  |} *)
@@ -265,6 +267,8 @@
 
 (** Regression for comment preservation check \[1\] *)
 
+(** \[1\] Regression for comment preservation check *)
+
 (**/**)
 
 (** this is a comment that could be code that cares about space: "  hello  " *)
@@ -407,6 +411,8 @@
 (*_ Regression for comment preservation check \[0\] *)
 
 (*_ Regression for comment preservation check \[1\] *)
+
+(*_ \[1\] Regression for comment preservation check *)
 
 (*_ this is a comment that could be code that cares about space: "  hello  " *)
 

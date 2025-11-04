@@ -313,7 +313,7 @@ rule token input = parse
   | '(' ((['1'-'9'] ['0'-'9']*) as num) ')'
     { emit_numbered input `Two_paren num }
   (* only parse [1] and friends, but not [a], [A] and friends *)
-  | '[' ((['1'-'9'] ['0'-'9']*) as num) ']'
+  | '\\'? '[' ((['1'-'9'] ['0'-'9']*) as num) '\\'? ']'
     { emit_numbered input `Two_brace num }
 
   | (['a'-'z'] as num) '.'
