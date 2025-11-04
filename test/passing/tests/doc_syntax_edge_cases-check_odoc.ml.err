@@ -1,6 +1,6 @@
 Warning: Invalid documentation comment:
-File "tests/doc_syntax_edge_cases.ml", line 156, characters 19-19:
+File "tests/doc_syntax_edge_cases.ml", line 160, characters 19-19:
 End of text is not allowed in '{v ... v}' (verbatim text).
 Warning: Invalid documentation comment:
-File "tests/doc_syntax_edge_cases.ml", line 266, characters 39-39:
+File "tests/doc_syntax_edge_cases.ml", line 274, characters 39-39:
 End of text is not allowed in '{%...%}' (raw markup).

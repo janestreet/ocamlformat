@@ -84,8 +84,9 @@ let looks_like_number w =
       | None -> String.chop_suffix w ~suffix:"." )
   in
   match w |> Option.map ~f:String.to_list with
-  | Some [c] -> Char.is_alphanum c
-  | Some (_ :: _ as w) -> List.for_all ~f:Char.is_digit w
+  | Some [c] -> Char.is_alphanum c && not Char.(equal c '0')
+  | Some (leading :: _ as w) ->
+      List.for_all ~f:Char.is_digit w && not Char.(equal leading '0')
   | Some [] | None -> false
 
 let escape_all s =

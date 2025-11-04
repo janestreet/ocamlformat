@@ -118,6 +118,10 @@
    [B] work, however, since it is likely to be code
 *)
 
+(* Regression for comment preservation check \[0\] *)
+
+(* Regression for comment preservation check \[1\] *)
+
 (* this is a comment that could be code that cares about space: "  hello  " *)
 
 (* so is this: {|  hello  |} *)
@@ -257,6 +261,10 @@
     [B] work, however, since it is likely to be code
 *)
 
+(** Regression for comment preservation check \[0\] *)
+
+(** Regression for comment preservation check \[1\] *)
+
 (**/**)
 
 (** this is a comment that could be code that cares about space: "  hello  " *)
@@ -395,6 +403,10 @@
     [A] this does not
     [B] work, however, since it is likely to be code
 *)
+
+(*_ Regression for comment preservation check \[0\] *)
+
+(*_ Regression for comment preservation check \[1\] *)
 
 (*_ this is a comment that could be code that cares about space: "  hello  " *)
 
