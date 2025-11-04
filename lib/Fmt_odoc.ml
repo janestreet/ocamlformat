@@ -74,9 +74,23 @@ let escape_balanced_brackets s =
   in
   insert_ats s "\\" (brackets_to_escape [] [] 0)
 
+let looks_like_number w =
+  let w =
+    match String.chop_suffix w ~suffix:")" with
+    | Some w -> Some (String.chop_prefix_if_exists w ~prefix:"(")
+    | None -> (
+      match String.chop_suffix w ~suffix:"]" with
+      | Some w -> String.chop_prefix w ~prefix:"["
+      | None -> String.chop_suffix w ~suffix:"." )
+  in
+  match w |> Option.map ~f:String.to_list with
+  | Some [c] -> Char.is_alphanum c
+  | Some (_ :: _ as w) -> List.for_all ~f:Char.is_digit w
+  | Some [] | None -> false
+
 let escape_all s =
   let escapeworthy = function '{' | '}' | '[' | ']' -> true | _ -> false in
-  ensure_escape ~escapeworthy s
+  if looks_like_number s then s else ensure_escape ~escapeworthy s
 
 let split_on_whitespaces =
   String.split_on_chars ~on:['\t'; '\n'; '\011'; '\012'; '\r'; ' ']
@@ -210,17 +224,6 @@ let list_block_elem _c elems f =
 let space_elt c : inline_element with_location =
   let sp = if c.conf.fmt_opts.wrap_docstrings.v then "" else " " in
   Loc.(at (span []) (`Space sp))
-
-let looks_like_number w =
-  let w =
-    match String.chop_suffix w ~suffix:")" with
-    | Some w -> Some (String.chop_prefix_if_exists w ~prefix:"(")
-    | None -> String.chop_suffix w ~suffix:"."
-  in
-  match w |> Option.map ~f:String.to_list with
-  | Some [c] -> Char.is_alphanum c
-  | Some (_ :: _ as w) -> List.for_all ~f:Char.is_digit w
-  | Some [] | None -> false
 
 let non_wrap_space sp = if String.contains sp '\n' then fmt "@\n" else str sp
 

@@ -109,6 +109,15 @@
    big float: 999999999999999999999999999999.0
 *)
 
+(* Also[1] footnote-style comments[2]:
+
+   [1] See this paper
+   [2] Thanks for the advice
+
+   [A] this does not
+   [B] work, however, since it is likely to be code
+*)
+
 (* this is a comment that could be code that cares about space: "  hello  " *)
 
 (* so is this: {|  hello  |} *)
@@ -239,6 +248,15 @@
     big float: 999999999999999999999999999999.0
 *)
 
+(** Also[1] footnote-style comments[2]:
+
+    [1] See this paper
+    [2] Thanks for the advice
+
+    [A] this does not
+    [B] work, however, since it is likely to be code
+*)
+
 (**/**)
 
 (** this is a comment that could be code that cares about space: "  hello  " *)
@@ -367,6 +385,15 @@
     big num: 999999999999999999999999999999.
 
     big float: 999999999999999999999999999999.0
+*)
+
+(*_ Also[1] footnote-style comments[2]:
+
+    [1] See this paper
+    [2] Thanks for the advice
+
+    [A] this does not
+    [B] work, however, since it is likely to be code
 *)
 
 (*_ this is a comment that could be code that cares about space: "  hello  " *)
