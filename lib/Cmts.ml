@@ -615,8 +615,6 @@ module Doc = struct
       String.split ~on:'\n' txt |> List.last_exn |> is_only_whitespaces
     in
     let trail_asterisk = String.is_suffix ~suffix:"*" txt in
-    (* let txt = if pre_nl then String.lstrip txt else txt in *)
-    (* let txt = if trail_nl then String.rstrip txt else txt in *)
     let txt = String.rstrip txt in
     let parsed = Docstring.parse ~loc ~pro txt in
     (* Disable warnings when parsing of code blocks fails. *)
