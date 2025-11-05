@@ -73,3 +73,13 @@ let _ =
 
 (* let q = <[fun xxxxxxxxxx -> (xxxxxxxxxx, xxxxxxxxxx, xxxxxxxxxx)]> in
    let f a = <[$q $a + $q $a + $q $a]> in f <[111111111111111111]> *)
+
+let _ =
+  <[2222222222222222222222222222222222
+    + 555555555555555555555555555555
+    + 44444444444444444444
+    - 3333333333333333333333333333
+    (* these comments are meant to be completely ignored in the formatting and should be processed correctly *)
+    + 987654321
+    - 654987987321654]>
+;;
