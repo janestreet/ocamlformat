@@ -66,5 +66,5 @@ let _ =
 
 (* Comments *)
 
-(* let q = <[fun xxxxxxxxxx -> (xxxxxxxxxx, xxxxxxxxxx, xxxxxxxxxx)]> in let
-   f a -> <[$q $a + $q $a + $q $a]> in f <[111111111111111111]> *)
+(* let q = <[fun xxxxxxxxxx -> (xxxxxxxxxx, xxxxxxxxxx, xxxxxxxxxx)]> in
+   let f a = <[$q $a + $q $a + $q $a]> in f <[111111111111111111]> *)
