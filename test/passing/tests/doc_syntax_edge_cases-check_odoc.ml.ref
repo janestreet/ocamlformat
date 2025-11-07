@@ -107,6 +107,12 @@
 
 (* syntax change regression test {[ type t [@@immediate] ]} *)
 
+(* flower comment
+ * with
+ *      strange
+ * indentation
+ *)
+
 (*/**)
 
 (** [{xinvalid markup}] *)

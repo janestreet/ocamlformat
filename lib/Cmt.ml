@@ -93,36 +93,6 @@ type decoded_kind =
 
 type decoded = {prefix: string; suffix: string; kind: decoded_kind}
 
-(** [~content_offset] indicates at which column the body of the comment
-    starts (1-indexed). [~max_idnent] indicates the maximum amount of
-    indentation to trim. *)
-let unindent_lines ?(max_indent = Stdlib.max_int) ~content_offset first_line
-    tl_lines =
-  let tl_indent =
-    List.fold_left ~init:max_indent
-      ~f:(fun acc s ->
-        Option.value_map ~default:acc ~f:(min acc) (String.indent_of_line s) )
-      tl_lines
-  in
-  (* The indentation of the first line must account for the location of the
-     comment opening. Don't account for the first line if it's empty.
-     [fl_trim] is the number of characters to remove from the first line. *)
-  let fl_trim, fl_indent =
-    match String.indent_of_line first_line with
-    | Some i ->
-        (max 0 (min i (tl_indent - content_offset)), i + content_offset - 1)
-    | None -> (String.length first_line, max_indent)
-  in
-  let min_indent = min tl_indent fl_indent in
-  let first_line = String.drop_prefix first_line fl_trim in
-  first_line
-  :: List.map ~f:(fun s -> String.drop_prefix s min_indent) tl_lines
-
-let unindent_lines ?max_indent ~content_offset txt =
-  match String.split ~on:'\n' txt with
-  | [] -> []
-  | hd :: tl -> unindent_lines ?max_indent ~content_offset hd tl
-
 let is_all_whitespace s = String.for_all s ~f:Char.is_whitespace
 
 let split_asterisk_prefixed =
@@ -160,10 +130,6 @@ let decode_comment ~parse_comments_as_doc ~preserve_ambiguous_line_comments
     let f = function '\r' -> false | _ -> true in
     String.filter txt ~f
   in
-  let opn_offset =
-    let {Lexing.pos_cnum; pos_bol; _} = loc.Location.loc_start in
-    pos_cnum - pos_bol + 1
-  in
   if String.length txt >= 2 then
     match txt.[0] with
     | '$' when not (Char.is_whitespace txt.[1]) -> mk (Verbatim txt)
@@ -180,8 +146,9 @@ let decode_comment ~parse_comments_as_doc ~preserve_ambiguous_line_comments
         mk (Verbatim " ") (* Make sure not to format to [(**)]. *)
     | c -> (
         let lines =
-          let content_offset = opn_offset + 2 in
-          unindent_lines ~content_offset txt
+          txt |> String.split ~on:'\n'
+          |> function
+          | [] -> [] | hd :: tl -> hd :: List.map ~f:String.lstrip tl
         in
         match lines with
         | [line] when preserve_ambiguous_line_comments && ambiguous_line line

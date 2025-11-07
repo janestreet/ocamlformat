@@ -143,6 +143,12 @@
    ]}
 *)
 
+(* flower comment
+   * with
+     *      strange
+ * indentation
+*)
+
 (*/**)
 
 (** {xinvalid markup} *)
