@@ -2419,8 +2419,7 @@ end = struct
        |Pexp_variant (_, None)
        |Pexp_hole | Pexp_while _ | Pexp_beginend _ | Pexp_parens _
        |Pexp_list_comprehension _ | Pexp_array_comprehension _ | Pexp_idx _
-       |Pexp_quote _
-        ->
+       |Pexp_quote _ ->
           false
     in
     Hashtbl.find_or_add marked_parenzed_inner_nested_match exp
