@@ -80,8 +80,7 @@ let _ =
     + 44444444444444444444
     - 3333333333333333333333333333
     (* these comments are meant to be completely ignored in the formatting and should be
-       processed correctly *)
-    + 987654321
+       processed correctly *) + 987654321
     - 654987987321654]>
 ;;
 
