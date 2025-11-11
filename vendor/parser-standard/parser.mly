@@ -3190,7 +3190,7 @@ block_access:
   | simple_expr DOTHASH mkrhs(label_longident)
       { Pexp_unboxed_field($1, $3) }
   | LPAREN block_access llist(unboxed_access) RPAREN
-    { Pexp_idx ($2, $3) }
+      { Pexp_idx ($2, $3) }
   | od=open_dot_declaration DOT LPAREN seq_expr RPAREN
       { Pexp_open(od, $4) }
   | od=open_dot_declaration DOT LBRACELESS object_expr_content GREATERRBRACE
