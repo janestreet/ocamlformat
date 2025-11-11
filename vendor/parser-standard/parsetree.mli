@@ -457,6 +457,9 @@ and expression_desc =
       (** [E1.l <- E2] *)
   | Pexp_array of mutable_flag * expression list
       (** [[| E1; ...; En |]] or [[: E1; ...; En :]] *)
+  | Pexp_idx of block_access * unboxed_access list
+      (** [(BA1 UA1 UA2 ...)] e.g. [(.foo.#bar.#baz)]
+          Above, BA1=.foo, UA1=.#bar, and UA2=#.baz *)
   | Pexp_ifthenelse of expression * expression * expression option
       (** [if E1 then E2 else E3] *)
   | Pexp_sequence of expression * expression  (** [E1; E2] *)
@@ -1334,8 +1337,7 @@ and jkind_annotation_desc =
   | Default
   | Abbreviation of string
   (* CR layouts v2.8: [mod] can have only layouts on the left, not
-     full kind annotations. We may want to narrow this type some.
-     Internal ticket 5085. *)
+     full kind annotations. We may want to narrow this type some. *)
   | Mod of jkind_annotation * modes
   | With of jkind_annotation * core_type * modalities
   | Kind_of of core_type

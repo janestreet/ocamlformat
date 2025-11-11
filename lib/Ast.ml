@@ -1455,7 +1455,7 @@ end = struct
        |Pexp_variant _ | Pexp_while _ | Pexp_hole | Pexp_beginend _
        |Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
        |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ | Pexp_stack _
-       |Pexp_idx _ |Pexp_quote _ | Pexp_splice _ ->
+       |Pexp_idx _ | Pexp_quote _ | Pexp_splice _ ->
           assert false
       | Pexp_extension (_, ext) -> assert (check_extensions ext)
       | Pexp_object {pcstr_self; _} ->
