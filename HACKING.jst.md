@@ -85,7 +85,7 @@ libraries. These commands may work:
 
 ```
 opam switch create ocamlformat 5.2.1
-opam install menhir.20210419 fix ocp-indent bechamel-js alcotest camlp-streams fpath either dune-build-info uuseg ocaml-version stdio cmdliner.2.0.0
+opam install menhir.20210419 fix ocp-indent bechamel-js alcotest camlp-streams fpath either dune-build-info uuseg ocaml-version stdio cmdliner.2.0.0 yojson
 ```
 
 Building
