@@ -75,3 +75,9 @@ let _ =
     (* these comments are meant to be completely ignored in the formatting
        and should be processed correctly *) + 987654321
     - 654987987321654]>
+
+(* Attributes *)
+
+let _ =
+  <[(fun xxxxxxxxxxxxx -> (555555 + xxxxxxxxxxxxx) [@nontail])
+      1111333333777777 [@inlined]]>
