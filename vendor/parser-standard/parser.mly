@@ -2962,7 +2962,7 @@ fun_expr:
 
 unboxed_access:
   | DOTHASH mkrhs(label_longident)
-    { Uaccess_unboxed_field $2 }
+      { Uaccess_unboxed_field $2 }
 
 spliceable_expr:
   | LESSLBRACKET seq_expr RBRACKETGREATER

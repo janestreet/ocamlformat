@@ -487,19 +487,19 @@ and expression i ppf x =
 
 and block_access i ppf = function
   | Baccess_field lid ->
-    line i ppf "Baccess_field %a\n" fmt_longident_loc lid
+      line i ppf "Baccess_field %a\n" fmt_longident_loc lid
   | Baccess_array (mut, index_kind, index) ->
-    line i ppf "Baccess_array %a %a\n"
-      fmt_mutable_flag mut fmt_index_kind index_kind;
-    expression i ppf index
+      line i ppf "Baccess_array %a %a\n"
+        fmt_mutable_flag mut fmt_index_kind index_kind;
+      expression i ppf index
   | Baccess_block (mut, idx) ->
-    line i ppf "Baccess_block %a\n"
-      fmt_mutable_flag mut;
-    expression i ppf idx
+      line i ppf "Baccess_block %a\n"
+        fmt_mutable_flag mut;
+      expression i ppf idx
 
 and unboxed_access i ppf = function
   | Uaccess_unboxed_field lid ->
-    line i ppf "Uaccess_unboxed_field %a\n" fmt_longident_loc lid
+      line i ppf "Uaccess_unboxed_field %a\n" fmt_longident_loc lid
 
 and comprehension_expression i ppf = function
   | Pcomp_array_comprehension (m, c) ->

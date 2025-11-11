@@ -580,8 +580,8 @@ let descriptions = [
   { number = 186;
     names = ["unmutated-mutable"];
     description =
-      "Mutable variable was never mutated: mutable variable that\n\
-      \    doesn't start with an underscore (\"_\") character was never mutated.";
+    "Mutable variable was never mutated: mutable variable that\n\
+    \    doesn't start with an underscore (\"_\") character was never mutated.";
     since = since 5 2 };
   { number = 187;
     names = ["incompatible-with-upstream"];
@@ -669,7 +669,6 @@ let letter for_debug = function
   | chr ->
     let ocamlparam_from_env = match Sys.getenv_opt "OCAMLPARAM" with None -> "-" | Some  value -> value in
     Misc.fatal_errorf "Warnings.letter %C (for_debug=%S, ocamlparam_from_env=%S ocamlparam_from_compenv=%S)" chr for_debug ocamlparam_from_env !parsed_ocamlparam
-
 
 type state =
   {
