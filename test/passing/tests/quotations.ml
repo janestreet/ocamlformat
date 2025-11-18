@@ -100,3 +100,5 @@ let _ =
 let _ =
   <[(fun xxxxxxxxxxxxx -> (555555 + xxxxxxxxxxxxx) [@nontail])
       1111333333777777 [@inlined]]>
+
+let _ = <[fun x -> $((fun y -> y) (<[x]> [@nontail])) [@inlined]]> [@boxed]
