@@ -3394,16 +3394,21 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
   | Pexp_quote expr ->
       pro
       $ hvbox 0
-          (wrap "<[" "]>"
-             (fmt_expression c ~box ?eol ~parens:false ~indent_wrap ?ext
-                (sub_exp ~ctx expr) ) )
+          (Params.Exp.wrap c.conf ~parens
+                ( wrap "<[" "]>"
+                    (fmt_expression c ~box ?eol ~parens:false ~indent_wrap
+                       ?ext (sub_exp ~ctx expr) )
+                $ fmt_atrs )  )
   | Pexp_splice expr ->
       pro
-      $ Params.parens_if parens c.conf
-          ( Cmts.fmt c pexp_loc
-          @@ hvbox 2
-               (str "$" $ fmt_expression ~parens:true c (sub_exp ~ctx expr))
-          )
+      $ hvbox 0
+          (Params.Exp.wrap c.conf ~parens
+                 ( Cmts.fmt c pexp_loc
+                 @@ hvbox 2
+                      ( str "$"
+                      $ fmt_expression ~parens:true c (sub_exp ~ctx expr) )
+                 )
+             $ fmt_atrs  )
   | Pexp_hole -> pro $ hvbox 0 (fmt_hole () $ fmt_atrs)
   | Pexp_beginend e ->
       let wrap_beginend k =
