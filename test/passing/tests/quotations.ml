@@ -3,9 +3,7 @@
 let simple_number = <[123]>
 
 let npower x_quoted n =
-  let rec loop m =
-    if m = 0 then <[1]> else <[$x_quoted * $(loop (m - 1))]>
-  in
+  let rec loop m = if m = 0 then <[1]> else <[$x_quoted * $(loop (m - 1))]> in
   loop n
 
 let example_function n = <[fun x -> $(npower <[x]> n)]>
@@ -24,7 +22,6 @@ let even_longer m n =
      $(npower <[z]> (m + n))]>
 
 type s = <[int]>
-
 type t = s expr
 
 let f (x : t) : <[$s * $s]> expr = <[($x, $x + 1)]>
@@ -37,32 +34,32 @@ let double =
 
 let _ =
   <[let aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = 1 in
-    [ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    ; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    ; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ]]>
+    [
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;
+    ]]>
 
 let _ =
   <[fun xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy zzzzzzzzzzzzzzzzzzzzzzz ->
      $( <[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-          + yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy]>
-      , <[zzzzzzzzzzzzzzzzzzzzzzz]> )]>
+          + yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy]>,
+        <[zzzzzzzzzzzzzzzzzzzzzzz]> )]>
 
 let _ =
   let xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =
-    <[fun aaaaaaaaaaaaaaaaaaaaa ->
-       (aaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa)]>
+    <[fun aaaaaaaaaaaaaaaaaaaaa -> (aaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa)]>
   in
-  <[( $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    , $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        (fun bbbbbbbbbbbbbbbbbbbbb -> bbbbbbbbbbbbbbbbbbbbb ) )]>
+  <[( $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx,
+      $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        (fun bbbbbbbbbbbbbbbbbbbbb -> bbbbbbbbbbbbbbbbbbbbb) )]>
 
 let _ =
  fun xxxxxxxxxxxxxxxxxxxx ->
   <[fun zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz ->
-     $((fun yyyyyyyyyyyyyyyyyyyy ->
-         <[zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz + 42]> )
-         xxxxxxxxxxxxxxxxxxxx )]>
+     $((fun yyyyyyyyyyyyyyyyyyyy -> <[zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz + 42]>)
+         xxxxxxxxxxxxxxxxxxxx)]>
 
 (* Comments *)
 
@@ -73,7 +70,8 @@ let _ =
   <[2222222222222222222222222222222222 + 555555555555555555555555555555
     + 44444444444444444444 - 3333333333333333333333333333
     (* these comments are meant to be completely ignored in the formatting
-       and should be processed correctly *) + 987654321
+       and should be processed correctly *)
+    + 987654321
     - 654987987321654]>
 
 let _ =
@@ -90,10 +88,12 @@ let _ =
   <[(* 2 *)
     fun (* 3 *) x (* 4 *) ->
      (* 5 *)
-     $((* 6 *) (fun (* 7 *) y (* 8 *) -> (* 9 *) y (* 10 *))
-         (* 11 *) <[(* 12 *) x (* 13 *)]> (* 14 *) )
-    (* 15 *)]>
-(* 16 *)
+     $((* 6 *)
+         (fun (* 7 *)
+              (* 8 *) y (* 9 *) -> (* 10 *) y (* 11 *))
+         (* 12 *) <[(* 13 *) x (* 14 *)]> (* 15 *))
+    (* 16 *)]>
+(* 17 *)
 
 (* Attributes *)
 
