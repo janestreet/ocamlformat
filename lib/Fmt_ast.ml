@@ -1282,8 +1282,11 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            ( fmt "type"
            $ fmt_jkind_constr ~ctx:(Typ typ) c {txt= jk; loc= typ.ptyp_loc}
            ) )
-  | Ptyp_quote t -> wrap "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
-  | Ptyp_splice t -> fmt "$" $ fmt_core_type c (sub_typ ~ctx t)
+  | Ptyp_quote t ->
+      wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
+  | Ptyp_splice t ->
+      fmt "$"
+      $ wrap_fits_breaks c.conf "(" ")" (fmt_core_type c (sub_typ ~ctx t))
 
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with
@@ -3395,7 +3398,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro
       $ hvbox 0
           (Params.Exp.wrap c.conf ~parens
-             ( wrap "<[" "]>"
+             ( wrap_fits_breaks ~space:true c.conf "<[" "]>"
                  (fmt_expression c ~box ?eol ~parens:false ~indent_wrap ?ext
                     (sub_exp ~ctx expr) )
              $ fmt_atrs ) )

@@ -10648,7 +10648,7 @@
  (action
   (with-stdout-to quotations.ml.stdout
    (with-stderr-to quotations.ml.stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --profile=conventional --max-iters=5 %{dep:tests/quotations.ml}))))))
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters=5 --profile=janestreet %{dep:tests/quotations.ml}))))))
 
 (rule
  (alias runtest)
