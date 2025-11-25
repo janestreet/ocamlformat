@@ -582,8 +582,8 @@ module E = struct
           (sub.expr sub e2)
     | Pexp_array (mut, el) -> array ~loc ~attrs mut (List.map (sub.expr sub) el)
     | Pexp_idx (ba, uas) ->
-        idx ~loc ~attrs (map_block_access sub ba)
-          (List.map (map_unboxed_access sub) uas)
+      idx ~loc ~attrs (map_block_access sub ba)
+        (List.map (map_unboxed_access sub) uas)
     | Pexp_ifthenelse (e1, e2, e3) ->
         ifthenelse ~loc ~attrs (sub.expr sub e1) (sub.expr sub e2)
           (map_opt (sub.expr sub) e3)
@@ -1001,7 +1001,6 @@ let default_mapper =
       (fun this -> function
          | Ptop_def s -> Ptop_def (this.structure this s)
          | Ptop_dir d -> Ptop_dir (this.toplevel_directive this d) );
-
   }
 
 let extension_of_error {kind; main; sub} =
