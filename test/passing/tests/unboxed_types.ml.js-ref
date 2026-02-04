@@ -94,3 +94,9 @@ let f x =
   | -#7777777n -> true
   | _ -> false
 ;;
+
+module Wildcard_with_jkind : sig
+  type (_ : any) t
+end = struct
+  type (_ : any) t
+end
