@@ -1,0 +1,32 @@
+(* Unboxed unit and boolean literals *)
+
+(* Expressions *)
+let _ = ()
+
+let _ = true
+
+let _ = false
+
+(* Patterns *)
+let () = ()
+
+let true = true
+
+let false = false
+
+(* In function arguments *)
+let f () = ()
+
+let f true = ()
+
+let f false = ()
+
+(* In match *)
+let g x = match x with () -> 1
+
+let h b = match b with true -> 1 | false -> 0
+
+(* Nested *)
+let _ = if true then true else false
+
+let _ = ((), true, false)
