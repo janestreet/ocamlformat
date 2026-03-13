@@ -137,6 +137,10 @@ let f x =
 
 module Wildcard_with_jkind : sig
   type (_ : any) t
+
+  type ('a, _ : any) t
 end = struct
   type (_ : any) t
+
+  type ('a, _ : any) t
 end
