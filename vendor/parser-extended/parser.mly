@@ -3987,7 +3987,10 @@ kind_abbreviation_decl:
   attrs=attributes
   COLON
   jkind=jkind_annotation
-  { let descr = Ptyp_var (name, jkind) in
+  { let descr = match name.txt, jkind with
+      | None, None -> Ptyp_any
+      | _ -> Ptyp_var (name, jkind)
+    in
     mktyp ~loc:$sloc ~attrs descr }
 ;
 
@@ -4774,7 +4777,10 @@ atomic_type:
 %inline one_type_parameter_of_several:
   | core_type { $1 }
   | name=mkrhs(tyvar_name_or_underscore) COLON jkind=jkind_annotation
-    { let descr = Ptyp_var (name, jkind) in
+    { let descr = match name.txt, jkind with
+        | None, None -> Ptyp_any
+        | _ -> Ptyp_var (name, jkind)
+      in
       mktyp ~loc:$sloc descr }
 
 %inline package_core_type: module_type
