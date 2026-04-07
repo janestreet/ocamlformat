@@ -1089,6 +1089,7 @@ let maybe_pmod_constraint mode expr =
 %token HASH_SUFFIX            "# "
 %token <string> HASHOP        "##" (* just an example *)
 %token SIG                    "sig"
+%token BORROW                 "borrow_"
 %token STACK                  "stack_"
 %token STAR                   "*"
 %token <string * Location.t * string option>
@@ -2910,6 +2911,8 @@ fun_expr:
   | simple_expr nonempty_llist(labeled_simple_expr)
       { mkexp ~loc:$sloc (Pexp_apply($1, $2)) }
   | stack(simple_expr) %prec below_HASH { $1 }
+  | BORROW simple_expr %prec below_HASH
+      { mkexp ~loc:$sloc (Pexp_borrow $2) }
   | labeled_tuple %prec below_COMMA
       { mkexp ~loc:$sloc (Pexp_tuple $1) }
   | maybe_stack (

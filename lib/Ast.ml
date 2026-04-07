@@ -240,8 +240,8 @@ module Exp = struct
      |Pexp_for _ | Pexp_constraint _ | Pexp_coerce _ | Pexp_setinstvar _
      |Pexp_letmodule _ | Pexp_letexception _ | Pexp_assert _ | Pexp_lazy _
      |Pexp_poly _ | Pexp_newtype _ | Pexp_pack _ | Pexp_letopen _
-     |Pexp_letop _ | Pexp_stack _ | Pexp_beginend _ | Pexp_parens _
-     |Pexp_cons _ ->
+     |Pexp_letop _ | Pexp_stack _ | Pexp_borrow _ | Pexp_beginend _
+     |Pexp_parens _ | Pexp_cons _ ->
         false
 end
 
@@ -1458,8 +1458,8 @@ end = struct
        |Pexp_variant _ | Pexp_while _ | Pexp_hole | Pexp_beginend _
        |Pexp_parens _ | Pexp_cons _ | Pexp_letopen _
        |Pexp_indexop_access _ | Pexp_prefix _ | Pexp_infix _ | Pexp_stack _
-       |Pexp_idx _ | Pexp_quote _ | Pexp_splice _ | Pexp_unboxed_unit
-       |Pexp_unboxed_bool _ ->
+       |Pexp_borrow _ | Pexp_idx _ | Pexp_quote _ | Pexp_splice _
+       |Pexp_unboxed_unit | Pexp_unboxed_bool _ ->
           assert false
       | Pexp_extension (_, ext) -> assert (check_extensions ext)
       | Pexp_object {pcstr_self; _} ->
@@ -1597,6 +1597,7 @@ end = struct
          |Pexp_parens e
          |Pexp_constraint (e, _, _)
          |Pexp_stack e
+         |Pexp_borrow e
          |Pexp_coerce (e, _, _)
          |Pexp_field (e, _)
          |Pexp_unboxed_field (e, _)
@@ -2286,6 +2287,7 @@ end = struct
         match exp.pexp_desc with
         | Pexp_assert e
          |Pexp_stack e
+         |Pexp_borrow e
          |Pexp_construct (_, Some e)
          |Pexp_fun (_, e)
          |Pexp_ifthenelse (_, Some e)
@@ -2375,6 +2377,7 @@ end = struct
       match exp.pexp_desc with
       | Pexp_assert e
        |Pexp_stack e
+       |Pexp_borrow e
        |Pexp_construct (_, Some e)
        |Pexp_ifthenelse (_, Some e)
        |Pexp_prefix (_, e)
@@ -2553,12 +2556,13 @@ end = struct
         ; pexp_attributes= []
         ; _ } ) ->
         false
-    | Exp {pexp_desc= Pexp_stack _; _}, ({pexp_attributes= []; _} as expr)
+    | ( Exp {pexp_desc= Pexp_stack _ | Pexp_borrow _; _}
+      , ({pexp_attributes= []; _} as expr) )
       when Exp.is_simple_in_parser expr ->
         false
-    | Exp {pexp_desc= Pexp_stack _; _}, _ -> true
+    | Exp {pexp_desc= Pexp_stack _ | Pexp_borrow _; _}, _ -> true
     | ( Exp {pexp_desc= Pexp_apply _ | Pexp_construct _; _}
-      , {pexp_desc= Pexp_stack _; _} ) ->
+      , {pexp_desc= Pexp_stack _ | Pexp_borrow _; _} ) ->
         true
     | ( Str
           { pstr_desc=

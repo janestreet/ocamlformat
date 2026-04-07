@@ -82,6 +82,7 @@ let keyword_table =
     "private", PRIVATE;
     "rec", REC;
     "sig", SIG;
+    "borrow_", BORROW;
     "stack_", STACK;
     "struct", STRUCT;
     "then", THEN;

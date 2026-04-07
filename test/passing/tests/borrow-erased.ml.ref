@@ -1,0 +1,83 @@
+let f y = y
+
+let x = ref x
+
+let x = ignore_local x
+
+let f (r : r) = ref r.x
+
+let f (r : r) = ignore_local r.x [@nontail]
+
+let f () = (3, 5)
+
+let f () =
+  let g = x in
+  g
+
+let f () = List.length [1; 2; 3]
+
+let x = x
+
+let x =
+  let y = 1 in
+  Some y
+
+let x = c#x
+
+let _ = X foo [@bar]
+
+let _ = X (foo [@bar])
+
+let _ = fun [@bar] x -> x
+
+(* Constructor without arg *)
+let x = Foo
+
+(* Polymorphic variant *)
+let x = `Foo
+
+let x = `Bar 42
+
+(* Array *)
+let x = [|1; 2; 3|]
+
+(* Record *)
+let x = {x= 1}
+
+(* Object *)
+class foo cla =
+  object
+    method bar = {<>}
+  end
+
+let f () = object end
+
+let f () = new cla
+
+(* Lazy *)
+let x = lazy "hello"
+
+(* Uminus/uplus — not simple_expr, need parens *)
+let x = -x
+
+let x = -42
+
+let x = +x
+
+let x = 42
+
+let x = - (-x)
+
+let x = 42
+
+(* If/then/else — needs parens *)
+let x = if x then y else z
+
+(* Assignment — needs parens *)
+let x = r.x <- x
+
+(* Comments *)
+let x =
+  (* 1 *)
+  (* 2 *)
+  x

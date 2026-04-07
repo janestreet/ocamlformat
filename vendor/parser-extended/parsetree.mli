@@ -539,6 +539,7 @@ and expression_desc =
   | Pexp_extension of extension  (** [[%id]] *)
   | Pexp_unreachable  (** [.] *)
   | Pexp_stack of expression (** stack_ exp *)
+  | Pexp_borrow of expression (** borrow_ exp *)
   | Pexp_hole  (** [_] *)
   | Pexp_beginend of expression  (** [begin E end] *)
   | Pexp_parens of expression  (** [(E)] *)
