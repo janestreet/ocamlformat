@@ -726,6 +726,7 @@ module E = struct
     | Pexp_unreachable -> unreachable ~loc ~attrs ()
     | Pexp_hole -> hole ~loc ~attrs ()
     | Pexp_stack e -> stack ~loc ~attrs (sub.expr sub e)
+    | Pexp_borrow e -> borrow ~loc ~attrs (sub.expr sub e)
     | Pexp_beginend e -> beginend ~loc ~attrs (sub.expr sub e)
     | Pexp_parens e -> parens ~loc ~attrs (sub.expr sub e)
     | Pexp_cons l -> cons ~loc ~attrs (List.map (sub.expr sub) l)

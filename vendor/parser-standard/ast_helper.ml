@@ -263,6 +263,7 @@ module Exp = struct
   let extension ?loc ?attrs a = mk ?loc ?attrs (Pexp_extension a)
   let unreachable ?loc ?attrs () = mk ?loc ?attrs Pexp_unreachable
   let stack ?loc ?attrs e = mk ?loc ?attrs (Pexp_stack e)
+  let borrow ?loc ?attrs e = mk ?loc ?attrs (Pexp_borrow e)
   let comprehension ?loc ?attrs e = mk ?loc ?attrs (Pexp_comprehension e)
   let overwrite ?loc ?attrs a b = mk ?loc ?attrs (Pexp_overwrite (a, b))
   let quote ?loc ?attrs a = mk ?loc ?attrs (Pexp_quote a)

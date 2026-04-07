@@ -271,6 +271,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     | Pexp_extension ({txt= "src_pos"; loc}, _) when erase_jane_syntax ->
         m.expr m (dummy_position ~loc)
     | Pexp_stack expr when erase_jane_syntax -> m.expr m expr
+    | Pexp_borrow expr when erase_jane_syntax -> m.expr m expr
     | Pexp_unboxed_tuple es when erase_jane_syntax ->
         Ast_mapper.default_mapper.expr m {exp with pexp_desc= Pexp_tuple es}
     | Pexp_record_unboxed_product (es, e) when erase_jane_syntax ->

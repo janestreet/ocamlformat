@@ -591,6 +591,9 @@ and expression i ppf x =
   | Pexp_stack e ->
       line i ppf "Pexp_stack\n";
       expression i ppf e
+  | Pexp_borrow e ->
+      line i ppf "Pexp_borrow\n";
+      expression i ppf e
   | Pexp_beginend e ->
       line i ppf "Pexp_beginend\n";
       expression i ppf e
