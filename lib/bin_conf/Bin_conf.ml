@@ -529,7 +529,8 @@ let discard_formatter =
       ; out_flush= (fun () -> ())
       ; out_newline= (fun () -> ())
       ; out_spaces= (fun _ -> ())
-      ; out_indent= (fun _ -> ()) } )
+      ; out_indent= (fun _ -> ())
+      ; out_width= (fun _ ~pos:_ ~len -> len) } )
 
 let global_lib_term =
   Term.(

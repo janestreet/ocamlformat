@@ -139,6 +139,7 @@ let type_ident = wrap Parser.Incremental.parse_mty_longident
 (* The code has been moved here so that one can reuse Pprintast.tyvar *)
 
 module Style = Misc.Style
+let inline_code = Format_doc.compat Style.inline_code
 
 let prepare_error err =
   let open Syntaxerr in
@@ -180,11 +181,11 @@ let prepare_error err =
         Format.fprintf ppf  "private types are not supported"
       | Not_with_type ->
         Format.fprintf ppf "only %a constraints are supported"
-          Style.inline_code "with type t ="
+          inline_code "with type t ="
       | Neither_identifier_nor_with_type ->
         Format.fprintf ppf
           "only module type identifier and %a constraints are supported"
-          Style.inline_code "with type"
+          inline_code "with type"
       | Misplaced_attribute ->
         Format.fprintf ppf "an attribute cannot go here"
     in
@@ -220,15 +221,15 @@ let prepare_error err =
         "Syntax error: Mutable let is not allowed with function bindings.\n\
          @{<hint>Hint@}: If you really want a mutable function variable, \
          use the de-sugared syntax:\n  %a"
-         Style.inline_code "let mutable f = fun x -> .."
+         inline_code "let mutable f = fun x -> .."
   | Block_access_bad_paren loc ->
       Location.errorf ~loc
         "Syntax error: A parenthesis here can only follow one of: \n  \
          %a, %a, %a, %a, %a, %a, %a, %a, %a, %a."
-        Style.inline_code "." Style.inline_code ".L" Style.inline_code ".l"
-        Style.inline_code ".n" Style.inline_code ".:" Style.inline_code ".:L"
-        Style.inline_code ".:l" Style.inline_code ".:n"
-        Style.inline_code ".idx_imm" Style.inline_code ".idx_mut"
+        inline_code "." inline_code ".L" inline_code ".l"
+        inline_code ".n" inline_code ".:" inline_code ".:L"
+        inline_code ".:l" inline_code ".:n"
+        inline_code ".idx_imm" inline_code ".idx_mut"
 
 let () =
   Location.register_error_of_exn

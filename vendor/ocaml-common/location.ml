@@ -983,6 +983,7 @@ let deprecated ?def ?use loc message =
   alert ?def ?use ~kind:"deprecated" loc message
 
 module Style = Misc.Style
+let inline_code = Format_doc.compat Style.inline_code
 
 let auto_include_alert lib =
   let message = Format.asprintf "\
@@ -991,12 +992,12 @@ let auto_include_alert lib =
     command-line to silence this alert (e.g. by adding %a to the list of \
     libraries in your dune file, or adding %a to your %a file for \
     ocamlbuild, or using %a for ocamlfind)."
-      Style.inline_code lib
-      Style.inline_code ("-I +" ^lib)
-      Style.inline_code lib
-      Style.inline_code ("use_"^lib)
-      Style.inline_code "_tags"
-      Style.inline_code ("-package " ^ lib) in
+      inline_code lib
+      inline_code ("-I +" ^lib)
+      inline_code lib
+      inline_code ("use_"^lib)
+      inline_code "_tags"
+      inline_code ("-package " ^ lib) in
   let alert =
     {Warnings.kind="ocaml_deprecated_auto_include"; use=none; def=none;
      message = Format.asprintf "@[@\n%a@]" Format.pp_print_text message}
@@ -1008,10 +1009,10 @@ let deprecated_script_alert program =
     Running %a where the first argument is an implicit basename with no \
     extension (e.g. %a) is deprecated. Either rename the script \
     (%a) or qualify the basename (%a)"
-      Style.inline_code program
-      Style.inline_code (program ^ " script-file")
-      Style.inline_code (program ^ " script-file.ml")
-      Style.inline_code (program ^ " ./script-file")
+      inline_code program
+      inline_code (program ^ " script-file")
+      inline_code (program ^ " script-file.ml")
+      inline_code (program ^ " ./script-file")
   in
   let alert =
     {Warnings.kind="ocaml_deprecated_cli"; use=none; def=none;

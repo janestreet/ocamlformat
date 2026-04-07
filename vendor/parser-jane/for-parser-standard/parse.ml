@@ -109,6 +109,7 @@ let type_ident = wrap Parser.parse_mty_longident
 (* The code has been moved here so that one can reuse Pprintast.tyvar *)
 
 module Style = Misc.Style
+let inline_code = Format_doc.compat Style.inline_code
 
 let prepare_error err =
   let open Syntaxerr in
@@ -118,28 +119,28 @@ let prepare_error err =
         ~loc:closing_loc
         ~sub:[
           Location.msg ~loc:opening_loc
-            "This %a might be unmatched" Style.inline_code opening
+            "This %a might be unmatched" inline_code opening
         ]
-        "Syntax error: %a expected" Style.inline_code closing
+        "Syntax error: %a expected" inline_code closing
 
   | Expecting (loc, nonterm) ->
       Location.errorf ~loc "Syntax error: %a expected."
-        Style.inline_code nonterm
+        inline_code nonterm
   | Not_expecting (loc, nonterm) ->
       Location.errorf ~loc "Syntax error: %a not expected."
-        Style.inline_code nonterm
+        inline_code nonterm
   | Applicative_path loc ->
       Location.errorf ~loc
         "Syntax error: applicative paths of the form %a \
          are not supported when the option %a is set."
-        Style.inline_code "F(X).t"
-        Style.inline_code "-no-app-func"
+        inline_code "F(X).t"
+        inline_code "-no-app-func"
   | Variable_in_scope (loc, var) ->
       Location.errorf ~loc
         "In this scoped type, variable %a \
          is reserved for the local type %a."
-        (Style.as_inline_code Pprintast.tyvar) var
-        Style.inline_code var
+        (Format_doc.compat (Style.as_inline_code (Format_doc.deprecated Pprintast.tyvar))) var
+        inline_code var
   | Other loc ->
       Location.errorf ~loc "Syntax error"
   | Ill_formed_ast (loc, s) ->
@@ -155,11 +156,11 @@ let prepare_error err =
             Format.fprintf ppf  "private types are not supported"
         | Not_with_type ->
             Format.fprintf ppf "only %a constraints are supported"
-              Style.inline_code "with type t ="
+              inline_code "with type t ="
         | Neither_identifier_nor_with_type ->
             Format.fprintf ppf
               "only module type identifier and %a constraints are supported"
-              Style.inline_code "with type"
+              inline_code "with type"
         | Misplaced_attribute ->
             Format.fprintf ppf "an attribute cannot go here"
       in
@@ -171,7 +172,7 @@ let prepare_error err =
          @{<hint>Hint@}: Mutable sequences of bytes are available in \
          the Bytes module.\n\
          @{<hint>Hint@}: Did you mean to use %a?"
-        Style.inline_code "Bytes.set"
+        inline_code "Bytes.set"
   | Missing_unboxed_literal_suffix loc ->
       Location.errorf ~loc
         "Syntax error: Unboxed integer literals require width suffixes."
@@ -195,15 +196,15 @@ let prepare_error err =
         "Syntax error: Mutable let is not allowed with function bindings.\n\
          @{<hint>Hint@}: If you really want a mutable function variable, \
          use the de-sugared syntax:\n  %a"
-         Style.inline_code "let mutable f = fun x -> .."
+         inline_code "let mutable f = fun x -> .."
   | Block_access_bad_paren loc ->
       Location.errorf ~loc
         "Syntax error: A parenthesis here can only follow one of: \n  \
          %a, %a, %a, %a, %a, %a, %a, %a, %a, %a."
-        Style.inline_code "." Style.inline_code ".L" Style.inline_code ".l"
-        Style.inline_code ".n" Style.inline_code ".:" Style.inline_code ".:L"
-        Style.inline_code ".:l" Style.inline_code ".:n"
-        Style.inline_code ".idx_imm" Style.inline_code ".idx_mut"
+        inline_code "." inline_code ".L" inline_code ".l"
+        inline_code ".n" inline_code ".:" inline_code ".:L"
+        inline_code ".:l" inline_code ".:n"
+        inline_code ".idx_imm" inline_code ".idx_mut"
 
 let () =
   Location.register_error_of_exn
