@@ -27,7 +27,7 @@ let even_longer m n =
 type s = <[int]>
 type t = s expr
 
-let f (x : t) : <[$(s) * $(s)]> expr = <[$x, $x + 1]>
+let f (x : t) : <[$s * $s]> expr = <[$x, $x + 1]>
 
 let double =
   <[ let x = <[42]> in

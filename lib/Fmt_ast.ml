@@ -1285,8 +1285,14 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_quote t ->
       wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
   | Ptyp_splice t ->
+      let needs_parens =
+        match t.ptyp_desc with
+        | Ptyp_var _ | Ptyp_any | Ptyp_constr (_, []) -> false
+        | _ -> true
+      in
       fmt "$"
-      $ wrap_fits_breaks c.conf "(" ")" (fmt_core_type c (sub_typ ~ctx t))
+      $ Params.parens_if needs_parens c.conf
+          (fmt_core_type c (sub_typ ~ctx:(Typ typ) t))
 
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with
