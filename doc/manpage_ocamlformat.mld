@@ -616,6 +616,9 @@ OPTIONS
        --no-margin-check
            Unset margin-check.
 
+       --no-syntax-quotations
+           Unsey syntax-quotations.
+
        --no-quiet
            Unset quiet.
 
@@ -658,8 +661,10 @@ OPTIONS
            .ocamlformat configuration files inside DIR and its
            subdirectories.
 
-       --syntax-metaprogramming
-           Turn on support for runtime metaprogramming syntax.
+       --syntax-quotations
+           Enable runtime metaprogramming syntax (quoting and splicing). This
+           can be overriden with "#syntax quotations (on|off)" directives.
+           The flag is unset by default.
 
        --use-file
            Deprecated. Same as impl.
