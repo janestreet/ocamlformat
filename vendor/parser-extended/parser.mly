@@ -2014,6 +2014,9 @@ signature_item:
   | kind_abbreviation_decl
       { let name, jkind = $1 in
         mksig ~loc:$sloc (Psig_kind_abbrev (name, jkind)) }
+  | HASH_SYNTAX
+      { let mode, toggle = $1 in
+        mksig ~loc:$sloc (Psig_hashsyntax (mkloc mode (make_loc $sloc), toggle)) }
 
 (* A module declaration. *)
 %inline module_declaration:

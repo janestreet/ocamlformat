@@ -144,7 +144,8 @@ module Right_angle = struct
     | Psig_kind_abbrev (_, jk) -> jkind jk
     | Psig_module _ | Psig_modsubst _ | Psig_recmodule _ | Psig_modtype _
      |Psig_modtypesubst _ | Psig_open _ | Psig_include _ | Psig_class _
-     |Psig_class_type _ | Psig_attribute _ | Psig_extension _ ->
+     |Psig_class_type _ | Psig_attribute _ | Psig_extension _
+     |Psig_hashsyntax _ ->
         false
 
   let payload = function

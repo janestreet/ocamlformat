@@ -1287,7 +1287,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_splice t ->
       let needs_parens =
         match t.ptyp_desc with
-        | Ptyp_var _ | Ptyp_any | Ptyp_constr (_, []) -> false
+        | Ptyp_var _ | Ptyp_constr (_, []) -> false
         | _ -> true
       in
       fmt "$"
@@ -4622,6 +4622,9 @@ and fmt_signature_item c ?ext {ast= si; _} =
   | Psig_class_type cl ->
       fmt_class_types ?ext c ctx ~pre:"class type" ~sep:"=" cl
   | Psig_typesubst decls -> fmt_type c ?ext ~eq:":=" Recursive decls ctx
+  | Psig_hashsyntax (mode, toggle) ->
+      let toggle_str = if toggle then "on" else "off" in
+      str (Printf.sprintf "#syntax %s %s" mode.txt toggle_str)
 
 and fmt_class_types ?ext c ctx ~pre ~sep cls =
   list_fl cls (fun ~first ~last:_ cl ->

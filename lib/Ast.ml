@@ -545,7 +545,8 @@ module Signature_item = struct
      |Psig_kind_abbrev (_, _)
      |Psig_recmodule []
      |Psig_class_type []
-     |Psig_class [] ->
+     |Psig_class []
+     |Psig_hashsyntax _ ->
         false
 
   let is_simple (itm, (c : Conf.t)) =

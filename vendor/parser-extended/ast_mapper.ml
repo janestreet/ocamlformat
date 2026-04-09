@@ -468,6 +468,7 @@ module MT = struct
         let attrs = sub.attributes sub attrs in
         extension ~loc ~attrs (sub.extension sub x)
     | Psig_attribute x -> attribute ~loc (sub.attribute sub x)
+    | Psig_hashsyntax (mode, toggle) -> hashsyntax ~loc mode toggle
 end
 
 

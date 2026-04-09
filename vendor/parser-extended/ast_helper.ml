@@ -267,6 +267,7 @@ module Sig = struct
   let class_type ?loc a = mk ?loc (Psig_class_type a)
   let extension ?loc ?(attrs = []) a = mk ?loc (Psig_extension (a, attrs))
   let attribute ?loc a = mk ?loc (Psig_attribute a)
+  let hashsyntax ?loc mode toggle = mk ?loc (Psig_hashsyntax (mode, toggle))
   let text txt =
     let f_txt = List.filter (fun ds -> docstring_body ds <> "") txt in
     List.map
