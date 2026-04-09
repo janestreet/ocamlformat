@@ -658,6 +658,9 @@ OPTIONS
            .ocamlformat configuration files inside DIR and its
            subdirectories.
 
+       --syntax-metaprogramming
+           Turn on support for runtime metaprogramming syntax.
+
        --use-file
            Deprecated. Same as impl.
 
