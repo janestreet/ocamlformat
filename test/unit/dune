@@ -1,4 +1,4 @@
 (test
  (name test_unit)
  (package ocamlformat-lib)
- (libraries alcotest base ocamlformat-lib))
+ (libraries alcotest base ocamlformat-lib ocamlformat_config))

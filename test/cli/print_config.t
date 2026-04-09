@@ -13,6 +13,7 @@ No redundant values:
   max-iters=10
   ocaml-version=4.04.0
   quiet=false
+  syntax-quotations=false
   disable-conf-attrs=false
   version-check=true
   assignment-operator=end-line (profile conventional (file .ocamlformat:1))
@@ -93,6 +94,7 @@ Redundant values from the conventional profile:
   max-iters=10
   ocaml-version=4.04.0
   quiet=false
+  syntax-quotations=false
   disable-conf-attrs=false
   version-check=true
   assignment-operator=end-line (profile conventional (file .ocamlformat:1))
@@ -173,6 +175,7 @@ Redundant values from the ocamlformat profile:
   max-iters=10
   ocaml-version=4.04.0
   quiet=false
+  syntax-quotations=false
   disable-conf-attrs=false
   version-check=true
   assignment-operator=end-line (profile ocamlformat (file .ocamlformat:1))

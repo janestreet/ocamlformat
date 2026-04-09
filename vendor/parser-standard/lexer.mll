@@ -165,8 +165,8 @@ module Syntax_mode = struct
   let quotations = ref false
 end
 
-let reset_syntax_mode () =
-  Syntax_mode.quotations := false
+let set_syntax_mode syntax_mode =
+  Syntax_mode.quotations := syntax_mode
 
 (* See the comment on the [directive] lexer. *)
 type directive_lexing_already_consumed =
@@ -917,8 +917,10 @@ and directive already_consumed = parse
         in (
           match mode with
             | "quotations" ->
+                let tok = token lexbuf in
+                enqueue_token_from_end_of_lexbuf_window lexbuf SEMISEMI ~len:0;
                 Syntax_mode.quotations := toggle;
-                token lexbuf
+                tok
             | _ ->
                 directive_error lexbuf ("unknown syntax mode " ^ mode)
                   ~already_consumed ~directive:"syntax"
