@@ -162,11 +162,12 @@ let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
 
 (* Syntax mode configuration for the #syntax directive *)
 module Syntax_mode = struct
+  type config = { quotations : bool }
   let quotations = ref false
 end
 
-let set_syntax_mode syntax_mode =
-  Syntax_mode.quotations := syntax_mode
+let set_syntax_mode ({ quotations } : Syntax_mode.config) =
+  Syntax_mode.quotations := quotations
 
 (* See the comment on the [directive] lexer. *)
 type directive_lexing_already_consumed =

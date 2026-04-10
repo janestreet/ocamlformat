@@ -63,8 +63,16 @@ let split_hash_bang source =
 
 let parse ?(disable_w50 = false) ?(disable_deprecated = false) parse fragment
     (conf : Conf.t) ~input_name ~source =
-  Parser_standard.Lexer.set_syntax_mode conf.opr_opts.syntax_quotations.v ;
-  Parser_extended.Lexer.set_syntax_mode conf.opr_opts.syntax_quotations.v ;
+  let config_syntax_sta =
+    Parser_standard.Lexer.Syntax_mode.
+      {quotations= conf.opr_opts.syntax_quotations.v}
+  in
+  let config_syntax_ext =
+    Parser_extended.Lexer.Syntax_mode.
+      {quotations= conf.opr_opts.syntax_quotations.v}
+  in
+  Parser_standard.Lexer.set_syntax_mode config_syntax_sta ;
+  Parser_extended.Lexer.set_syntax_mode config_syntax_ext ;
   let warnings =
     if conf.opr_opts.quiet.v then List.map ~f:W.disable W.in_lexer else []
   in
