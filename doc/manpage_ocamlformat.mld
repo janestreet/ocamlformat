@@ -616,11 +616,11 @@ OPTIONS
        --no-margin-check
            Unset margin-check.
 
-       --no-syntax-quotations
-           Unsey syntax-quotations.
-
        --no-quiet
            Unset quiet.
+
+       --no-syntax-quotations
+           Unset syntax-quotations.
 
        --no-version-check
            Unset version-check.
