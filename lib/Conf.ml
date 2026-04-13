@@ -272,6 +272,7 @@ let default =
       ; max_iters= elt 10
       ; ocaml_version= elt Ocaml_version.Releases.v4_04_0
       ; quiet= elt false
+      ; syntax_quotations= elt false
       ; disable_conf_attrs= elt false
       ; version_check= elt true } }
 
@@ -1475,6 +1476,16 @@ module Operational = struct
       (fun conf elt -> update conf ~f:(fun f -> {f with quiet= elt}))
       (fun conf -> conf.opr_opts.quiet)
 
+  let syntax_quotations =
+    let doc =
+      "Enable runtime metaprogramming syntax (quoting and splicing). This \
+       can be overriden with \"#syntax quotations (on|off)\" directives."
+    in
+    Decl.flag ~names:["syntax-quotations"] ~default ~doc ~kind
+      (fun conf elt ->
+        update conf ~f:(fun f -> {f with syntax_quotations= elt}) )
+      (fun conf -> conf.opr_opts.syntax_quotations)
+
   let disable_conf_attrs =
     let doc = "Disable configuration in attributes." in
     Decl.flag ~default ~names:["disable-conf-attrs"] ~doc ~kind
@@ -1500,6 +1511,7 @@ module Operational = struct
       ; elt max_iters
       ; elt ocaml_version
       ; elt quiet
+      ; elt syntax_quotations
       ; elt disable_conf_attrs
       ; elt version_check ]
 end

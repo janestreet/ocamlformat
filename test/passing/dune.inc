@@ -10736,6 +10736,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to quotations.mli.stdout
+   (with-stderr-to quotations.mli.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/quotations.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/quotations.mli quotations.mli.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/quotations.mli.err quotations.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to quotations.mli.js-stdout
+   (with-stderr-to quotations.mli.js-stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/quotations.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/quotations.mli.js-ref quotations.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/quotations.mli.js-err quotations.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to quoted_strings.ml.stdout
    (with-stderr-to quoted_strings.ml.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/quoted_strings.ml}))))))

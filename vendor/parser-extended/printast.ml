@@ -1126,6 +1126,9 @@ and signature_item i ppf x =
       payload i ppf arg
   | Psig_attribute a ->
       attribute i ppf "Psig_attribute" a
+  | Psig_hashsyntax (mode, toggle) ->
+      line i ppf "Psig_hashsyntax %a %s\n" fmt_string_loc mode
+        (if toggle then "on" else "off")
 
 and modtype_declaration i ppf = function
   | None -> line i ppf "#abstract"

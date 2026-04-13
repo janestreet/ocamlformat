@@ -619,6 +619,9 @@ OPTIONS
        --no-quiet
            Unset quiet.
 
+       --no-syntax-quotations
+           Unset syntax-quotations.
+
        --no-version-check
            Unset version-check.
 
@@ -657,6 +660,11 @@ OPTIONS
            Root of the project. If specified, only take into account
            .ocamlformat configuration files inside DIR and its
            subdirectories.
+
+       --syntax-quotations
+           Enable runtime metaprogramming syntax (quoting and splicing). This
+           can be overriden with "#syntax quotations (on|off)" directives.
+           The flag is unset by default.
 
        --use-file
            Deprecated. Same as impl.

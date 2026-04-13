@@ -138,6 +138,9 @@ type opr_opts =
   ; ocaml_version: Ocaml_version.t elt
         (** Version of OCaml syntax of the output. *)
   ; quiet: bool elt
+  ; syntax_quotations: bool elt
+        (** The default behaviour of the lexer is to emit runtime
+            metaprogramming tokens. *)
   ; disable_conf_attrs: bool elt
   ; version_check: bool elt }
 

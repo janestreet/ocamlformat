@@ -133,6 +133,7 @@ type opr_opts =
   ; max_iters: int elt
   ; ocaml_version: Ocaml_version.t elt
   ; quiet: bool elt
+  ; syntax_quotations: bool elt
   ; disable_conf_attrs: bool elt
   ; version_check: bool elt }
 

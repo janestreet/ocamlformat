@@ -1,0 +1,7 @@
+#syntax quotations on
+
+type t = <[int]>
+
+type 'a t = <[$'a list -> $'a option]>
+
+val foo : <[int]> expr

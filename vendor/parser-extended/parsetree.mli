@@ -1120,6 +1120,7 @@ and signature_item_desc =
       (** [class type ct1 = ... and ... and ctn = ...] *)
   | Psig_attribute of attribute  (** [[\@\@\@id]] *)
   | Psig_extension of extension * attributes  (** [[%%id]] *)
+  | Psig_hashsyntax of string loc * bool  (** [#syntax quotations on]: mode * toggle *)
 
 and module_declaration =
     {
