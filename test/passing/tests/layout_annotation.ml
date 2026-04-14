@@ -63,6 +63,9 @@ type t_any_non_pointer : any non_pointer
 type t_value_non_pointer
      : value non_pointer
 
+type t_value_non_pointer_comment
+     : value (* hi *) non_pointer
+
 type t_value_maybe_pointer : value maybe_pointer
 
 type t_value_maybe_pointer_non_pointer
