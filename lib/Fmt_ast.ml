@@ -3443,7 +3443,7 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
       pro
       $ hvbox 0
           (Params.Exp.wrap c.conf ~parens
-             ( wrap_fits_breaks ~space:true c.conf "<[" "]>"
+             ( wrap_fits_breaks ~space:false c.conf "<[ " " ]>"
                  (fmt_expression c ~box ?eol ~parens:false ~indent_wrap ?ext
                     (sub_exp ~ctx expr) )
              $ fmt_atrs ) )
