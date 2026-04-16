@@ -10,8 +10,8 @@
   $ echo '#syntax quotations off
   > let c = $xyz' > soff.ml
   $ ocamlformat --syntax-quotations a.ml
-  let c = <[123]> in
-  <[42 + $c]>
+  let c = <[ 123 ]> in
+  <[ 42 + $c ]>
 
   $ ocamlformat a.ml
   ocamlformat: ignoring "a.ml" (syntax error)
@@ -21,8 +21,8 @@
   Error: Syntax error
   [1]
   $ ocamlformat --syntax-quotations a.ml
-  let c = <[123]> in
-  <[42 + $c]>
+  let c = <[ 123 ]> in
+  <[ 42 + $c ]>
   $ ocamlformat qoff.ml
   ocamlformat: ignoring "qoff.ml" (syntax error)
   File "qoff.ml", line 2, characters 8-9:
@@ -42,14 +42,14 @@
   $ ocamlformat qon.ml
   #syntax quotations on;;
   
-  let c = <[123]> in
-  <[42 + $c]>
+  let c = <[ 123 ]> in
+  <[ 42 + $c ]>
 
   $ ocamlformat --syntax-quotations qon.ml
   #syntax quotations on;;
   
-  let c = <[123]> in
-  <[42 + $c]>
+  let c = <[ 123 ]> in
+  <[ 42 + $c ]>
   $ ocamlformat soff.ml
   ocamlformat: ignoring "soff.ml" (syntax error)
   File "soff.ml", line 2, characters 8-9:

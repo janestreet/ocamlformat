@@ -1,37 +1,37 @@
 #syntax quotations on
 
-let simple_number = <[123]>
+let simple_number = <[ 123 ]>
 
 let npower x_quoted n =
-  let rec loop m = if m = 0 then <[1]> else <[$x_quoted * $(loop (m - 1))]> in
+  let rec loop m = if m = 0 then <[ 1 ]> else <[ $x_quoted * $(loop (m - 1)) ]> in
   loop n
 ;;
 
-let example_function n = <[fun x -> $(npower <[x]> n)]>
+let example_function n = <[ fun x -> $(npower <[ x ]> n) ]>
 
 let longer_example m n =
-  let first_quote = <[fun x -> $(npower <[x]> m)]> in
-  let second_quote = <[fun y -> $(npower <[y]> n)]> in
-  let combined_quote = <[fun x -> $second_quote ($first_quote x)]> in
-  <[$combined_quote, $combined_quote]>
+  let first_quote = <[ fun x -> $(npower <[ x ]> m) ]> in
+  let second_quote = <[ fun y -> $(npower <[ y ]> n) ]> in
+  let combined_quote = <[ fun x -> $second_quote ($first_quote x) ]> in
+  <[ $combined_quote, $combined_quote ]>
 ;;
 
 let even_longer m n =
   <[ fun x y ->
-     let xm = $(npower <[x]> m) in
-     let yn = $(npower <[y]> n) in
+     let xm = $(npower <[ x ]> m) in
+     let yn = $(npower <[ y ]> n) in
      let z = xm + yn in
-     $(npower <[z]> (m + n)) ]>
+     $(npower <[ z ]> (m + n)) ]>
 ;;
 
 type s = <[int]>
 type t = s expr
 
-let f (x : t) : <[$s * $s]> expr = <[$x, $x + 1]>
+let f (x : t) : <[$s * $s]> expr = <[ $x, $x + 1 ]>
 
 let double =
-  <[ let x = <[42]> in
-     <[123 + $x]> ]>
+  <[ let x = <[ 42 ]> in
+     <[ 123 + $x ]> ]>
 ;;
 
 (* Long lines and breaks *)
@@ -50,12 +50,12 @@ let _ =
        zzzzzzzzzzzzzzzzzzzzzzz ->
      $( <[ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
            + yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ]>
-      , <[zzzzzzzzzzzzzzzzzzzzzzz]> ) ]>
+      , <[ zzzzzzzzzzzzzzzzzzzzzzz ]> ) ]>
 ;;
 
 let _ =
   let xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =
-    <[fun aaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa]>
+    <[ fun aaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaa, aaaaaaaaaaaaaaaaaaaaa ]>
   in
   <[ ( $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
      , $xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -65,7 +65,7 @@ let _ =
 let _ =
   fun xxxxxxxxxxxxxxxxxxxx ->
   <[ fun zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz ->
-     $((fun yyyyyyyyyyyyyyyyyyyy -> <[zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz + 42]>)
+     $((fun yyyyyyyyyyyyyyyyyyyy -> <[ zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz + 42 ]>)
          xxxxxxxxxxxxxxxxxxxx) ]>
 ;;
 
@@ -106,7 +106,7 @@ let _ =
      $((* 6 *)
          (fun (* 7 *)
               (* 8 *) y (* 9 *) -> (* 10 *) y (* 11 *))
-         (* 12 *) <[(* 13 *) x (* 14 *)]> (* 15 *))
+         (* 12 *) <[ (* 13 *) x (* 14 *) ]> (* 15 *))
      (* 16 *) ]>
 ;;
 
@@ -118,8 +118,8 @@ type 'a t = <[int (* 1 *) -> $('a (* 2 *) -> 'a (* 3 *) -> <[int]> (* 4 *)) (* 5
 (* Attributes *)
 
 let _ =
-  <[ (fun xxxxxxxxxxxxx -> (555555 + xxxxxxxxxxxxx) [@nontail]) 1111333333777777 [@inlined]
-  ]>
+  <[ (fun xxxxxxxxxxxxx -> (555555 + xxxxxxxxxxxxx) [@nontail])
+       1111333333777777 [@inlined] ]>
 ;;
 
-let _ = <[fun x -> $((fun y -> y) (<[x]> [@nontail])) [@inlined]]> [@boxed]
+let _ = <[ fun x -> $((fun y -> y) (<[ x ]> [@nontail])) [@inlined] ]> [@boxed]
