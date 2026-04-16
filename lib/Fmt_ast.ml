@@ -1294,13 +1294,18 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_quote t ->
       wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
   | Ptyp_splice t ->
-      let needs_parens =
-        match t.ptyp_desc with
-        | Ptyp_var _ | Ptyp_constr (_, []) -> false
-        | _ -> true
+      let _, t_atrs = doc_atrs t.ptyp_attributes in
+      let parens =
+        (* Do not add parentheses around: *)
+        match (t.ptyp_desc, t_atrs) with
+        (* - atoms *)
+        | (Ptyp_var _ | Ptyp_constr (_, [])), _ -> false
+        (* - expressions with attributes, which should add them anyway *)
+        | _, _ :: _ -> false
+        | _, [] -> true
       in
       fmt "$"
-      $ Params.parens_if needs_parens c.conf
+      $ Params.parens_if parens c.conf
           (fmt_core_type c (sub_typ ~ctx:(Typ typ) t))
 
 and fmt_labeled_tuple_type c lbl xtyp =

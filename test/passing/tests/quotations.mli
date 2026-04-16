@@ -35,6 +35,8 @@ type t = <[int (* post *)]>
 
 type t = <[(* pre *) int]>
 
+type t = <[(* pre *) int (* post *)]>
+
 type t = <[int (* in *) list]>
 
 (* Attributes & comments *)
@@ -49,7 +51,7 @@ type t = <[((* pre *) int[@attr])]>
 
 type t = <[$(int[@attr])]>
 
-type 'a t = <[$(('a list[@attr]))]>
+type 'a t = <[$('a list[@attr])]>
 
 type 'a t =
   <[($'a option[@attr]) -> ($'a option[@attr]) -> ($'a list[@attr])]>
@@ -59,6 +61,8 @@ type 'a t =
 type t = $int (* post *)
 
 type t = $(* pre *) int
+
+type t = $(* pre *) int (* post *)
 
 type t = $(int (* in *) list)
 
