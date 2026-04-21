@@ -16,7 +16,13 @@ type 'a t =
 
 (* These cases are probably impossible *)
 type 'a t = $(int * float)
-type 'a t = $(#(int * float))
+type 'a t = $#(int * float)
+type 'a t = $[ `a | `b ]
+type 'a t = $[> `a | `b ]
+type 'a t = $[< `a | `b ]
+type 'a t = $(module M)
+type 'a t = $(< .. >)
+type 'a t = $(<[t]>)
 
 (** Quotes **)
 

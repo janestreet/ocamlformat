@@ -1084,16 +1084,15 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   let tydecl_param_atrs, atrs =
     if tydecl_param then (atrs, []) else ([], atrs)
   in
+  let atr_parens = match atrs with [] -> false | _ :: _ -> true in
   Cmts.fmt c ptyp_loc
   @@ (fun k -> k $ fmt_docstring c ~pro:(fmt "@ ") doc)
-  @@ ( match atrs with
-     | [] -> Fn.id
-     | _ ->
-         fun k ->
-           hvbox 0
-             (Params.parens c.conf (k $ fmt_attributes c ~pre:Cut atrs)) )
+  @@ (fun k ->
+       hvbox_if atr_parens 0
+         (Params.parens_if atr_parens c.conf
+            (k $ fmt_attributes c ~pre:Cut atrs) ) )
   @@
-  let parens = (not tydecl_param) && parenze_typ xtyp in
+  let parens = (not atr_parens) && (not tydecl_param) && parenze_typ xtyp in
   hvbox_if box 0
   @@ Params.parens_if
        ( match typ.ptyp_desc with
@@ -1185,6 +1184,14 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
                    let typ = sub_typ ~ctx typ in
                    fmt_labeled_tuple_type c lbl typ ) ) ) )
   | Ptyp_unboxed_tuple typs ->
+      (*=
+      (* This is slightly a hack: we usually ignore parentheses from [parenze_typ], but
+         [$#(] won't lex correctly, and so needs parens. *)
+      (match xtyp.ctx with
+      | Typ {ptyp_desc = Ptyp_splice _ ; _} -> wrap "(" ")"
+      | _ -> Fn.id
+      ) @@
+      *)
       hvbox 1
         (wrap_fits_breaks ~space:false c.conf "#(" ")"
            (list typs "@ * " (fun (lbl, typ) ->
@@ -1293,20 +1300,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            ) )
   | Ptyp_quote t ->
       wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
-  | Ptyp_splice t ->
-      let _, t_atrs = doc_atrs t.ptyp_attributes in
-      let parens =
-        (* Do not add parentheses around: *)
-        match (t.ptyp_desc, t_atrs) with
-        (* - atoms *)
-        | (Ptyp_var _ | Ptyp_constr (_, [])), _ -> false
-        (* - expressions with attributes, which should add them anyway *)
-        | _, _ :: _ -> false
-        | _, [] -> true
-      in
-      fmt "$"
-      $ Params.parens_if parens c.conf
-          (fmt_core_type c (sub_typ ~ctx:(Typ typ) t))
+  | Ptyp_splice t -> fmt "$" $ fmt_core_type c (sub_typ ~ctx:(Typ typ) t)
 
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with
