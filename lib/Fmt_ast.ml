@@ -1184,14 +1184,6 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
                    let typ = sub_typ ~ctx typ in
                    fmt_labeled_tuple_type c lbl typ ) ) ) )
   | Ptyp_unboxed_tuple typs ->
-      (*=
-      (* This is slightly a hack: we usually ignore parentheses from [parenze_typ], but
-         [$#(] won't lex correctly, and so needs parens. *)
-      (match xtyp.ctx with
-      | Typ {ptyp_desc = Ptyp_splice _ ; _} -> wrap "(" ")"
-      | _ -> Fn.id
-      ) @@
-      *)
       hvbox 1
         (wrap_fits_breaks ~space:false c.conf "#(" ")"
            (list typs "@ * " (fun (lbl, typ) ->
