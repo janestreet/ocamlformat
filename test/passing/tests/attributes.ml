@@ -149,7 +149,7 @@ let () = ()
 
 and[@warning "-32"] f = ()
 
-external x : a -> b -> (a -> b[@test]) = ""
+external x : a -> b -> ((a -> b)[@test]) = ""
 
 let f = fun [@test] x y -> ()
 
@@ -158,7 +158,7 @@ let f y = fun [@test] y -> ()
 let (f [@test]) = fun y -> fun [@test] y -> ()
 
 module type T = sig
-  class subst : (ident -> ident[@attr]) -> (ident -> ident) -> object
+  class subst : ((ident -> ident)[@attr]) -> (ident -> ident) -> object
     inherit mapper
   end[@attr]
 end

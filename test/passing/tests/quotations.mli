@@ -63,7 +63,7 @@ type t = <[((* pre *) int[@attr])]>
 
 type t = <[$(int[@attr])]>
 
-type 'a t = <[$('a list[@attr])]>
+type 'a t = <[$(('a list)[@attr])]>
 
 type 'a t =
   <[($'a option[@attr]) -> ($'a option[@attr]) -> ($'a list[@attr])]>

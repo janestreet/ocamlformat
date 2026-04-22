@@ -66,7 +66,7 @@ class type t = object
 end[@foo]
 
 (* Type expressions *)
-type t = [%foo: (module M[@foo])]
+type t = [%foo: ((module M)[@foo])]
 
 (* Module expressions *)
 module M = (functor [@foo] (M : S) -> (val x) [@foo] (struct end [@foo]))

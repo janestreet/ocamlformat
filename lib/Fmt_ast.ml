@@ -1092,7 +1092,14 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
          (Params.parens_if atr_parens c.conf
             (k $ fmt_attributes c ~pre:Cut atrs) ) )
   @@
-  let parens = (not atr_parens) && (not tydecl_param) && parenze_typ xtyp in
+  let parens =
+    (* The line below conceptually makes sense and removes many syntactically
+       redundant parens, but the resulting formatting is sometimes less
+       clear. Ideally, we should develop some heuristic for when the
+       redundant parens are visually helpful and remove them otherwise *)
+    (*= (not atr_parens) && *)
+    (not tydecl_param) && parenze_typ xtyp
+  in
   hvbox_if box 0
   @@ Params.parens_if
        ( match typ.ptyp_desc with
