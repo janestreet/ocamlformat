@@ -1084,16 +1084,22 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   let tydecl_param_atrs, atrs =
     if tydecl_param then (atrs, []) else ([], atrs)
   in
+  let atr_parens = match atrs with [] -> false | _ :: _ -> true in
   Cmts.fmt c ptyp_loc
   @@ (fun k -> k $ fmt_docstring c ~pro:(fmt "@ ") doc)
-  @@ ( match atrs with
-     | [] -> Fn.id
-     | _ ->
-         fun k ->
-           hvbox 0
-             (Params.parens c.conf (k $ fmt_attributes c ~pre:Cut atrs)) )
+  @@ (fun k ->
+       hvbox_if atr_parens 0
+         (Params.parens_if atr_parens c.conf
+            (k $ fmt_attributes c ~pre:Cut atrs) ) )
   @@
-  let parens = (not tydecl_param) && parenze_typ xtyp in
+  let parens =
+    (* The line below conceptually makes sense and removes many syntactically
+       redundant parens, but the resulting formatting is sometimes less
+       clear. Ideally, we should develop some heuristic for when the
+       redundant parens are visually helpful and remove them otherwise *)
+    (*= (not atr_parens) && *)
+    (not tydecl_param) && parenze_typ xtyp
+  in
   hvbox_if box 0
   @@ Params.parens_if
        ( match typ.ptyp_desc with
@@ -1293,15 +1299,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
            ) )
   | Ptyp_quote t ->
       wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
-  | Ptyp_splice t ->
-      let needs_parens =
-        match t.ptyp_desc with
-        | Ptyp_var _ | Ptyp_constr (_, []) -> false
-        | _ -> true
-      in
-      fmt "$"
-      $ Params.parens_if needs_parens c.conf
-          (fmt_core_type c (sub_typ ~ctx:(Typ typ) t))
+  | Ptyp_splice t -> fmt "$" $ fmt_core_type c (sub_typ ~ctx:(Typ typ) t)
 
 and fmt_labeled_tuple_type c lbl xtyp =
   match lbl with

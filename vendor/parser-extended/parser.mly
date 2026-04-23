@@ -4680,14 +4680,37 @@ restricted to tail position by its %prec annotation. *)
        Some label, ty }
 
 spliceable_type:
- /* delimited_type_supporting_local_open does not exist */
+ /* delimited_type_supporting_local_open does not exist; inline its cases here
+    so splices accept the same delimited forms as parser-standard. */
  | LPAREN core_type RPAREN
      { $2 }
+ | LPAREN MODULE ext_attributes package_core_type RPAREN
+     { wrap_typ_attrs ~loc:$sloc (reloc_typ ~loc:$sloc $4) $3 }
  | mktyp( /* begin mktyp group */
      tid = mkrhs(type_longident)
        { Ptyp_constr (tid, []) }
    | QUOTE mkrhs(ident {Some $1})
        { Ptyp_var ($2, None) }
+   | LBRACKET tag_field RBRACKET
+       { Ptyp_variant([$2], Closed, None) }
+   | LBRACKET BAR row_field_list RBRACKET
+       { Ptyp_variant($3, Closed, None) }
+   | LBRACKET row_field BAR row_field_list RBRACKET
+       { Ptyp_variant($2 :: $4, Closed, None) }
+   | LBRACKETGREATER BAR? row_field_list RBRACKET
+       { Ptyp_variant($3, Open, None) }
+   | LBRACKETGREATER RBRACKET
+       { Ptyp_variant([], Open, None) }
+   | LBRACKETLESS BAR? row_field_list RBRACKET
+       { Ptyp_variant($3, Closed, Some []) }
+   | LBRACKETLESS BAR? row_field_list GREATER name_tag_list RBRACKET
+       { Ptyp_variant($3, Closed, Some $5) }
+   | HASHLPAREN unboxed_tuple_type_body RPAREN
+       { if Erase_jane_syntax.should_erase ()
+         then Ptyp_tuple $2
+         else Ptyp_unboxed_tuple $2 }
+   | LESSLBRACKET core_type RBRACKETGREATER
+       { Ptyp_quote $2 }
  )
  { $1 } /* end mktyp group */
 ;

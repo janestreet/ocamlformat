@@ -123,3 +123,11 @@ let _ =
 ;;
 
 let _ = <[ fun x -> $((fun y -> y) (<[ x ]> [@nontail])) [@inlined] ]> [@boxed]
+
+(* Splices with comments and attributes *)
+
+let f x y z w = <[ $(x [@attr]) + $(* pre *) y + $z (* post *) + $w ]>
+
+(* Splices $ should be consistent with prefix operators *)
+
+let g ( ! ) x y z w = !(x [@attr]) + !(* pre *) y + !z (* post *) + !w

@@ -2091,6 +2091,10 @@ end = struct
       ; ctx= Typ {ptyp_desc= Ptyp_arrow (args, _, _); _} }
       when List.exists args ~f:(fun arg -> arg.pap_type == typ) ->
         true
+    | {ast= {ptyp_desc; _}; ctx= Typ {ptyp_desc= Ptyp_splice _; _}} -> (
+      match ptyp_desc with
+      | Ptyp_var _ | Ptyp_constr (_, []) | Ptyp_variant _ -> false
+      | _ -> true )
     | _ -> (
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
