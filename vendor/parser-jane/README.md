@@ -4,7 +4,18 @@ parser. The code is not used in `ocamlformat` at all; it only exists as a base
 to perform a merge off of.
 
 ## How to merge changes from the compiler's parser
+
+### With [repatch.sh]
+
+You can just run the repatch script to do all the above steps automatically.
+```
+./parser-jane/repatch.sh {path-to-flambda-backend}
+```
+
 ### "Manually"
+
+Alternatively:
+
 First, in the `vendor/` directory, generate patchfiles
 ```
 diff -ruN parser-jane/for-parser-standard/ parser-standard/ > changes-parser.patch
@@ -26,8 +37,3 @@ rm changes-parser.patch
 rm changes-common.patch
 ```
 
-### With [repatch.sh]
-You can also just run the repatch script to do all the above steps automatically.
-```
-./parser-jane/repatch.sh {path-to-flambda-backend}
-```

@@ -98,26 +98,33 @@ How to update `ocamlformat`
 
 The base branch to work from is called `jane`. Create a branch off of `jane`.
 
-1. Take the patch you wish to support (i.e. some PR in `flambda-backend`).
-   Apply any changes to the `ocaml/parsing` directory to the files in
-   `vendor/parser-standard`. Remember: this "standard" parser should be as
-   close as possible to the compiler's.
+1. The first step is to update `vendor/parser-standard` with the appropriate
+   changes from the compiler's `parsing` directory. Don't do this by hand! Have
+   a look at `vendor/README.md` for instructions on using our script. The short
+   version is to `cd vendor` and then run:
+   ```
+   $ ./parser-jane/repatch.sh {path-to-oxcaml-repo}
+   ```
 
-    Note that some files used by both parsers are stored in
-   `vendor/ocaml-common` and may need to be updated.  Further, when
-   incorporating new support files from the compiler, consider whether than can
-   be shared in that directory rather than copied into each of the parser
-   directories.  This is typically the case if the support module doesn't depend
-   on the parsetree.
+   You may encounter merge conflicts, or need to manually apply changes the
+   script didn't pick up. Remember: this "standard" parser should be as close as
+   possible to the compiler's.
 
-2. Get `ocamlformat` compiled and passing the tests. If the patch to
-   `flambda-backend` was backward compatible, then this should be
-   straightforward. (If your changes affect files in `vendor/ocaml-common`, this
-   might not be so easy. That's OK. Just move on to the next step.)
+   The script will update files in both `vendor/parser-standard/` and
+   `vendor/ocaml-common/`. When incorporating new support files from the
+   compiler, consider whether than can be shared in `ocaml-common` rather than
+   copied into each of the parser directories.  This is typically the case if
+   the support module doesn't depend on the parsetree.
+
+2. Get `ocamlformat` compiled and passing the tests. If the patch to `oxcaml`
+   was backward compatible, then this should be straightforward. (If your
+   changes affect files in `vendor/ocaml-common`, this might not be so
+   easy. That's OK. Just move on to the next step.)
 
 3. Edit the parsetree in `vendor/parser-extended/parsetree.mli` to support your
-   new syntax. Copy over any changes to the parser and lexer from the
-   `flambda-backend` patch, updating the parser's semantic actions as necessary.
+   new syntax. Copy over any changes to the parser and lexer from the `oxcaml`
+   patch, updating the parser's semantic actions as necessary. This part is
+   manual - there's no script to help.
 
 4. Edit the pretty-printer in `lib/Fmt_ast.ml` to format your new syntax nicely.
    This may require changes to other `lib/` modules, such as `Ast.ml` and
