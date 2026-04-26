@@ -163,7 +163,6 @@ let print_warnings = ref true
 
 let at_beginning_of_line pos = (pos.pos_cnum = pos.pos_bol)
 
-<<<<<<< HEAD
 (* Syntax mode configuration for the #syntax directive *)
 module Syntax_mode = struct
   type config = { quotations : bool }
@@ -173,17 +172,6 @@ end
 let set_syntax_mode ({ quotations } : Syntax_mode.config) =
   Syntax_mode.quotations := quotations
 
-||||||| 9ac8c85
-=======
-(* Syntax mode configuration for the #syntax directive *)
-module Syntax_mode = struct
-  let quotations = ref Config.syntax_quotations
-end
-
-let reset_syntax_mode () =
-  Syntax_mode.quotations := Config.syntax_quotations
-
->>>>>>> new-base/main
 (* See the comment on the [directive] lexer. *)
 type directive_lexing_already_consumed =
    | Hash
@@ -503,15 +491,6 @@ let int ~maybe_hash lit modifier =
   | "" -> INT (lit, modifier)
   | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
 
-<<<<<<< HEAD
-let produce_and_backtrack lexbuf token back =
-  lexbuf.lex_curr_pos <- lexbuf.lex_curr_pos - back;
-  let curpos = lexbuf.lex_curr_p in
-  lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - back };
-  token
-
-||||||| 9ac8c85
-=======
 let produce_and_backtrack lexbuf token back =
   lexbuf.lex_curr_pos <- lexbuf.lex_curr_pos - back;
   let curpos = lexbuf.lex_curr_p in
@@ -530,7 +509,6 @@ let skip_hash ~maybe_hash =
   | "" -> 0
   | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
 
->>>>>>> new-base/main
 (* Error report *)
 
 open Format_doc
@@ -938,22 +916,11 @@ rule token = parse
    for checking that the '#' appears in column 0.
 *)
 and directive already_consumed = parse
-<<<<<<< HEAD
   (* Expects to receive a line number from exactly one source (either the lexbuf or
      the [already_consumed] argument, but not both) and will fail if this isn't
      the case. *)
   | ([' ' '\t']* (['0'-'9']+?) [' ' '\t']*
      ("\"" ([^ '\010' '\013' '\"' ] *) "\"") as directive)
-||||||| 9ac8c85
-  | ([' ' '\t']* (['0'-'9']+? as line_num_opt) [' ' '\t']*
-     ("\"" ([^ '\010' '\013' '\"' ] * as name) "\"") as directive)
-=======
-  (* Expects to receive a line number from exactly one source (either the lexbuf or
-     the [already_consumed] argument, but not both) and will fail if this isn't
-     the case. *)
-  | ([' ' '\t']* (['0'-'9']+? as line_num_opt) [' ' '\t']*
-     ("\"" ([^ '\010' '\013' '\"' ] * as name) "\"") as directive)
->>>>>>> new-base/main
         [^ '\010' '\013'] *
       {
         (* Line directives are not preserved by the lexer so we error out. *)

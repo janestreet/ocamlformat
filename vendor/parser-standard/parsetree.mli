@@ -297,8 +297,6 @@ and pattern_desc =
           - If Closed, [n >= 2].
           - If Open, [n >= 1].
         *)
-  | Ppat_unboxed_unit  (** [#()] *)
-  | Ppat_unboxed_bool of bool  (** [#false] or [#true] *)
   | Ppat_unboxed_tuple of (string option * pattern) list * Asttypes.closed_flag
       (** Unboxed tuple patterns: [#(l1:P1, ..., ln:Pn)] is [([(Some
           l1,P1);...;(Some l2,Pn)], Closed)], and the labels are optional.  An
@@ -436,8 +434,6 @@ and expression_desc =
 
            Invariant: [n >= 2]
         *)
-  | Pexp_unboxed_unit  (** [#()] *)
-  | Pexp_unboxed_bool of bool  (** [#false] or [#true] *)
   | Pexp_unboxed_tuple of (string option * expression) list
       (** Unboxed tuple expressions: [Pexp_unboxed_tuple([(Some l1,P1);...;(Some
           l2,Pn)])] represents [#(l1:E1, ..., ln:En)], and the labels are
@@ -549,14 +545,8 @@ and expression_desc =
   | Pexp_quote of expression (** [<[E]>] *)
   | Pexp_splice of expression (** [$E] *)
   | Pexp_hole (** _ *)
-<<<<<<< HEAD
-  | Pexp_quote of expression (** runtime metaprogramming quotations <[E]> *)
-  | Pexp_splice of expression (** runtime metaprogramming splicing $(E) *)
-||||||| 9ac8c85
-=======
   | Pexp_borrow of expression
     (** borrow_ exp *)
->>>>>>> new-base/main
 
 and case =
     {
@@ -1369,21 +1359,6 @@ and module_binding =
 (** Values of type [module_binding] represents [module X = ME] *)
 
 and jkind_annotation_desc =
-<<<<<<< HEAD
-  | Default
-  | Abbreviation of Longident.t loc * string loc list
-||||||| 9ac8c85
-  | Default
-  (* CR layouts-scannable: Scannable axes annotations only currently parse on
-     abbreviations, not on products/etc. It could be desirable for these
-     annotations to parse in more places with a warning (ex: for generated
-     code). This change should only be made if necessary (and after the
-     ignored-kind-modifier warning is enabled), since it adds confusion. *)
-  | Abbreviation of Longident.t loc * string loc list
-  (** [Abbreviation(A, [SA1; ...; SAn])] represents the layout
-      [A SA1 ... SAn] where [A] is some abbreviation (like [value])
-      and each [SAi] is a scannable axis annotation (like [non_pointer]) *)
-=======
   | Pjk_default
   (* CR layouts-scannable: Scannable axes annotations only currently parse on
      abbreviations, not on products/etc. It could be desirable for these
@@ -1394,7 +1369,6 @@ and jkind_annotation_desc =
   (** [Pjk_abbreviation(A, [SA1; ...; SAn])] represents the layout
       [A SA1 ... SAn] where [A] is some abbreviation (like [value])
       and each [SAi] is a scannable axis annotation (like [non_pointer]) *)
->>>>>>> new-base/main
   (* CR layouts v2.8: [mod] can have only layouts on the left, not
      full kind annotations. We may want to narrow this type some.
      Internal ticket 5085. *)

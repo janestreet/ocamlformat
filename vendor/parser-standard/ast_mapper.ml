@@ -565,8 +565,6 @@ module E = struct
         tuple ~loc ~attrs (map_ltexp sub el)
     | Pexp_unboxed_tuple el ->
         unboxed_tuple ~loc ~attrs (map_ltexp sub el)
-    | Pexp_unboxed_unit -> unboxed_unit ~loc ~attrs ()
-    | Pexp_unboxed_bool b -> unboxed_bool ~loc ~attrs b
     | Pexp_construct (lid, arg) ->
         construct ~loc ~attrs (map_loc sub lid) (map_opt (sub.expr sub) arg)
     | Pexp_variant (lab, eo) ->
@@ -675,8 +673,6 @@ module P = struct
     | Ppat_tuple (pl, c) -> tuple ~loc ~attrs (map_ltpat sub pl) c
     | Ppat_unboxed_tuple (pl, c) ->
         unboxed_tuple ~loc ~attrs (map_ltpat sub pl) c
-    | Ppat_unboxed_unit -> unboxed_unit ~loc ~attrs ()
-    | Ppat_unboxed_bool b -> unboxed_bool ~loc ~attrs b
     | Ppat_construct (l, p) ->
         construct ~loc ~attrs (map_loc sub l)
           (map_opt

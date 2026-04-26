@@ -74,16 +74,10 @@ module Typ = struct
   let package ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_package (a, b))
   let extension ?loc ?attrs a = mk ?loc ?attrs (Ptyp_extension a)
   let open_ ?loc ?attrs mod_ident t = mk ?loc ?attrs (Ptyp_open (mod_ident, t))
-<<<<<<< HEAD
-  let quote ?loc ?attrs t = mk ?loc ?attrs (Ptyp_quote t)
-  let splice ?loc ?attrs t = mk ?loc ?attrs (Ptyp_splice t)
-||||||| 9ac8c85
-=======
   let quote ?loc ?attrs t = mk ?loc ?attrs (Ptyp_quote t)
   let splice ?loc ?attrs t = mk ?loc ?attrs (Ptyp_splice t)
   let repr ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_repr (a, b))
   let newlayout ?loc ?attrs a b = mk ?loc ?attrs (Ptyp_newlayout (a, b))
->>>>>>> new-base/main
   let of_kind ?loc ?attrs a = mk ?loc ?attrs (Ptyp_of_kind a)
 
   let force_poly t =
@@ -203,8 +197,6 @@ module Pat = struct
   let alias ?loc ?attrs a b = mk ?loc ?attrs (Ppat_alias (a, b))
   let constant ?loc ?attrs a = mk ?loc ?attrs (Ppat_constant a)
   let interval ?loc ?attrs a b = mk ?loc ?attrs (Ppat_interval (a, b))
-  let unboxed_unit ?loc ?attrs () = mk ?loc ?attrs Ppat_unboxed_unit
-  let unboxed_bool ?loc ?attrs b = mk ?loc ?attrs (Ppat_unboxed_bool b)
   let tuple ?loc ?attrs a b = mk ?loc ?attrs (Ppat_tuple (a, b))
   let unboxed_tuple ?loc ?attrs a b = mk ?loc ?attrs (Ppat_unboxed_tuple (a, b))
   let unboxed_unit ?loc ?attrs () = mk ?loc ?attrs Ppat_unboxed_unit
@@ -244,8 +236,6 @@ module Exp = struct
   let unboxed_bool ?loc ?attrs b = mk ?loc ?attrs (Pexp_unboxed_bool b)
   let tuple ?loc ?attrs a = mk ?loc ?attrs (Pexp_tuple a)
   let unboxed_tuple ?loc ?attrs a = mk ?loc ?attrs (Pexp_unboxed_tuple a)
-  let unboxed_unit ?loc ?attrs () = mk ?loc ?attrs Pexp_unboxed_unit
-  let unboxed_bool ?loc ?attrs b = mk ?loc ?attrs (Pexp_unboxed_bool b)
   let construct ?loc ?attrs a b = mk ?loc ?attrs (Pexp_construct (a, b))
   let variant ?loc ?attrs a b = mk ?loc ?attrs (Pexp_variant (a, b))
   let record ?loc ?attrs a b = mk ?loc ?attrs (Pexp_record (a, b))

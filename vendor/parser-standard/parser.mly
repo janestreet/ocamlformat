@@ -678,7 +678,6 @@ let extra_rhs_core_type ct ~pos =
   let docs = rhs_info pos in
   { ct with ptyp_attributes = add_info_attrs docs ct.ptyp_attributes }
 
-<<<<<<< HEAD
 (* Allow doc comments before default modalities *)
 let extra_modalities startpos modalities =
   match modalities with
@@ -687,12 +686,7 @@ let extra_modalities startpos modalities =
      let extras = rhs_pre_extra_text startpos in
      modalities, Sig.text extras
 
-let mklb first ~loc (p, e, typ, modes, is_pun) attrs =
-||||||| 9ac8c85
-let mklb first ~loc (p, e, typ, modes, is_pun) attrs =
-=======
 let mklb first ~loc (p, e, typ, modes, is_pun, poly) attrs =
->>>>>>> new-base/main
   {
     lb_pattern = p;
     lb_expression = e;
@@ -1139,14 +1133,8 @@ let maybe_pmod_constraint mode expr =
 %token HASH_SUFFIX            "# "
 %token <string> HASHOP        "##" (* just an example *)
 %token SIG                    "sig"
-<<<<<<< HEAD
 %token SLASH                  "/"
-%token BORROW                 "borrow_"
-||||||| 9ac8c85
-%token BORROW                 "borrow_"
-=======
 %token LAYOUT                 "layout_"
->>>>>>> new-base/main
 %token STACK                  "stack_"
 %token STAR                   "*"
 %token <string * Location.t * string option>
@@ -1228,13 +1216,7 @@ The precedences must be listed from low to high.
 %nonassoc LBRACKETAT
 %right    COLONCOLON                    /* expr (e :: e :: e) */
 %left     INFIXOP2 PLUS PLUSDOT MINUS MINUSDOT PLUSEQ /* expr (e OP e OP e) */
-<<<<<<< HEAD
 %left     PERCENT SLASH INFIXOP3 MOD STAR                 /* expr (e OP e OP e) */
-||||||| 9ac8c85
-%left     PERCENT INFIXOP3 MOD STAR                 /* expr (e OP e OP e) */
-=======
-%left     PERCENT INFIXOP3 MOD STAR     /* expr (e OP e OP e) */
->>>>>>> new-base/main
 %right    INFIXOP4                      /* expr (e OP e OP e) */
 %nonassoc prec_unboxed_product_kind
 %nonassoc prec_unary_minus prec_unary_plus /* unary - */
@@ -1246,29 +1228,12 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTHASH DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-<<<<<<< HEAD
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT
-          INT HASH_INT OBJECT
-||||||| 9ac8c85
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
-=======
 %nonassoc BACKQUOTE BANG BEGIN CHAR HASH_CHAR FALSE FLOAT HASH_FLOAT
           INT HASH_INT OBJECT
->>>>>>> new-base/main
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
-<<<<<<< HEAD
-          NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE LESSLBRACKET DOLLAR
-          LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
-          HASHFALSE HASHTRUE
-
-||||||| 9ac8c85
-          NEW PREFIXOP STRING TRUE UIDENT LESSLBRACKET DOLLAR
-          LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
-=======
           NEW PREFIXOP STRING TRUE UIDENT LESSLBRACKET DOLLAR
           LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN UNDERSCORE
           HASHFALSE HASHTRUE
->>>>>>> new-base/main
 
 /* Entry points */
 
@@ -3029,23 +2994,6 @@ spliceable_expr:
       { unspliceable $sloc }
 ;
 
-spliceable_expr:
-  | LESSLBRACKET seq_expr RBRACKETGREATER
-      { mkexp ~loc:$sloc (Pexp_quote ($2)) }
-  | LPAREN seq_expr RPAREN
-      { reloc_exp ~loc:$sloc $2 }
-  | LPAREN seq_expr error
-      { unclosed "(" $loc($1) ")" $loc($3) }
-  | LPAREN seq_expr opt_type_constraint_with_modes RPAREN
-      { let (t, m) = $3 in
-        mkexp_opt_type_constraint_with_modes ~ghost:true ~loc:$sloc ~modes:m $2
-          t }
-  | mkrhs(val_longident)
-      { mkexp ~loc:$sloc (Pexp_ident ($1)) }
-  | error
-      { unspliceable $sloc }
-;
-
 simple_expr:
   | LPAREN seq_expr RPAREN
       { reloc_exp ~loc:$sloc $2 }
@@ -3188,47 +3136,11 @@ block_access:
   | DOT ident _p=LPAREN i=seq_expr RPAREN
     {
       match $2 with
-<<<<<<< HEAD
-      | "L" -> Baccess_array (Mutable, Index_unboxed_int64, i)
-      | "l" -> Baccess_array (Mutable, Index_unboxed_int32, i)
-      | "S" -> Baccess_array (Mutable, Index_unboxed_int16, i)
-      | "s" -> Baccess_array (Mutable, Index_unboxed_int8, i)
-      | "n" -> Baccess_array (Mutable, Index_unboxed_nativeint, i)
-||||||| 9ac8c85
-      | "L" -> Baccess_array (Mutable, Index_unboxed_int64, i)
-      | "l" -> Baccess_array (Mutable, Index_unboxed_int32, i)
-      | "n" -> Baccess_array (Mutable, Index_unboxed_nativeint, i)
-=======
->>>>>>> new-base/main
       | "idx_imm" -> Baccess_block (Immutable, i)
       | "idx_mut" -> Baccess_block (Mutable, i)
       | _ ->
         raise Syntaxerr.(Error(Block_access_bad_paren(make_loc $loc(_p))))
     }
-<<<<<<< HEAD
-  | DOTOP ident _p=LPAREN i=seq_expr RPAREN
-    {
-      match $1, $2 with
-      | ":", "L" -> Baccess_array (Immutable, Index_unboxed_int64, i)
-      | ":", "l" -> Baccess_array (Immutable, Index_unboxed_int32, i)
-      | ":", "S" -> Baccess_array (Immutable, Index_unboxed_int16, i)
-      | ":", "s" -> Baccess_array (Immutable, Index_unboxed_int8, i)
-      | ":", "n" -> Baccess_array (Immutable, Index_unboxed_nativeint, i)
-      | _ ->
-        raise Syntaxerr.(Error(Block_access_bad_paren(make_loc $loc(_p))))
-    }
-||||||| 9ac8c85
-  | DOTOP ident _p=LPAREN i=seq_expr RPAREN
-    {
-      match $1, $2 with
-      | ":", "L" -> Baccess_array (Immutable, Index_unboxed_int64, i)
-      | ":", "l" -> Baccess_array (Immutable, Index_unboxed_int32, i)
-      | ":", "n" -> Baccess_array (Immutable, Index_unboxed_nativeint, i)
-      | _ ->
-        raise Syntaxerr.(Error(Block_access_bad_paren(make_loc $loc(_p))))
-    }
-=======
->>>>>>> new-base/main
   | DOT ident _p=LPAREN seq_expr _e=error
     { indexop_unclosed_error $loc(_p) Paren $loc(_e) }
 ;
@@ -3275,8 +3187,6 @@ block_access:
       { mkinfix $1 $2 $3 }
   | extension
       { Pexp_extension $1 }
-  | UNDERSCORE
-      { Pexp_hole }
   | od=open_dot_declaration DOT mkrhs(LPAREN RPAREN {Lident "()"})
       { Pexp_open(od, mkexp ~loc:($loc($3)) (Pexp_construct($3, None))) }
   | mod_longident DOT LPAREN seq_expr error
@@ -3327,23 +3237,8 @@ block_access:
   | mod_longident DOT
     LPAREN MODULE ext_attributes module_expr COLON error
       { unclosed "(" $loc($3) ")" $loc($8) }
-  | HASHLPAREN RPAREN
-      { Pexp_unboxed_unit }
-  | HASHFALSE
-      { Pexp_unboxed_bool false }
-  | HASHTRUE
-      { Pexp_unboxed_bool true }
   | HASHLPAREN labeled_tuple RPAREN
       { Pexp_unboxed_tuple $2 }
-<<<<<<< HEAD
-  | DOLLAR spliceable_expr
-      { Pexp_splice $2 }
-  | LESSLBRACKET seq_expr RBRACKETGREATER
-      { Pexp_quote $2 }
-  | LESSLBRACKET seq_expr error
-      { unclosed "<[" $loc($1) "]>" $loc($3) }
-||||||| 9ac8c85
-=======
   | DOLLAR spliceable_expr
       { Pexp_splice $2 }
   | LESSLBRACKET seq_expr RBRACKETGREATER
@@ -3352,7 +3247,6 @@ block_access:
       { unclosed "<[" $loc($1) "]>" $loc($3) }
   | UNDERSCORE
       { Pexp_hole }
->>>>>>> new-base/main
 ;
 labeled_simple_expr:
     simple_expr %prec below_HASH
@@ -5095,26 +4989,6 @@ atomic_type:
       { mktyp ~loc:$sloc (Ptyp_any (Some jkind)) }
   | LPAREN TYPE COLON jkind=jkind_annotation RPAREN
       { mktyp ~loc:$loc (Ptyp_of_kind jkind) }
-<<<<<<< HEAD
-  (* CR metaprogramming: a forthcoming PR gates this behavior, but for now we ignore the
-     restriction
-     {[
-  | LESSLBRACKET core_type RBRACKETGREATER
-      { quotation_reserved "<[" $loc($1) }
-  | LESSLBRACKET core_type error
-      { unclosed "<[" $loc($1) "]>" $loc($3) }
-  | DOLLAR error
-      { quotation_reserved "$" $loc($1) }
-     ]} *)
-||||||| 9ac8c85
-  | LESSLBRACKET core_type RBRACKETGREATER
-      { quotation_reserved "<[" $loc($1) }
-  | LESSLBRACKET core_type error
-      { unclosed "<[" $loc($1) "]>" $loc($3) }
-  | DOLLAR error
-      { quotation_reserved "$" $loc($1) }
-=======
->>>>>>> new-base/main
 
 
 (* This is the syntax of the actual type parameters in an application of

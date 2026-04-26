@@ -11,7 +11,7 @@ fi
 cd $(dirname $0)
 cd ..
 
-dirs="parser-standard ocaml-common"
+dirs="parser-standard ocaml-common parser-shims"
 
 for dir in $dirs; do
     mv parser-jane/for-$dir parser-jane/for-$dir-old

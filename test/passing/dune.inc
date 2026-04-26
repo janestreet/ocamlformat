@@ -7575,60 +7575,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to layout_abbreviation-erased.ml.stdout
-   (with-stderr-to layout_abbreviation-erased.ml.stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iters=5 %{dep:tests/layout_abbreviation.ml}))))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation-erased.ml.ref layout_abbreviation-erased.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation-erased.ml.err layout_abbreviation-erased.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to layout_abbreviation.ml.stdout
-   (with-stderr-to layout_abbreviation.ml.stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/layout_abbreviation.ml}))))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation.ml.ref layout_abbreviation.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation.ml.err layout_abbreviation.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
-  (with-stdout-to layout_abbreviation.ml.js-stdout
-   (with-stderr-to layout_abbreviation.ml.js-stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/layout_abbreviation.ml}))))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation.ml.js-ref layout_abbreviation.ml.js-stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/layout_abbreviation.ml.js-err layout_abbreviation.ml.js-stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to layout_annotation-erased.ml.stdout
    (with-stderr-to layout_annotation-erased.ml.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iters=4 %{dep:tests/layout_annotation.ml}))))))

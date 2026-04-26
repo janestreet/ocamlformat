@@ -113,24 +113,6 @@ let fmt_private_flag f x =
   | Public -> fprintf f "Public"
   | Private -> fprintf f "Private"
 
-<<<<<<< HEAD
-let fmt_index_kind f = function
-  | Index_int -> fprintf f "Index_int"
-  | Index_unboxed_int64 -> fprintf f "Index_unboxed_int64"
-  | Index_unboxed_int32 -> fprintf f "Index_unboxed_int32"
-  | Index_unboxed_int16 -> fprintf f "Index_unboxed_int16"
-  | Index_unboxed_int8 -> fprintf f "Index_unboxed_int8"
-  | Index_unboxed_nativeint -> fprintf f "Index_unboxed_nativeint"
-
-||||||| 9ac8c85
-let fmt_index_kind f = function
-  | Index_int -> fprintf f "Index_int"
-  | Index_unboxed_int64 -> fprintf f "Index_unboxed_int64"
-  | Index_unboxed_int32 -> fprintf f "Index_unboxed_int32"
-  | Index_unboxed_nativeint -> fprintf f "Index_unboxed_nativeint"
-
-=======
->>>>>>> new-base/main
 let line i f s (*...*) =
   fprintf f "%s" (String.make ((2*i) mod 72) ' ');
   fprintf f s (*...*)
@@ -298,9 +280,6 @@ and pattern i ppf x =
   | Ppat_unboxed_tuple (l, c) ->
       line i ppf "Ppat_unboxed_tuple %a\n" fmt_closed_flag c;
       list i (labeled_tuple_element pattern) ppf l
-  | Ppat_unboxed_unit -> line i ppf "Ppat_unboxed_unit\n"
-  | Ppat_unboxed_bool b ->
-      line i ppf "Ppat_unboxed_bool %s\n" (if b then "true" else "false")
   | Ppat_construct (li, po) ->
       line i ppf "Ppat_construct %a\n" fmt_longident_loc li;
       option i
@@ -387,9 +366,6 @@ and expression i ppf x =
   | Pexp_unboxed_tuple (l) ->
       line i ppf "Pexp_unboxed_tuple\n";
       list i (labeled_tuple_element expression) ppf l;
-  | Pexp_unboxed_unit -> line i ppf "Pexp_unboxed_unit\n"
-  | Pexp_unboxed_bool b ->
-      line i ppf "Pexp_unboxed_bool %s\n" (if b then "true" else "false")
   | Pexp_construct (li, eo) ->
       line i ppf "Pexp_construct %a\n" fmt_longident_loc li;
       option i expression ppf eo;

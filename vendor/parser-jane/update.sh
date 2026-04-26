@@ -27,6 +27,8 @@ cp "$parsing_dir"/parse.ml for-parser-standard/
 cp "$parsing_dir"/parser.mly for-parser-standard/
 cp "$parsing_dir"/parsetree.mli for-parser-standard/
 cp "$parsing_dir"/printast.ml for-parser-standard/
+cp "$parsing_dir"/parser_types.mli for-parser-standard/
+cp "$parsing_dir"/parser_types.ml for-parser-standard/
 
 # ocaml-common
 cp "$parsing_dir"/location.ml for-ocaml-common/
@@ -37,6 +39,10 @@ cp "$parsing_dir"/syntaxerr.ml for-ocaml-common/
 cp "$parsing_dir"/syntaxerr.mli for-ocaml-common/
 cp "$utils_dir"/warnings.ml for-ocaml-common/
 cp "$utils_dir"/warnings.mli for-ocaml-common/
+
+# parser-shims
+cp "$utils_dir"/format_doc.ml for-parser-shims/
+cp "$utils_dir"/format_doc.mli for-parser-shims/
 
 # save git commit
 git -C "$flambda_backend_dir" rev-parse HEAD > imported_commit.txt
