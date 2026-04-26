@@ -69,6 +69,7 @@ type injectivity =
   | Injective
   | NoInjectivity
 
+<<<<<<< HEAD
 type index_kind =
   | Index_int
   | Index_unboxed_int64
@@ -76,3 +77,11 @@ type index_kind =
   | Index_unboxed_int16
   | Index_unboxed_int8
   | Index_unboxed_nativeint
+||||||| 9ac8c85
+type index_kind =
+  | Index_int
+  | Index_unboxed_int64
+  | Index_unboxed_int32
+  | Index_unboxed_nativeint
+=======
+>>>>>>> new-base/main
