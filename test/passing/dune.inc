@@ -3,6 +3,60 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to abstract_kinds-erased.ml.stdout
+   (with-stderr-to abstract_kinds-erased.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iters=5 %{dep:tests/abstract_kinds.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds-erased.ml.ref abstract_kinds-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds-erased.ml.err abstract_kinds-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to abstract_kinds.ml.stdout
+   (with-stderr-to abstract_kinds.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/abstract_kinds.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds.ml.ref abstract_kinds.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds.ml.err abstract_kinds.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to abstract_kinds.ml.js-stdout
+   (with-stderr-to abstract_kinds.ml.js-stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/abstract_kinds.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds.ml.js-ref abstract_kinds.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/abstract_kinds.ml.js-err abstract_kinds.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to align_infix.ml.stdout
    (with-stderr-to align_infix.ml.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --break-infix=fit-or-vertical %{dep:tests/align_infix.ml}))))))
@@ -7210,6 +7264,60 @@
  (alias runtest)
  (package ocamlformat)
  (action (diff tests/kind_attribute_normalization.ml.js-err kind_attribute_normalization.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to kind_substitutions-erased.ml.stdout
+   (with-stderr-to kind_substitutions-erased.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --erase-jane-syntax --max-iters=5 %{dep:tests/kind_substitutions.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions-erased.ml.ref kind_substitutions-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions-erased.ml.err kind_substitutions-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to kind_substitutions.ml.stdout
+   (with-stderr-to kind_substitutions.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --max-iters=5 %{dep:tests/kind_substitutions.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions.ml.ref kind_substitutions.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions.ml.err kind_substitutions.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to kind_substitutions.ml.js-stdout
+   (with-stderr-to kind_substitutions.ml.js-stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/kind_substitutions.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions.ml.js-ref kind_substitutions.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/kind_substitutions.ml.js-err kind_substitutions.ml.js-stderr)))
 
 (rule
  (deps tests/.ocamlformat )

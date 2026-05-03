@@ -254,7 +254,6 @@ module Sig = struct
   let type_ ?loc rec_flag a = mk ?loc (Psig_type (rec_flag, a))
   let type_subst ?loc a = mk ?loc (Psig_typesubst a)
   let type_extension ?loc a = mk ?loc (Psig_typext a)
-  let kind_abbreviation ?loc a b = mk ?loc (Psig_kind_abbrev (a, b))
   let exception_ ?loc a = mk ?loc (Psig_exception a)
   let module_ ?loc a = mk ?loc (Psig_module a)
   let mod_subst ?loc a = mk ?loc (Psig_modsubst a)
@@ -266,6 +265,7 @@ module Sig = struct
   let class_ ?loc a = mk ?loc (Psig_class a)
   let class_type ?loc a = mk ?loc (Psig_class_type a)
   let extension ?loc ?(attrs = []) a = mk ?loc (Psig_extension (a, attrs))
+  let jkind ?loc a = mk ?loc (Psig_jkind a)
   let attribute ?loc a = mk ?loc (Psig_attribute a)
   let hashsyntax ?loc mode toggle = mk ?loc (Psig_hashsyntax (mode, toggle))
   let text txt =
@@ -288,7 +288,6 @@ module Str = struct
   let primitive ?loc a = mk ?loc (Pstr_primitive a)
   let type_ ?loc rec_flag a = mk ?loc (Pstr_type (rec_flag, a))
   let type_extension ?loc a = mk ?loc (Pstr_typext a)
-  let kind_abbreviation ?loc a b = mk ?loc (Pstr_kind_abbrev (a, b))
   let exception_ ?loc a = mk ?loc (Pstr_exception a)
   let module_ ?loc a = mk ?loc (Pstr_module a)
   let rec_module ?loc a = mk ?loc (Pstr_recmodule a)
@@ -298,6 +297,7 @@ module Str = struct
   let class_type ?loc a = mk ?loc (Pstr_class_type a)
   let include_ ?loc a = mk ?loc (Pstr_include a)
   let extension ?loc ?(attrs = []) a = mk ?loc (Pstr_extension (a, attrs))
+  let jkind ?loc a = mk ?loc (Pstr_jkind a)
   let attribute ?loc a = mk ?loc (Pstr_attribute a)
   let text txt =
     let f_txt = List.filter (fun ds -> docstring_body ds <> "") txt in
@@ -531,7 +531,7 @@ module Type = struct
      ptype_attributes =
        add_text_attrs text (add_docs_attrs docs attrs);
      ptype_loc = loc;
-     ptype_jkind = jkind;
+     ptype_jkind_annotation = jkind;
     }
 
   let constructor ?(loc = !default_loc) ?(attrs = []) ?(info = empty_info)

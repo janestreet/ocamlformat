@@ -109,7 +109,7 @@ type t =
   | Pld of payload
   | Typ of core_type
   | Td of type_declaration
-  | Kab of kind_abbreviation
+  | Kd of jkind_declaration
   | Tyv of ty_var
   | Cty of class_type
   | Pat of pattern
@@ -127,7 +127,7 @@ type t =
   | Clf of class_field
   | Ctf of class_type_field
   | Tli of toplevel_item
-  | Jkd of jkind_annotation
+  | Ka of jkind_annotation
   | Top
   | Rep  (** Repl phrase *)
 
@@ -152,6 +152,12 @@ val sub_typ : ctx:t -> core_type -> core_type xt
 
 val sub_td : ctx:t -> type_declaration -> type_declaration xt
 (** Construct a type_declaration-in-context. *)
+
+val sub_jkind : ctx:t -> jkind_annotation -> jkind_annotation xt
+(** Construct a jkind_annotation-in-context. *)
+
+val sub_kd : ctx:t -> jkind_declaration -> jkind_declaration xt
+(** Construct a jkind_declaration-in-context. *)
 
 val sub_cty : ctx:t -> class_type -> class_type xt
 (** Construct a class_type-in-context. *)
