@@ -718,8 +718,8 @@ and type_declaration =
      ptype_private: private_flag;  (** for [= private ...] *)
      ptype_manifest: core_type option;  (** represents [= T] *)
      ptype_attributes: attributes;  (** [... [\@\@id1] [\@\@id2]] *)
+     ptype_jkind_annotation: jkind_annotation option;
      ptype_loc: Location.t;
-     ptype_jkind: jkind_annotation loc option;
     }
 (**
    Here are type declarations and their representation,
@@ -861,6 +861,16 @@ and extension_constructor_kind =
        *)
   | Pext_rebind of Longident.t loc
   (** [Pext_rebind(D)] re-export the constructor [D] with the new name [C] *)
+
+and jkind_declaration =
+  {
+    pjkind_name : string loc;
+    pjkind_manifest : jkind_annotation option;
+    pjkind_attributes : attributes;
+    pjkind_loc : Location.t
+  }
+  (** [kind_ name] or [kind_ name = k] *)
+
 
 (** {1 Class language} *)
 (** {2 Type expressions for the class language} *)
@@ -1102,7 +1112,6 @@ and signature_item_desc =
   | Psig_typesubst of type_declaration list
       (** [type t1 := ... and ... and tn := ...]  *)
   | Psig_typext of type_extension  (** [type t1 += ...] *)
-  | Psig_kind_abbrev of kind_abbreviation
   | Psig_exception of type_exception  (** [exception C of T] *)
   | Psig_module of module_declaration  (** [module X = M] and [module X : MT] *)
   | Psig_modsubst of module_substitution  (** [module X := M] *)
@@ -1121,6 +1130,7 @@ and signature_item_desc =
   | Psig_attribute of attribute  (** [[\@\@\@id]] *)
   | Psig_extension of extension * attributes  (** [[%%id]] *)
   | Psig_hashsyntax of string loc * bool  (** [#syntax quotations on]: mode * toggle *)
+  | Psig_jkind of jkind_declaration (** [kind_ name] or [kind_ name = k] *)
 
 and module_declaration =
     {
@@ -1206,12 +1216,16 @@ and with_constraint =
       (** [with module X.Y = Z] *)
   | Pwith_modtype of Longident.t loc * module_type
       (** [with module type X.Y = Z] *)
+  | Pwith_jkind of Longident.t loc * jkind_declaration
+      (** [with kind_ X.k = ...] *)
   | Pwith_modtypesubst of Longident.t loc * module_type
       (** [with module type X.Y := sig end] *)
   | Pwith_typesubst of Longident.t loc * type_declaration
       (** [with type X.t := ..., same format as [Pwith_type]] *)
   | Pwith_modsubst of Longident.t loc * Longident.t loc
       (** [with module X.Y := Z] *)
+  | Pwith_jkindsubst of Longident.t loc * jkind_declaration
+      (** [with kind_ X.k := ...] *)
 
 (** {2 Value expressions for the module language} *)
 
@@ -1263,7 +1277,6 @@ and structure_item_desc =
   | Pstr_type of rec_flag * type_declaration list
       (** [type t1 = ... and ... and tn = ...] *)
   | Pstr_typext of type_extension  (** [type t1 += ...] *)
-  | Pstr_kind_abbrev of kind_abbreviation
   | Pstr_exception of type_exception
       (** - [exception C of T]
             - [exception C = M.X] *)
@@ -1279,6 +1292,7 @@ and structure_item_desc =
   | Pstr_include of include_declaration  (** [include ME] *)
   | Pstr_attribute of attribute  (** [[\@\@\@id]] *)
   | Pstr_extension of extension * attributes  (** [[%%id]] *)
+  | Pstr_jkind of jkind_declaration (** [kind_ name] or [kind_ name = k] *)
 
 and value_constraint =
   | Pvc_constraint of {
@@ -1332,17 +1346,33 @@ and module_binding =
 
 and jkind_const_annotation  = Longident.t Location.loc
 
+and jkind_annotation_desc =
+  | Pjk_default
+  (* CR layouts-scannable: Scannable axes annotations only currently parse on
+     abbreviations, not on products/etc. It could be desirable for these
+     annotations to parse in more places with a warning (ex: for generated
+     code). This change should only be made if necessary (and after the
+     ignored-kind-modifier warning is enabled), since it adds confusion. *)
+  | Pjk_abbreviation of Longident.t loc * string loc list
+  (** [Pjk_abbreviation(A, [SA1; ...; SAn])] represents the layout
+      [A SA1 ... SAn] where [A] is some abbreviation (like [value])
+      and each [SAi] is a scannable axis annotation (like [non_pointer]) *)
+  (* CR layouts v2.8: [mod] can have only layouts on the left, not
+     full kind annotations. We may want to narrow this type some.
+     Internal ticket 5085. *)
+  | Pjk_mod of jkind_annotation * modes
+  | Pjk_with of jkind_annotation * core_type * modalities
+  | Pjk_kind_of of core_type
+  | Pjk_product of jkind_annotation list
+
 and jkind_annotation =
-  | Default
-  | Abbreviation of jkind_const_annotation * string Location.loc list
-  | Mod of jkind_annotation loc * modes
-  | With of jkind_annotation loc * core_type * modalities
-  | Kind_of of core_type
-  | Product of jkind_annotation loc list
+  { pjka_loc : Location.t
+  ; pjka_desc : jkind_annotation_desc
+  }
 
-and ty_var = string option loc * jkind_annotation loc option
+and ty_var = string option loc * jkind_annotation option
 
-and kind_abbreviation = string loc * jkind_annotation loc
+and kind_abbreviation = string loc * jkind_annotation
 
 (** {1 Toplevel} *)
 
