@@ -106,6 +106,16 @@ module type S20' = S
 [@@warning "-32"]
 [@@some_long_attribute_name_that_should_make_this_line_break]
 
+module type S26 = S [@deprecated]
+
+module type S26' = S [@deprecated]
+
+module type S27 = S [@deprecated] [@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
+module type S27' = S [@deprecated] [@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
 (* Now with comments *)
 
 module type S21 = S (* 1 *)

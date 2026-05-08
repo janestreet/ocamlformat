@@ -92,6 +92,12 @@ module type S19' = (S with kind_ k := kkkk) [@@deprecated]
 module type S20 = S with kind_ k = kkkk [@@warning "-32"] [@@some_long_attribute_name_that_should_make_this_line_break]
 module type S20' = S with kind_ k := kkkk [@@warning "-32"] [@@some_long_attribute_name_that_should_make_this_line_break]
 
+module type S26 = S [@deprecated] with kind_ k = kkkk
+module type S26' = S [@deprecated] with kind_ k := kkkk
+
+module type S27 = S [@deprecated] [@warning "-32"] with kind_ k = kkkk [@@some_long_attribute_name_that_should_make_this_line_break]
+module type S27' = S [@deprecated] [@warning "-32"] with kind_ k := kkkk [@@some_long_attribute_name_that_should_make_this_line_break]
+
 (* Now with comments *)
 
 module type S21 = S with kind_ (* 1 *) k (* 2 *) = (* 3 *) kkkk (* 4 *)
