@@ -901,12 +901,15 @@ and fmt_type_var_with_parenze ~have_tick ~tydecl_param_atrs c (s : ty_var) =
     (wrap_if jkind_annot "(" ")"
        (fmt_type_var ~have_tick ~tydecl_param_atrs c s) )
 
-and fmt_jkind c ~ctx {txt= jkd; loc} =
-  let inner_ctx = Jkd jkd in
+and fmt_jkind_annotation c {ast= jkind; ctx= outer_ctx} =
+  protect c (Ka jkind)
+  @@
+  let {pjka_desc; pjka_loc} = jkind in
+  let ctx = Ka jkind in
   let parens, fmt =
-    match jkd with
-    | Default -> (false, fmt "_")
-    | Abbreviation (abbrev, modifiers) ->
+    match pjka_desc with
+    | Pjk_default -> (false, fmt "_")
+    | Pjk_abbreviation (abbrev, modifiers) ->
         let fmt =
           fmt_longident_loc c abbrev
           $ fmt_if_k
@@ -916,69 +919,72 @@ and fmt_jkind c ~ctx {txt= jkd; loc} =
               )
         in
         (false, fmt)
-    | Mod (jkind, modes) ->
+    | Pjk_mod (jkind, modes) ->
         let parens =
-          match ctx with
-          | Jkd jkd -> (
-            match jkd with
-            | Product _ -> true
-            | Mod _ | With _ -> false
-            | Default | Abbreviation _ | Kind_of _ -> assert false )
+          match outer_ctx with
+          | Ka {pjka_desc; _} -> (
+            match pjka_desc with
+            | Pjk_product _ -> true
+            | Pjk_mod _ | Pjk_with _ -> false
+            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
+                assert false )
           | _ -> false
         in
         let mode_fmt = hvbox 0 (fmt_modals c (Mode_crossing modes)) in
         let fmt =
-          fmt_jkind c ~ctx:inner_ctx jkind
-          $ fmt "@ mod" $ Cmts.fmt_within c loc $ mode_fmt
+          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+          $ fmt "@ mod"
+          $ Cmts.fmt_within c pjka_loc
+          $ mode_fmt
         in
         (parens, fmt)
-    | With (jkind, type_, ms) ->
+    | Pjk_with (jkind, type_, ms) ->
         let parens =
-          match ctx with
-          | Jkd jkd -> (
-            match jkd with
-            | Product _ -> true
-            | Mod _ | With _ -> false
-            | Default | Abbreviation _ | Kind_of _ -> assert false )
+          match outer_ctx with
+          | Ka {pjka_desc; _} -> (
+            match pjka_desc with
+            | Pjk_product _ -> true
+            | Pjk_mod _ | Pjk_with _ -> false
+            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
+                assert false )
           | _ -> false
         in
-        let types_fmt =
-          fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
-        in
+        let types_fmt = fmt_core_type c ~box:true (sub_typ ~ctx type_) in
         let fmt =
-          fmt_jkind c ~ctx:inner_ctx jkind
-          $ fmt "@ with " $ Cmts.fmt_within c loc $ types_fmt
+          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+          $ fmt "@ with "
+          $ Cmts.fmt_within c pjka_loc
+          $ types_fmt
           $ hvbox_if
               (not (List.is_empty ms))
               3
               (fmt_modals c ~pro:(fmt " ") (Modalities ms))
         in
         (parens, fmt)
-    | Kind_of type_ ->
-        let type_fmt =
-          fmt_core_type c ~box:true (sub_typ ~ctx:inner_ctx type_)
-        in
-        (false, fmt "kind_of_@ " $ Cmts.fmt_within c loc $ type_fmt)
-    | Product kinds ->
+    | Pjk_kind_of type_ ->
+        let type_fmt = fmt_core_type c ~box:true (sub_typ ~ctx type_) in
+        (false, fmt "kind_of_@ " $ Cmts.fmt_within c pjka_loc $ type_fmt)
+    | Pjk_product kinds ->
         let parens =
-          match ctx with
-          | Jkd jkd -> (
-            match jkd with
-            | Product _ | Mod _ | With _ -> true
-            | Default | Abbreviation _ | Kind_of _ -> assert false )
+          match outer_ctx with
+          | Ka {pjka_desc; _} -> (
+            match pjka_desc with
+            | Pjk_product _ | Pjk_mod _ | Pjk_with _ -> true
+            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
+                assert false )
           | _ -> false
         in
         let fmt =
           hvbox 0
             (list kinds "@ & " (fun kind ->
-                 hvbox 2 (fmt_jkind c ~ctx:inner_ctx kind) ) )
+                 hvbox 2 (fmt_jkind_annotation c (sub_jkind ~ctx kind)) ) )
         in
         (parens, fmt)
   in
-  wrap_if parens "(" ")" (Cmts.fmt c loc fmt)
+  wrap_if parens "(" ")" (Cmts.fmt c pjka_loc fmt)
 
 and fmt_jkind_constr c ~ctx jkind =
-  fmt " :@ " $ hvbox 0 (fmt_jkind ~ctx c jkind)
+  fmt " :@ " $ hvbox 0 (fmt_jkind_annotation c (sub_jkind ~ctx jkind))
 
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
@@ -1293,10 +1299,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
       $ fmt "@ " $ fmt_longident_loc c lid $ char '#'
   | Ptyp_of_kind jk ->
       wrap_fits_breaks c.conf "(" ")"
-        (hvbox 0
-           ( fmt "type"
-           $ fmt_jkind_constr ~ctx:(Typ typ) c {txt= jk; loc= typ.ptyp_loc}
-           ) )
+        (hvbox 0 (fmt "type" $ fmt_jkind_constr ~ctx:(Typ typ) c jk))
   | Ptyp_quote t ->
       wrap_fits_breaks c.conf "<[" "]>" (fmt_core_type c (sub_typ ~ctx t))
   | Ptyp_splice t -> fmt "$" $ fmt_core_type c (sub_typ ~ctx:(Typ typ) t)
@@ -4019,7 +4022,7 @@ and fmt_type_declaration c ?(pre = noop) ?name ?(eq = "=") {ast= decl; _} =
       ; ptype_manifest= m
       ; ptype_attributes
       ; ptype_loc
-      ; ptype_jkind } =
+      ; ptype_jkind_annotation } =
     decl
   in
   update_config_maybe_disabled c ptype_loc ptype_attributes
@@ -4041,7 +4044,7 @@ and fmt_type_declaration c ?(pre = noop) ?name ?(eq = "=") {ast= decl; _} =
   let box_manifest k =
     hvbox c.conf.fmt_opts.type_decl_indent.v
       ( hvbox_if
-          (Option.is_some ptype_jkind)
+          (Option.is_some ptype_jkind_annotation)
           c.conf.fmt_opts.type_decl_indent.v
           ( pre $ str " "
           $ hvbox_if
@@ -4053,7 +4056,7 @@ and fmt_type_declaration c ?(pre = noop) ?name ?(eq = "=") {ast= decl; _} =
               $ fmt_opt
                   (Option.map
                      ~f:(fmt_jkind_constr ~ctx:(Td decl) c)
-                     ptype_jkind ) ) )
+                     ptype_jkind_annotation ) ) )
       $ k )
   in
   let fmt_manifest_kind =
@@ -4319,10 +4322,40 @@ and fmt_type_extension ?ext c ctx
                  $ fmt_ctor x ) )
        $ fmt_item_attributes c ~pre:(Break (1, 0)) atrs )
 
-and fmt_kind_abbreviation c ((name, kind) as ab) =
-  hvbox c.conf.fmt_opts.type_decl_indent.v
-    ( str "kind_abbrev_ " $ fmt_str_loc c name $ fmt " =@ "
-    $ fmt_jkind c ~ctx:(Kab ab) kind )
+and fmt_jkind_declaration c ?(pre = noop) ?name ?(eq = "=") {ast= decl; _} =
+  protect c (Kd decl)
+  @@
+  let {pjkind_name; pjkind_manifest; pjkind_attributes; pjkind_loc} = decl in
+  let {txt= pjkind_name; loc= pjkind_name_loc} = pjkind_name in
+  update_config_maybe_disabled c pjkind_loc pjkind_attributes
+  @@ fun c ->
+  let ctx = Kd decl in
+  let fmt_manifest = function
+    | Some m ->
+        str " " $ str eq $ fmt "@ "
+        $ fmt_jkind_annotation c (sub_jkind ~ctx m)
+    | None -> noop
+  in
+  let box_manifest k =
+    hvbox c.conf.fmt_opts.type_decl_indent.v
+      ( pre $ str " "
+      $ Option.value_map name ~default:(str pjkind_name)
+          ~f:(fmt_longident_loc c)
+      $ k )
+  in
+  let doc_before, doc_after, attrs =
+    let fit = Option.is_none pjkind_manifest in
+    fmt_docstring_around_item ~force_before:false ~fit c pjkind_attributes
+  in
+  Cmts.fmt c pjkind_name_loc
+  @@ Cmts.fmt c pjkind_loc
+  @@ hvbox 0
+       ( doc_before
+       $ hvbox 0
+           ( hvbox c.conf.fmt_opts.type_decl_indent.v
+               (box_manifest (fmt_manifest pjkind_manifest))
+           $ fmt_item_attributes c ~pre:(Break (1, 0)) attrs )
+       $ doc_after )
 
 and fmt_type_exception ~pre c ctx
     {ptyexn_attributes; ptyexn_constructor; ptyexn_loc} =
@@ -4623,7 +4656,8 @@ and fmt_signature_item c ?ext {ast= si; _} =
       fmt_recmodule c ctx mds fmt_module_declaration (fun x -> Md x) sub_md
   | Psig_type (rec_flag, decls) -> fmt_type c ?ext rec_flag decls ctx
   | Psig_typext te -> fmt_type_extension ?ext c ctx te
-  | Psig_kind_abbrev kab -> fmt_kind_abbreviation c kab
+  | Psig_jkind kd ->
+      fmt_jkind_declaration c ~pre:(str "kind_") (sub_kd ~ctx kd)
   | Psig_value vd -> fmt_value_description ?ext c ctx vd
   | Psig_class cl -> fmt_class_types ?ext c ctx ~pre:"class" ~sep:":" cl
   | Psig_class_type cl ->
@@ -4928,6 +4962,14 @@ and fmt_with_constraint c ctx ~pre = function
       $ fmt_module c ctx ~eqty:":=" "module type" m1 No_modals [] None
           ~rec_flag:false m2 No_modals
           ~attrs:(Ast_helper.Attr.ext_attrs ())
+  | Pwith_jkind (lid, kd) ->
+      fmt_jkind_declaration
+        ~pre:(str (pre ^ " kind_"))
+        c ~name:lid (sub_kd ~ctx kd)
+  | Pwith_jkindsubst (lid, kd) ->
+      fmt_jkind_declaration
+        ~pre:(str (pre ^ " kind_"))
+        c ~eq:":=" ~name:lid (sub_kd ~ctx kd)
 
 and fmt_mod_apply c ctx loc attrs ~parens ~dock_struct me_f arg =
   match me_f.pmod_desc with
@@ -5240,7 +5282,8 @@ and fmt_structure_item c ~last:last_item ?ext ~semisemi
       fmt_recmodule c ctx mbs fmt_module_binding (fun x -> Mb x) sub_mb
   | Pstr_type (rec_flag, decls) -> fmt_type c ?ext rec_flag decls ctx
   | Pstr_typext te -> fmt_type_extension ?ext c ctx te
-  | Pstr_kind_abbrev kab -> fmt_kind_abbreviation c kab
+  | Pstr_jkind kd ->
+      fmt_jkind_declaration c ~pre:(str "kind_") (sub_kd ~ctx kd)
   | Pstr_value
       { pvbs_mutable= mutable_flag
       ; pvbs_rec= rec_flag

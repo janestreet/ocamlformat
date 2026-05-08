@@ -16,11 +16,12 @@ let rewrite_type_declaration_imm_attr_to_jkind_annot decl =
     match (attr.attr_name.txt, attr.attr_payload) with
     | ("ocaml.immediate64" | "immediate64"), PStr [] ->
         Some
-          (Abbreviation
+          (Pjk_abbreviation
              (Location.mknoloc (Longident.Lident "immediate64"), []) )
     | ("ocaml.immediate" | "immediate"), PStr [] ->
         Some
-          (Abbreviation (Location.mknoloc (Longident.Lident "immediate"), []))
+          (Pjk_abbreviation
+             (Location.mknoloc (Longident.Lident "immediate"), []) )
     | _ -> None
   in
   let immediate_attrs, remaining_attrs =
@@ -30,12 +31,16 @@ let rewrite_type_declaration_imm_attr_to_jkind_annot decl =
            | Some jkind -> First (jkind, attr)
            | None -> Second attr )
   in
-  match (decl.ptype_jkind, immediate_attrs) with
+  match (decl.ptype_jkind_annotation, immediate_attrs) with
   | None, [(jkind, attr)] ->
       (* We only do this rewrite if (1.) there's no jkind annotation already
          present and (2.) only one immediate attribute is attached *)
-      let ptype_jkind = Some Location.(mknoloc jkind) in
-      (Some attr, {decl with ptype_attributes= remaining_attrs; ptype_jkind})
+      let ptype_jkind_annotation =
+        Some {pjka_desc= jkind; pjka_loc= Location.none}
+      in
+      ( Some attr
+      , {decl with ptype_attributes= remaining_attrs; ptype_jkind_annotation}
+      )
   | _ -> (None, decl)
 
 let dedup_cmts fragment ast comments =

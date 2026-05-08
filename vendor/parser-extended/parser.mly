@@ -380,7 +380,7 @@ let erase_str_items str =
   else (
     List.filter
       (function
-        | { pstr_desc = Pstr_kind_abbrev _; _ } -> false
+        | { pstr_desc = Pstr_jkind _; _ } -> false
         | _ -> true)
       str
   )
@@ -391,9 +391,19 @@ let erase_sig_items sig_ =
   else
     List.filter
       (function
-        | { psig_desc = Psig_kind_abbrev _; _ } -> false
+        | { psig_desc = Psig_jkind _; _ } -> false
         | _ -> true)
       sig_
+
+let erase_with_constraints constraints =
+  if not (Erase_jane_syntax.should_erase ())
+  then constraints
+  else
+    List.filter
+      (function
+        | Pwith_jkind _ | Pwith_jkindsubst _ -> false
+        | _ -> true)
+      constraints
 
 let erase_toplevel_phrases phrases =
   if not (Erase_jane_syntax.should_erase ())
@@ -800,10 +810,14 @@ let mk_directive ~loc name arg =
 let convert_jkind_to_legacy_attr =
   let mk ~loc name = [Attr.mk ~loc (mkloc name loc) (PStr [])] in
   function
-  | {txt = Abbreviation ({txt = Longident.Lident "immediate"; loc}, []); loc = _} ->
-      mk ~loc "immediate"
-  | {txt = Abbreviation ({txt = Longident.Lident "immediate64"; loc}, []); loc = _} ->
-      mk ~loc "immediate64"
+  | { pjka_desc =
+        Pjk_abbreviation ({txt = Longident.Lident "immediate"; loc}, []);
+      pjka_loc = _} ->
+    mk ~loc "immediate"
+  | { pjka_desc =
+        Pjk_abbreviation ({txt = Longident.Lident "immediate64"; loc}, []);
+      pjka_loc = _} ->
+    mk ~loc "immediate64"
   | _ -> []
 
 (* NOTE: An alternate approach for performing the erasure of %call_pos and %src_pos
@@ -913,7 +927,7 @@ let erase_call_pos_type ~arg_label ~arg_type ~loc =
 %token INHERIT                "inherit"
 %token INITIALIZER            "initializer"
 %token <string * char option> INT "42"  (* just an example *)
-%token KIND_ABBREV            "kind_abbrev_"
+%token KIND                   "kind_"
 %token KIND_OF                "kind_of_"
 %token <string> LABEL         "~label:" (* just an example *)
 %token LAZY                   "lazy"
@@ -1688,6 +1702,8 @@ structure_item:
         { Pstr_recmodule $1 }
     | module_type_declaration
         { Pstr_modtype $1 }
+    | jkind_decl
+        { Pstr_jkind $1 }
     )
   | wrap_mkstr_ext(
       primitive_declaration
@@ -1712,9 +1728,6 @@ structure_item:
       { let incl, ext = $1 in
         let item = mkstr ~loc:$sloc (Pstr_include incl) in
         wrap_str_ext ~loc:$sloc item ext }
-  | kind_abbreviation_decl
-      { let name, jkind = $1 in
-        mkstr ~loc:$sloc (Pstr_kind_abbrev (name, jkind)) }
 ;
 
 (* A single module binding. *)
@@ -1921,6 +1934,10 @@ module_type:
       { mkmty ~loc:$sloc ~attrs:$4 (Pmty_typeof $5) }
   | module_type attribute
       { Mty.attr $1 $2 }
+  | module_type WITH separated_nonempty_llist(AND, with_constraint)
+      { match erase_with_constraints $3 with
+        | [] -> $1
+        | constraints -> mkmty ~loc:$sloc (Pmty_with($1, constraints)) }
   | mkmty(
       functor_arg MINUSGREATER mty_mm = module_type_with_optional_modes
         %prec below_WITH
@@ -1932,8 +1949,6 @@ module_type:
           let mty1, mm1 = $3 in
           let arg_loc = make_loc $loc($1) in
           Pmty_functor([mkloc (Named (mknoloc None, mty0, mm0)) arg_loc], mty1, mm1) }
-    | module_type WITH separated_nonempty_llist(AND, with_constraint)
-        { Pmty_with($1, $3) }
     | module_type WITH mkrhs(mod_ext_longident)
         { Pmty_strengthen($1,$3) }
     | extension
@@ -1985,6 +2000,8 @@ signature_item:
         { Psig_modtype $1 }
     | module_type_subst
         { Psig_modtypesubst $1 }
+    | jkind_decl
+        { Psig_jkind $1 }
     )
     { $1 }
   | wrap_mksig_ext(
@@ -2013,9 +2030,6 @@ signature_item:
         let item = mksig ~loc:$sloc (Psig_include (incl, modalities)) in
         wrap_sig_ext ~loc:$sloc item ext
       }
-  | kind_abbreviation_decl
-      { let name, jkind = $1 in
-        mksig ~loc:$sloc (Psig_kind_abbrev (name, jkind)) }
   | HASH_SYNTAX
       { let mode, toggle = $1 in
         mksig ~loc:$sloc (Psig_hashsyntax (mkloc mode (make_loc $sloc), toggle)) }
@@ -3847,7 +3861,7 @@ generic_type_declaration(flag, kind):
   flag = flag
   params = type_parameters
   id = mkrhs(LIDENT)
-  jkind_and_attr = jkind_attr_opt
+  jkind_and_attr = jkind_constraint_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
@@ -3866,7 +3880,7 @@ generic_type_declaration(flag, kind):
   attrs1 = attributes
   params = type_parameters
   id = mkrhs(LIDENT)
-  jkind_and_attr = jkind_attr_opt
+  jkind_and_attr = jkind_constraint_opt
   kind_priv_manifest = kind
   cstrs = constraints
   attrs2 = post_item_attributes
@@ -3939,48 +3953,81 @@ type_parameters:
       { ps }
 ;
 
-jkind:
-    mkrhs(jkind) MOD mode_expr
-      { Mod ($1, $3) }
-  | mkrhs(jkind) WITH core_type optional_atat_modalities_expr
-      { With ($1, $3, $4) }
-  | abbrev=mkrhs(type_longident) modifiers=mkrhs(LIDENT)*
-      { Abbreviation (abbrev, modifiers) }
-  | KIND_OF ty=core_type
-      { Kind_of ty }
-  | UNDERSCORE
-      { Default }
-  | reverse_product_jkind %prec below_AMPERSAND
-      { Product (List.rev $1) }
-  | LPAREN jkind RPAREN
-      { $2 }
+
+(* This grammar is parameterized by itself so that we can sometimes include with
+   kinds and sometimes not. It would be nice if the typechecker could be solely
+   responsible for ruling out with kinds in positions where they may not appear,
+   but in practice they create problems for parsing around "with kind_"
+   constraints, as both use the word "with". *)
+jkind_desc_gen(self):
+    jkind_annotation_gen(self) MOD mode_expr {
+      Pjk_mod ($1, $3)
+    }
+  | mkrhs(type_longident) mkrhs(LIDENT)* {
+      Pjk_abbreviation ($1, $2)
+    }
+  | KIND_OF ty=core_type %prec below_LBRACKETAT {
+      Pjk_kind_of ty
+    }
+  | UNDERSCORE {
+      Pjk_default
+    }
+  | reverse_product_jkind_gen(self) %prec below_AMPERSAND {
+      Pjk_product (List.rev $1)
+    }
+  | LPAREN self RPAREN {
+      $2
+    }
 ;
 
-reverse_product_jkind :
-  | jkind1 = mkrhs(jkind) AMPERSAND jkind2 = mkrhs(jkind) %prec prec_unboxed_product_kind
-      { [jkind2; jkind1] }
-  | jkinds = reverse_product_jkind
+reverse_product_jkind_gen(self):
+  | jkind1 = jkind_annotation_gen(self)
     AMPERSAND
-    jkind = mkrhs(jkind) %prec prec_unboxed_product_kind
+    jkind2 = jkind_annotation_gen(self) %prec prec_unboxed_product_kind
+      { [jkind2; jkind1] }
+  | jkinds = reverse_product_jkind_gen(self)
+    AMPERSAND
+    jkind = jkind_annotation_gen(self) %prec prec_unboxed_product_kind
     { jkind :: jkinds }
 ;
 
-jkind_annotation_gen: (* : jkind_annotation *)
-  mkrhs(jkind) { $1 }
+jkind_annotation_gen(self) :
+  self { { pjka_loc = make_loc $sloc; pjka_desc = $1 } }
+;
+(* Full jkind grammar - including with kinds *)
+jkind_desc:
+    jkind_annotation_gen(jkind_desc)
+    WITH core_type optional_atat_modalities_expr {
+      Pjk_with ($1, $3, $4)
+    }
+  | jkind_desc_gen(jkind_desc) { $1 }
 ;
 
-jkind_annotation: (* : jkind_annotation *)
-  jkind_annotation_gen
+jkind_annotation_unerased: (* : jkind_annotation loc *)
+  jkind_desc { { pjka_loc = make_loc $sloc; pjka_desc = $1 } }
+;
+
+jkind_annotation: (* : jkind_annotation loc option *)
+  jkind_annotation_unerased
     {
       if Erase_jane_syntax.should_erase () then None
       else Some $1
     }
 ;
 
-jkind_attr_opt:
+(* jkind grammar without WITH - used in [with_constraint] *)
+jkind_desc_no_with_kinds:
+  jkind_desc_gen(jkind_desc_no_with_kinds) { $1 }
+;
+
+jkind_annotation_no_with_kinds:
+  jkind_desc_no_with_kinds { { pjka_loc = make_loc $sloc; pjka_desc = $1 } }
+;
+
+jkind_constraint_opt:
   /* empty */
     { None, [] }
-  | COLON jkind_annotation_gen
+  | COLON jkind_annotation_unerased
     {
       if Erase_jane_syntax.should_erase ()
       then None, convert_jkind_to_legacy_attr $2
@@ -3988,10 +4035,22 @@ jkind_attr_opt:
     }
 ;
 
-kind_abbreviation_decl:
-  KIND_ABBREV abbrev=mkrhs(LIDENT) EQUAL jkind=jkind_annotation_gen {
-    (abbrev, jkind)
-  }
+%inline jkind_manifest:
+  | /* empty */ { None }
+  | EQUAL jkind=jkind_annotation { jkind }
+;
+
+jkind_decl:
+  KIND
+  attrs1=attributes
+  pjkind_name=mkrhs(LIDENT)
+  pjkind_manifest=jkind_manifest
+  attrs2=post_item_attributes
+    {
+      let pjkind_attributes = attrs1 @ attrs2 in
+      let pjkind_loc = make_loc $sloc in
+      { pjkind_name; pjkind_manifest; pjkind_attributes; pjkind_loc }
+    }
 ;
 
 %inline type_param_with_jkind:
@@ -4256,6 +4315,22 @@ with_constraint:
       { Pwith_modtype (l, rhs) }
   | MODULE TYPE l=mkrhs(mty_longident) COLONEQUAL rhs=module_type
       { Pwith_modtypesubst (l, rhs) }
+  | KIND lid=mkrhs(label_longident) EQUAL
+    jka=jkind_annotation_no_with_kinds
+      { Pwith_jkind
+          (lid,
+           { pjkind_name = loc_last lid;
+             pjkind_manifest = Some jka;
+             pjkind_attributes = [];
+             pjkind_loc = make_loc $sloc }) }
+  | KIND lid=mkrhs(label_longident) COLONEQUAL
+    jka=jkind_annotation_no_with_kinds
+      { Pwith_jkindsubst
+          (lid,
+           { pjkind_name = loc_last lid;
+             pjkind_manifest = Some jka;
+             pjkind_attributes = [];
+             pjkind_loc = make_loc $sloc }) }
 ;
 with_type_binder:
     EQUAL          { Public }
@@ -4773,7 +4848,7 @@ atomic_type:
       { Ptyp_var (name, jkind) }
     | LPAREN mkrhs(UNDERSCORE {None}) COLON jkind=jkind_annotation RPAREN
       { Ptyp_var ($2, jkind) }
-    | LPAREN TYPE COLON jkind=jkind RPAREN
+    | LPAREN TYPE COLON jkind=jkind_annotation_unerased RPAREN
       { Ptyp_of_kind jkind }
     | LESSLBRACKET core_type RBRACKETGREATER
       { Ptyp_quote $2 }
