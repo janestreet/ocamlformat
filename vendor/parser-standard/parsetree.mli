@@ -33,9 +33,11 @@ type constant =
       (** Integer constants such as [#3] [#3l] [#3L] [#3n].
 
           A suffix [[g-z][G-Z]] is required by the parser.
-          Suffixes except ['l'], ['L'] and ['n'] are rejected by the typechecker
+          Suffixes except ['s'], ['S'], ['l'], ['L'], ['n'], and ['m'] are
+          rejected by the typechecker
       *)
   | Pconst_char of char  (** Character such as ['c']. *)
+  | Pconst_untagged_char of char  (** Untagged character such as [#'c']. *)
   | Pconst_string of string * Location.t * string option
       (** Constant string such as ["constant"] or
           [{delim|other constant|delim}].
@@ -199,12 +201,21 @@ and core_type_desc =
 
            - As the {{!value_description.pval_type}[pval_type]} field of a
            {!value_description}.
+
+           - As the {!core_type} of a
+           {{!function_param_desc.Pparam_val}[Pparam_val]}.
+         *)
+  | Ptyp_newlayout of string loc list * core_type
+      (** [layout_ a b c. T]
+
+           Introduces locally abstract layouts into scope.
          *)
   | Ptyp_package of package_type  (** [(module S)]. *)
   | Ptyp_open of Longident.t loc * core_type (** [M.(T)] *)
   | Ptyp_quote of core_type (** [<[T]>] *)
   | Ptyp_splice of core_type (** [$T] *)
   | Ptyp_of_kind of jkind_annotation (** [(type : k)] *)
+  | Ptyp_repr of string loc list * core_type
   | Ptyp_extension of extension  (** [[%id]]. *)
 
 and arg_label = Asttypes.arg_label =
@@ -272,6 +283,8 @@ and pattern_desc =
 
            Other forms of interval are recognized by the parser
            but rejected by the type-checker. *)
+  | Ppat_unboxed_unit (** [#()] *)
+  | Ppat_unboxed_bool of bool (** [#false] or [#true] *)
   | Ppat_tuple of (string option * pattern) list * Asttypes.closed_flag
       (** [Ppat_tuple(pl, Closed)] represents
           - [(P1, ..., Pn)]       when [pl] is [(None, P1);...;(None, Pn)]
@@ -284,8 +297,6 @@ and pattern_desc =
           - If Closed, [n >= 2].
           - If Open, [n >= 1].
         *)
-  | Ppat_unboxed_unit  (** [#()] *)
-  | Ppat_unboxed_bool of bool  (** [#false] or [#true] *)
   | Ppat_unboxed_tuple of (string option * pattern) list * Asttypes.closed_flag
       (** Unboxed tuple patterns: [#(l1:P1, ..., ln:Pn)] is [([(Some
           l1,P1);...;(Some l2,Pn)], Closed)], and the labels are optional.  An
@@ -410,6 +421,8 @@ and expression_desc =
       (** [match E0 with P1 -> E1 | ... | Pn -> En] *)
   | Pexp_try of expression * case list
       (** [try E0 with P1 -> E1 | ... | Pn -> En] *)
+  | Pexp_unboxed_unit (** [#()] *)
+  | Pexp_unboxed_bool of bool (** [#false] or [#true] *)
   | Pexp_tuple of (string option * expression) list
       (** [Pexp_tuple(el)] represents
           - [(E1, ..., En)]
@@ -421,8 +434,6 @@ and expression_desc =
 
            Invariant: [n >= 2]
         *)
-  | Pexp_unboxed_unit  (** [#()] *)
-  | Pexp_unboxed_bool of bool  (** [#false] or [#true] *)
   | Pexp_unboxed_tuple of (string option * expression) list
       (** Unboxed tuple expressions: [Pexp_unboxed_tuple([(Some l1,P1);...;(Some
           l2,Pn)])] represents [#(l1:E1, ..., ln:En)], and the labels are
@@ -524,7 +535,6 @@ and expression_desc =
   | Pexp_extension of extension  (** [[%id]] *)
   | Pexp_unreachable  (** [.] *)
   | Pexp_stack of expression (** stack_ exp *)
-  | Pexp_borrow of expression (** borrow_ exp *)
   | Pexp_comprehension of comprehension_expression
     (** [[? BODY ...CLAUSES... ?]], where:
           - [?] is either [""] (list), [:] (immutable array), or [|] (array).
@@ -532,9 +542,11 @@ and expression_desc =
           - [CLAUSES] is a series of [comprehension_clause].
     *)
   | Pexp_overwrite of expression * expression (** overwrite_ exp with exp *)
+  | Pexp_quote of expression (** [<[E]>] *)
+  | Pexp_splice of expression (** [$E] *)
   | Pexp_hole (** _ *)
-  | Pexp_quote of expression (** runtime metaprogramming quotations <[E]> *)
-  | Pexp_splice of expression (** runtime metaprogramming splicing $(E) *)
+  | Pexp_borrow of expression
+    (** borrow_ exp *)
 
 and case =
     {
@@ -644,12 +656,6 @@ and function_constraint =
 and block_access =
   | Baccess_field of Longident.t loc
       (** [.foo] *)
-  | Baccess_array of mutable_flag * index_kind * expression
-      (** Mutable array accesses: [.(E)], [.L(E)], [.l(E)], [.n(E)]
-          Immutable array accesses: [.:(E)], [.:L(E)], [.:l(E)], [.:n(E)]
-
-          Indexed by [int], [int64#], [int32#], or [nativeint#], respectively.
-      *)
   | Baccess_block of mutable_flag * expression
       (** Access using another block index: [.idx_imm(E)], [.idx_mut(E)]
           (usually followed by unboxed accesses, to deepen the index).
@@ -700,6 +706,7 @@ and comprehension_expression =
 
 and value_description =
     {
+     pval_poly: bool; (** val poly_ *)
      pval_name: string loc;
      pval_type: core_type;
      pval_modalities : modalities;
@@ -872,6 +879,16 @@ and extension_constructor_kind =
        *)
   | Pext_rebind of Longident.t loc
   (** [Pext_rebind(D)] re-export the constructor [D] with the new name [C] *)
+
+and jkind_declaration =
+  {
+    pjkind_name : string loc;
+    pjkind_manifest : jkind_annotation option;
+    pjkind_attributes : attributes;
+    pjkind_loc : Location.t
+  }
+  (** [kind_ name] or [kind_ name = k] *)
+
 
 (** {1 Class language} *)
 (** {2 Type expressions for the class language} *)
@@ -1134,8 +1151,7 @@ and signature_item_desc =
       (** [class type ct1 = ... and ... and ctn = ...] *)
   | Psig_attribute of attribute  (** [[\@\@\@id]] *)
   | Psig_extension of extension * attributes  (** [[%%id]] *)
-  | Psig_kind_abbrev of string loc * jkind_annotation
-      (** [kind_abbrev_ name = k] *)
+  | Psig_jkind of jkind_declaration (** [kind_ name] or [kind_ name = k] *)
 
 and module_declaration =
     {
@@ -1219,12 +1235,16 @@ and with_constraint =
       (** [with module X.Y = Z] *)
   | Pwith_modtype of Longident.t loc * module_type
       (** [with module type X.Y = Z] *)
+  | Pwith_jkind of Longident.t loc * jkind_declaration
+      (** [with kind_ X.k = ...] *)
   | Pwith_modtypesubst of Longident.t loc * module_type
       (** [with module type X.Y := sig end] *)
   | Pwith_typesubst of Longident.t loc * type_declaration
       (** [with type X.t := ..., same format as [Pwith_type]] *)
   | Pwith_modsubst of Longident.t loc * Longident.t loc
       (** [with module X.Y := Z] *)
+  | Pwith_jkindsubst of Longident.t loc * jkind_declaration
+      (** [with kind_ X.k := ...] *)
 
 (** {2 Value expressions for the module language} *)
 
@@ -1300,8 +1320,7 @@ and structure_item_desc =
   | Pstr_include of include_declaration  (** [include ME] *)
   | Pstr_attribute of attribute  (** [[\@\@\@id]] *)
   | Pstr_extension of extension * attributes  (** [[%%id]] *)
-  | Pstr_kind_abbrev of string loc * jkind_annotation
-      (** [kind_abbrev_ name = k] *)
+  | Pstr_jkind of jkind_declaration (** [kind_ name] or [kind_ name = k] *)
 
 and value_constraint =
   | Pvc_constraint of {
@@ -1321,6 +1340,7 @@ and value_constraint =
 
 and value_binding =
   {
+    pvb_is_poly: bool; (** [let poly_ ] *)
     pvb_pat: pattern;
     pvb_expr: expression;
     pvb_constraint: value_constraint option;
@@ -1339,18 +1359,27 @@ and module_binding =
 (** Values of type [module_binding] represents [module X = ME] *)
 
 and jkind_annotation_desc =
-  | Default
-  | Abbreviation of Longident.t loc * string loc list
+  | Pjk_default
+  (* CR layouts-scannable: Scannable axes annotations only currently parse on
+     abbreviations, not on products/etc. It could be desirable for these
+     annotations to parse in more places with a warning (ex: for generated
+     code). This change should only be made if necessary (and after the
+     ignored-kind-modifier warning is enabled), since it adds confusion. *)
+  | Pjk_abbreviation of Longident.t loc * string loc list
+  (** [Pjk_abbreviation(A, [SA1; ...; SAn])] represents the layout
+      [A SA1 ... SAn] where [A] is some abbreviation (like [value])
+      and each [SAi] is a scannable axis annotation (like [non_pointer]) *)
   (* CR layouts v2.8: [mod] can have only layouts on the left, not
-     full kind annotations. We may want to narrow this type some. *)
-  | Mod of jkind_annotation * modes
-  | With of jkind_annotation * core_type * modalities
-  | Kind_of of core_type
-  | Product of jkind_annotation list
+     full kind annotations. We may want to narrow this type some.
+     Internal ticket 5085. *)
+  | Pjk_mod of jkind_annotation * modes
+  | Pjk_with of jkind_annotation * core_type * modalities
+  | Pjk_kind_of of core_type
+  | Pjk_product of jkind_annotation list
 
 and jkind_annotation =
-  { pjkind_loc : Location.t
-  ; pjkind_desc : jkind_annotation_desc
+  { pjka_loc : Location.t
+  ; pjka_desc : jkind_annotation_desc
   }
 
 (** {1 Toplevel} *)

@@ -475,7 +475,7 @@ let produce_and_backtrack lexbuf token back =
 
 (* Error report *)
 
-open Format
+open Format_doc
 
 let prepare_error loc = function
   | Illegal_character c ->

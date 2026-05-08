@@ -2,8 +2,8 @@ ocamlformat: ignoring "tests/modes_on_patterns.ml" (syntax error)
 File "tests/modes_on_patterns.ml", line 9, characters 17-19:
 9 |   let (pat : typ @@ mode) = x
                      ^^
-Error: Syntax error: ')' expected
+Error: Syntax error: ")" expected
 File "tests/modes_on_patterns.ml", line 9, characters 6-7:
 9 |   let (pat : typ @@ mode) = x
           ^
-  This '(' might be unmatched
+  This "(" might be unmatched

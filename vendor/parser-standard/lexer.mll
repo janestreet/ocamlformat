@@ -63,8 +63,9 @@ let keyword_table =
     "include", INCLUDE;
     "inherit", INHERIT;
     "initializer", INITIALIZER;
-    "kind_abbrev_", KIND_ABBREV;
+    "kind_", KIND;
     "kind_of_", KIND_OF;
+    "layout_", LAYOUT;
     "lazy", LAZY;
     "let", LET;
     "local_", LOCAL;
@@ -80,11 +81,13 @@ let keyword_table =
     "or", OR;
     "overwrite_", OVERWRITE;
 (*  "parser", PARSER; *)
+    "poly_", POLY;
     "private", PRIVATE;
     "rec", REC;
+    "repr_", REPR;
     "sig", SIG;
-    "borrow_", BORROW;
     "stack_", STACK;
+    "borrow_", BORROW;
     "struct", STRUCT;
     "then", THEN;
     "to", TO;
@@ -494,9 +497,21 @@ let produce_and_backtrack lexbuf token back =
   lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - back };
   token
 
+let char ~maybe_hash lit =
+  match maybe_hash with
+  | "#" -> HASH_CHAR (lit)
+  | "" -> CHAR (lit)
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+
+let skip_hash ~maybe_hash =
+  match maybe_hash with
+  | "#" -> 1
+  | "" -> 0
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+
 (* Error report *)
 
-open Format
+open Format_doc
 
 let prepare_error loc = function
   | Illegal_character c ->
@@ -716,23 +731,32 @@ rule token = parse
         let s, loc = wrap_string_lexer (quoted_string delim) lexbuf in
         let idloc = compute_quoted_string_idloc orig_loc 3 id in
         QUOTED_STRING_ITEM (id, idloc, s, loc, Some delim) }
-  | "\'" newline "\'"
+  | ('#'? as maybe_hash)
+    "\'" newline "\'"
       { update_loc lexbuf None 1 false 1;
         (* newline is ('\013'* '\010') *)
-        CHAR '\n' }
-  | "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
-      { CHAR c }
-  | "\'\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) "\'"
-      { CHAR (char_for_backslash c) }
-  | "\'\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] "\'"
-      { CHAR(char_for_decimal_code lexbuf 2) }
-  | "\'\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] "\'"
-      { CHAR(char_for_octal_code lexbuf 3) }
-  | "\'\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "\'"
-      { CHAR(char_for_hexadecimal_code lexbuf 3) }
-  | "\'" ("\\" [^ '#'] as esc)
+        char ~maybe_hash '\n' }
+  | ('#'? as maybe_hash)
+    "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
+      { char ~maybe_hash c }
+  | ('#'? as maybe_hash)
+    "\'\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) "\'"
+      { char ~maybe_hash (char_for_backslash c) }
+  | ('#'? as maybe_hash)
+    "\'\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] "\'"
+      { char ~maybe_hash
+          (char_for_decimal_code lexbuf (2 + skip_hash ~maybe_hash)) }
+  | ('#'? as maybe_hash)
+    "\'\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] "\'"
+      { char ~maybe_hash
+        (char_for_octal_code lexbuf (3 + skip_hash ~maybe_hash)) }
+  | ('#'? as maybe_hash)
+    "\'\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "\'"
+      { char ~maybe_hash
+        (char_for_hexadecimal_code lexbuf (3 + skip_hash ~maybe_hash)) }
+  | '#'? "\'" ("\\" [^ '#'] as esc)
       { error lexbuf (Illegal_escape (esc, None)) }
-  | "\'\'"
+  | '#'? "\'\'"
       { error lexbuf Empty_character_literal }
   | "(*"
       { let s, loc = wrap_comment_lexer comment lexbuf in
@@ -764,14 +788,11 @@ rule token = parse
           DOCSTRING(Docstrings.docstring "" (Location.curr lexbuf))
         else
           COMMENT (stars, Location.curr lexbuf) }
-  | "*)"
-      { let loc = Location.curr lexbuf in
-        Location.prerr_warning loc Warnings.Comment_not_end;
-        lexbuf.Lexing.lex_curr_pos <- lexbuf.Lexing.lex_curr_pos - 1;
-        let curpos = lexbuf.lex_curr_p in
-        lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - 1 };
-        STAR
-      }
+  | "*)" {
+      let loc = Location.curr lexbuf in
+      Location.prerr_warning loc Warnings.Comment_not_end;
+      produce_and_backtrack lexbuf STAR 1
+    }
   | "#"
       { if not (at_beginning_of_line lexbuf.lex_start_p)
         then HASH
@@ -787,6 +808,8 @@ rule token = parse
   | "#true"  { HASHTRUE }
   | "#(" { HASHLPAREN }
   | "#{" { HASHLBRACE }
+  | "#false" { HASHFALSE }
+  | "#true" { HASHTRUE }
   | "*"  { STAR }
   | ","  { COMMA }
   | "->" { MINUSGREATER }
@@ -926,6 +949,28 @@ and directive already_consumed = parse
                 directive_error lexbuf ("unknown syntax mode " ^ mode)
                   ~already_consumed ~directive:"syntax"
         )
+      }
+  | "syntax" [' ' '\t']+ (lowercase identchar* as mode) [' ' '\t']+
+    (lowercase identchar* as toggle) [^ '\010' '\013']*
+      { let toggle =
+          match toggle with
+          | "on" -> true
+          | "off" -> false
+          | _ ->
+              directive_error lexbuf
+                ("syntax directive can only be toggled on or off; "
+                 ^ toggle ^ " not recognized")
+                ~already_consumed ~directive:"syntax"
+        in
+        match mode with
+        | "quotations" ->
+            Syntax_mode.quotations := toggle;
+            let tok = token lexbuf in
+            enqueue_token_from_end_of_lexbuf_window lexbuf SEMISEMI ~len:0;
+            tok
+        | _ ->
+            directive_error lexbuf ("unknown syntax mode " ^ mode)
+              ~already_consumed ~directive:"syntax"
       }
 and comment = parse
     "(*"

@@ -1,3 +1,5 @@
+module Format_doc = Format_doc
+
 module List : sig
   include module type of struct include List end
 
@@ -36,19 +38,32 @@ module Misc : sig
     end
   end
 
+  module Style : sig
+    include module type of struct include Misc.Style end
+
+    val as_inline_code: 'a Format_doc.printer -> 'a Format_doc.printer
+    val inline_code: string Format_doc.printer
+  end
+
   (** Propositional equality *)
   type (_, _) eq = Refl : ('a, 'a) eq
 
-  val print_see_manual : Format.formatter -> int list -> unit
+  val print_see_manual : int list Format_doc.printer
 end
 
 module Clflags : sig
-  val include_dirs : string list ref
+  type visible_include =
+    { path : string;
+      cmx_guaranteed : bool;
+    }
+
+  val include_dirs : visible_include list ref
   val hidden_include_dirs : string list ref
   val debug : bool ref
   val unsafe : bool ref
   val open_modules : string list ref
   val absname : bool ref
+  val locs : bool ref
   val use_threads : bool ref
   val principal : bool ref
   val recursive_types : bool ref
@@ -68,9 +83,17 @@ module Load_path : sig
   type auto_include_callback =
     (dir -> string -> string option) -> string -> string
   type paths =
-    { visible : string list;
+    { visible : Clflags.visible_include list;
       hidden : string list }
-  val init : auto_include:auto_include_callback -> visible:string list -> hidden:string list -> unit
+  val init :
+    auto_include:auto_include_callback -> visible:Clflags.visible_include list ->
+    hidden:string list -> unit
   val get_paths : unit -> paths
   val auto_include_otherlibs : (string -> unit) -> auto_include_callback
+end
+
+module Pprintast : sig
+  module Doc : sig
+    val tyvar : string Format_doc.printer
+  end
 end

@@ -35,8 +35,6 @@ type constructor_usage_warning =
   | Only_exported_private
 
 type upstream_compat_warning =
-  | Immediate_erasure of string (* example: annotation in
-      [type ('a : immediate) t = int] can't be erased. *)
   | Non_value_sort of string (* example: abstract type
       [t : float64] is marked as unboxed. *)
   | Unboxed_attribute of string (* example: unboxed attribute
@@ -44,6 +42,10 @@ type upstream_compat_warning =
   | Immediate_void_variant
       (* example: [type t = A of void] is immediate, but
          not after erasure, which boxes void, so it can't be erased. *)
+  | Separability_check
+      (* example: [type packed = | Mk of 'a t [@@unboxed]]
+         where ['a t : value mod non_float]. *)
+  | Unpacked_attribute
 
 type name_out_of_scope_warning =
   | Name of string
@@ -67,7 +69,7 @@ type t =
   | Implicit_public_methods of string list  (* 15 *)
   | Unerasable_optional_argument            (* 16 *)
   | Undeclared_virtual_method of string     (* 17 *)
-  | Not_principal of string                 (* 18 *)
+  | Not_principal of Format_doc.t           (* 18 *)
   | Non_principal_labels of string          (* 19 *)
   | Ignored_extra_argument                  (* 20 *)
   | Nonreturning_statement                  (* 21 *)
@@ -108,7 +110,9 @@ type t =
   | Inlining_impossible of string           (* 55 *)
   | Unreachable_case                        (* 56 *)
   | Ambiguous_var_in_pattern_guard of string list (* 57 *)
-  | No_cmx_file of string                   (* 58 *)
+  | No_cmx_file of
+      { missing_extension : string;
+        module_name : string }              (* 58 *)
   | Flambda_assignment_to_non_mutable_value (* 59 *)
   | Unused_module of string                 (* 60 *)
   | Unboxable_type_in_prim_decl of string   (* 61 *)
@@ -125,11 +129,16 @@ type t =
   | Unused_tmc_attribute                    (* 71 *)
   | Tmc_breaks_tailcall                     (* 72 *)
   | Generative_application_expects_unit     (* 73 *)
+  (* Oxcaml specific warnings: numbers should go down from 199 *)
+  | Redundant_kind_modifier of string       (* 183 *)
+  | Ignored_kind_modifier of string * string list (* 184 *)
+  | Overridden_kind_modifier of string      (* 185 *)
   | Unmutated_mutable of string             (* 186 *)
   | Incompatible_with_upstream of upstream_compat_warning (* 187 *)
   | Unerasable_position_argument            (* 188 *)
   | Unnecessarily_partial_tuple_pattern     (* 189 *)
   | Probe_name_too_long of string           (* 190 *)
+  | Unused_kind_declaration of string       (* 191 *)
   | Zero_alloc_all_hidden_arrow of string   (* 198 *)
   | Unchecked_zero_alloc_attribute          (* 199 *)
   | Unboxing_impossible                     (* 210 *)
@@ -140,6 +149,10 @@ type t =
       overriden_by : string;
     } (* 213 *)
   | Atomic_float_record_boxed               (* 214 *)
+  | Implied_attribute of { implying: string; implied : string} (* 215 *)
+  | Use_during_borrowing                    (* 216 *)
+  | Useless_lpoly                           (* 217 *)
+  | Lpoly_in_letrec                         (* 218 *)
 
 (* If you remove a warning, leave a hole in the numbering.  NEVER change
    the numbers of existing warnings.
@@ -221,17 +234,25 @@ let number = function
   | Unused_tmc_attribute -> 71
   | Tmc_breaks_tailcall -> 72
   | Generative_application_expects_unit -> 73
+  | Redundant_kind_modifier _ -> 183
+  | Ignored_kind_modifier _ -> 184
+  | Overridden_kind_modifier _ -> 185
   | Unmutated_mutable _ -> 186
   | Incompatible_with_upstream _ -> 187
   | Unerasable_position_argument -> 188
   | Unnecessarily_partial_tuple_pattern -> 189
   | Probe_name_too_long _ -> 190
+  | Unused_kind_declaration _ -> 191
   | Zero_alloc_all_hidden_arrow _ -> 198
   | Unchecked_zero_alloc_attribute -> 199
   | Unboxing_impossible -> 210
   | Mod_by_top _ -> 211
   | Modal_axis_specified_twice _ -> 213
   | Atomic_float_record_boxed -> 214
+  | Implied_attribute _ -> 215
+  | Use_during_borrowing -> 216
+  | Useless_lpoly -> 217
+  | Lpoly_in_letrec -> 218
 ;;
 (* DO NOT REMOVE the ;; above: it is used by
    the testsuite/ests/warnings/mnemonics.mll test to determine where
@@ -577,6 +598,24 @@ let descriptions = [
     description = "A generative functor is applied to an empty structure \
                    (struct end) rather than to ().";
     since = since 5 1 };
+  { number = 183;
+    names = ["redundant-kind-modifier"];
+    (* CR layouts-scannable: As more axes are added, this description (and
+       the following description) should be updated in tandem. *)
+    description = "A nullability or separability axis annotation appears on \
+                   a kind that already implies the annotation.";
+    since = since 5 2 };
+  { number = 184;
+    names = ["ignored-kind-modifier"];
+    (* CR layouts-scannable: As more axes are added, this description (and
+       the following description) should be updated in tandem. *)
+    description = "A nullability or separability axis annotation appears on \
+                   a non-value, non-any layout.";
+    since = since 5 2 };
+  { number = 185;
+    names = ["overridden-kind-modifier"];
+    description = "A kind modifier is present but overridden later.";
+    since = since 5 2 };
   { number = 186;
     names = ["unmutated-mutable"];
     description =
@@ -600,6 +639,10 @@ let descriptions = [
     names = ["probe-name-too-long"];
     description = "Probe name must be at most 100 characters long.";
     since = since 4 14 };
+  { number = 191;
+    names = ["unused-kind-declaration"];
+    description = "Unused kind declaration.";
+    since = since 5 2 };
   { number = 198;
     names = ["zero-alloc-all-hidden-arrow"];
     description = "A declaration whose type is an alias of a function type \
@@ -623,6 +666,14 @@ let descriptions = [
     description = "Record contains atomic float fields, preventing the flat\n\
                    float record optimization.";
     since = since 4 14 };
+  { number = 215;
+    names = ["implied-attribute"];
+    description = "An attribute is unused because it is implied by another.";
+    since = since 4 14 };
+  { number = 216;
+    names = ["use-during-borrowing"];
+    description = "Use of a value during an active borrow.";
+    since = since 5 3 };
 ]
 
 let name_to_number =
@@ -957,7 +1008,7 @@ let parse_options errflag s =
   alerts
 
 (* If you change these, don't forget to change them in man/ocamlc.m *)
-let defaults_w = "+a-4-7-9-27-29-30-32..42-44-45-48-50-60-66..70"
+let defaults_w = "+a-4-7-9-27-29-30-32..42-44-45-48-50-60-66..70-183..185"
 let defaults_warn_error = "-a"
 let default_disabled_alerts = [ "unstable"; "unsynchronized_access" ]
 
@@ -1021,7 +1072,9 @@ let message = function
       ^ String.concat " " l ^ "."
   | Unerasable_optional_argument -> "this optional argument cannot be erased."
   | Undeclared_virtual_method m -> "the virtual method "^m^" is not declared."
-  | Not_principal s -> s^" is not principal."
+  | Not_principal msg ->
+      Format_doc.asprintf "%a is not principal."
+        Format_doc.pp_doc msg
   | Non_principal_labels s -> s^" without principality."
   | Ignored_extra_argument -> "this argument will not be used by the function."
   | Nonreturning_statement ->
@@ -1139,7 +1192,7 @@ let message = function
         "Code should not depend on the actual values of\n\
          this constructor's arguments. They are only for information\n\
          and may change in future versions. %a"
-        Misc.print_see_manual ref_manual
+        (Format_doc.compat Misc.print_see_manual) ref_manual
   | Unreachable_case ->
       "this match case is unreachable.\n\
        Consider replacing it with a refutation case '<pat> -> .'"
@@ -1170,11 +1223,12 @@ let message = function
          %s.\n\
          Only the first match will be used to evaluate the guard expression.\n\
          %a"
-        vars_explanation Misc.print_see_manual ref_manual
-  | No_cmx_file name ->
+        vars_explanation (Format_doc.compat Misc.print_see_manual) ref_manual
+  | No_cmx_file { missing_extension; module_name } ->
       Printf.sprintf
-        "no cmx file was found in path for module %s, \
-         and its interface was not compiled with -opaque" name
+        "no %s file was found in path for module %s, \
+         and its interface was not compiled with -opaque"
+        missing_extension module_name
   | Flambda_assignment_to_non_mutable_value ->
       "A potential assignment to a non-mutable value was detected \n\
         in this source file.  Such assignments may generate incorrect code \n\
@@ -1236,12 +1290,15 @@ let message = function
   | Generative_application_expects_unit ->
       "A generative functor\n\
        should be applied to '()'; using '(struct end)' is deprecated."
-  | Unmutated_mutable v -> "mutable variable " ^ v ^ " was never mutated."
-  | Incompatible_with_upstream (Immediate_erasure id)  ->
+  | Redundant_kind_modifier abbrev ->
+      "This kind modifier is already implied by the kind \"" ^ abbrev ^ "\"."
+  | Ignored_kind_modifier (abbrev, modifiers) ->
       Printf.sprintf
-      "Usage of layout immediate/immediate64 in %s \n\
-       can't be erased for compatibility with upstream OCaml."
-      id
+      "The kind modifier(s) \"%s\" have no effect on the kind \"%s\"."
+      (String.concat " " modifiers) abbrev
+  | Overridden_kind_modifier overridden_by ->
+      "This kind modifier is overridden by \"" ^ overridden_by ^ "\" later."
+  | Unmutated_mutable v -> "mutable variable " ^ v ^ " was never mutated."
   | Incompatible_with_upstream (Non_value_sort layout) ->
       Printf.sprintf
       "External declaration here is not upstream compatible. \n\
@@ -1259,6 +1316,11 @@ let message = function
        because all its constructors have all-void arguments, but after \n\
        erasure for upstream compatibility, void is no longer zero-width, \n\
        so it won't be immediate."
+  | Incompatible_with_upstream Separability_check ->
+      "This type relies on OxCaml's extended separability checking \n\
+       and would not be accepted by upstream OCaml."
+  | Incompatible_with_upstream Unpacked_attribute ->
+      "[@unpacked] is not supported by upstream OCaml."
   | Unerasable_position_argument -> "this position argument cannot be erased."
   | Unnecessarily_partial_tuple_pattern ->
       "This tuple pattern\n\
@@ -1268,6 +1330,8 @@ let message = function
       Printf.sprintf
         "This probe name is too long: `%s'. \
          Probe names must be at most 100 characters long." name
+  | Unused_kind_declaration s ->
+      "unused kind " ^ s ^ "."
   | Zero_alloc_all_hidden_arrow s ->
       Printf.sprintf
       "The type of this item is an\n\
@@ -1300,6 +1364,18 @@ let message = function
        float fields, which prevents the float record optimization. The\n\
        fields of this record will be boxed instead of being\n\
        represented as a flat float array."
+  | Implied_attribute { implying; implied } ->
+    Printf.sprintf
+      "attribute [@%s] is unused because it is implied by [@%s]"
+      implied implying
+  | Use_during_borrowing ->
+      "This value is used while being borrowed."
+  | Useless_lpoly ->
+      "This binding has no layout variables, so \"poly_\" has no effect. \
+       Consider using a regular \"let\" instead."
+  | Lpoly_in_letrec ->
+      "\"poly_\" has no effect in recursive bindings, which do not support \
+       layout polymorphism. Consider using a regular \"let rec\" instead."
 ;;
 
 let nerrors = ref 0

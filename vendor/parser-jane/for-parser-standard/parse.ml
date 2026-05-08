@@ -138,7 +138,7 @@ let prepare_error err =
       Location.errorf ~loc
         "In this scoped type, variable %a \
          is reserved for the local type %a."
-        (Style.as_inline_code Pprintast.tyvar) var
+        (Style.as_inline_code Pprintast.Doc.tyvar) var
         Style.inline_code var
   | Other loc ->
       Location.errorf ~loc "Syntax error"
@@ -148,20 +148,20 @@ let prepare_error err =
   | Invalid_package_type (loc, ipt) ->
       let invalid ppf ipt = match ipt with
         | Syntaxerr.Parameterized_types ->
-            Format.fprintf ppf "parametrized types are not supported"
+            Format_doc.fprintf ppf "parametrized types are not supported"
         | Constrained_types ->
-            Format.fprintf ppf "constrained types are not supported"
+            Format_doc.fprintf ppf "constrained types are not supported"
         | Private_types ->
-            Format.fprintf ppf  "private types are not supported"
+            Format_doc.fprintf ppf  "private types are not supported"
         | Not_with_type ->
-            Format.fprintf ppf "only %a constraints are supported"
+            Format_doc.fprintf ppf "only %a constraints are supported"
               Style.inline_code "with type t ="
         | Neither_identifier_nor_with_type ->
-            Format.fprintf ppf
+            Format_doc.fprintf ppf
               "only module type identifier and %a constraints are supported"
               Style.inline_code "with type"
         | Misplaced_attribute ->
-            Format.fprintf ppf "an attribute cannot go here"
+            Format_doc.fprintf ppf "an attribute cannot go here"
       in
       Location.errorf ~loc "invalid package type: %a" invalid ipt
   | Removed_string_set loc ->
@@ -178,10 +178,11 @@ let prepare_error err =
   | Malformed_instance_identifier loc ->
       Location.errorf ~loc
         "Syntax error: Unexpected in module instance"
-  | Quotation_reserved (loc, symb) ->
+  | Unspliceable loc ->
       Location.errorf ~loc
-        "Syntax error: `%s` is reserved for use in runtime metaprogramming."
-        symb
+        "Syntax error: expression cannot be spliced.\n\
+         @{<hint>Hint@}: consider putting parentheses around the \
+         expression."
   | Let_mutable_not_allowed_at_structure_level loc ->
       Location.errorf ~loc
         "Syntax error: Mutable let bindings are not allowed \
@@ -198,11 +199,7 @@ let prepare_error err =
          Style.inline_code "let mutable f = fun x -> .."
   | Block_access_bad_paren loc ->
       Location.errorf ~loc
-        "Syntax error: A parenthesis here can only follow one of: \n  \
-         %a, %a, %a, %a, %a, %a, %a, %a, %a, %a."
-        Style.inline_code "." Style.inline_code ".L" Style.inline_code ".l"
-        Style.inline_code ".n" Style.inline_code ".:" Style.inline_code ".:L"
-        Style.inline_code ".:l" Style.inline_code ".:n"
+        "Syntax error: A parenthesis here can only follow %a or %a."
         Style.inline_code ".idx_imm" Style.inline_code ".idx_mut"
 
 let () =
