@@ -1,0 +1,195 @@
+(* Top-level *)
+
+(* Simple substitutions *)
+
+module type S1 = S
+
+module type S1' = S
+
+module type S2 = S
+
+module type S2' = S
+
+(* Multiple kind substitutions *)
+
+module type S3 = S
+
+module type S3' = S
+
+(* Mix of [=] and [:=] kind substitutions *)
+module type S4 = S
+
+module type S4' = S
+
+(* Combined with type constraints *)
+
+module type S5 = S with type t = int
+
+module type S5' = S with type t := int
+
+module type S6 = S with type t = int
+
+module type S6' = S with type t := int
+
+(* Combined with module substitutions *)
+
+module type S7 = S with module M = N
+
+module type S7' = S with module M := N
+
+(* Combined with module type substitutions *)
+
+module type S8 = S with module type T = T2
+
+module type S8' = S with module type T := T2
+
+(* All four kinds of substitutions on one module type *)
+
+module type S9 = S with type t = int and module M = N and module type T = T2
+
+module type S9' =
+  S with type t := int and module M := N and module type T := T2
+
+(* Mixed [=] and [:=] across substitution kinds *)
+module type S10 =
+  S with type t = int and module M := N and module type T = T2
+
+(* Longident on lhs *)
+
+module type S11 = S
+
+module type S11' = S
+
+(* Various rhs kind expressions *)
+
+module type S12 = S
+
+module type S12' = S
+
+module type S13 = S
+
+module type S13' = S
+
+module type S14 = S
+
+module type S14' = S
+
+module type S15 = S
+
+module type S15' = S
+
+(* Long lines that break *)
+
+module type S16 = S
+
+module type S16' = S
+
+module type S17 = S with type t = int -> string
+
+module type S17' = S with type t := int -> string
+
+(* Attributes on the surrounding module type *)
+
+module type S18 = S [@@deprecated]
+
+module type S18' = S [@@deprecated]
+
+module type S19 = S [@@deprecated]
+
+module type S19' = S [@@deprecated]
+
+module type S20 = S
+[@@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
+module type S20' = S
+[@@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
+module type S26 = S [@deprecated]
+
+module type S26' = S [@deprecated]
+
+module type S27 = S [@deprecated] [@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
+module type S27' = S [@deprecated] [@warning "-32"]
+[@@some_long_attribute_name_that_should_make_this_line_break]
+
+(* Now with comments *)
+
+module type S21 = S (* 1 *)
+
+(* 2 *)
+(* 3 *)
+(* 4 *)
+
+module type S21' = S (* 1 *)
+
+(* 2 *)
+(* 3 *)
+(* 4 *)
+
+module type S22 = S (* a *)
+
+(* b *)
+(* c *)
+(* d *)
+(* e *)
+(* f *)
+
+module type S22' = S (* a *)
+
+(* b *)
+(* c *)
+(* d *)
+(* e *)
+(* f *)
+
+module type S23 = S with type t = (* tc *) int
+(* and *)
+(* kc *)
+
+module type S23' = S with type t := (* tc *) int
+(* and *)
+(* kc *)
+
+module type S24 = S (* paren *)
+
+(* k1 *)
+(* k2 *)
+(* m1 *)
+(* m2 *)
+
+module type S24' = S (* paren *)
+
+(* k1 *)
+(* k2 *)
+(* m1 *)
+(* m2 *)
+
+module type S25 = S (* before lid *)
+
+(* after lid *)
+(* manifest *)
+
+module type S25' = S (* before lid *)
+
+(* after lid *)
+(* manifest *)
+
+(* [@@ocamlformat "disable"] preserves source formatting *)
+
+module type S_disabled = S with kind_     k     =
+        (kkkkkkkk
+       & kind_of_ ttttttttttt
+              & _)
+   mod    mmmmm     mmmmmm
+[@@ocamlformat "disable"]
+
+module type S_disabled' = S with kind_     k     :=
+        (kkkkkkkk
+       & kind_of_ ttttttttttt
+              & _)
+   mod    mmmmm     mmmmmm
+[@@ocamlformat "disable"]

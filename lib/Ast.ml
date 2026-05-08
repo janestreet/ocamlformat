@@ -440,7 +440,7 @@ module Structure_item = struct
         || List.exists ~f:Attr.is_doc pmod_attributes
     | Pstr_value {pvbs_bindings= []; _}
      |Pstr_type (_, [])
-     |Pstr_kind_abbrev _
+     |Pstr_jkind _
      |Pstr_recmodule []
      |Pstr_class_type []
      |Pstr_class [] ->
@@ -542,7 +542,7 @@ module Signature_item = struct
         Ext_attrs.has_doc ea || (List.exists ~f:Attr.is_doc) atrs
     | Psig_type (_, [])
      |Psig_typesubst []
-     |Psig_kind_abbrev (_, _)
+     |Psig_jkind _
      |Psig_recmodule []
      |Psig_class_type []
      |Psig_class []
@@ -731,7 +731,7 @@ module T = struct
     | Pld of payload
     | Typ of core_type
     | Td of type_declaration
-    | Kab of kind_abbreviation
+    | Kd of jkind_declaration
     | Tyv of ty_var
     | Cty of class_type
     | Pat of pattern
@@ -749,7 +749,7 @@ module T = struct
     | Clf of class_field
     | Ctf of class_type_field
     | Tli of toplevel_item
-    | Jkd of jkind_annotation
+    | Ka of jkind_annotation
     | Top
     | Rep
 
@@ -757,7 +757,7 @@ module T = struct
     | Pld l -> Format.fprintf fs "Pld:@\n%a" Printast.payload l
     | Typ t -> Format.fprintf fs "Typ:@\n%a" Printast.core_type t
     | Td t -> Format.fprintf fs "Td:@\n%a" Printast.type_declaration t
-    | Kab k -> Format.fprintf fs "Kab:@\n%a" (Printast.kind_abbreviation 0) k
+    | Kd k -> Format.fprintf fs "Kd:@\n%a" (Printast.jkind_declaration 0) k
     | Tyv v -> Format.fprintf fs "Tyv:@\n%a" (Printast.typevar 0) v
     | Pat p -> Format.fprintf fs "Pat:@\n%a" Printast.pattern p
     | Exp e -> Format.fprintf fs "Exp:@\n%a" Printast.expression e
@@ -782,8 +782,7 @@ module T = struct
         Format.fprintf fs "Dir:@\n%a" Printast.top_phrase (Ptop_dir d)
     | Tli (`Lexer l) ->
         Format.fprintf fs "Lex:@\n%a" Printast.top_phrase (Ptop_lex l)
-    | Jkd jkd ->
-        Format.fprintf fs "Jkd:@\n%a" (Printast.jkind_annotation 0) jkd
+    | Ka ka -> Format.fprintf fs "Ka:@\n%a" (Printast.jkind_annotation 0) ka
     | Top -> Format.pp_print_string fs "Top"
     | Rep -> Format.pp_print_string fs "Rep"
 end
@@ -798,7 +797,7 @@ let attributes = function
   | Pld _ -> []
   | Typ x -> x.ptyp_attributes
   | Td x -> x.ptype_attributes
-  | Kab _ -> []
+  | Kd x -> x.pjkind_attributes
   | Tyv _ -> []
   | Cty x -> x.pcty_attributes
   | Pat x -> x.ppat_attributes
@@ -817,14 +816,14 @@ let attributes = function
   | Ctf x -> x.pctf_attributes
   | Top -> []
   | Tli _ -> []
-  | Jkd _ -> []
+  | Ka _ -> []
   | Rep -> []
 
 let location = function
   | Pld _ -> Location.none
   | Typ x -> x.ptyp_loc
   | Td x -> x.ptype_loc
-  | Kab _ -> Location.none
+  | Kd x -> x.pjkind_loc
   | Tyv _ -> Location.none
   | Cty x -> x.pcty_loc
   | Pat x -> x.ppat_loc
@@ -844,7 +843,7 @@ let location = function
   | Tli (`Item x) -> x.pstr_loc
   | Tli (`Directive x) -> x.pdir_loc
   | Tli (`Lexer x) -> x.plex_loc
-  | Jkd _ -> Location.none
+  | Ka x -> x.pjka_loc
   | Top -> Location.none
   | Rep -> Location.none
 
@@ -888,6 +887,10 @@ module rec In_ctx : sig
 
   val sub_td : ctx:T.t -> type_declaration -> type_declaration xt
 
+  val sub_jkind : ctx:T.t -> jkind_annotation -> jkind_annotation xt
+
+  val sub_kd : ctx:T.t -> jkind_declaration -> jkind_declaration xt
+
   val sub_cty : ctx:T.t -> class_type -> class_type xt
 
   val sub_pat : ctx:T.t -> pattern -> pattern xt
@@ -921,6 +924,10 @@ end = struct
   let sub_typ ~ctx typ = check parenze_typ {ctx; ast= typ}
 
   let sub_td ~ctx td = {ctx; ast= td}
+
+  let sub_jkind ~ctx ka = {ctx; ast= ka}
+
+  let sub_kd ~ctx kd = {ctx; ast= kd}
 
   let sub_cty ~ctx cty = {ctx; ast= cty}
 
@@ -1079,7 +1086,7 @@ end = struct
                  List.exists ld1N ~f:(fun {pld_type; _} -> typ == pld_type)
              | _ -> false )
           || Option.exists ptype_manifest ~f )
-    | Kab _ -> assert false
+    | Kd _ -> assert false
     | Tyv _ -> assert false
     | Cty {pcty_desc; _} ->
         assert (
@@ -1213,11 +1220,12 @@ end = struct
           | Pctf_inherit _ -> false
           | Pctf_attribute _ -> false
           | Pctf_extension _ -> false )
-    | Jkd j ->
+    | Ka {pjka_desc; _} ->
         assert (
-          match j with
-          | Kind_of t | With (_, t, _) -> t == typ
-          | Default | Abbreviation _ | Mod _ | Product _ -> false )
+          match pjka_desc with
+          | Pjk_kind_of t | Pjk_with (_, t, _) -> t == typ
+          | Pjk_default | Pjk_abbreviation _ | Pjk_mod _ | Pjk_product _ ->
+              false )
     | Top | Tli _ | Rep -> assert false
 
   let assert_check_typ xtyp =
@@ -1272,7 +1280,7 @@ end = struct
     | Tli _ -> assert false
     | Typ _ -> assert false
     | Td _ -> assert false
-    | Kab _ -> assert false
+    | Kd _ -> assert false
     | Tyv _ -> assert false
     | Pat _ -> assert false
     | Cl ctx ->
@@ -1296,7 +1304,7 @@ end = struct
           | Pctf_constraint _ -> false
           | Pctf_attribute _ -> false
           | Pctf_extension _ -> false )
-    | Jkd _ -> assert false
+    | Ka _ -> assert false
     | Mty _ -> assert false
     | Mod _ -> assert false
     | Rep -> assert false
@@ -1335,7 +1343,7 @@ end = struct
     | Tli _ -> assert false
     | Typ _ -> assert false
     | Td _ -> assert false
-    | Kab _ -> assert false
+    | Kd _ -> assert false
     | Tyv _ -> assert false
     | Pat _ -> assert false
     | Cl {pcl_desc; _} ->
@@ -1356,7 +1364,7 @@ end = struct
     | Mty _ -> assert false
     | Mod _ -> assert false
     | Rep -> assert false
-    | Jkd _ -> assert false
+    | Ka _ -> assert false
 
   let assert_check_cl xcl =
     let dump {ctx; ast= cl} = dump ctx (Cl cl) in
@@ -1416,7 +1424,7 @@ end = struct
       | Ptyp_extension (_, ext) -> assert (check_extensions ext)
       | _ -> assert false )
     | Td _ -> assert false
-    | Kab _ -> assert false
+    | Kd _ -> assert false
     | Tyv _ -> assert false
     | Pat ctx -> (
         let f pI = pI == pat in
@@ -1513,7 +1521,7 @@ end = struct
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
     | Ctf _ -> assert false
-    | Jkd _ | Top | Tli _ | Rep -> assert false
+    | Ka _ | Top | Tli _ | Rep -> assert false
 
   let assert_check_pat xpat =
     let dump {ctx; ast= pat} = dump ctx (Pat pat) in
@@ -1637,7 +1645,7 @@ end = struct
             List.exists pvbs_bindings ~f:(fun {pvb_expr; _} ->
                 pvb_expr == exp ) )
       | Pstr_extension ((_, ext), _) -> assert (check_extensions ext)
-      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_kind_abbrev _
+      | Pstr_primitive _ | Pstr_type _ | Pstr_typext _ | Pstr_jkind _
        |Pstr_exception _ | Pstr_module _ | Pstr_recmodule _
        |Pstr_modtype _ | Pstr_open _ | Pstr_class _ | Pstr_class_type _
        |Pstr_include _ | Pstr_attribute _ ->
@@ -1693,8 +1701,8 @@ end = struct
           | Pcf_inherit _ -> false
           | Pcf_constraint _ -> false
           | Pcf_attribute _ -> false )
-    | Jkd _ | Mod _ | Top | Tli _ | Typ _ | Tyv _ | Pat _ | Mty _ | Sig _
-     |Td _ | Kab _ | Rep ->
+    | Ka _ | Mod _ | Top | Tli _ | Typ _ | Tyv _ | Pat _ | Mty _ | Sig _
+     |Td _ | Kd _ | Rep ->
         assert false
 
   let assert_check_exp xexp =
@@ -1897,9 +1905,8 @@ end = struct
       match pcl_desc with Pcl_apply _ -> Some (Apply, Non) | _ -> None )
     | { ctx= Exp _
       ; ast=
-          ( Pld _ | Top | Tli _ | Kab _ | Tyv _ | Pat _ | Cl _ | Mty _
-          | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _
-            ) }
+          ( Pld _ | Top | Tli _ | Kd _ | Tyv _ | Pat _ | Cl _ | Mty _ | Mod _
+          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Ka _ ) }
      |{ctx= Fp _; ast= _}
      |{ctx= _; ast= Fp _}
      |{ctx= Vc _; ast= _}
@@ -1910,16 +1917,16 @@ end = struct
      |{ctx= _; ast= Td _}
      |{ ctx= Cl _
       ; ast=
-          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Mty _ | Mod _
-          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Jkd _ ) }
+          ( Pld _ | Top | Tli _ | Tyv _ | Kd _ | Pat _ | Mty _ | Mod _
+          | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Ka _ ) }
      |{ ctx=
-          ( Pld _ | Top | Tli _ | Typ _ | Tyv _ | Kab _ | Cty _ | Pat _
+          ( Pld _ | Top | Tli _ | Typ _ | Tyv _ | Kd _ | Cty _ | Pat _
           | Mty _ | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _
-          | Jkd _ )
+          | Ka _ )
       ; ast=
-          ( Pld _ | Top | Tli _ | Tyv _ | Kab _ | Pat _ | Exp _ | Cl _
-          | Mty _ | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _
-          | Jkd _ ) } ->
+          ( Pld _ | Top | Tli _ | Tyv _ | Kd _ | Pat _ | Exp _ | Cl _ | Mty _
+          | Mod _ | Sig _ | Str _ | Clf _ | Ctf _ | Rep | Mb _ | Md _ | Ka _
+            ) } ->
         None
 
   (** [prec_ast ast] is the precedence of [ast]. Meaningful for binary
@@ -1942,7 +1949,7 @@ end = struct
           None )
     | Td _ -> None
     | Tyv _ -> None
-    | Kab _ -> None
+    | Kd _ -> None
     | Cty {pcty_desc; _} -> (
       match pcty_desc with Pcty_arrow _ -> Some MinusGreater | _ -> None )
     | Exp {pexp_desc; _} -> (
@@ -2009,7 +2016,7 @@ end = struct
       | Pcl_structure _ -> Some Apply
       | _ -> None )
     | Top | Pat _ | Mty _ | Mod _ | Sig _ | Str _ | Tli _ | Clf _ | Ctf _
-     |Rep | Mb _ | Md _ | Jkd _ ->
+     |Rep | Mb _ | Md _ | Ka _ ->
         None
 
   (** [ambig_prec {ctx; ast}] holds when [ast] is ambiguous in its context
