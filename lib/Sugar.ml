@@ -30,10 +30,7 @@ let check_local_attr_and_reloc_cmts cmts attrs loc =
 
 let decompose_arrow ctx ctl (ct2, m2) =
   let res =
-    { pap_label= Nolabel
-    ; pap_loc= ct2.ptyp_loc
-    ; pap_type= ct2
-    ; pap_modes= m2 }
+    {pap_label= Nolabel; pap_loc= ct2.ptyp_loc; pap_type= ct2; pap_modes= m2}
   in
   (ctl, res, ctx)
 
