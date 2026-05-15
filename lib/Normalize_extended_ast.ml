@@ -208,6 +208,52 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
      declarations, types, and patterns; checking there explicitly ensures we
      don't confuse them with the existing [let[@local always] f x = x]
      attribute, which occurs at a different level. *)
+  let extract_local_attr attrs =
+    let local_attrs, rest =
+      List.partition_tf attrs ~f:(fun attr ->
+          Conf.is_jane_street_local_annotation "local"
+            ~test:attr.attr_name.txt )
+    in
+    (rest, not (List.is_empty local_attrs))
+  in
+  let sort_modes =
+    List.sort
+      ~compare:(fun (ma : mode Asttypes.loc) (mb : mode Asttypes.loc) ->
+        let (Mode a) = ma.txt and (Mode b) = mb.txt in
+        String.compare a b )
+  in
+  let inject_local_into_modes modes =
+    let local_mode : mode Asttypes.loc =
+      {txt= Mode "local"; loc= Location.none}
+    in
+    sort_modes (local_mode :: modes)
+  in
+  let canonicalize_arrow_param ap =
+    let ptyp_attributes, has_local =
+      extract_local_attr ap.pap_type.ptyp_attributes
+    in
+    if has_local then
+      { ap with
+        pap_type= {ap.pap_type with ptyp_attributes}
+      ; pap_modes= inject_local_into_modes ap.pap_modes }
+    else ap
+  in
+  let canonicalize_arrow typ =
+    match typ.ptyp_desc with
+    | Ptyp_arrow (params, ret, ret_modes) ->
+        let params = List.map params ~f:canonicalize_arrow_param in
+        let ret_attrs, ret_has_local =
+          extract_local_attr ret.ptyp_attributes
+        in
+        let ret, ret_modes =
+          if ret_has_local then
+            ( {ret with ptyp_attributes= ret_attrs}
+            , inject_local_into_modes ret_modes )
+          else (ret, ret_modes)
+        in
+        {typ with ptyp_desc= Ptyp_arrow (params, ret, ret_modes)}
+    | _ -> typ
+  in
   let typ (m : Ast_mapper.mapper) typ =
     (* Types also need their location stack cleared *)
     let typ = {typ with ptyp_loc_stack= []} in
@@ -216,6 +262,10 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
         ptyp_attributes=
           normalize_jane_street_local_annotations typ.ptyp_attributes }
     in
+    (* Jane Street: canonicalize legacy [local_ T] arrow params to the modal
+       form [T @ local] so that the equality check accepts both spellings as
+       equivalent. *)
+    let typ = canonicalize_arrow typ in
     Ast_mapper.default_mapper.typ m typ
   in
   let pat (m : Ast_mapper.mapper) pat =

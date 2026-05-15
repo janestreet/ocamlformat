@@ -33,7 +33,7 @@ type 'a r =
   | Bar of 'a * global_ 'a
   | Baz of global_ int * string * global_ 'a
 
-type ('a, 'b) cfn = a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
+type ('a, 'b) cfn = a:'a @ local -> ?b:b @ local -> 'a @ local -> (int -> 'b @ local)
 
 let _ = local_ ()
 let _ = exclave_ ()

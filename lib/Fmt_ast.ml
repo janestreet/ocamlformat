@@ -990,23 +990,33 @@ and fmt_jkind_constr c ~ctx jkind =
    types. The ~return parameter distinguishes. *)
 and fmt_arrow_param ~return c ctx
     ({pap_label= lI; pap_loc= locI; pap_type= tI; pap_modes= mI}, localI) =
+  (* Jane Street: legacy [local_ T] in type position is rewritten to the
+     modal form [T @ local] by folding the [local] mode into [pap_modes]. The
+     parser sorts modes alphabetically (parser.mly:mode_expr), so we insert
+     [local] in sorted position. *)
+  let mI =
+    if localI then
+      let local_mode = {txt= Mode "local"; loc= locI} in
+      List.sort (local_mode :: mI) ~compare:(fun ma mb ->
+          let (Mode a) = ma.txt and (Mode b) = mb.txt in
+          String.compare a b )
+    else mI
+  in
   let arg_label lbl =
     match lbl with
-    | Nolabel -> if localI then Some (str "local_ ") else None
-    | Labelled l -> Some (str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
-    | Optional l ->
-        Some (str "?" $ str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
+    | Nolabel -> None
+    | Labelled l -> Some (str l.txt $ fmt ":@,")
+    | Optional l -> Some (str "?" $ str l.txt $ fmt ":@,")
   in
   let xtI = sub_typ ~ctx tI in
   (* Jane Street: as a special case, labeled tuple types in function returns
-     need parens if the return is [local_] or has modes AND the first element
-     has a label. We _should_ put this logic in [parenze_typ] or a similar
-     place, but we can't because of the horrible hack where the attribute
-     encoding [local_] is actually removed from the type before printing
-     it. *)
+     need parens if the return has modes AND the first element has a label.
+     We _should_ put this logic in [parenze_typ] or a similar place, but we
+     can't because of the horrible hack where the attribute encoding [local_]
+     is actually removed from the type before printing it. *)
   let labeled_tuple_ret_parens =
     return
-    && (localI || not (List.is_empty mI))
+    && (not (List.is_empty mI))
     &&
     match tI.ptyp_desc with
     | Ptyp_tuple ((Some _, _) :: _) -> true
