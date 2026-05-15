@@ -989,19 +989,7 @@ and fmt_jkind_constr c ~ctx jkind =
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
 and fmt_arrow_param ~return c ctx
-    ({pap_label= lI; pap_loc= locI; pap_type= tI; pap_modes= mI}, localI) =
-  (* Jane Street: legacy [local_ T] in type position is rewritten to the
-     modal form [T @ local] by folding the [local] mode into [pap_modes]. The
-     parser sorts modes alphabetically (parser.mly:mode_expr), so we insert
-     [local] in sorted position. *)
-  let mI =
-    if localI then
-      let local_mode = {txt= Mode "local"; loc= locI} in
-      List.sort (local_mode :: mI) ~compare:(fun ma mb ->
-          let (Mode a) = ma.txt and (Mode b) = mb.txt in
-          String.compare a b )
-    else mI
-  in
+    {pap_label= lI; pap_loc= locI; pap_type= tI; pap_modes= mI} =
   let arg_label lbl =
     match lbl with
     | Nolabel -> None
@@ -1010,10 +998,8 @@ and fmt_arrow_param ~return c ctx
   in
   let xtI = sub_typ ~ctx tI in
   (* Jane Street: as a special case, labeled tuple types in function returns
-     need parens if the return has modes AND the first element has a label.
-     We _should_ put this logic in [parenze_typ] or a similar place, but we
-     can't because of the horrible hack where the attribute encoding [local_]
-     is actually removed from the type before printing it. *)
+     need parens if the return has modes AND the first element has a
+     label. *)
   let labeled_tuple_ret_parens =
     return
     && (not (List.is_empty mI))
@@ -1152,7 +1138,7 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
       let args, ret_typ, ctx =
-        Sugar.decompose_arrow c.cmts ctx args (ret_typ, modes)
+        Sugar.decompose_arrow ctx args (ret_typ, modes)
       in
       let indent =
         match pro with
@@ -3633,7 +3619,6 @@ and fmt_class_type ?(pro = noop) c ({ast= typ; _} as xtyp) =
   | Pcty_arrow (args, rhs) ->
       Cmts.relocate c.cmts ~src:pcty_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:rhs.pcty_loc ;
-      let args = List.map ~f:(fun arg -> (arg, false)) args in
       let pro =
         pro ~cmt:true
         $ fmt_arrow_type c ~ctx ~parens:false ~parent_has_parens:parens args
