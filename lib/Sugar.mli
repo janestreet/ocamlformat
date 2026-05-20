@@ -13,15 +13,6 @@ open Migrate_ast
 open Asttypes
 open Extended_ast
 
-val decompose_arrow :
-     Ast.t
-  -> arrow_param list
-  -> core_type * mode loc list
-  -> arrow_param list * arrow_param * Ast.t
-(** [decompose_arrow ctx ctl (ct2, m2)] returns a list of arrow params,
-    where the last is a dummy param corresponding to ct2 (the return type)
-    with modes m2. *)
-
 val fun_ :
      Cmts.t
   -> ?will_keep_first_ast_node:bool

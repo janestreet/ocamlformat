@@ -28,12 +28,6 @@ let check_local_attr_and_reloc_cmts cmts attrs loc =
       (rest, true)
   | _, _ -> (attrs, false)
 
-let decompose_arrow ctx ctl (ct2, m2) =
-  let res =
-    {pap_label= Nolabel; pap_loc= ct2.ptyp_loc; pap_type= ct2; pap_modes= m2}
-  in
-  (ctl, res, ctx)
-
 let fun_ cmts ?(will_keep_first_ast_node = true) xexp =
   let rec fun_ ?(will_keep_first_ast_node = false) ({ast= exp; _} as xexp) =
     let ctx = Exp exp in

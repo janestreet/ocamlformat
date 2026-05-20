@@ -1137,8 +1137,11 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_arrow (args, ret_typ, modes) ->
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
-      let args, ret_typ, ctx =
-        Sugar.decompose_arrow ctx args (ret_typ, modes)
+      let ret_typ =
+        { pap_label= Nolabel
+        ; pap_loc= ret_typ.ptyp_loc
+        ; pap_type= ret_typ
+        ; pap_modes= modes }
       in
       let indent =
         match pro with
