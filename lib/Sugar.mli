@@ -13,18 +13,6 @@ open Migrate_ast
 open Asttypes
 open Extended_ast
 
-val decompose_arrow :
-     Cmts.t
-  -> Ast.t
-  -> arrow_param list
-  -> core_type * mode loc list
-  -> (arrow_param * bool) list * (arrow_param * bool) * Ast.t
-(** [decompose_arrow ctl ct2] returns a list of arrow params, where the last
-    is a dummy param corresponding to ct2 (the return type) and a bool
-    indicating the presence of a local attribute (which has been removed).
-    The returned Ast.t is a ctx that has similarly been updated to remove the
-    attributes *)
-
 val fun_ :
      Cmts.t
   -> ?will_keep_first_ast_node:bool

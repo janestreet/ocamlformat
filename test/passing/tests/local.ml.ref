@@ -32,7 +32,7 @@ type 'a r =
   | Baz of global_ int * string * global_ 'a
 
 type ('a, 'b) cfn =
-  a:local_ 'a -> ?b:local_ b -> local_ 'a -> (int -> local_ 'b)
+  a:'a @ local -> ?b:b @ local -> 'a @ local -> (int -> 'b @ local)
 
 let _ = local_ ()
 

@@ -619,11 +619,11 @@ module Interaction_with_existing_syntax = struct
 
   (* lhs/rhs of arrows *)
 
-  type t = local_ lhs @ mode1 -> local_ mhs @ mode2 -> local_ rhs @ mode3
+  type t = lhs @ local mode1 -> mhs @ local mode2 -> rhs @ local mode3
 
-  let x : (local_ lhs @ mode1 -> local_ rhs @ mode2) @ mode3 = y
+  let x : (lhs @ local mode1 -> rhs @ local mode2) @ mode3 = y
 
-  let x = (expr : (local_ lhs @ mode1 -> local_ rhs @ mode2) @ mode3)
+  let x = (expr : (lhs @ local mode1 -> rhs @ local mode2) @ mode3)
 
   (* modalities on record fields *)
 

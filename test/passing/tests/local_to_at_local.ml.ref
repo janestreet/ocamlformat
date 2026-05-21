@@ -1,0 +1,43 @@
+(* This test exercises the rewrite of legacy [local_ T] in type position to
+   the modal form [T @ local]. After ocamlformat runs, no [local_] should
+   appear anywhere in a type. Value-level uses of [local_] are not exercised
+   here -- they are covered by [local.ml]. *)
+
+(* Nolabel domain *)
+type t1 = string @ local -> int
+
+(* Labelled domain *)
+type t2 = a:int @ local -> string
+
+(* Optional domain *)
+type t3 = ?a:int @ local -> string
+
+(* Local return *)
+type t4 = int -> string @ local
+
+(* Chained legacy local_ *)
+type t5 = a @ local -> b @ local -> c @ local
+
+(* Mixed with existing @ modes: [local] must be inserted in sorted position.
+   [contended] < [local], [local] < [once], [local] < [unique]. *)
+type t6 = a @ local once -> b @ unique
+
+type t7 = a @ contended local -> b
+
+type t8 = a @ contended local once -> b
+
+(* Inside a [val] signature *)
+module type S = sig
+  val f : int @ local -> int
+
+  val g : a:int @ local -> b:string @ local -> int
+end
+
+(* Inside a let-binding type constraint *)
+let h : int @ local -> int = fun x -> x
+
+(* Inside a nested arrow *)
+type t9 = (int @ local -> int) -> int
+
+(* Local return preserved through a labelled chain *)
+type t10 = a:int @ local -> b:string @ local -> char list @ local

@@ -248,15 +248,8 @@ let mkpat_stack pat =
   if Erase_jane_syntax.should_erase () then pat else
   {pat with ppat_attributes = local_attr :: pat.ppat_attributes}
 
-let mktyp_stack typ =
-  if Erase_jane_syntax.should_erase () then typ else
-  {typ with ptyp_attributes = local_attr :: typ.ptyp_attributes}
-
 let mkpat_local_if p pat =
   if p then mkpat_stack pat else pat
-
-let mktyp_local_if p typ =
-  if p then mktyp_stack typ else typ
 
 let split_local_from_attrs atrs =
   match
@@ -4472,19 +4465,18 @@ strict_function_or_labeled_tuple_type:
       domain_with_modes = with_optional_mode_expr(extra_rhs(param_type))
       MINUSGREATER
       codomain = strict_function_or_labeled_tuple_type
-        { let local, (domain, _), arg_modes = domain_with_modes in
-          let type_ = mktyp_local_if local domain in
+        { let (domain, _), arg_modes = domain_with_modes in
           let loc = make_loc $sloc in
-          let label, type_ =
+          let label, domain =
             erase_call_pos_type
               ~arg_label:label
-              ~arg_type:type_
+              ~arg_type:domain
               ~loc
           in
           let arrow_type = {
             pap_label = label;
             pap_loc = make_loc $sloc;
-            pap_type = type_;
+            pap_type = domain;
             pap_modes = arg_modes
           }
           in
@@ -4503,8 +4495,8 @@ strict_function_or_labeled_tuple_type:
       MINUSGREATER
       codomain_with_modes = with_optional_mode_expr(tuple_type)
       %prec MINUSGREATER
-         { let arg_local, (domain, _), arg_modes = domain_with_modes in
-           let ret_local, (codomain, _), ret_modes = codomain_with_modes in
+         { let (domain, _), arg_modes = domain_with_modes in
+           let (codomain, _), ret_modes = codomain_with_modes in
            let loc = make_loc $sloc in
            let label, domain =
              erase_call_pos_type
@@ -4515,13 +4507,11 @@ strict_function_or_labeled_tuple_type:
            let arrow_type = {
              pap_label = label;
              pap_loc = make_loc $sloc;
-             pap_type = mktyp_local_if arg_local domain;
+             pap_type = domain;
              pap_modes = arg_modes
            }
            in
-           let codomain =
-             mktyp_local_if ret_local (maybe_curry_typ codomain)
-           in
+           let codomain = maybe_curry_typ codomain in
            Ptyp_arrow([arrow_type], codomain, ret_modes)
          }
       )
@@ -4544,7 +4534,7 @@ strict_function_or_labeled_tuple_type:
       MINUSGREATER
       codomain = strict_function_or_labeled_tuple_type
          {
-           let local, (tuple, tuple_loc), arg_modes = tuple_with_modes in
+           let (tuple, tuple_loc), arg_modes = tuple_with_modes in
            let ty, ltys = tuple in
            let label = mk_labelled label $loc(label) in
            let domain =
@@ -4554,7 +4544,7 @@ strict_function_or_labeled_tuple_type:
            let arrow_type = {
              pap_label = label;
              pap_loc = make_loc $sloc;
-             pap_type = mktyp_local_if local domain;
+             pap_type = domain;
              pap_modes = arg_modes
            }
            in
@@ -4572,8 +4562,8 @@ strict_function_or_labeled_tuple_type:
       MINUSGREATER
       codomain_with_modes = with_optional_mode_expr(tuple_type)
       %prec MINUSGREATER
-         { let arg_local, (tuple, tuple_loc), arg_modes = tuple_with_modes in
-           let ret_local, (codomain, _), ret_modes = codomain_with_modes in
+         { let (tuple, tuple_loc), arg_modes = tuple_with_modes in
+           let (codomain, _), ret_modes = codomain_with_modes in
            let ty, ltys = tuple in
            let label = mk_labelled label $loc(label) in
            let domain =
@@ -4583,12 +4573,12 @@ strict_function_or_labeled_tuple_type:
            let arrow_type = {
              pap_label = label;
              pap_loc = make_loc $sloc;
-             pap_type = mktyp_local_if arg_local domain;
+             pap_type = domain;
              pap_modes = arg_modes
            }
            in
            Ptyp_arrow([arrow_type],
-            mktyp_local_if ret_local (maybe_curry_typ codomain),
+            maybe_curry_typ codomain,
             ret_modes)
          }
     )
@@ -4658,7 +4648,19 @@ at_mode_expr:
 
 %inline with_optional_mode_expr(ty):
   | m0=optional_mode_expr_legacy ty=ty m1=optional_at_mode_expr {
-    m0, (ty, $loc(ty)), m1
+    let m =
+      if m0 && not (Erase_jane_syntax.should_erase ()) then
+        let local_mode =
+          mkloc (Mode "local") (make_loc ($startpos(m0), $endpos(m0)))
+        in
+        List.sort
+          (fun
+            { Location.txt = Mode m1; _ } { Location.txt = Mode m2; _ } ->
+          String.compare m1 m2)
+          (local_mode :: m1)
+      else m1
+    in
+    (ty, $loc(ty)), m
   }
 ;
 
