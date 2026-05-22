@@ -319,8 +319,7 @@ module Let_binding = struct
     and lb_exp = sub_exp ~ctx pvb_expr
     and lb_typ = pvb_constraint in
     let pvb_modes =
-      if pvb_local then
-        {txt= Mode "local"; loc= Location.none} :: pvb_modes
+      if pvb_local then {txt= Mode "local"; loc= Location.none} :: pvb_modes
       else pvb_modes
     in
     let (lb_args, lb_typ, lb_modes, lb_exp), lb_modes_binding =

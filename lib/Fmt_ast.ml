@@ -988,10 +988,6 @@ and fmt_arrow_param ~return c ctx
     | Optional l -> Some (str "?" $ str l.txt $ fmt ":@,")
   in
   let xtI = sub_typ ~ctx tI in
-  let mI =
-    if localI then {Location.txt= Mode "local"; loc= Location.none} :: mI
-    else mI
-  in
   (* Jane Street: as a special case, labeled tuple types in function returns
      need parens if the return has modes AND the first element has a
      label. *)
@@ -1673,10 +1669,10 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
 and fmt_fun_args c args =
   (* When [islocal] is set on a pattern that already has modes in a
      [Ppat_constraint], merge [Mode "local"] into the existing mode list so
-     the printer emits a single [@ ... ] group instead of an invalid
-     [@ ... @ local] suffix. For patterns without an existing
-     [Ppat_constraint] we keep the simpler prefix-style code path which
-     emits [(pat @ local)] and doesn't disturb comment placement. *)
+     the printer emits a single [@ ... ] group instead of an invalid [@ ... @
+     local] suffix. For patterns without an existing [Ppat_constraint] we
+     keep the simpler prefix-style code path which emits [(pat @ local)] and
+     doesn't disturb comment placement. *)
   let merge_islocal_into_existing_modes pat =
     let local_mode = {Location.txt= Mode "local"; loc= Location.none} in
     match pat.ppat_desc with
@@ -4259,7 +4255,8 @@ and fmt_constructor_arguments ?vars c ctx ~pre = function
                      @@ hvbox 0
                           ( fmt_typ
                           $ fmt_modals c
-                              (Modalities (extra_modality @ pca_modalities)) ) ) )
+                              (Modalities (extra_modality @ pca_modalities))
+                          ) ) )
       in
       pre $ vars $ cargs
   | Pcstr_record (loc, lds) ->

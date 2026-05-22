@@ -248,8 +248,8 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
           ; ret_mode_annotations= []
           ; ret_type_constraint= None }
         , Pfunction_body
-            {pexp_desc= Pexp_constraint (exp1, None, (_ :: _ as modes)); _} )
-      ->
+            {pexp_desc= Pexp_constraint (exp1, None, (_ :: _ as modes)); _}
+        ) ->
         let c =
           { mode_annotations= []
           ; ret_mode_annotations= modes
