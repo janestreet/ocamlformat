@@ -4235,7 +4235,7 @@ and fmt_core_type_extract_global c ctx typ =
   let global_attr_opt, _ = split_global_flags_from_attrs ptyp_attributes in
   let extra_modality =
     match global_attr_opt with
-    | Some _ -> [{Location.txt= Modality "global"; loc= Location.none}]
+    | Some attr -> [{Location.txt= Modality "global"; loc= attr.attr_loc}]
     | None -> []
   in
   (fmt_core_type c (sub_typ ~ctx typ), extra_modality)
