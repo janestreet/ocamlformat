@@ -1671,7 +1671,31 @@ and fmt_pattern ?ext c ?pro ?parens ?(box = false)
             (fmt "@;<0 2>" $ fmt_pattern c (sub_pat ~ctx pat)) )
 
 and fmt_fun_args c args =
+  (* When [islocal] is set on a pattern that already has modes in a
+     [Ppat_constraint], merge [Mode "local"] into the existing mode list so
+     the printer emits a single [@ ... ] group instead of an invalid
+     [@ ... @ local] suffix. For patterns without an existing
+     [Ppat_constraint] we keep the simpler prefix-style code path which
+     emits [(pat @ local)] and doesn't disturb comment placement. *)
+  let merge_islocal_into_existing_modes pat =
+    let local_mode = {Location.txt= Mode "local"; loc= Location.none} in
+    match pat.ppat_desc with
+    | Ppat_constraint (inner, typ, modes) ->
+        Some
+          { pat with
+            ppat_desc= Ppat_constraint (inner, typ, modes @ [local_mode]) }
+    | _ -> None
+  in
   let fmt_fun_arg (a : function_param) =
+    let a =
+      match a.pparam_desc with
+      | Pparam_val (true, lbl, default, pat) -> (
+        match merge_islocal_into_existing_modes pat with
+        | Some pat ->
+            {a with pparam_desc= Pparam_val (false, lbl, default, pat)}
+        | None -> a )
+      | _ -> a
+    in
     let ctx = Fp a in
     Cmts.fmt c a.pparam_loc
     @@

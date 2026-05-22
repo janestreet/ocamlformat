@@ -4,6 +4,17 @@ let f (local_ a) ~foo:(local_ b) ?foo:(local_ c = 1) ~(local_ d) = ()
 
 let f ~(local_ x) ~(local_ y : string) ?(local_ z : string) = ()
 
+(* Mixed legacy [local_] with new [@ mode] / [@@ mode] modes on patterns.
+   The legacy [local_] should be folded into the existing mode list, producing
+   a single [@ ...]-group. *)
+let f (local_ x @ mode) = x
+let f ~(local_ x @ mode) = x
+let f ?(local_ x @ mode = 1) = x
+let f ~foo:(local_ x @ mode) = x
+let f (local_ x : int @ mode) = x
+let f ~(local_ x : int @ mode) = x
+let f ?(local_ x : int @ mode = 1) = x
+
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> local_ 1)]
 
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> exclave_ 1)]
