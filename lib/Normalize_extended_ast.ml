@@ -202,21 +202,22 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
           else exp
         in
         Ast_mapper.default_mapper.expr m exp'
-    | Pexp_apply
-        ( {pexp_desc= Pexp_extension ({txt= ext_name; _}, PStr []); _}
-        , [(Nolabel, sbody)] )
-      when Conf.is_jane_street_local_annotation "local" ~test:ext_name ->
-        m.expr m
-          { exp with
-            pexp_desc=
-              Pexp_constraint
-                (sbody, None, [{txt= Mode "local"; loc= Location.none}]) }
     | _ -> Ast_mapper.default_mapper.expr m exp
   in
   (* The old-style [[@local]] attributes can only occur in record label
      declarations, types, and patterns; checking there explicitly ensures we
      don't confuse them with the existing [let[@local always] f x = x]
      attribute, which occurs at a different level. *)
+  let typ (m : Ast_mapper.mapper) typ =
+    (* Types also need their location stack cleared *)
+    let typ = {typ with ptyp_loc_stack= []} in
+    let typ =
+      { typ with
+        ptyp_attributes=
+          normalize_jane_street_local_annotations typ.ptyp_attributes }
+    in
+    Ast_mapper.default_mapper.typ m typ
+  in
   let pat (m : Ast_mapper.mapper) pat =
     let pat =
       { pat with
@@ -225,37 +226,7 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
     in
     Ast_mapper.default_mapper.pat m pat
   in
-  let type_declaration (m : Ast_mapper.mapper) td =
-    let _, td = rewrite_type_declaration_imm_attr_to_jkind_annot td in
-    Ast_mapper.default_mapper.type_declaration m td
-  in
-  let value_binding (m : Ast_mapper.mapper) vb =
-    let vb =
-      if vb.pvb_local then
-        { vb with
-          pvb_local= false
-        ; pvb_modes=
-            {txt= Mode "local"; loc= Location.none} :: vb.pvb_modes }
-      else vb
-    in
-    Ast_mapper.default_mapper.value_binding m vb
-  in
   let label_declaration (m : Ast_mapper.mapper) ld =
-    let global_attr_opt, pld_attributes =
-      List.partition_tf ld.pld_attributes ~f:(fun a ->
-          Conf.is_jane_street_local_annotation "global"
-            ~test:a.attr_name.txt )
-    in
-    let ld =
-      match global_attr_opt with
-      | _ :: _ ->
-          { ld with
-            pld_attributes
-          ; pld_modalities=
-              {txt= Modality "global"; loc= Location.none}
-              :: ld.pld_modalities }
-      | [] -> ld
-    in
     let ld =
       { ld with
         pld_attributes=
@@ -263,71 +234,9 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
     in
     Ast_mapper.default_mapper.label_declaration m ld
   in
-  let constructor_argument ca =
-    let global_attr_opt, ptyp_attributes =
-      List.partition_tf ca.pca_type.ptyp_attributes ~f:(fun a ->
-          Conf.is_jane_street_local_annotation "global"
-            ~test:a.attr_name.txt )
-    in
-    match global_attr_opt with
-    | _ :: _ ->
-        { ca with
-          pca_type= {ca.pca_type with ptyp_attributes}
-        ; pca_modalities=
-            {txt= Modality "global"; loc= Location.none}
-            :: ca.pca_modalities }
-    | [] -> ca
-  in
-  let arrow_param ap =
-    let local_attr_opt, ptyp_attributes =
-      List.partition_tf ap.pap_type.ptyp_attributes ~f:(fun a ->
-          Conf.is_jane_street_local_annotation "local"
-            ~test:a.attr_name.txt )
-    in
-    match local_attr_opt with
-    | _ :: _ ->
-        { ap with
-          pap_type= {ap.pap_type with ptyp_attributes}
-        ; pap_modes=
-            {txt= Mode "local"; loc= Location.none} :: ap.pap_modes }
-    | [] -> ap
-  in
-  let typ_with_normalize =
-    fun m typ ->
-      let typ =
-        match typ.ptyp_desc with
-        | Ptyp_arrow (params, ret, modes) ->
-            let params = List.map ~f:arrow_param params in
-            let ret, modes =
-              let local_attr_opt, ptyp_attributes =
-                List.partition_tf ret.ptyp_attributes ~f:(fun a ->
-                    Conf.is_jane_street_local_annotation "local"
-                      ~test:a.attr_name.txt )
-              in
-              match local_attr_opt with
-              | _ :: _ ->
-                  ( {ret with ptyp_attributes}
-                  , {Location.txt= Mode "local"; loc= Location.none} :: modes )
-              | [] -> (ret, modes)
-            in
-            {typ with ptyp_desc= Ptyp_arrow (params, ret, modes)}
-        | _ -> typ
-      in
-      let typ = {typ with ptyp_loc_stack= []} in
-      let typ =
-        { typ with
-          ptyp_attributes=
-            normalize_jane_street_local_annotations typ.ptyp_attributes }
-      in
-      Ast_mapper.default_mapper.typ m typ
-  in
-  let constructor_declaration (m : Ast_mapper.mapper) cd =
-    let pcd_args =
-      match cd.pcd_args with
-      | Pcstr_tuple args -> Pcstr_tuple (List.map ~f:constructor_argument args)
-      | Pcstr_record _ as r -> r
-    in
-    Ast_mapper.default_mapper.constructor_declaration m {cd with pcd_args}
+  let type_declaration (m : Ast_mapper.mapper) td =
+    let _, td = rewrite_type_declaration_imm_attr_to_jkind_annot td in
+    Ast_mapper.default_mapper.type_declaration m td
   in
   { Ast_mapper.default_mapper with
     location
@@ -336,11 +245,9 @@ let make_mapper ~ignore_doc_comments ~normalize_doc =
   ; repl_phrase
   ; expr
   ; pat
-  ; typ= typ_with_normalize
+  ; typ
   ; label_declaration
-  ; type_declaration
-  ; value_binding
-  ; constructor_declaration }
+  ; type_declaration }
 
 let normalize_cmt (conf : Conf.t) =
   let parse_comments_as_doc = conf.fmt_opts.ocp_indent_compat.v in

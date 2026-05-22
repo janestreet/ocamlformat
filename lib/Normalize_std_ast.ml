@@ -242,6 +242,21 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
         in
         m.expr m
           {exp with pexp_desc= Pexp_function (ps, c, Pfunction_body exp1)}
+    | Pexp_function
+        ( ps
+        , { mode_annotations= []
+          ; ret_mode_annotations= []
+          ; ret_type_constraint= None }
+        , Pfunction_body
+            {pexp_desc= Pexp_constraint (exp1, None, (_ :: _ as modes)); _} )
+      ->
+        let c =
+          { mode_annotations= []
+          ; ret_mode_annotations= modes
+          ; ret_type_constraint= None }
+        in
+        m.expr m
+          {exp with pexp_desc= Pexp_function (ps, c, Pfunction_body exp1)}
     | Pexp_function (ps, c, b) when erase_jane_syntax ->
         let ps =
           List.map ps ~f:(fun param ->
