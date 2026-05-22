@@ -4167,16 +4167,11 @@ and fmt_label_declaration c ctx ?(last = false) decl =
           (str ";")
   in
   let global_attr_opt, atrs = split_global_flags_from_attrs atrs in
-  ( match global_attr_opt with
-  | Some attr ->
-      Cmts.relocate_all_to_after c.cmts ~src:attr.attr_loc
-        ~after:pld_type.ptyp_loc
-  | None -> () ) ;
   let pld_modalities =
     match global_attr_opt with
-    | Some _ ->
-        {txt= Modality "global"; loc= Location.none} :: pld_modalities
     | None -> pld_modalities
+    | Some attr ->
+        {txt= Modality "global"; loc= attr.attr_loc} :: pld_modalities
   in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
