@@ -215,7 +215,6 @@ module Let_binding = struct
     ; lb_exp: expression xt
     ; lb_pun: bool
     ; lb_attrs: attribute list
-    ; lb_local: bool
     ; lb_modes_binding: modes
     ; lb_loc: Location.t }
 
@@ -337,7 +336,6 @@ module Let_binding = struct
     ; lb_exp
     ; lb_pun= pvb_is_pun
     ; lb_attrs= pvb_attributes
-    ; lb_local= false
     ; lb_modes_binding
     ; lb_loc= pvb_loc }
 
@@ -357,7 +355,6 @@ module Let_binding = struct
         ; lb_exp
         ; lb_pun= bo.pbop_is_pun
         ; lb_attrs= []
-        ; lb_local= false
         ; lb_modes_binding= []
         ; lb_loc= bo.pbop_loc } )
 end
