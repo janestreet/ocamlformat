@@ -15,7 +15,7 @@ let in_a_type : call_pos:[%call_pos] -> unit -> Lexing.position =
 
 let in_an_expression = [%src_pos]
 
-let with_locals ~(local_ call_pos : [%call_pos]) () = ()
+let with_locals ~(call_pos : [%call_pos] @ local) () = ()
 
 type 'a t = here:[%call_pos] -> 'a
 

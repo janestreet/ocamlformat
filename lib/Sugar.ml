@@ -319,6 +319,11 @@ module Let_binding = struct
     let lb_pat = sub_pat ~ctx pvb_pat
     and lb_exp = sub_exp ~ctx pvb_expr
     and lb_typ = pvb_constraint in
+    let pvb_modes =
+      if pvb_local then
+        {txt= Mode "local"; loc= Location.none} :: pvb_modes
+      else pvb_modes
+    in
     let (lb_args, lb_typ, lb_modes, lb_exp), lb_modes_binding =
       if should_desugar_args lb_pat lb_typ then
         (split_fun_args cmts lb_pat lb_exp, pvb_modes)
@@ -332,7 +337,7 @@ module Let_binding = struct
     ; lb_exp
     ; lb_pun= pvb_is_pun
     ; lb_attrs= pvb_attributes
-    ; lb_local= pvb_local
+    ; lb_local= false
     ; lb_modes_binding
     ; lb_loc= pvb_loc }
 

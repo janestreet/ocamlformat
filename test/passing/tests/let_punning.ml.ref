@@ -160,5 +160,5 @@ let v =
   ()
 
 let w =
-  let%foo local_ x = x and local_ y = y in
+  let%foo x @ local = x and y @ local = y in
   ()

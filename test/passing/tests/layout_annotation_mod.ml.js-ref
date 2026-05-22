@@ -179,7 +179,7 @@ let o =
 let f : type (a : immediate mod mode). a -> a = fun x -> x
 
 let f x =
-  let local_ g (type a : immediate mod mode) (x : a) = x in
+  let (g @ local) (type a : immediate mod mode) (x : a) = x in
   g x [@nontail]
 ;;
 

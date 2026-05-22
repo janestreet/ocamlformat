@@ -613,9 +613,9 @@ end
 module Interaction_with_existing_syntax = struct
   (* let bindings *)
 
-  let local_ x @ mode1 mode2 = y
+  let x @ local mode1 mode2 = y
 
-  let local_ x : typ1 typ2 @ mode1 mode2 = y
+  let x : typ1 typ2 @ local mode1 mode2 = y
 
   (* lhs/rhs of arrows *)
 
@@ -627,19 +627,19 @@ module Interaction_with_existing_syntax = struct
 
   (* modalities on record fields *)
 
-  type t = {global_ x: t @@ mode1 mode2}
+  type t = {x: t @@ global mode1 mode2}
 
-  type t = A of {global_ x: t @@ mode1 mode2}
+  type t = A of {x: t @@ global mode1 mode2}
 
   (* modalities on constructor arguments *)
 
   type t =
-    | A of global_ typ @@ mode1 mode2
-    | B of global_ typ1 @@ mode1 * global_ typ2 @@ mode2
+    | A of typ @@ global mode1 mode2
+    | B of typ1 @@ global mode1 * typ2 @@ global mode2
 
   type t =
-    | A : global_ typ @@ mode1 mode2 -> t
-    | B : global_ typ1 @@ mode1 * global_ typ2 @@ mode2 -> t
+    | A : typ @@ global mode1 mode2 -> t
+    | B : typ1 @@ global mode1 * typ2 @@ global mode2 -> t
 end
 
 module Regressions = struct
@@ -652,13 +652,17 @@ module Regressions = struct
     let (x, y) @ mode = (x, y) in
     (x, y)
 
-  let (t as t) @ mode = local_
-    let (t as t) @ mode = local_ t in
-    t
+  let (t as t) @ mode =
+    ( let (t as t) @ mode = (t : @ local) in
+      t
+      :
+      @ local )
 
-  let (x, y) @ mode = local_
-    let (x, y) @ mode = local_ t in
-    t
+  let (x, y) @ mode =
+    ( let (x, y) @ mode = (t : @ local) in
+      t
+      :
+      @ local )
 
   class t =
     let (x, y) @ mode = x in

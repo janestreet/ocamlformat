@@ -211,11 +211,6 @@ let get_in_local_expr ?eol c ({pexp_desc; pexp_loc; _} : expression) =
   else
     ( match pexp_desc with
     | Pexp_stack e -> Some (fmt "stack_ ", e)
-    | Pexp_apply
-        ( {pexp_desc= Pexp_extension ({txt; loc= _}, PStr []); _}
-        , [(Nolabel, e)] )
-      when Conf.is_jane_street_local_annotation "local" ~test:txt ->
-        Some (fmt "local_ ", e)
     | _ -> None )
     |> Option.map ~f:(fun (expr_pro, e) ->
            Cmts.relocate_all_to_before c.cmts ~src:e.pexp_loc
@@ -997,6 +992,10 @@ and fmt_arrow_param ~return c ctx
     | Optional l -> Some (str "?" $ str l.txt $ fmt ":@,")
   in
   let xtI = sub_typ ~ctx tI in
+  let mI =
+    if localI then {Location.txt= Mode "local"; loc= Location.none} :: mI
+    else mI
+  in
   (* Jane Street: as a special case, labeled tuple types in function returns
      need parens if the return has modes AND the first element has a
      label. *)
@@ -1704,8 +1703,8 @@ and fmt_fun_args c args =
               (Params.parens_if
                  (islocal || parenze_pat xpat)
                  c.conf
-                 (fmt_if islocal "local_ " $ fmt_pattern ~parens:false c xpat) )
-          )
+                 ( fmt_pattern ~parens:false c xpat
+                 $ fmt_if islocal "@ @@ local" ) ) )
     | Pparam_val (islocal, (Optional _ as lbl), None, pat) ->
         let xpat = sub_pat ~ctx pat in
         let has_attr = not (List.is_empty pat.ppat_attributes) in
@@ -1722,14 +1721,14 @@ and fmt_fun_args c args =
           ( fmt_label lbl ":@,"
           $ hovbox 0
             @@ Params.parens_if outer_parens c.conf
-                 ( fmt_if islocal "local_ "
-                 $ fmt_pattern ~parens:inner_parens c xpat ) )
+                 ( fmt_pattern ~parens:inner_parens c xpat
+                 $ fmt_if islocal "@ @@ local" ) )
     | Pparam_val (islocal, ((Labelled _ | Nolabel) as lbl), None, pat) ->
         let xpat = sub_pat ~ctx pat in
         cbox 2
           ( fmt_label lbl ":@,"
           $ Params.parens_if islocal c.conf
-              (fmt_if islocal "local_ " $ fmt_pattern c xpat) )
+              (fmt_pattern c xpat $ fmt_if islocal "@ @@ local") )
     | Pparam_val
         ( islocal
         , Optional l
@@ -1741,8 +1740,8 @@ and fmt_fun_args c args =
         let xpat = sub_pat ~ctx pat in
         cbox 0
           (wrap "?(" ")"
-             ( fmt_if islocal "local_ "
-             $ fmt_pattern c ~box:true xpat
+             ( fmt_pattern c ~box:true xpat
+             $ fmt_if islocal "@ @@ local"
              $ fmt " =@;<1 2>"
              $ hovbox 2 (fmt_expression c xexp) ) )
     | Pparam_val
@@ -1758,8 +1757,8 @@ and fmt_fun_args c args =
         let xpat = sub_pat ~ctx pat in
         cbox 0
           (wrap "?(" ")"
-             ( fmt_if islocal "local_ "
-             $ fmt_pattern c ~parens:false ~box:true xpat
+             ( fmt_pattern c ~parens:false ~box:true xpat
+             $ fmt_if islocal "@ @@ local"
              $ fmt " =@;<1 2>" $ fmt_expression c xexp ) )
     | Pparam_val (islocal, Optional l, Some exp, pat) ->
         let xexp = sub_exp ~ctx exp in
@@ -1772,8 +1771,8 @@ and fmt_fun_args c args =
         cbox 2
           ( str "?" $ str l.txt
           $ wrap_k (fmt ":@,(") (str ")")
-              ( fmt_if islocal "local_ "
-              $ fmt_pattern c ?parens ~box:true xpat
+              ( fmt_pattern c ?parens ~box:true xpat
+              $ fmt_if islocal "@ @@ local"
               $ fmt " =@;<1 2>" $ fmt_expression c xexp ) )
     | Pparam_val (_, (Labelled _ | Nolabel), Some _, _) ->
         impossible "not accepted by parser"
@@ -1806,18 +1805,6 @@ and fmt_body c ?ext ({ast= body; _} as xbody) =
       , update_config_maybe_disabled c pexp_loc pexp_attributes
         @@ fun c ->
         fmt_cases c ctx cs $ fmt_if parens ")" $ Cmts.fmt_after c pexp_loc )
-  | { pexp_desc=
-        Pexp_apply
-          ( { pexp_desc= Pexp_extension ({txt= extension_local; _}, PStr [])
-            ; _ }
-          , [(Nolabel, sbody)] )
-    ; pexp_loc
-    ; _ }
-    when Conf.is_jane_street_local_annotation "local" ~test:extension_local
-         (* Don't wipe away comments before [local_]. *)
-         && not (Cmts.has_before c.cmts pexp_loc) ->
-      ( fmt " local_"
-      , fmt_expression c ~eol:(fmt "@;<1000 0>") (sub_exp ~ctx sbody) )
   | { pexp_desc=
         Pexp_apply
           ( { pexp_desc= Pexp_extension ({txt= extension_exclave; _}, PStr [])
@@ -2508,13 +2495,22 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                 ( fmt_infix_op_args ~parens:inner_wrap c xexp infix_op_args
                 $ fmt_atrs ) ) )
   | Pexp_apply
-      ( {pexp_desc= Pexp_extension ({txt= extension_local; _}, PStr []); _}
+      ( { pexp_desc=
+            Pexp_extension ({txt= extension_local; loc= ext_loc}, PStr [])
+        ; _ }
       , [(Nolabel, sbody)] )
     when Conf.is_jane_street_local_annotation "local" ~test:extension_local
     ->
+      let modes = [{txt= Mode "local"; loc= ext_loc}] in
       pro
-      $ Params.parens_if parens c.conf
-          (fmt "local_@ " $ fmt_expression ~box c (sub_exp ~ctx sbody))
+      $ hvbox
+          (Params.Indent.exp_constraint c.conf)
+          (Params.parens_if (parens && has_attr) c.conf
+             ( wrap_fits_breaks ~space:false c.conf "(" ")"
+                 ( fmt_expression c (sub_exp ~ctx sbody)
+                 $ fmt "@ :"
+                 $ fmt_modals c (Modes modes) )
+             $ fmt_atrs ) )
   | Pexp_apply
       ( {pexp_desc= Pexp_extension ({txt= extension_exclave; _}, PStr []); _}
       , [(Nolabel, sbody)] )
@@ -4156,6 +4152,12 @@ and fmt_label_declaration c ctx ?(last = false) decl =
       Cmts.relocate_all_to_after c.cmts ~src:attr.attr_loc
         ~after:pld_type.ptyp_loc
   | None -> () ) ;
+  let pld_modalities =
+    match global_attr_opt with
+    | Some _ ->
+        {txt= Modality "global"; loc= Location.none} :: pld_modalities
+    | None -> pld_modalities
+  in
   hovbox 0
     ( Cmts.fmt_before c pld_loc
     $ hvbox
@@ -4168,9 +4170,6 @@ and fmt_label_declaration c ctx ?(last = false) decl =
                             ( hovbox 2
                                 ( fmt_mutable_flag ~pro:noop ~epi:(fmt "@ ")
                                     c pld_mutable
-                                $ fmt_if
-                                    (Option.is_some global_attr_opt)
-                                    "global_ "
                                 $ fmt_str_loc c pld_name
                                 $ fmt_if field_loose " " $ fmt ":" )
                             $ fmt "@ "
@@ -4216,11 +4215,15 @@ and fmt_constructor_declaration c ctx ~first ~last:_ cstr_decl =
           $ fmt_attributes_and_docstrings c pcd_attributes )
       $ Cmts.fmt_after c pcd_loc )
 
-and fmt_core_type_gf c ctx typ =
+and fmt_core_type_extract_global c ctx typ =
   let {ptyp_attributes; _} = typ in
   let global_attr_opt, _ = split_global_flags_from_attrs ptyp_attributes in
-  fmt_if (Option.is_some global_attr_opt) "global_ "
-  $ fmt_core_type c (sub_typ ~ctx typ)
+  let extra_modality =
+    match global_attr_opt with
+    | Some _ -> [{Location.txt= Modality "global"; loc= Location.none}]
+    | None -> []
+  in
+  (fmt_core_type c (sub_typ ~ctx typ), extra_modality)
 
 and fmt_constructor_arguments ?vars c ctx ~pre = function
   | Pcstr_tuple cargs ->
@@ -4234,10 +4237,14 @@ and fmt_constructor_arguments ?vars c ctx ~pre = function
             $ hvbox 0
                 (list cargs "@ * "
                    (fun {pca_type; pca_loc; pca_modalities} ->
+                     let fmt_typ, extra_modality =
+                       fmt_core_type_extract_global c ctx pca_type
+                     in
                      Cmts.fmt c pca_loc
                      @@ hvbox 0
-                          ( fmt_core_type_gf c ctx pca_type
-                          $ fmt_modals c (Modalities pca_modalities) ) ) )
+                          ( fmt_typ
+                          $ fmt_modals c
+                              (Modalities (extra_modality @ pca_modalities)) ) ) )
       in
       pre $ vars $ cargs
   | Pcstr_record (loc, lds) ->
