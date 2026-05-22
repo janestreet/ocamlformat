@@ -15,6 +15,13 @@ let f (local_ x : int @ mode) = x
 let f ~(local_ x : int @ mode) = x
 let f ?(local_ x : int @ mode = 1) = x
 
+(* Legacy [local_] applied to an expression that is already a constraint.
+   The local mode should be folded into the existing constraint's modes
+   rather than producing nested constraints. *)
+let _ = local_ (x : int)
+let _ = local_ (x : int @ mode)
+let _ = local_ (x : @ mode)
+
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> local_ 1)]
 
 let xs = [(fun (local_ a) (type b) ~(local_ c) -> exclave_ 1)]

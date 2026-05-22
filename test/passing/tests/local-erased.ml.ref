@@ -21,6 +21,15 @@ let f ~(x : int) = x
 
 let f ?(x : int = 1) = x
 
+(* Legacy [local_] applied to an expression that is already a constraint. The
+   local mode should be folded into the existing constraint's modes rather
+   than producing nested constraints. *)
+let _ = (x : int)
+
+let _ = (x : int)
+
+let _ = x
+
 let xs = [(fun a (type b) ~c -> 1)]
 
 let xs = [(fun a (type b) ~c -> 1)]
