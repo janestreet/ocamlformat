@@ -673,6 +673,11 @@ module Jane = struct
     then Pconst_float (sign_str sign ^ value, suffix)
     else Pconst_unboxed_float (sign, value, suffix)
 
+  let pconst_untagged_char value literal =
+    if Erase_jane_syntax.should_erase ()
+    then Pconst_char (value, literal)
+    else Pconst_untagged_char (value, literal)
+
   let ptyp_constr_unboxed ident args =
     if Erase_jane_syntax.should_erase ()
     then Ptyp_constr (ident, args)

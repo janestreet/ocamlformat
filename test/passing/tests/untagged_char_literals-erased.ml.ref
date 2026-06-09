@@ -1,0 +1,71 @@
+(* Untagged char literals *)
+
+(* Expressions *)
+let _ = 'a'
+
+let _ = '\n'
+
+let _ = '\100'
+
+let _ = '\x20'
+
+let _ = '\o030'
+
+(* Patterns *)
+let 'a' = 'a'
+
+let '\n' = '\n'
+
+let '\100' = '\100'
+
+let '\x20' = '\x20'
+
+let '\o030' = '\o030'
+
+(* In function arguments *)
+let f 'a' = 'a'
+
+let f '\n' = '\n'
+
+let f '\100' = '\100'
+
+let f '\x20' = '\x20'
+
+let f '\o030' = '\o030'
+
+(* In match *)
+let g x = match x with 'a' | '\n' | '\100' -> 0 | '\x20' | '\o030' -> 1
+
+(* Range patterns in match *)
+let h x =
+  match x with
+  | 'a' .. '\n' -> 0
+  | '\100' .. '\x20' | '\o030' .. '\o040' -> 1
+
+(* Nested *)
+let _ = if true then 'a' else '\n'
+
+let _ = ('\100', '\x20', '\o030')
+
+(* With comments *)
+let (* a *) 'a' (* bb *) =
+  match (* ccc *) '\n' (* dddd *) with
+  (* eeeee *)
+  | '\100' (* ffffff *) -> (* ggggggg *) '\x20' (* hhhhhhhh *)
+
+(* With attributes *)
+let[@aaaaaaaa] ('a' | '\n') [@bbbbbbb] =
+  match[@cccccc] (('\t', '\r') [@ddddd]) with
+  | (('\'', '\b') [@eeee]) -> ('\\' [@fff])
+  | ('\100' [@gg]), ('\x20' [@h]) -> '\o030'
+
+(* With comments and attributes *)
+let[@a] (* aaaaaaaa *) ('a' [@bb] (* bbbbbbb *)), ('\ ' | '\"') [@ccc]
+    (* cccccc *) =
+  match
+    ( (* ddddd *) ('\'' [@dddd])
+    , ('\100' (* eeee *) [@eeeee])
+    , ('\o030' [@ffffff] (* fff *)) )
+  with
+  | (('\200', '\x42', '\o123') (* hh *) [@hhhhhhh]) ->
+      (('b', 'c') [@g] (* g *))
