@@ -2,6 +2,8 @@
 
 (** Doc comment 1 *)
 
+(* Consecutive short kinds *)
+
 (* a b c d e f g *)
 
 (* A normal comment 1 *)
