@@ -153,7 +153,7 @@ module Exp = struct
      |Pexp_send _ ->
         true
     | Pexp_construct (_, exp) -> Option.for_all exp ~f:is_trivial
-    | Pexp_prefix (_, e) -> is_trivial e
+    | Pexp_prefix (_, e) | Pexp_splice e -> is_trivial e
     | Pexp_apply
         ({pexp_desc= Pexp_ident {txt= Lident "not"; _}; _}, [(_, e1)]) ->
         is_trivial e1
@@ -164,7 +164,7 @@ module Exp = struct
 
   let rec exposed_left e =
     match e.pexp_desc with
-    | Pexp_prefix _ -> true
+    | Pexp_prefix _ | Pexp_splice _ -> true
     | Pexp_apply (op, _) -> exposed_left op
     | Pexp_field (e, _) | Pexp_unboxed_field (e, _) -> exposed_left e
     | _ -> false
@@ -1581,7 +1581,7 @@ end = struct
             assert (
               pia_lhs == exp || List.exists ~f idx
               || Option.value_map pia_rhs ~default:false ~f )
-        | Pexp_prefix (_, e) -> assert (f e)
+        | Pexp_prefix (_, e) | Pexp_splice e -> assert (f e)
         | Pexp_infix (_, e1, e2) -> assert (f e1 || f e2)
         | Pexp_apply (e0, e1N) ->
             (* FAIL *)
@@ -1619,8 +1619,7 @@ end = struct
          |Pexp_poly (e, _)
          |Pexp_send (e, _)
          |Pexp_setinstvar (_, e)
-         |Pexp_quote e
-         |Pexp_splice e ->
+         |Pexp_quote e ->
             assert (e == exp)
         | Pexp_sequence (e1, e2) -> assert (e1 == exp || e2 == exp)
         | Pexp_setfield (e1, _, e2) | Pexp_while (e1, e2) ->
@@ -1738,7 +1737,8 @@ end = struct
            | Builtin idx -> Exp.is_trivial idx
            | Dotop (_, _, idx) -> List.for_all idx ~f:Exp.is_trivial )
         && fit_margin c (width xexp)
-    | Pexp_prefix (_, e) -> Exp.is_trivial e && fit_margin c (width xexp)
+    | Pexp_prefix (_, e) | Pexp_splice e ->
+        Exp.is_trivial e && fit_margin c (width xexp)
     | Pexp_infix ({txt= ":="; _}, _, _) -> false
     | Pexp_infix (_, e1, e2) ->
         Exp.is_trivial e1 && Exp.is_trivial e2 && fit_margin c (width xexp)
@@ -1875,6 +1875,7 @@ end = struct
           match i.[0] with
           | '!' | '?' | '~' -> Some (High, Non)
           | _ -> Some (Apply, Non) ) )
+      | Pexp_splice _ -> Some (High, Non)
       | Pexp_infix ({txt= i; _}, e1, _) -> (
           let child = if e1 == exp then Left else Right in
           match (i.[0], i) with
@@ -1979,6 +1980,7 @@ end = struct
         | "!=" -> Some Apply
         | _ -> (
           match i.[0] with '!' | '?' | '~' -> Some High | _ -> Some Apply ) )
+      | Pexp_splice _ -> Some High
       | Pexp_infix ({txt= i; _}, _, _) -> (
         match (i.[0], i) with
         | _, ":=" -> Some ColonEqual
@@ -2304,6 +2306,7 @@ end = struct
          |Pexp_fun (_, e)
          |Pexp_ifthenelse (_, Some e)
          |Pexp_prefix (_, e)
+         |Pexp_splice e
          |Pexp_infix (_, _, e)
          |Pexp_lazy e
          |Pexp_newtype (_, e)
@@ -2343,7 +2346,6 @@ end = struct
         | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
         | Pexp_tuple es -> continue (snd (List.last_exn es))
         | Pexp_unboxed_tuple _ -> false
-        | Pexp_splice e -> continue e
         | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
          |Pexp_constraint _
          |Pexp_construct (_, None)
@@ -2393,6 +2395,7 @@ end = struct
        |Pexp_construct (_, Some e)
        |Pexp_ifthenelse (_, Some e)
        |Pexp_prefix (_, e)
+       |Pexp_splice e
        |Pexp_infix (_, _, e)
        |Pexp_lazy e
        |Pexp_newtype (_, e)
@@ -2429,7 +2432,6 @@ end = struct
       | Pexp_apply (_, args) -> continue (snd (List.last_exn args))
       | Pexp_tuple es -> continue (snd (List.last_exn es))
       | Pexp_unboxed_tuple _ -> false
-      | Pexp_splice e -> continue e
       | Pexp_array _ | Pexp_list _ | Pexp_coerce _ | Pexp_constant _
        |Pexp_constraint _
        |Pexp_construct (_, None)
@@ -2628,7 +2630,8 @@ end = struct
       when e == exp ->
         true
     | ( Exp {pexp_desc= Pexp_apply (e, _ :: _); _}
-      , {pexp_desc= Pexp_prefix _; pexp_attributes= _ :: _; _} )
+      , {pexp_desc= Pexp_prefix _ | Pexp_splice _; pexp_attributes= _ :: _; _}
+      )
       when e == exp ->
         true
     | ( Exp {pexp_desc= Pexp_indexop_access {pia_lhs= lhs; _}; _}
@@ -2650,7 +2653,7 @@ end = struct
       , _ )
       when idx == exp && not (Exp.is_sequence idx) ->
         false
-    | ( Exp {pexp_desc= Pexp_prefix (_, e); _}
+    | ( Exp {pexp_desc= Pexp_prefix (_, e) | Pexp_splice e; _}
       , { pexp_desc=
             ( Pexp_indexop_access {pia_lhs= x; _}
             | Pexp_infix (_, x, _)
@@ -2737,9 +2740,10 @@ end = struct
                    Option.exists e0 ~f:(fun x -> x == exp) ) ->
             exposed_right_exp Non_apply exp
             (* Non_apply is perhaps pessimistic *)
-        | Pexp_record (_, Some ({pexp_desc= Pexp_prefix _; _} as e0))
+        | Pexp_record
+            (_, Some ({pexp_desc= Pexp_prefix _ | Pexp_splice _; _} as e0))
          |Pexp_record_unboxed_product
-            (_, Some ({pexp_desc= Pexp_prefix _; _} as e0))
+            (_, Some ({pexp_desc= Pexp_prefix _ | Pexp_splice _; _} as e0))
           when e0 == exp ->
             (* don't put parens around [!e] in [{ !e with a; b }] *)
             false

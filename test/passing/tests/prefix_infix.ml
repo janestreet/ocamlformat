@@ -8,6 +8,8 @@ let _ = - !e
 
 let _ = - !e.f
 
+let _ = !(!e)
+
 let z = (( ! ) ~x:4) 1 2 ~c:3
 
 let z = (( ! ) ~x:4 y z) 1 2 ~c:3

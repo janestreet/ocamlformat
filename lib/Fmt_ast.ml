@@ -3448,14 +3448,13 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                     (sub_exp ~ctx expr) )
              $ fmt_atrs ) )
   | Pexp_splice expr ->
+      let has_cmts = Cmts.has_before c.cmts expr.pexp_loc in
       pro
       $ hvbox 0
-          ( Params.Exp.wrap c.conf ~parens
-              ( Cmts.fmt c pexp_loc
-              @@ hvbox 2
-                   ( str "$"
-                   $ fmt_expression ~parens:true c (sub_exp ~ctx expr) ) )
-          $ fmt_atrs )
+          (Params.Exp.wrap c.conf ~parens
+             ( str "$" $ fmt_if has_cmts "@,"
+             $ fmt_expression c ~box (sub_exp ~ctx expr)
+             $ fmt_atrs ) )
   | Pexp_hole -> pro $ hvbox 0 (fmt_hole () $ fmt_atrs)
   | Pexp_beginend e ->
       let wrap_beginend k =

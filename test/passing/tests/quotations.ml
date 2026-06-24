@@ -131,3 +131,13 @@ let f x y z w = <[ $(x [@attr]) + $(* pre *) y + $z (* post *) + $w ]>
 (* Splices $ should be consistent with prefix operators *)
 
 let g ( ! ) x y z w = !(x [@attr]) + !(* pre *) y + !z (* post *) + !w
+
+(* Splices should behave like prefix operators and compose well *)
+
+let h x = <[ $(!x) + !($x) + !!($x) + $(!!x) + !$($x) + $(~-x) + ~- ($x) ]>
+let _ = - $a
+let _ = - $a.b
+let _ = - $(a.b)
+let _ = <[ $r [@attr] ]>
+let _ = <[ ($r [@attr]) x ]>
+let _ = <[ { $r with a } ]>
