@@ -78,5 +78,5 @@ external f
 val state_float
   : ('a : float64) 'e 'f.
   name:string
-  -> on_event:('e @ local -> 'a -> 'a)
+  -> on_event:(local_ 'e -> 'a -> 'a)
   -> ('e Event.t -> ('a, 'f) t) Unregistered.t

@@ -989,20 +989,24 @@ and fmt_jkind_constr c ~ctx jkind =
 (* Jane street: This is used to print both arrow param types and arrow return
    types. The ~return parameter distinguishes. *)
 and fmt_arrow_param ~return c ctx
-    {pap_label= lI; pap_loc= locI; pap_type= tI; pap_modes= mI} =
+    ({pap_label= lI; pap_loc= locI; pap_type= tI; pap_modes= mI}, localI) =
   let arg_label lbl =
     match lbl with
-    | Nolabel -> None
-    | Labelled l -> Some (str l.txt $ fmt ":@,")
-    | Optional l -> Some (str "?" $ str l.txt $ fmt ":@,")
+    | Nolabel -> if localI then Some (str "local_ ") else None
+    | Labelled l -> Some (str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
+    | Optional l ->
+        Some (str "?" $ str l.txt $ fmt ":@," $ fmt_if localI "local_ ")
   in
   let xtI = sub_typ ~ctx tI in
   (* Jane Street: as a special case, labeled tuple types in function returns
-     need parens if the return has modes AND the first element has a
-     label. *)
+     need parens if the return is [local_] or has modes AND the first element
+     has a label. We _should_ put this logic in [parenze_typ] or a similar
+     place, but we can't because of the horrible hack where the attribute
+     encoding [local_] is actually removed from the type before printing
+     it. *)
   let labeled_tuple_ret_parens =
     return
-    && (not (List.is_empty mI))
+    && (localI || not (List.is_empty mI))
     &&
     match tI.ptyp_desc with
     | Ptyp_tuple ((Some _, _) :: _) -> true
@@ -1137,11 +1141,8 @@ and fmt_core_type c ?(box = true) ?pro ?(pro_space = true) ?constraint_ctx
   | Ptyp_arrow (args, ret_typ, modes) ->
       Cmts.relocate c.cmts ~src:ptyp_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:ret_typ.ptyp_loc ;
-      let ret_typ =
-        { pap_label= Nolabel
-        ; pap_loc= ret_typ.ptyp_loc
-        ; pap_type= ret_typ
-        ; pap_modes= modes }
+      let args, ret_typ, ctx =
+        Sugar.decompose_arrow c.cmts ctx args (ret_typ, modes)
       in
       let indent =
         match pro with
@@ -3622,6 +3623,7 @@ and fmt_class_type ?(pro = noop) c ({ast= typ; _} as xtyp) =
   | Pcty_arrow (args, rhs) ->
       Cmts.relocate c.cmts ~src:pcty_loc
         ~before:(List.hd_exn args).pap_type.ptyp_loc ~after:rhs.pcty_loc ;
+      let args = List.map ~f:(fun arg -> (arg, false)) args in
       let pro =
         pro ~cmt:true
         $ fmt_arrow_type c ~ctx ~parens:false ~parent_has_parens:parens args

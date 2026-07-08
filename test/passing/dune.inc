@@ -8603,24 +8603,6 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
-  (with-stdout-to local_to_at_local.ml.stdout
-   (with-stderr-to local_to_at_local.ml.stderr
-     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/local_to_at_local.ml}))))))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local_to_at_local.ml.ref local_to_at_local.ml.stdout)))
-
-(rule
- (alias runtest)
- (package ocamlformat)
- (action (diff tests/local_to_at_local.ml.err local_to_at_local.ml.stderr)))
-
-(rule
- (deps tests/.ocamlformat )
- (package ocamlformat)
- (action
   (with-stdout-to locally_abtract_types.ml.stdout
    (with-stderr-to locally_abtract_types.ml.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/locally_abtract_types.ml}))))))
