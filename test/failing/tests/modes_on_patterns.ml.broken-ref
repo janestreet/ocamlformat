@@ -1,4 +1,4 @@
-ocamlformat: ignoring "tests/modes_on_patterns.ml" (syntax error)
+main: ignoring "tests/modes_on_patterns.ml" (syntax error)
 File "tests/modes_on_patterns.ml", line 9, characters 17-19:
 9 |   let (pat : typ @@ mode) = x
                      ^^

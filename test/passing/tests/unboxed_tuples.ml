@@ -384,11 +384,11 @@ let bar =
 module type S = sig
   val t1 : unit -> #(int * y:bool)
 
-  val t2 : unit -> #(int * y:bool) @ local
+  val t2 : unit -> local_ #(int * y:bool)
 
   val t3 : unit -> #(x:int * y:bool)
 
-  val t4 : unit -> #(x:int * y:bool) @ local
+  val t4 : unit -> local_ #(x:int * y:bool)
 
   val f :
        #(foo:int * very_long_type_name_so_we_get_multiple_lines)

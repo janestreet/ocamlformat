@@ -1,3 +1,0 @@
-the legacy [local_]-to-[@ local] rewrite is a parser/printer concern that
-does not depend on the formatting profile; default-profile coverage is
-sufficient

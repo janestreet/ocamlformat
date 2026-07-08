@@ -355,7 +355,7 @@ let f (type (a : immediate) (b : immediate)) x = x
 module type S = sig
   val init_with_immediates :
     ('a : immediate) ('b : immediate).
-    int -> f:(int -> 'a @ local) @ local -> 'a t @ local
+    int -> f:local_ (int -> local_ 'a) -> local_ 'a t
 end
 
 (**************************************)

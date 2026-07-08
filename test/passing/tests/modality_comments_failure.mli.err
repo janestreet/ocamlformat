@@ -1,4 +1,4 @@
-ocamlformat: ignoring "tests/modality_comments_failure.mli" (misplaced documentation comments - warning 50)
+main: ignoring "tests/modality_comments_failure.mli" (misplaced documentation comments - warning 50)
 File "tests/modality_comments_failure.mli", line 3, characters 0-8:
 3 | (** b *)
     ^^^^^^^^
