@@ -1,0 +1,5 @@
+module Example = Exapmple_impl [@attr]
+module (Foo @@ nonportable) = (* A *)
+Bar (* B *) [@foo bar ~baz] (* C *)
+[@@qux]
+(* D *)

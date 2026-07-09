@@ -9199,6 +9199,42 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to module_alias_attributes.mli.stdout
+   (with-stderr-to module_alias_attributes.mli.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/module_alias_attributes.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_alias_attributes.mli.ref module_alias_attributes.mli.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_alias_attributes.mli.err module_alias_attributes.mli.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to module_alias_attributes.mli.js-stdout
+   (with-stderr-to module_alias_attributes.mli.js-stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/module_alias_attributes.mli}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_alias_attributes.mli.js-ref module_alias_attributes.mli.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/module_alias_attributes.mli.js-err module_alias_attributes.mli.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to module_anonymous.ml.stdout
    (with-stderr-to module_anonymous.ml.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/module_anonymous.ml}))))))
