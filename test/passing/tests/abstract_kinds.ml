@@ -2,6 +2,13 @@
 
 (** Doc comment 1 *)
 
+(* Consecutive short kinds *)
+
+kind_ k1 = k1
+kind_ k2 = k2
+kind_ k3 = k3
+kind_ k4 = k4
+
 kind_ k =
   (* a b c d e f g *)
   (kind1 & (kind2

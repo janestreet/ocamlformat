@@ -2,6 +2,13 @@
 
 (** Doc comment 1 *)
 
+(* Consecutive short kinds *)
+
+kind_ k1 = k1
+kind_ k2 = k2
+kind_ k3 = k3
+kind_ k4 = k4
+
 kind_ k =
   (* a b c d e f g *)
   (kind1
@@ -460,13 +467,11 @@ kind_ k =
   (* 209 *)
   (* 210 *)
   ttttttttttttttttttt
+
 (* 208 *)
 (* 207 *)
-
 kind_ k = (* 212 *) kk
-
 kind_ k = (* 215 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (* 214 *)
-
 kind_ k = _
 (* 224 *)
 (* 223 *)
@@ -567,15 +572,12 @@ kind_ k =
 (* 287 *)
 
 kind_ k = (* 303 *) kk
+
 (* 302 *)
 (* 300 *)
-
 kind_ k = (* 307 *) _ (* 306 *)
-
 kind_ k = (* 310 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk (* 309 *)
-
 kind_ k = (* 319 *) _ (* 318 *)
-
 kind_ k = (* 320 *) kkkkkkkkkkkkkkkkkkkkk
 
 kind_ k =
@@ -633,10 +635,10 @@ kind_ k =
   mod (* 359 *) mmmm (* 349 *)
 
 kind_ k = _
+
 (* 363 *)
 (* 362 *)
 (* 361 *)
-
 kind_ k =
   kind_of_
   (* 372 *)
@@ -705,18 +707,13 @@ kind_ k =
 
 (* Prefix [@foo] attributes on abstract kinds *)
 kind_ k [@@foo]
-
 kind_ k [@@foo] [@@bar]
-
 kind_ k [@@foo]
-
 kind_ k [@@foo "payload"]
 
 (* Prefix [@foo] attributes on kind abbreviations *)
 kind_ k = kkkkkkkkkkkkk [@@foo]
-
 kind_ k = kkkkkkkkkkkkk mod mmmmmm [@@foo] [@@bar]
-
 kind_ k = kind_of_ ttttttt & kkkkkkkkkkkkkkkkkkkkkk [@@foo]
 
 kind_ k = (kkkkkkkkkkkkkkkkkkkk & kind_of_ tttttttt) mod mmmmmmmmmmmmmmmmmmm
@@ -724,23 +721,17 @@ kind_ k = (kkkkkkkkkkkkkkkkkkkk & kind_of_ tttttttt) mod mmmmmmmmmmmmmmmmmmm
 
 (* Post-item [@@foo] attributes on abstract kinds *)
 kind_ k [@@foo]
-
 kind_ k [@@foo] [@@bar]
-
 kind_ k [@@foo "payload"]
-
 kind_ k [@@deprecated "use [k1] instead"]
 
 (* Post-item [@@foo] attributes on kind abbreviations *)
 kind_ k = kkkkkkkkkkkkkkkkkkkkk [@@foo]
-
 kind_ k = kkkkkkkkkkkkkkkkkkkkk mod mmmmmmm [@@foo] [@@bar]
-
 kind_ k = kkkkkkkkkkkkkkkkkkk & kind_of_ ttttttttttttt [@@deprecated "use [k1] instead"]
 
 (* Both prefix and post attributes *)
 kind_ k [@@foo] [@@bar]
-
 kind_ k = kkkkkkkkkkkkkkkkkkkk mod mmmmmm [@@foo] [@@bar]
 
 (* Long kind with attributes that may break *)
@@ -771,22 +762,15 @@ module _ = struct
 
   (* Comment for abstract kind *)
   kind_ kk
-
   kind_ k1
-
   kind_ k2
 
   (* Attributes inside struct *)
   kind_ k [@@foo]
-
   kind_ k [@@foo]
-
   kind_ k [@@foo]
-
   kind_ k = kkkkkkkkkkkkkkkk mod mmmmmm [@@foo]
-
   kind_ k = kkkkkkkkkkkkkkkk mod mmmmmm [@@foo]
-
   kind_ k = kkkkkkkkkkkkk & kind_of_ ttttttt [@@foo] [@@bar]
 
   kind_ k =
@@ -859,7 +843,6 @@ module _ = struct
            mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
 
   kind_ k = _
-
   kind_ k = _
 
   kind_ k =
@@ -1028,9 +1011,7 @@ module _ = struct
         mod mmmmmmmmmmmmmmmmmmmmmm mmmmmmmmmmmmmmmmmmmmmmmmmmmmmm)
 
   kind_ k = (* 415 *) _ (* 414 *)
-
   kind_ k = (* 416 *) kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-
   kind_ k = (* 418 *) _ (* 417 *)
 
   kind_ k =
@@ -1038,9 +1019,9 @@ module _ = struct
     (* 880 *)
     (* 881 *)
     t
+
   (* 879 *)
   (* 878 *)
-
   kind_ k =
     kind_of_
     (* 884 *)
@@ -1129,7 +1110,6 @@ module _ = struct
        mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 
   kind_ k = (* 949 *) _ (* 948 *)
-
   kind_ k = (* 950 *) kkkkkkkkkkkkkkkkkkkkkk
 end
 
@@ -1140,22 +1120,15 @@ module type S = sig
 
   (* Comment for abstract kind *)
   kind_ kk
-
   kind_ k1
-
   kind_ k2
 
   (* Attributes inside sig *)
   kind_ k [@@foo]
-
   kind_ k [@@foo]
-
   kind_ k [@@foo]
-
   kind_ k = kkkkkkkkkkkkkkkk mod mmmmmm [@@foo]
-
   kind_ k = kkkkkkkkkkkkkkkk mod mmmmmm [@@foo]
-
   kind_ k = kkkkkkkkkkkkk & kind_of_ ttttttt [@@foo] [@@bar]
 
   kind_ k =
@@ -1288,7 +1261,6 @@ module type S = sig
     mod mmmmmm mmmmmmmmmmmmm mmmmmmmmmmmmm mmmmmmmmmmmmmmm
 
   kind_ k = kkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-
   kind_ k = kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk mod mmmmmmmmmmm
 
   kind_ k =
@@ -1315,7 +1287,6 @@ module type S = sig
        mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
 
   kind_ k = kkkkkkkkkkkkkkkkkkkkk
-
   kind_ k = (kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk & kkkkkk & _) mod mmmmmm
 
   kind_ k =

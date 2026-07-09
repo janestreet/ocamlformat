@@ -420,6 +420,7 @@ module Structure_item = struct
      |Pstr_primitive {pval_attributes= atrs; _}
      |Pstr_type (_, {ptype_attributes= atrs; _} :: _)
      |Pstr_typext {ptyext_attributes= atrs; _}
+     |Pstr_jkind {pjkind_attributes= atrs; _}
      |Pstr_recmodule ({pmb_expr= {pmod_attributes= atrs; _}; _} :: _)
      |Pstr_open {popen_attributes= atrs; _}
      |Pstr_extension (_, atrs)
@@ -440,7 +441,6 @@ module Structure_item = struct
         || List.exists ~f:Attr.is_doc pmod_attributes
     | Pstr_value {pvbs_bindings= []; _}
      |Pstr_type (_, [])
-     |Pstr_jkind _
      |Pstr_recmodule []
      |Pstr_class_type []
      |Pstr_class [] ->
@@ -477,6 +477,7 @@ module Structure_item = struct
        |Pstr_value _, Pstr_value _
        |Pstr_primitive _, Pstr_primitive _
        |(Pstr_type _ | Pstr_typext _), (Pstr_type _ | Pstr_typext _)
+       |Pstr_jkind _, Pstr_jkind _
        |Pstr_exception _, Pstr_exception _
        |( (Pstr_module _ | Pstr_recmodule _ | Pstr_open _ | Pstr_include _)
         , (Pstr_module _ | Pstr_recmodule _ | Pstr_open _ | Pstr_include _) )
@@ -517,6 +518,7 @@ module Signature_item = struct
      |Psig_type (_, {ptype_attributes= atrs; _} :: _)
      |Psig_typesubst ({ptype_attributes= atrs; _} :: _)
      |Psig_typext {ptyext_attributes= atrs; _}
+     |Psig_jkind {pjkind_attributes= atrs; _}
      |Psig_open {popen_attributes= atrs; _}
      |Psig_extension (_, atrs)
      |Psig_class_type ({pci_attributes= atrs; _} :: _)
@@ -542,7 +544,6 @@ module Signature_item = struct
         Ext_attrs.has_doc ea || (List.exists ~f:Attr.is_doc) atrs
     | Psig_type (_, [])
      |Psig_typesubst []
-     |Psig_jkind _
      |Psig_recmodule []
      |Psig_class_type []
      |Psig_class []
@@ -571,6 +572,7 @@ module Signature_item = struct
       | Psig_value _, Psig_value _
        |( (Psig_type _ | Psig_typesubst _ | Psig_typext _)
         , (Psig_type _ | Psig_typesubst _ | Psig_typext _) )
+       |Psig_jkind _, Psig_jkind _
        |Psig_exception _, Psig_exception _
        |( ( Psig_module _ | Psig_modsubst _ | Psig_recmodule _ | Psig_open _
           | Psig_include _ )
