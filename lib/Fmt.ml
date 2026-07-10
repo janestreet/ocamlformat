@@ -109,7 +109,7 @@ let sequence l =
     | l ->
         let a_len = len / 2 in
         let b_len = len - a_len in
-        let a, b = List.split_n l a_len in
+        let #(a, b) = List.split_n l a_len in
         go a a_len $ go b b_len
   in
   go l (List.length l)
