@@ -291,6 +291,7 @@ let fmt_constant c ?epi {pconst_desc; pconst_loc= loc} =
    |Pconst_unboxed_float (sign, lit, suf) ->
       (match sign with Positive -> noop | Negative -> char '-')
       $ char '#' $ str lit $ opt suf char
+  | Pconst_untagged_char (_, s) -> wrap "#'" "'" @@ str s
   | Pconst_integer (lit, suf) | Pconst_float (lit, suf) ->
       str lit $ opt suf char
   | Pconst_char (_, s) -> wrap "'" "'" @@ str s

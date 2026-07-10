@@ -876,6 +876,7 @@ let erase_call_pos_type ~arg_label ~arg_type ~loc =
 %token BARRBRACKET            "|]"
 %token BEGIN                  "begin"
 %token <char * string> CHAR   "'a'" (* just an example *)
+%token <char * string> HASH_CHAR "#'a'" (* just an example *)
 %token CLASS                  "class"
 %token COLON                  ":"
 %token COLONCOLON             "::"
@@ -1086,7 +1087,8 @@ The precedences must be listed from low to high.
 %nonassoc below_DOT
 %nonassoc DOT DOTHASH DOTOP
 /* Finally, the first tokens of simple_expr are above everything else. */
-%nonassoc BACKQUOTE BANG BEGIN CHAR FALSE FLOAT HASH_FLOAT INT HASH_INT OBJECT
+%nonassoc BACKQUOTE BANG BEGIN CHAR HASH_CHAR FALSE FLOAT HASH_FLOAT
+          INT HASH_INT OBJECT
           LBRACE LBRACELESS LBRACKET LBRACKETBAR LBRACKETCOLON LIDENT LPAREN
           NEW PREFIXOP STRING TRUE UIDENT UNDERSCORE LESSLBRACKET DOLLAR
           LBRACKETPERCENT QUOTED_STRING_EXPR HASHLBRACE HASHLPAREN
@@ -4991,6 +4993,8 @@ constant:
                    mkconst ~loc:$sloc (Jane.pconst_unboxed_integer Positive n m) }
   | HASH_FLOAT   { let (f, m) = $1 in
                    mkconst ~loc:$sloc (Jane.pconst_unboxed_float Positive f m) }
+  | HASH_CHAR    { let (c, s) = $1 in
+                   mkconst ~loc:$sloc (Jane.pconst_untagged_char c s) }
   (* End Jane Street extension *)
 ;
 signed_constant:

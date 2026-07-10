@@ -59,6 +59,9 @@ type constant_desc =
 
   | Pconst_unboxed_float of sign * string * char option
   (* [#3.0], [-#4.] *)
+
+  | Pconst_untagged_char of char * string
+  (* [#'a'], [#'\n'] *)
   (* End Jane Street extension *)
 
 type constant = {

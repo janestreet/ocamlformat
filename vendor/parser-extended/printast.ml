@@ -116,6 +116,8 @@ let fmt_constant i f x =
       line i f "PConst_unboxed_integer (%a,%s,%a)" fmt_sign s j fmt_char_option m
   | Pconst_unboxed_float (s,j,m) ->
       line i f "PConst_unboxed_float (%a,%s,%a)" fmt_sign s j fmt_char_option m
+  | Pconst_untagged_char (c, s) ->
+      line i f "PConst_untagged_char (%02x,%s)\n" (Char.code c) s
   (* End Jane Street extension *)
 
 let fmt_mutable_flag f x =

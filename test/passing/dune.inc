@@ -12920,6 +12920,60 @@
  (deps tests/.ocamlformat )
  (package ocamlformat)
  (action
+  (with-stdout-to untagged_char_literals-erased.ml.stdout
+   (with-stderr-to untagged_char_literals-erased.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check --erase-jane-syntax %{dep:tests/untagged_char_literals.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals-erased.ml.ref untagged_char_literals-erased.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals-erased.ml.err untagged_char_literals-erased.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to untagged_char_literals.ml.stdout
+   (with-stderr-to untagged_char_literals.ml.stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/untagged_char_literals.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals.ml untagged_char_literals.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals.ml.err untagged_char_literals.ml.stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
+  (with-stdout-to untagged_char_literals.ml.js-stdout
+   (with-stderr-to untagged_char_literals.ml.js-stderr
+     (setenv TERM dumb (run %{bin:ocamlformat} --profile=janestreet --enable-outside-detected-project --disable-conf-files %{dep:tests/untagged_char_literals.ml}))))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals.ml.js-ref untagged_char_literals.ml.js-stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff tests/untagged_char_literals.ml.js-err untagged_char_literals.ml.js-stderr)))
+
+(rule
+ (deps tests/.ocamlformat )
+ (package ocamlformat)
+ (action
   (with-stdout-to use_file.mlt.stdout
    (with-stderr-to use_file.mlt.stderr
      (setenv TERM dumb (run %{bin:ocamlformat} --margin-check %{dep:tests/use_file.mlt}))))))

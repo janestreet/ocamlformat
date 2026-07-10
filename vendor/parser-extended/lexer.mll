@@ -471,6 +471,18 @@ let produce_and_backtrack lexbuf token back =
   let curpos = lexbuf.lex_curr_p in
   lexbuf.lex_curr_p <- { curpos with pos_cnum = curpos.pos_cnum - back };
   token
+
+let char ~maybe_hash (value, literal) =
+  match maybe_hash with
+  | "#" -> HASH_CHAR (value, literal)
+  | "" -> CHAR (value, literal)
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
+
+let skip_hash ~maybe_hash =
+  match maybe_hash with
+  | "#" -> 1
+  | "" -> 0
+  | unexpected -> fatal_error ("expected # or empty string: " ^ unexpected)
 (* End Jane Street extension *)
 
 (* Error report *)
@@ -700,24 +712,35 @@ rule token = parse
         let s, loc = wrap_string_lexer (quoted_string delim) lexbuf in
         let idloc = compute_quoted_string_idloc orig_loc 3 id in
         QUOTED_STRING_ITEM (id, idloc, s, loc, Some delim) }
-  | "\'" newline "\'"
+  (* Jane Street modification *)
+  | ('#'? as maybe_hash)
+    "\'" newline "\'"
       { update_loc lexbuf None 1 false 1;
         (* newline is ('\013'* '\010') *)
-        CHAR ('\n', "\\n") }
-  | "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
-      { CHAR (c, String.make 1 c) }
-  | "\'" ("\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) as s) "\'"
-      { CHAR (char_for_backslash c, s) }
-  | "\'" ("\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] as s) "\'"
-      { CHAR (char_for_decimal_code lexbuf 2, s) }
-  | "\'" ("\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] as s) "\'"
-      { CHAR (char_for_octal_code lexbuf 3, s) }
-  | "\'" ("\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] as s) "\'"
-      { CHAR (char_for_hexadecimal_code lexbuf 3, s) }
-  | "\'" ("\\" _ as esc)
+        char ~maybe_hash ('\n', "\\n") }
+  | ('#'? as maybe_hash)
+    "\'" ([^ '\\' '\'' '\010' '\013'] as c) "\'"
+      { char ~maybe_hash (c, String.make 1 c) }
+  | ('#'? as maybe_hash)
+    "\'" ("\\" (['\\' '\'' '\"' 'n' 't' 'b' 'r' ' '] as c) as s) "\'"
+      { char ~maybe_hash (char_for_backslash c, s) }
+  | ('#'? as maybe_hash)
+    "\'" ("\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] as s) "\'"
+      { char ~maybe_hash
+          (char_for_decimal_code lexbuf (2 + skip_hash ~maybe_hash), s) }
+  | ('#'? as maybe_hash)
+    "\'" ("\\" 'o' ['0'-'7'] ['0'-'7'] ['0'-'7'] as s) "\'"
+      { char ~maybe_hash
+          (char_for_octal_code lexbuf (3 + skip_hash ~maybe_hash), s) }
+  | ('#'? as maybe_hash)
+    "\'" ("\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] as s) "\'"
+      { char ~maybe_hash
+          (char_for_hexadecimal_code lexbuf (3 + skip_hash ~maybe_hash), s) }
+  | '#'? "\'" ("\\" _ as esc)
       { error lexbuf (Illegal_escape (esc, None)) }
-  | "\'\'"
+  | '#'? "\'\'"
       { error lexbuf Empty_character_literal }
+  (* End Jane Street modification *)
   | "(*"
       { let s, loc = wrap_comment_lexer comment lexbuf in
         COMMENT (s, loc) }

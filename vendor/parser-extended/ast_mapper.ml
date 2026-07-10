@@ -162,6 +162,7 @@ module C = struct
     (* Jane Street extension *)
       | Pconst_unboxed_integer _
       | Pconst_unboxed_float _
+      | Pconst_untagged_char _
           -> pconst_desc
     (* End Jane Street extension *)
     in
