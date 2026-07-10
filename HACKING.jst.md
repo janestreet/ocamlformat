@@ -203,3 +203,104 @@ sequence of commits and it's all ready to merge, just run
 `git rebase <starting commit> --signoff`, where `<starting commit>` is the
 commit before any of your edits. You can often say something like `origin/jane`
 or `HEAD~4` or similar.
+
+Fuzzing
+-------
+
+The continuous integration (CI) process uses
+[OCamlgrammarfuzzer](https://github.com/shogan-ai/ocamlgrammarfuzzer.git) to
+prevent regressions in syntax coverage.
+
+### Fuzzing Locally
+
+To fuzz `ocamlformat` locally, you must first install **`ocamlgrammarfuzzer`**.
+It's recommended to use the same version as the CI (v0.1) to ensure reproducible
+results:
+
+```bash
+opam pin add ocamlgrammarfuzzer https://github.com/shogan-ai/ocamlgrammarfuzzer.git#v0.1
+```
+
+The fuzzer is integrated into the Makefile's **`fuzz`** target:
+
+```bash
+make fuzz
+```
+
+This target will build `ocamlformat`, run the fuzzer, display statistics, and
+generate two key report files:
+
+* [build/default/test/fuzzer/report.md](build/default/test/fuzzer/report.md):
+  classifies failures in the current version of `ocamlformat`.
+* [build/default/test/fuzzer/regressions_report.md](build/default/test/fuzzer/regressions_report.md):
+  classifies regressions in the current version compared to the previously saved
+  state.
+
+If there were no regressions, it update the state file.
+This logic is implemented in [`test/fuzzer/run.sh`](test/fuzzer/run.sh).
+
+### Updating Coverage State
+
+Regression detection is performed by comparing the latest fuzzing run against a
+previous run, saved in `test/fuzzer/state.dat`.
+
+To set a new baseline (reference state) for comparison, this file must be
+updated using the `fuzz-update-state` target:
+
+```bash
+make fuzz-update-state
+```
+
+The beginning of the `state.dat` file contains metadata that summarizes the run:
+
+```
+version: OCAMLGRAMMARFUZZER0
+hash: 1f9752ec82afce3e0946465b84a6e5f2
+sentences: 490799
+valid sentences: 391730
+syntax errors: 59851
+comment errors: 8552
+comments dropped: 8638
+internal errors: 32723
+---
+...
+```
+
+The initial lines (`version: ...`, `hash: ...`, `sentences: ...`) identify
+the **fuzzer version** and the sentence set being tested, to ensure consistency.
+The subsequent lines summarize `ocamlformat`'s behavior against the generated
+sentences by counting the number of successes and failures per error class.
+
+When reviewing a pull request that updates the state, a quick look at these
+lines can help visually confirm the absence of regressions. The remainder of the
+file is fuzzer-specific data.
+
+### Updating Grammar
+
+The fuzzer operates against a fixed grammar saved in
+[`test/fuzzer/parser.mly`](test/fuzzer/parser.mly).
+
+To update this fixed grammar file from the source
+([`vendor/parser-jane/for-parser-standard/parser.mly`](vendor/parser-jane/for-parser-standard/parser.mly)),
+use the **`fuzz-update-grammar`** target:
+
+```bash
+make fuzz-update-grammar
+```
+
+This should be run **after** any upstream changes to the parser.
+
+### Dune Aliases
+
+The [`test/fuzzer/dune`](test/fuzzer/dune) file defines several aliases for
+accessing the fuzzer through `dune`:
+
+* `WITH_FUZZER=true dune build @fuzzer` runs the fuzzer and generates the report files.
+* `WITH_FUZZER=true dune build @fuzzer-no-regression` provides a summary and exits with a
+  **non-zero code** if any regressions are detected.
+* `WITH_FUZZER=true dune build @fuzzer-update-state` checks if the current fuzzer state is
+  up-to-date. If a new state is generated, you must run `WITH_FUZZER=true dune promote` to apply
+  the changes to `test/fuzzer/state.dat`.
+
+Note: the rules related to fuzzing are enabled only if `WITH_FUZZER=true` to
+prevent dune from executing them in default builds (e.g. `dune build`).

@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - jane
+      - jane-fuzz
   pull_request:
   workflow_dispatch:
 
@@ -37,6 +38,9 @@ jobs:
       - name: Opam dependencies
         run: opam install --deps-only -t .
 
+      - name: Install ocamlgrammarfuzzer
+        run: opam pin add ocamlgrammarfuzzer https://github.com/shogan-ai/ocamlgrammarfuzzer.git#v0.1 -y
+
       - name: Self-formatting test
         run: opam exec -- dune build @fmt
 
@@ -47,6 +51,9 @@ jobs:
 
       - name: Runtest
         run: opam exec -- dune runtest
+
+      - name: Running fuzzer
+        run: WITH_FUZZER=true opam exec -- dune build @fuzzer-update-state
 
       - name: Check manpages
         run: opam exec -- dune build @gen_manpage --auto-promote
