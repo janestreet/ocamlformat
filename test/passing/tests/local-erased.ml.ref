@@ -4,6 +4,32 @@ let f a ~foo:b ?foo:(c = 1) ~d = ()
 
 let f ~x ~(y : string) ?(z : string) = ()
 
+(* Mixed legacy [local_] with new [@ mode] / [@@ mode] modes on patterns. The
+   legacy [local_] should be folded into the existing mode list, producing a
+   single [@ ...]-group. *)
+let f x = x
+
+let f ~x = x
+
+let f ?(x = 1) = x
+
+let f ~foo:x = x
+
+let f (x : int) = x
+
+let f ~(x : int) = x
+
+let f ?(x : int = 1) = x
+
+(* Legacy [local_] applied to an expression that is already a constraint. The
+   local mode should be folded into the existing constraint's modes rather
+   than producing nested constraints. *)
+let _ = (x : int)
+
+let _ = (x : int)
+
+let _ = x
+
 let xs = [(fun a (type b) ~c -> 1)]
 
 let xs = [(fun a (type b) ~c -> 1)]

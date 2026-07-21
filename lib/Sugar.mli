@@ -83,7 +83,6 @@ module Let_binding : sig
     ; lb_exp: expression Ast.xt
     ; lb_pun: bool
     ; lb_attrs: attribute list
-    ; lb_local: bool  (** the local_ on the bound value (not RHS) *)
     ; lb_modes_binding: modes  (** modes on the bound value (not RHS) *)
     ; lb_loc: Location.t }
 
