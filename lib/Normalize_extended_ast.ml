@@ -17,11 +17,10 @@ let rewrite_type_declaration_imm_attr_to_jkind_annot decl =
     | ("ocaml.immediate64" | "immediate64"), PStr [] ->
         Some
           (Pjk_abbreviation
-             (Location.mknoloc (Longident.Lident "immediate64"), []) )
+             (Location.mknoloc (Longident.Lident "immediate64")) )
     | ("ocaml.immediate" | "immediate"), PStr [] ->
         Some
-          (Pjk_abbreviation
-             (Location.mknoloc (Longident.Lident "immediate"), []) )
+          (Pjk_abbreviation (Location.mknoloc (Longident.Lident "immediate")))
     | _ -> None
   in
   let immediate_attrs, remaining_attrs =

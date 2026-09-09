@@ -74,7 +74,7 @@ module Right_angle = struct
   let rec jkind_annotation ({pjka_desc= jk; pjka_loc= _} : jkind_annotation)
       =
     match jk with
-    | Pjk_default | Pjk_abbreviation _ | Pjk_mod _ -> false
+    | Pjk_default | Pjk_abbreviation _ | Pjk_operator _ | Pjk_mod _ -> false
     | Pjk_with (_, t, _) | Pjk_kind_of t -> core_type t
     | Pjk_product jks -> list ~elt:jkind_annotation jks
 

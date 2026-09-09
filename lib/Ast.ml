@@ -968,6 +968,8 @@ and Requires_sub_terms : sig
 
   val parenze_typ : core_type In_ctx.xt -> bool
 
+  val parenze_jkind : jkind_annotation In_ctx.xt -> bool
+
   val parenze_mty : module_type In_ctx.xt -> bool
 
   val parenze_mod : module_expr In_ctx.xt -> bool
@@ -1226,7 +1228,8 @@ end = struct
         assert (
           match pjka_desc with
           | Pjk_kind_of t | Pjk_with (_, t, _) -> t == typ
-          | Pjk_default | Pjk_abbreviation _ | Pjk_mod _ | Pjk_product _ ->
+          | Pjk_default | Pjk_abbreviation _ | Pjk_operator _ | Pjk_mod _
+           |Pjk_product _ ->
               false )
     | Top | Tli _ | Rep -> assert false
 
@@ -2108,6 +2111,26 @@ end = struct
       match ambig_prec (sub_ast ~ctx (Typ typ)) with
       | `Ambiguous -> true
       | _ -> false )
+
+  (** [parenze_jkind {ctx; ast}] holds when kind [ast] should be
+      parenthesized in context [ctx]. *)
+  let parenze_jkind {ctx; ast= {pjka_desc; _}} =
+    match ctx with
+    | Ka {pjka_desc= outer; _} -> (
+      match (outer, pjka_desc) with
+      (* As kind operators (like [non_pointer]) bind tighter than anything
+         else, we parenthesize their operand in all cases but an
+         abbreviation, like [value non_pointer]. *)
+      | Pjk_operator _, Pjk_abbreviation _ -> false
+      | Pjk_operator _, Pjk_operator _ -> assert false (* parser flattens *)
+      | Pjk_operator _, _ -> true
+      | Pjk_product _, (Pjk_mod _ | Pjk_with _ | Pjk_product _) -> true
+      | (Pjk_mod _ | Pjk_with _), Pjk_product _ -> true
+      | (Pjk_product _ | Pjk_mod _ | Pjk_with _), _ -> false
+      | (Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _), _ ->
+          (* These have no kinds as children. *)
+          assert false )
+    | _ -> false
 
   (** [parenze_cty {ctx; ast}] holds when class type [ast] should be
       parenthesized in context [ctx]. *)

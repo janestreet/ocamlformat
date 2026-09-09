@@ -28,6 +28,10 @@ type t_void : void with type_
 
 type t_value_non_pointer : value non_pointer with type_
 
+type t_paren_value_non_pointer : (value non_pointer) with type_
+
+type t_paren_value_with_non_pointer : (value with type_) non_pointer
+
 let scannable_id : ('a : value non_pointer with type_) -> 'a = fun x -> x
 
 (***************************************)

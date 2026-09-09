@@ -29,6 +29,20 @@ type t_void : void mod mode
 type t_value_non_pointer_mod
      : value non_pointer mod mode
 
+type t_paren_value_non_pointer_mod
+     : (value non_pointer) mod mode
+
+type t_paren_value_mod_non_pointer
+     : (value mod mode) non_pointer
+
+(* Identifiers after [mod] are modes (and get sorted); identifiers after the
+   closing paren are kind operators (and keep their order). *)
+type t_paren_value_mod_axis_named_mode
+     : (value mod non_pointer) non_float
+
+type t_paren_value_mod_axis_named_modes
+     : (value mod non_pointer non_float) non_pointer non_float
+
 (***************************************)
 (* Test 1: annotation on type variable *)
 

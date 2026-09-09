@@ -214,6 +214,10 @@ val parenze_typ : core_type xt -> bool
 (** [parenze_typ xtyp] holds when core_type-in-context [xtyp] should be
     parenthesized. *)
 
+val parenze_jkind : jkind_annotation xt -> bool
+(** [parenze_jkind xjkind] holds when jkind-in-context [xjkind] should be
+    parenthesized. *)
+
 val parenze_cty : class_type xt -> bool
 (** [parenze_cty xcty] holds when class_type-in-context [xcty] should be
     parenthesized. *)

@@ -447,8 +447,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let ptype_jkind_annotation, extra_attributes =
       match decl.ptype_jkind_annotation with
       | Some
-          { pjka_desc=
-              Pjk_abbreviation ({txt= Longident.Lident "immediate"; _}, [])
+          { pjka_desc= Pjk_abbreviation {txt= Longident.Lident "immediate"; _}
           ; _ } ->
           ( None
           , [ Ast_helper.Attr.mk
@@ -456,7 +455,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                 (PStr []) ] )
       | Some
           { pjka_desc=
-              Pjk_abbreviation ({txt= Longident.Lident "immediate64"; _}, [])
+              Pjk_abbreviation {txt= Longident.Lident "immediate64"; _}
           ; _ } ->
           ( None
           , [ Ast_helper.Attr.mk
@@ -479,6 +478,14 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     in
     Ast_mapper.default_mapper.type_declaration m
       {decl with ptype_attributes; ptype_jkind_annotation; ptype_kind}
+  in
+  let jkind_annotation (m : Ast_mapper.mapper) jkind =
+    let jkind = Ast_mapper.default_mapper.jkind_annotation m jkind in
+    match jkind.pjka_desc with
+    | Pjk_operator ({pjka_desc= Pjk_operator (inner, ops1); _}, ops2) ->
+        (* Flatten nested operators such as [(k a) b] to [k a b] *)
+        {jkind with pjka_desc= Pjk_operator (inner, ops1 @ ops2)}
+    | _ -> jkind
   in
   let modes (m : Ast_mapper.mapper) ms =
     Ast_mapper.default_mapper.modes m
@@ -589,6 +596,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; typ
   ; type_declaration
   ; label_declaration
+  ; jkind_annotation
   ; modes
   ; modalities
   ; value_binding

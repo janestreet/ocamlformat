@@ -46,6 +46,20 @@ type t_qualified_non_pointer : Foo.bar non_pointer
 
 let scannable_id : ('a : value non_pointer) -> 'a = fun x -> x
 
+(***********************************************************)
+(* Test 0b: scannable axes on arbitrary (parenthesized) kinds *)
+
+type t_paren_product_non_pointer : (value & value) non_pointer
+type t_product_paren_non_pointer : value & value non_pointer
+type t_paren_abbrev_non_pointer : value non_pointer
+type t_nested_operator : value non_pointer maybe_pointer
+type t_kind_of_non_pointer : (kind_of_ t) non_pointer
+type t_default_non_pointer : (_) non_pointer
+type t_paren_comments_non_pointer : ((* c1 *) value & value (* c2 *)) (* c3 *) non_pointer
+type t_paren_product_two_axes : (value & value) maybe_pointer non_pointer
+
+let paren_scannable_id : ('a : (value & value) non_pointer) -> 'a = fun x -> x
+
 (***************************************)
 (* Test 1: annotation on type variable *)
 
