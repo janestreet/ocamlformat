@@ -3983,9 +3983,12 @@ jkind_desc_gen(self):
       Pjk_product (List.rev $1)
     }
   | LPAREN inner = self RPAREN axes = mkrhs(LIDENT)* {
-      match axes with
-      | [] -> inner
-      | _ :: _ ->
+      match axes, inner with
+      | [], _ -> inner
+      | _ :: _, Pjk_operator (base, inner_axes) ->
+        (* Normalize nested operators such as [(k a) b] to [k a b] *)
+        Pjk_operator (base, inner_axes @ axes)
+      | _ :: _, _ ->
         Pjk_operator
           ({ pjka_loc = make_loc $loc(inner); pjka_desc = inner }, axes)
     }

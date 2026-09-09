@@ -483,9 +483,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let jkind = Ast_mapper.default_mapper.jkind_annotation m jkind in
     match jkind.pjka_desc with
     | Pjk_operator ({pjka_desc= Pjk_operator (inner, ops1); _}, ops2) ->
-        (* [(k a) b] and [k a b] parse differently but mean the same thing,
-           and ocamlformat prints both as the latter. The inner operator has
-           already been flattened by the recursive call above. *)
+        (* Flatten nested operators such as [(k a) b] to [k a b] *)
         {jkind with pjka_desc= Pjk_operator (inner, ops1 @ ops2)}
     | _ -> jkind
   in
