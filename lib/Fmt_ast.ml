@@ -902,95 +902,45 @@ and fmt_type_var_with_parenze ~have_tick ~tydecl_param_atrs c (s : ty_var) =
     (wrap_if jkind_annot "(" ")"
        (fmt_type_var ~have_tick ~tydecl_param_atrs c s) )
 
-and fmt_jkind_annotation c {ast= jkind; ctx= outer_ctx} =
+and fmt_jkind_annotation c ({ast= jkind; _} as xjkind) =
   protect c (Ka jkind)
   @@
   let {pjka_desc; pjka_loc} = jkind in
   let ctx = Ka jkind in
-  (* Kind operators (like [non_pointer]) bind tighter than anything else and
-     may only follow an identifier or a closing paren, so any other operand
-     of an operator must be parenthesized. *)
-  let parens_if_operand =
-    match outer_ctx with
-    | Ka {pjka_desc= Pjk_operator _; _} -> true
-    | _ -> false
-  in
-  let parens, fmt =
+  let fmt =
     match pjka_desc with
-    | Pjk_default -> (parens_if_operand, fmt "_")
-    | Pjk_abbreviation abbrev -> (false, fmt_longident_loc c abbrev)
+    | Pjk_default -> fmt "_"
+    | Pjk_abbreviation abbrev -> fmt_longident_loc c abbrev
     | Pjk_operator (jkind, operators) ->
-        let fmt =
-          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
-          $ fmt "@ "
-          $ hvbox 0
-              (list operators "@ " (fun operator -> fmt_str_loc c operator))
-        in
-        (parens_if_operand, fmt)
+        fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+        $ fmt "@ "
+        $ hvbox 0
+            (list operators "@ " (fun operator -> fmt_str_loc c operator))
     | Pjk_mod (jkind, modes) ->
-        let parens =
-          match outer_ctx with
-          | Ka {pjka_desc; _} -> (
-            match pjka_desc with
-            | Pjk_product _ | Pjk_operator _ -> true
-            | Pjk_mod _ | Pjk_with _ -> false
-            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
-                assert false )
-          | _ -> false
-        in
         let mode_fmt = hvbox 0 (fmt_modals c (Mode_crossing modes)) in
-        let fmt =
-          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
-          $ fmt "@ mod"
-          $ Cmts.fmt_within c pjka_loc
-          $ mode_fmt
-        in
-        (parens, fmt)
+        fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+        $ fmt "@ mod"
+        $ Cmts.fmt_within c pjka_loc
+        $ mode_fmt
     | Pjk_with (jkind, type_, ms) ->
-        let parens =
-          match outer_ctx with
-          | Ka {pjka_desc; _} -> (
-            match pjka_desc with
-            | Pjk_product _ | Pjk_operator _ -> true
-            | Pjk_mod _ | Pjk_with _ -> false
-            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
-                assert false )
-          | _ -> false
-        in
         let types_fmt = fmt_core_type c ~box:true (sub_typ ~ctx type_) in
-        let fmt =
-          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
-          $ fmt "@ with "
-          $ Cmts.fmt_within c pjka_loc
-          $ types_fmt
-          $ hvbox_if
-              (not (List.is_empty ms))
-              3
-              (fmt_modals c ~pro:(fmt " ") (Modalities ms))
-        in
-        (parens, fmt)
+        fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+        $ fmt "@ with "
+        $ Cmts.fmt_within c pjka_loc
+        $ types_fmt
+        $ hvbox_if
+            (not (List.is_empty ms))
+            3
+            (fmt_modals c ~pro:(fmt " ") (Modalities ms))
     | Pjk_kind_of type_ ->
         let type_fmt = fmt_core_type c ~box:true (sub_typ ~ctx type_) in
-        ( parens_if_operand
-        , fmt "kind_of_@ " $ Cmts.fmt_within c pjka_loc $ type_fmt )
+        fmt "kind_of_@ " $ Cmts.fmt_within c pjka_loc $ type_fmt
     | Pjk_product kinds ->
-        let parens =
-          match outer_ctx with
-          | Ka {pjka_desc; _} -> (
-            match pjka_desc with
-            | Pjk_product _ | Pjk_mod _ | Pjk_with _ | Pjk_operator _ -> true
-            | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
-                assert false )
-          | _ -> false
-        in
-        let fmt =
-          hvbox 0
-            (list kinds "@ & " (fun kind ->
-                 hvbox 2 (fmt_jkind_annotation c (sub_jkind ~ctx kind)) ) )
-        in
-        (parens, fmt)
+        hvbox 0
+          (list kinds "@ & " (fun kind ->
+               hvbox 2 (fmt_jkind_annotation c (sub_jkind ~ctx kind)) ) )
   in
-  wrap_if parens "(" ")" (Cmts.fmt c pjka_loc fmt)
+  wrap_if (parenze_jkind xjkind) "(" ")" (Cmts.fmt c pjka_loc fmt)
 
 and fmt_jkind_constr c ~ctx jkind =
   fmt " :@ " $ hvbox 0 (fmt_jkind_annotation c (sub_jkind ~ctx jkind))
