@@ -811,11 +811,11 @@ let convert_jkind_to_legacy_attr =
   let mk ~loc name = [Attr.mk ~loc (mkloc name loc) (PStr [])] in
   function
   | { pjka_desc =
-        Pjk_abbreviation ({txt = Longident.Lident "immediate"; loc}, []);
+        Pjk_abbreviation {txt = Longident.Lident "immediate"; loc};
       pjka_loc = _} ->
     mk ~loc "immediate"
   | { pjka_desc =
-        Pjk_abbreviation ({txt = Longident.Lident "immediate64"; loc}, []);
+        Pjk_abbreviation {txt = Longident.Lident "immediate64"; loc};
       pjka_loc = _} ->
     mk ~loc "immediate64"
   | _ -> []
@@ -3965,8 +3965,13 @@ jkind_desc_gen(self):
     jkind_annotation_gen(self) MOD mode_expr {
       Pjk_mod ($1, $3)
     }
-  | mkrhs(type_longident) mkrhs(LIDENT)* {
-      Pjk_abbreviation ($1, $2)
+  | name = mkrhs(type_longident) axes = mkrhs(LIDENT)* {
+      match axes with
+      | [] -> Pjk_abbreviation name
+      | _ :: _ ->
+        Pjk_operator
+          ({ pjka_loc = make_loc $loc(name);
+             pjka_desc = Pjk_abbreviation name }, axes)
     }
   | KIND_OF ty=core_type %prec below_LBRACKETAT {
       Pjk_kind_of ty
@@ -3977,8 +3982,12 @@ jkind_desc_gen(self):
   | reverse_product_jkind_gen(self) %prec below_AMPERSAND {
       Pjk_product (List.rev $1)
     }
-  | LPAREN self RPAREN {
-      $2
+  | LPAREN inner = self RPAREN axes = mkrhs(LIDENT)* {
+      match axes with
+      | [] -> inner
+      | _ :: _ ->
+        Pjk_operator
+          ({ pjka_loc = make_loc $loc(inner); pjka_desc = inner }, axes)
     }
 ;
 
