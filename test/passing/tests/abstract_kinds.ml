@@ -17,6 +17,14 @@ kind_ k =
   kind5 & _ & (kind_of_ (('a : kiiiiiiiiiiiiiiiiiiiind6 & kind_of_ int mod moooooooooooooooooooode4) -> 'b) mod moooooooooooooooooooode5))
   mod mode5
 
+(* Scannable axes on arbitrary kinds *)
+
+kind_ k = (value & value) non_pointer
+
+kind_ k = (value & value) non_pointer & value non_pointer
+
+kind_ k = (kiiiiiiiiiiiiiiiiiiiiiiind1 & kiiiiiiiiiiiiiiiiiiiiiiind2 mod moooooooooooooooooooode1 moooooooooooooooooooode2) non_pointer non_float
+
 (* A normal comment 1 *)
 
 type t (* Surprise *)

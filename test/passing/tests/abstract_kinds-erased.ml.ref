@@ -6,6 +6,8 @@
 
 (* a b c d e f g *)
 
+(* Scannable axes on arbitrary kinds *)
+
 (* A normal comment 1 *)
 
 type t (* Surprise *)

@@ -61,6 +61,30 @@ type t_qualified_non_pointer
 
 let scannable_id : 'a -> 'a = fun x -> x
 
+(***********************************************************)
+(* Test 0b: scannable axes on arbitrary (parenthesized) kinds *)
+
+type t_paren_product_non_pointer
+
+type t_product_paren_non_pointer
+
+type t_paren_abbrev_non_pointer
+
+type t_nested_operator
+
+type t_kind_of_non_pointer
+
+type t_default_non_pointer
+
+type t_paren_comments_non_pointer (* c1 *)
+
+(* c2 *)
+(* c3 *)
+
+type t_paren_product_two_axes
+
+let paren_scannable_id : 'a -> 'a = fun x -> x
+
 (***************************************)
 (* Test 1: annotation on type variable *)
 

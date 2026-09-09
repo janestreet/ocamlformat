@@ -1,5 +1,6 @@
 type t : immutable_data with (type : value mod portable) u
 type t = (type : value mod portable)
+type t = (type : (value & value) non_pointer)
 
 type u =
   ( type :
