@@ -479,6 +479,16 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     Ast_mapper.default_mapper.type_declaration m
       {decl with ptype_attributes; ptype_jkind_annotation; ptype_kind}
   in
+  let jkind_annotation (m : Ast_mapper.mapper) jkind =
+    let jkind = Ast_mapper.default_mapper.jkind_annotation m jkind in
+    match jkind.pjka_desc with
+    | Pjk_operator ({pjka_desc= Pjk_operator (inner, ops1); _}, ops2) ->
+        (* [(k a) b] and [k a b] parse differently but mean the same thing,
+           and ocamlformat prints both as the latter. The inner operator has
+           already been flattened by the recursive call above. *)
+        {jkind with pjka_desc= Pjk_operator (inner, ops1 @ ops2)}
+    | _ -> jkind
+  in
   let modes (m : Ast_mapper.mapper) ms =
     Ast_mapper.default_mapper.modes m
       ( if erase_jane_syntax then []
@@ -588,6 +598,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
   ; typ
   ; type_declaration
   ; label_declaration
+  ; jkind_annotation
   ; modes
   ; modalities
   ; value_binding

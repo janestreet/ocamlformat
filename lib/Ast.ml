@@ -2121,8 +2121,13 @@ end = struct
       (* As kind operators (like [non_pointer]) bind tighter than anything
          else, we parenthesize their operand in all cases but the following:
 
-         - Following an abbreviation, like [value non_pointer] *)
-      | Pjk_operator _, Pjk_abbreviation _ -> false
+         - Following an abbreviation, like [value non_pointer]
+
+         - Following another kind operator, like [value non_pointer
+         non_null]. This is a different parsetree than [(value non_pointer)
+         non_null], but these are semantically equivalent, and we normalize
+         to the former. *)
+      | Pjk_operator _, (Pjk_abbreviation _ | Pjk_operator _) -> false
       | Pjk_operator _, _ -> true
       | Pjk_product _, (Pjk_mod _ | Pjk_with _ | Pjk_product _) -> true
       | (Pjk_mod _ | Pjk_with _), Pjk_product _ -> true

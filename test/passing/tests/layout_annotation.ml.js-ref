@@ -52,7 +52,7 @@ let scannable_id : ('a : value non_pointer) -> 'a = fun x -> x
 type t_paren_product_non_pointer : (value & value) non_pointer
 type t_product_paren_non_pointer : value & value non_pointer
 type t_paren_abbrev_non_pointer : value non_pointer
-type t_nested_operator : (value non_pointer) maybe_pointer
+type t_nested_operator : value non_pointer maybe_pointer
 type t_kind_of_non_pointer : (kind_of_ t) non_pointer
 type t_default_non_pointer : (_) non_pointer
 type t_paren_comments_non_pointer : ((* c1 *) value & value (* c2 *)) (* c3 *) non_pointer

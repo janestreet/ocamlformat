@@ -68,7 +68,7 @@ type t_product_paren_non_pointer : value & value non_pointer
 
 type t_paren_abbrev_non_pointer : value non_pointer
 
-type t_nested_operator : (value non_pointer) maybe_pointer
+type t_nested_operator : value non_pointer maybe_pointer
 
 type t_kind_of_non_pointer : (kind_of_ t) non_pointer
 
