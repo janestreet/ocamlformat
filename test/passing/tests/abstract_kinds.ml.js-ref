@@ -32,6 +32,75 @@ kind_ k =
   mod moooooooooooooooooooode1 moooooooooooooooooooode2)
   non_pointer non_float
 
+(* Nested operators flatten: [(k a) b] is printed as [k a b] *)
+kind_ k = value non_pointer maybe_pointer
+kind_ k = value non_pointer maybe_pointer non_float
+kind_ k = (value & value) non_pointer non_float
+
+kind_ k =
+  ((value mod m) non_pointer & (kind_of_ t) non_float non_null & (_) non_pointer non_float)
+  maybe_pointer
+
+kind_ k =
+  ((((kind1 & kind2) non_pointer mod m) non_float with t) non_null
+   & (kind3 non_pointer & kind4) non_float)
+  mod mm
+
+kind_ k =
+  ((((kiiiiiiiiiiiiiiiiiiiiiiind1 & kiiiiiiiiiiiiiiiiiiiiiiind2)
+     non_pointer
+     mod moooooooooooooooooooode1)
+     non_float
+     with ttttttttttttttttttttt)
+     non_null
+   & (kiiiiiiiiiiiiiiiiiiiiiiind3 non_pointer & kiiiiiiiiiiiiiiiiiiiiiiind4) non_float)
+  mod moooooooooooooooooooode2
+
+(* Operators with comments *)
+kind_ k = value (* 1 *) non_pointer (* 2 *) non_float (* 3 *)
+kind_ k = value (* 1 *) non_pointer (* 2 *) maybe_pointer
+
+kind_ k =
+  ((* 1 *)
+  value (* 2 *) & (* 3 *) value (* 4 *))
+  (* 5 *) non_pointer (* 6 *) non_float (* 7 *)
+
+kind_ k =
+  ((* 1 *) (value (* 2 *) mod (* 3 *) m (* 4 *)) (* 5 *) non_pointer (* 6 *)
+   & (* 7 *)
+       (kind_of_
+       (* 8 *) t (* 9 *))
+       (* 10 *) non_float
+       (* 11 *)
+       (* 12 *))
+  mod (* 13 *) mm (* 14 *)
+
+kind_ k =
+  (((* 1 *) _ (* 2 *)) (* 3 *) non_pointer (* 4 *)
+   & (* 5 *)
+       value
+       (* 6 *)
+       non_pointer
+       (* 7 *)
+       (* 8 *)
+       maybe_pointer
+       (* 9 *)
+       (* 10 *)
+       non_float
+  (* 11 *))
+  (* 12 *) non_null (* 13 *)
+
+kind_ k =
+  value
+  (* 1 *)
+  non_pointer
+  (* 2 *)
+  maybe_pointer
+  (* 3 *)
+  (* 4 *)
+  non_float
+(* 5 *)
+
 (* A normal comment 1 *)
 
 type t (* Surprise *)
