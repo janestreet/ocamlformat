@@ -1226,7 +1226,8 @@ end = struct
         assert (
           match pjka_desc with
           | Pjk_kind_of t | Pjk_with (_, t, _) -> t == typ
-          | Pjk_default | Pjk_abbreviation _ | Pjk_mod _ | Pjk_product _ ->
+          | Pjk_default | Pjk_abbreviation _ | Pjk_operator _ | Pjk_mod _
+           |Pjk_product _ ->
               false )
     | Top | Tli _ | Rep -> assert false
 

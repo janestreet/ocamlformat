@@ -447,8 +447,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
     let ptype_jkind_annotation, extra_attributes =
       match decl.ptype_jkind_annotation with
       | Some
-          { pjka_desc=
-              Pjk_abbreviation ({txt= Longident.Lident "immediate"; _}, [])
+          { pjka_desc= Pjk_abbreviation {txt= Longident.Lident "immediate"; _}
           ; _ } ->
           ( None
           , [ Ast_helper.Attr.mk
@@ -456,7 +455,7 @@ let make_mapper conf ~ignore_doc_comments ~erase_jane_syntax =
                 (PStr []) ] )
       | Some
           { pjka_desc=
-              Pjk_abbreviation ({txt= Longident.Lident "immediate64"; _}, [])
+              Pjk_abbreviation {txt= Longident.Lident "immediate64"; _}
           ; _ } ->
           ( None
           , [ Ast_helper.Attr.mk

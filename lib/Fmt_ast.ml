@@ -907,25 +907,32 @@ and fmt_jkind_annotation c {ast= jkind; ctx= outer_ctx} =
   @@
   let {pjka_desc; pjka_loc} = jkind in
   let ctx = Ka jkind in
+  (* Kind operators (like [non_pointer]) bind tighter than anything else and
+     may only follow an identifier or a closing paren, so any other operand
+     of an operator must be parenthesized. *)
+  let parens_if_operand =
+    match outer_ctx with
+    | Ka {pjka_desc= Pjk_operator _; _} -> true
+    | _ -> false
+  in
   let parens, fmt =
     match pjka_desc with
-    | Pjk_default -> (false, fmt "_")
-    | Pjk_abbreviation (abbrev, modifiers) ->
+    | Pjk_default -> (parens_if_operand, fmt "_")
+    | Pjk_abbreviation abbrev -> (false, fmt_longident_loc c abbrev)
+    | Pjk_operator (jkind, operators) ->
         let fmt =
-          fmt_longident_loc c abbrev
-          $ fmt_if_k
-              (not (List.is_empty modifiers))
-              ( fmt "@ "
-              $ list modifiers "@ " (fun modifier -> fmt_str_loc c modifier)
-              )
+          fmt_jkind_annotation c (sub_jkind ~ctx jkind)
+          $ fmt "@ "
+          $ hvbox 0
+              (list operators "@ " (fun operator -> fmt_str_loc c operator))
         in
-        (false, fmt)
+        (parens_if_operand, fmt)
     | Pjk_mod (jkind, modes) ->
         let parens =
           match outer_ctx with
           | Ka {pjka_desc; _} -> (
             match pjka_desc with
-            | Pjk_product _ -> true
+            | Pjk_product _ | Pjk_operator _ -> true
             | Pjk_mod _ | Pjk_with _ -> false
             | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
                 assert false )
@@ -944,7 +951,7 @@ and fmt_jkind_annotation c {ast= jkind; ctx= outer_ctx} =
           match outer_ctx with
           | Ka {pjka_desc; _} -> (
             match pjka_desc with
-            | Pjk_product _ -> true
+            | Pjk_product _ | Pjk_operator _ -> true
             | Pjk_mod _ | Pjk_with _ -> false
             | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
                 assert false )
@@ -964,13 +971,14 @@ and fmt_jkind_annotation c {ast= jkind; ctx= outer_ctx} =
         (parens, fmt)
     | Pjk_kind_of type_ ->
         let type_fmt = fmt_core_type c ~box:true (sub_typ ~ctx type_) in
-        (false, fmt "kind_of_@ " $ Cmts.fmt_within c pjka_loc $ type_fmt)
+        ( parens_if_operand
+        , fmt "kind_of_@ " $ Cmts.fmt_within c pjka_loc $ type_fmt )
     | Pjk_product kinds ->
         let parens =
           match outer_ctx with
           | Ka {pjka_desc; _} -> (
             match pjka_desc with
-            | Pjk_product _ | Pjk_mod _ | Pjk_with _ -> true
+            | Pjk_product _ | Pjk_mod _ | Pjk_with _ | Pjk_operator _ -> true
             | Pjk_default | Pjk_abbreviation _ | Pjk_kind_of _ ->
                 assert false )
           | _ -> false
